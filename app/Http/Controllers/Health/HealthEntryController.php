@@ -12,7 +12,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Health\StoreHealthEntryRequest;
 use App\Http\Requests\Health\UpdateHealthEntryRequest;
 use App\Models\HealthEntry;
+use App\Models\StepGoal;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -31,15 +33,28 @@ final class HealthEntryController extends Controller
             ->get()
             ->keyBy(fn (HealthEntry $e) => $e->date->format('Y-m-d'));
 
-        $stepGoal = HealthEntry::stepGoal();
+        /** @var Collection<int, StepGoal> $allGoals */
+        $allGoals = StepGoal::orderByDesc('effective_from')->get();
+        $stepGoal = StepGoal::current();
         $daysInMonth = $month->daysInMonth;
+
+        // Applicable goal per calendar day (goals are sorted desc by effective_from)
+        $calendarGoals = [];
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $date = $month->copy()->setDay($d);
+            $key = $date->format('Y-m-d');
+            $calendarGoals[$key] = $allGoals->first(fn (StepGoal $g) => ! $g->effective_from->isAfter($date))?->steps ?? 10000;
+        }
+
         $entryCount = $entries->count();
         $avgSteps = $entries->whereNotNull('steps')->avg('steps');
-        $goalMetCount = $entries->filter(fn (HealthEntry $e) => $e->meetsStepGoal())->count();
-        $streak = $this->currentStreak();
+        $goalMetCount = $entries->filter(
+            fn (HealthEntry $e) => $e->meetsStepGoal($calendarGoals[$e->date->format('Y-m-d')] ?? $stepGoal)
+        )->count();
+        $streak = $this->currentStreak($allGoals);
 
         return view('pages.health.index', compact(
-            'month', 'entries', 'stepGoal', 'daysInMonth',
+            'month', 'entries', 'stepGoal', 'calendarGoals', 'daysInMonth',
             'entryCount', 'avgSteps', 'goalMetCount', 'streak',
         ));
     }
@@ -69,14 +84,15 @@ final class HealthEntryController extends Controller
             ->with('success', 'Entry deleted.');
     }
 
-    private function currentStreak(): int
+    /** @param Collection<int, StepGoal> $allGoals */
+    private function currentStreak(Collection $allGoals): int
     {
         $streak = 0;
         $check = now()->startOfDay();
-        $goal = HealthEntry::stepGoal();
 
         while (true) {
             $entry = HealthEntry::whereDate('date', $check)->first();
+            $goal = $allGoals->first(fn (StepGoal $g) => ! $g->effective_from->isAfter($check))?->steps ?? 10000;
 
             if ($entry === null || $entry->steps === null || $entry->steps < $goal) {
                 if ($streak === 0 && $check->isToday()) {

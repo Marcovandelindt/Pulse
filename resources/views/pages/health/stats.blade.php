@@ -98,6 +98,30 @@
             @endif
         </x-ui.card>
 
+        {{-- Goal history --}}
+        <x-ui.card title="Goal history" class="health-stats-grid__wide">
+            @if ($goalHistory->isNotEmpty())
+                <x-ui.table>
+                    <thead>
+                        <tr>
+                            <th>Effective from</th>
+                            <th>Daily step goal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($goalHistory as $goal)
+                            <tr>
+                                <td>{{ $goal->effective_from->format('d M Y') }}</td>
+                                <td>{{ number_format($goal->steps) }} steps</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </x-ui.table>
+            @else
+                <x-ui.empty-state title="No goal history yet" />
+            @endif
+        </x-ui.card>
+
         {{-- Monthly history --}}
         <x-ui.card title="Monthly history" class="health-stats-grid__wide">
             @if ($monthlyHistory->isNotEmpty())

@@ -65,10 +65,10 @@ it('can delete an entry', function () {
 
 it('detects when step goal is met', function () {
     $entry = HealthEntry::factory()->create(['steps' => 10000]);
-    expect($entry->meetsStepGoal())->toBeTrue();
+    expect($entry->meetsStepGoal(10000))->toBeTrue();
 });
 
 it('detects when step goal is not met', function () {
     $entry = HealthEntry::factory()->create(['steps' => 9999]);
-    expect($entry->meetsStepGoal())->toBeFalse();
+    expect($entry->meetsStepGoal(10000))->toBeFalse();
 });

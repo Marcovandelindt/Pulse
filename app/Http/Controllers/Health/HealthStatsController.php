@@ -6,37 +6,41 @@ namespace App\Http\Controllers\Health;
 
 use App\Http\Controllers\Controller;
 use App\Models\HealthEntry;
+use App\Models\StepGoal;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\View\View;
 
 final class HealthStatsController extends Controller
 {
     public function index(): View
     {
-        $stepGoal = HealthEntry::stepGoal();
+        /** @var Collection<int, StepGoal> $allGoals */
+        $allGoals = StepGoal::orderByDesc('effective_from')->get();
+        $stepGoal = StepGoal::current();
 
         $thisWeekAvg = HealthEntry::thisWeek()->withSteps()->avg('steps') ?? 0;
         $lastWeekAvg = HealthEntry::lastWeek()->withSteps()->avg('steps') ?? 0;
         $weekChange = $lastWeekAvg > 0
-            ? round((($thisWeekAvg - $lastWeekAvg) / $lastWeekAvg) * 100, 1)
+            ? round((((float) $thisWeekAvg - (float) $lastWeekAvg) / (float) $lastWeekAvg) * 100, 1)
             : 0;
 
         $thisMonthAvg = HealthEntry::thisMonth()->withSteps()->avg('steps') ?? 0;
         $lastMonthAvg = HealthEntry::lastMonth()->withSteps()->avg('steps') ?? 0;
         $monthChange = $lastMonthAvg > 0
-            ? round((($thisMonthAvg - $lastMonthAvg) / $lastMonthAvg) * 100, 1)
+            ? round((((float) $thisMonthAvg - (float) $lastMonthAvg) / (float) $lastMonthAvg) * 100, 1)
             : 0;
 
         $totalEntries = HealthEntry::withSteps()->count();
         $goalMetEntries = HealthEntry::withSteps()->where('steps', '>=', $stepGoal)->count();
         $goalRate = $totalEntries > 0 ? round(($goalMetEntries / $totalEntries) * 100) : 0;
 
-        [$currentStreak, $longestStreak] = $this->calculateStreaks($stepGoal);
+        [$currentStreak, $longestStreak] = $this->calculateStreaks($allGoals);
 
         $weekdayPatterns = $this->weekdayPatterns();
-
         $monthlyHistory = $this->monthlyHistory();
+        $goalHistory = StepGoal::orderByDesc('effective_from')->get();
 
         return view('pages.health.stats', compact(
             'stepGoal',
@@ -46,10 +50,12 @@ final class HealthStatsController extends Controller
             'currentStreak', 'longestStreak',
             'weekdayPatterns',
             'monthlyHistory',
+            'goalHistory',
         ));
     }
 
-    private function calculateStreaks(int $goal): array
+    /** @param Collection<int, StepGoal> $allGoals */
+    private function calculateStreaks(Collection $allGoals): array
     {
         $entries = HealthEntry::withSteps()
             ->orderByDesc('date')
@@ -63,7 +69,8 @@ final class HealthStatsController extends Controller
 
         foreach ($entries as $entry) {
             $entryDate = $entry->date->startOfDay();
-            $meetsGoal = $entry->steps >= $goal;
+            $goalForDay = $allGoals->first(fn (StepGoal $g) => ! $g->effective_from->isAfter($entry->date))?->steps ?? 10000;
+            $meetsGoal = ($entry->steps ?? 0) >= $goalForDay;
 
             if ($inCurrent) {
                 if ($entryDate->equalTo($check) && $meetsGoal) {
@@ -86,7 +93,7 @@ final class HealthStatsController extends Controller
         return [$current, $longest];
     }
 
-    private function weekdayPatterns(): Collection
+    private function weekdayPatterns(): SupportCollection
     {
         $days = collect([1 => 'Mon', 2 => 'Tue', 3 => 'Wed', 4 => 'Thu', 5 => 'Fri', 6 => 'Sat', 7 => 'Sun']);
 
@@ -109,7 +116,7 @@ final class HealthStatsController extends Controller
         })->values();
     }
 
-    private function monthlyHistory(): Collection
+    private function monthlyHistory(): SupportCollection
     {
         return HealthEntry::withSteps()
             ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, COUNT(*) as entries, SUM(steps) as total_steps, AVG(steps) as avg_steps')

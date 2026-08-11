@@ -25,14 +25,9 @@ final class HealthEntry extends Model
         ];
     }
 
-    public static function stepGoal(): int
+    public function meetsStepGoal(int $goal): bool
     {
-        return 10000;
-    }
-
-    public function meetsStepGoal(): bool
-    {
-        return $this->steps !== null && $this->steps >= self::stepGoal();
+        return $this->steps !== null && $this->steps >= $goal;
     }
 
     public function scopeRecent(Builder $query, int $limit = 10): Builder
