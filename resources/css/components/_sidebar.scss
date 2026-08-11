@@ -1,0 +1,86 @@
+.sidebar {
+    width:         240px;
+    min-height:    100vh;
+    background:    var(--color-bg-secondary);
+    border-right:  1px solid var(--color-border);
+    display:       flex;
+    flex-direction: column;
+    flex-shrink:   0;
+    position:      sticky;
+    top:           0;
+    height:        100vh;
+    overflow-y:    auto;
+}
+
+.sidebar__logo {
+    padding:        1.25rem 1.25rem;
+    border-bottom:  1px solid var(--color-border);
+    font-size:      1rem;
+    font-weight:    700;
+    color:          var(--color-text-primary);
+    letter-spacing: -0.02em;
+    display:        flex;
+    align-items:    center;
+    gap:            0.5rem;
+}
+
+.sidebar__logo::before {
+    content:       '';
+    display:       inline-block;
+    width:         0.5rem;
+    height:        0.5rem;
+    border-radius: 50%;
+    background:    var(--color-brand);
+    flex-shrink:   0;
+}
+
+.sidebar__nav {
+    flex:           1;
+    padding:        1.25rem 0.875rem;
+    display:        flex;
+    flex-direction: column;
+    overflow-y:     auto;
+}
+
+.sidebar__group {
+    margin-bottom: 0.25rem;
+}
+
+.sidebar__group + .sidebar__group {
+    margin-top: 1.75rem;
+}
+
+.sidebar__group-label {
+    font-size:      0.6875rem;
+    font-weight:    600;
+    color:          var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding:        0 0.625rem;
+    margin-bottom:  0.5rem;
+    display:        block;
+    opacity:        0.6;
+}
+
+.sidebar__footer {
+    padding:    1rem;
+    border-top: 1px solid var(--color-border);
+}
+
+/* ── Layout ──────────────────────────────────────── */
+
+.layout {
+    display:    flex;
+    min-height: 100vh;
+}
+
+.layout__main {
+    flex:       1;
+    min-width:  0;
+    background: var(--color-bg-primary);
+}
+
+.layout__content {
+    padding:     2rem 1.5rem 1.5rem;
+    max-width:   1400px;
+}

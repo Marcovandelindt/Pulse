@@ -1,0 +1,28 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@import './base/_variables.scss';
+@import './base/_reset.css';
+@import './base/_typography.scss';
+@import './components/_button.scss';
+@import './components/_card.scss';
+@import './components/_badge.scss';
+@import './components/_stat-card.scss';
+@import './components/_sidebar.scss';
+@import './components/_nav.scss';
+@import './components/_modal.scss';
+@import './components/_table.scss';
+@import './components/_form.scss';
+@import './features/_dashboard.scss';
+@import './features/_health.scss';
+@import './features/_finance.scss';
+
+@theme {
+    --color-brand:        oklch(0.60 0.18 260);
+    --color-brand-light:  oklch(0.75 0.14 260);
+    --color-surface:      var(--color-bg-secondary);
+    --font-sans:          'Inter', system-ui, sans-serif;
+    --radius-card:        0.75rem;
+}
