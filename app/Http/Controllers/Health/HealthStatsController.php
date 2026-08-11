@@ -103,7 +103,7 @@ final class HealthStatsController extends Controller
 
             return [
                 'label' => $label,
-                'avg_steps' => $row ? (int) round($row->avg_steps) : 0,
+                'avg_steps' => $row ? (int) round((float) $row->avg_steps) : 0,
                 'count' => $row ? $row->count : 0,
             ];
         })->values();
@@ -122,7 +122,7 @@ final class HealthStatsController extends Controller
                     'month' => Carbon::createFromFormat('Y-m', $row->month)->format('F Y'),
                     'entries' => $row->entries,
                     'total_steps' => number_format((int) $row->total_steps),
-                    'avg_steps' => number_format((int) round($row->avg_steps)),
+                    'avg_steps' => number_format((int) round((float) $row->avg_steps)),
                 ];
             });
     }
