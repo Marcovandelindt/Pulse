@@ -151,7 +151,8 @@
                         <div class="form-group">
                             <label class="form-label" for="add-steps">Steps</label>
                             <input type="number" id="add-steps" name="steps" class="form-input"
-                                   placeholder="e.g. 8500" min="0" max="100000">
+                                   placeholder="e.g. 8500" min="0" max="100000"
+                                   x-effect="if (addOpen) $nextTick(() => $el.focus())">
                             <x-form.error name="steps" />
                         </div>
                         <div class="form-group">
