@@ -27,7 +27,7 @@ final class TvSeriesController extends Controller
     {
         $series->load([
             'seasons.episodes.watches',
-            'people' => fn ($q) => $q->wherePivot('department', 'Acting')->orderBy('pivot_cast_order'),
+            'people' => fn ($q) => $q->wherePivot('department', 'Acting')->orderByPivot('episode_count', 'desc'),
         ]);
 
         return view('pages.tv.show', compact('series'));
