@@ -1,48 +1,10 @@
 <x-layouts.app title="Movies">
 
 <div
-    x-data="{
-        filter: '',
-        addOpen: false,
-        searchQuery: '',
-        searchResults: [],
-        searching: false,
-        adding: null,
-
-        async search() {
-            if (this.searchQuery.length < 2) { this.searchResults = []; return; }
-            this.searching = true;
-            const res = await fetch('{{ route('movies.search') }}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({ query: this.searchQuery }),
-            });
-            const data = await res.json();
-            this.searchResults = data.results ?? [];
-            this.searching = false;
-        },
-
-        async addMovie(tmdbId) {
-            this.adding = tmdbId;
-            const res = await fetch('{{ route('movies.store') }}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({ tmdb_id: tmdbId }),
-            });
-            const data = await res.json();
-            this.adding = null;
-            this.searchResults = this.searchResults.map(r => r.tmdb_id === tmdbId ? { ...r, already_added: true } : r);
-            this.$dispatch('toast', { message: `${data.title} added!`, type: 'success' });
-            setTimeout(() => window.location.reload(), 1000);
-        },
-
-        matchesFilter(el) {
-            if (!this.filter) return true;
-            const q = this.filter.toLowerCase();
-            return (el.dataset.title ?? '').toLowerCase().includes(q)
-                || (el.dataset.originalTitle ?? '').toLowerCase().includes(q);
-        },
-    }"
+    x-data="movieIndex({
+        searchUrl: '{{ route('movies.search') }}',
+        storeUrl: '{{ route('movies.store') }}',
+    })"
     @keydown.escape.window="addOpen = false; searchResults = []"
 >
 

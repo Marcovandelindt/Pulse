@@ -17,135 +17,18 @@ foreach ($series->seasons as $season) {
 @endphp
 
 <div
-    x-data="{
-        episodeWatches: @js($episodeStates),
+    x-data="tvShow({
+        episodeWatches:   @js($episodeStates),
         seasonEpisodeIds: @js($seasonEpisodeIds),
-        openSeasons: {},
-        processing: {},
-        showAllCast: false,
-
-        watchOpen: false,
-        pendingEpisodeId: null,
-        pendingEpisodeName: '',
-        watchDateMode: 'exact',
-        watchDate: '{{ today()->format('Y-m-d') }}',
-        watchYear: '{{ today()->year }}',
-
-        bulkOpen: false,
-        bulkDateMode: 'year',
-        bulkDate: '{{ today()->format('Y-m-d') }}',
-        bulkYear: '{{ today()->year }}',
-
-        init() {
-            const stored = localStorage.getItem('openSeasons_{{ $series->id }}');
-            if (stored) {
-                try { this.openSeasons = JSON.parse(stored); } catch(e) {}
-            }
+        seriesId:   {{ $series->id }},
+        seriesName: '{{ addslashes($series->name_en ?? $series->name) }}',
+        routes: {
+            bulk:    '{{ route('tv.watches.bulk', $series) }}',
+            refresh: '{{ route('tv.refresh', $series) }}',
+            destroy: '{{ route('tv.destroy', $series) }}',
+            index:   '{{ route('tv.index') }}',
         },
-
-        toggleSeason(id) {
-            this.openSeasons[id] = !this.openSeasons[id];
-            localStorage.setItem('openSeasons_{{ $series->id }}', JSON.stringify(this.openSeasons));
-        },
-        isSeasonOpen(id) { return !!this.openSeasons[id]; },
-
-        isWatched(id) { return (this.episodeWatches[id] ?? []).length > 0; },
-        watchesForEpisode(id) { return this.episodeWatches[id] ?? []; },
-
-        watchedInSeason(seasonId) {
-            return (this.seasonEpisodeIds[seasonId] ?? []).filter(id => this.isWatched(id)).length;
-        },
-
-        openAddWatch(episodeId, episodeName) {
-            this.pendingEpisodeId   = episodeId;
-            this.pendingEpisodeName = episodeName;
-            this.watchOpen = true;
-        },
-
-        async addWatch() {
-            const episodeId = this.pendingEpisodeId;
-            if (!episodeId) return;
-            this.watchOpen = false;
-            this.processing[episodeId] = true;
-
-            let watchedAt = null;
-            let yearOnly  = false;
-            if (this.watchDateMode === 'exact') {
-                watchedAt = this.watchDate;
-            } else if (this.watchDateMode === 'year') {
-                watchedAt = this.watchYear + '-01-01';
-                yearOnly  = true;
-            }
-
-            try {
-                const res = await fetch(`/tv/episodes/${episodeId}/watches`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                    body: JSON.stringify({ watched_at: watchedAt, year_only: yearOnly }),
-                });
-                const data = await res.json();
-                if (!this.episodeWatches[episodeId]) this.episodeWatches[episodeId] = [];
-                this.episodeWatches[episodeId].push({ id: data.watch_id, date: data.formatted_date });
-                this.$dispatch('toast', { message: 'Watch saved!', type: 'success' });
-            } finally {
-                this.processing[episodeId] = false;
-                this.pendingEpisodeId = null;
-            }
-        },
-
-        async deleteWatch(watchId, episodeId) {
-            await fetch(`/tv/watches/${watchId}`, {
-                method: 'DELETE',
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            });
-            this.episodeWatches[episodeId] = (this.episodeWatches[episodeId] ?? []).filter(w => w.id !== watchId);
-            this.$dispatch('toast', { message: 'Watch removed', type: 'success' });
-        },
-
-        async bulkWatch() {
-            if (!confirm('Mark ALL episodes of {{ addslashes($series->name) }} as watched?')) return;
-            this.bulkOpen = false;
-
-            let watchedAt = null;
-            let yearOnly  = false;
-            if (this.bulkDateMode === 'exact') {
-                watchedAt = this.bulkDate;
-            } else if (this.bulkDateMode === 'year') {
-                watchedAt = this.bulkYear + '-01-01';
-                yearOnly  = true;
-            }
-
-            const res = await fetch('{{ route('tv.watches.bulk', $series) }}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({ watched_at: watchedAt, year_only: yearOnly }),
-            });
-            const data = await res.json();
-            this.$dispatch('toast', { message: `Marked ${data.episodes_watched} episodes as watched!`, type: 'success' });
-            setTimeout(() => window.location.reload(), 1500);
-        },
-
-        refreshing: false,
-        async refreshSeries() {
-            this.refreshing = true;
-            this.$dispatch('toast', { message: 'Refreshing from TMDB…', type: 'success' });
-            await fetch('{{ route('tv.refresh', $series) }}', {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            });
-            this.$dispatch('toast', { message: 'Series refreshed! Reloading…', type: 'success' });
-            setTimeout(() => window.location.reload(), 1200);
-        },
-
-        async removeSeries() {
-            if (!confirm('Remove this series and all watch history?')) return;
-            await fetch('{{ route('tv.destroy', $series) }}', {
-                method: 'DELETE',
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            });
-            window.location.href = '{{ route('tv.index') }}';
-        },
-    }"
+    })"
     @keydown.escape.window="bulkOpen = false; watchOpen = false"
     @keydown.enter.window="if (watchOpen) addWatch(); else if (bulkOpen) bulkWatch()"
 >

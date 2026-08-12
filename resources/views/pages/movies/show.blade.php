@@ -1,68 +1,14 @@
 <x-layouts.app title="{{ $movie->title }}">
 
 <div
-    x-data="{
+    x-data="movieShow({
         watches: @js($watchesForAlpine),
-        watchOpen: false,
-        watchDateMode: 'exact',
-        watchDate: '{{ today()->format('Y-m-d') }}',
-        watchYear: '{{ today()->year }}',
-        watchRating: '',
-        watchNotes: '',
-        showAllCast: false,
-
-        async addWatch() {
-            let watchedAt = null;
-            let yearOnly  = false;
-            if (this.watchDateMode === 'exact') {
-                watchedAt = this.watchDate;
-            } else if (this.watchDateMode === 'year') {
-                watchedAt = this.watchYear + '-01-01';
-                yearOnly  = true;
-            }
-
-            const res = await fetch('{{ route('movies.watches.store', $movie) }}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({
-                    watched_at: watchedAt,
-                    year_only:  yearOnly,
-                    rating:     this.watchRating || null,
-                    notes:      this.watchNotes  || null,
-                }),
-            });
-            const data = await res.json();
-            this.watches.unshift({
-                id:     data.watch_id,
-                date:   data.formatted_date,
-                rating: this.watchRating || null,
-                notes:  this.watchNotes  || null,
-            });
-            this.watchOpen   = false;
-            this.watchRating = '';
-            this.watchNotes  = '';
-            this.$dispatch('toast', { message: 'Watch saved!', type: 'success' });
+        routes: {
+            store:   '{{ route('movies.watches.store', $movie) }}',
+            destroy: '{{ route('movies.destroy', $movie) }}',
+            index:   '{{ route('movies.index') }}',
         },
-
-        async deleteWatch(watchId) {
-            if (!confirm('Delete this watch?')) return;
-            await fetch(`/movies/watches/${watchId}`, {
-                method: 'DELETE',
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            });
-            this.watches = this.watches.filter(w => w.id !== watchId);
-            this.$dispatch('toast', { message: 'Watch deleted', type: 'success' });
-        },
-
-        async deleteMovie() {
-            if (!confirm('Remove this movie and all watch history?')) return;
-            await fetch('{{ route('movies.destroy', $movie) }}', {
-                method: 'DELETE',
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            });
-            window.location.href = '{{ route('movies.index') }}';
-        },
-    }"
+    })"
     @keydown.escape.window="watchOpen = false"
     @keydown.enter.window="if (watchOpen) addWatch()"
 >
