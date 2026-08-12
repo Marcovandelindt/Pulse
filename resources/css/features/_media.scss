@@ -214,7 +214,7 @@
 
 .media-slider {
     position:      relative;
-    height:        20rem;
+    height:        26rem;
     overflow:      hidden;
     border-radius: var(--radius-lg);
     margin-bottom: 1.5rem;
@@ -225,7 +225,7 @@
     position:            absolute;
     inset:               0;
     background-size:     cover;
-    background-position: center;
+    background-position: top center;
 }
 
 .media-slider__overlay {
