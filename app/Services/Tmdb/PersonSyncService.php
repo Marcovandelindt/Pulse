@@ -48,18 +48,7 @@ final class PersonSyncService
     {
         $pivot = [];
 
-        foreach ($aggregateCredits['cast'] ?? [] as $member) {
-            $person = $this->findOrCreatePerson($member);
-            $roles = $member['roles'][0] ?? [];
-            $pivot[$person->id] = [
-                'character' => $roles['character'] ?? null,
-                'department' => 'Acting',
-                'job' => 'Actor',
-                'cast_order' => $member['order'] ?? null,
-                'episode_count' => $member['total_episode_count'] ?? null,
-            ];
-        }
-
+        // Crew first so cast always wins when the same person appears in both
         foreach ($aggregateCredits['crew'] ?? [] as $member) {
             if (! in_array($member['department'] ?? '', ['Directing', 'Writing', 'Production'], true)) {
                 continue;
@@ -71,6 +60,18 @@ final class PersonSyncService
                 'department' => $member['department'] ?? null,
                 'job' => $jobs['job'] ?? null,
                 'cast_order' => null,
+                'episode_count' => $member['total_episode_count'] ?? null,
+            ];
+        }
+
+        foreach ($aggregateCredits['cast'] ?? [] as $member) {
+            $person = $this->findOrCreatePerson($member);
+            $roles = $member['roles'][0] ?? [];
+            $pivot[$person->id] = [
+                'character' => $roles['character'] ?? null,
+                'department' => 'Acting',
+                'job' => 'Actor',
+                'cast_order' => $member['order'] ?? null,
                 'episode_count' => $member['total_episode_count'] ?? null,
             ];
         }
