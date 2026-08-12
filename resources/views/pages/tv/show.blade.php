@@ -299,7 +299,7 @@ foreach ($series->seasons as $season) {
                                     @foreach ($season->episodes as $episode)
                                         <div class="media-episode"
                                              :class="isWatched({{ $episode->id }}) ? 'media-episode--watched' : ''"
-                                             @click="openAddWatch({{ $episode->id }}, '{{ addslashes($episode->name) }}')"
+                                             @click="openAddWatch({{ $episode->id }}, '{{ addslashes($episode->name) }}')">
                                             <div class="media-episode__number">
                                                 E{{ str_pad($episode->episode_number, 2, '0', STR_PAD_LEFT) }}
                                             </div>
