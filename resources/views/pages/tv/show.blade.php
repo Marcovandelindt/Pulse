@@ -298,7 +298,8 @@ foreach ($series->seasons as $season) {
                                 <div class="media-episodes">
                                     @foreach ($season->episodes as $episode)
                                         <div class="media-episode"
-                                             :class="isWatched({{ $episode->id }}) ? 'media-episode--watched' : ''">
+                                             :class="isWatched({{ $episode->id }}) ? 'media-episode--watched' : ''"
+                                             @click="openAddWatch({{ $episode->id }}, '{{ addslashes($episode->name) }}')"
                                             <div class="media-episode__number">
                                                 E{{ str_pad($episode->episode_number, 2, '0', STR_PAD_LEFT) }}
                                             </div>
@@ -318,20 +319,12 @@ foreach ($series->seasons as $season) {
                                                             <span class="ep-watch-badge__date" x-text="watch.date || '?'"></span>
                                                             <button
                                                                 class="ep-watch-badge__delete"
-                                                                @click="deleteWatch(watch.id, {{ $episode->id }})"
+                                                                @click.stop="deleteWatch(watch.id, {{ $episode->id }})"
                                                                 title="Remove watch"
                                                             >&times;</button>
                                                         </span>
                                                     </template>
                                                 </div>
-                                            </div>
-                                            <div class="media-episode__action">
-                                                <button
-                                                    type="button"
-                                                    class="btn btn--secondary btn--sm"
-                                                    :disabled="processing[{{ $episode->id }}]"
-                                                    @click="openAddWatch({{ $episode->id }}, '{{ addslashes($episode->name) }}')"
-                                                >+ Watch</button>
                                             </div>
                                         </div>
                                     @endforeach

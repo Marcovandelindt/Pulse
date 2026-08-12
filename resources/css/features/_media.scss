@@ -441,6 +441,7 @@
     padding:     0.75rem 1.25rem;
     border-bottom: 1px solid var(--color-border);
     transition:  background var(--transition-base);
+    cursor:      pointer;
 }
 
 .media-episode:last-child {
