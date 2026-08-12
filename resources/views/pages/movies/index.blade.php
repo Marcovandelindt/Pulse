@@ -1,9 +1,17 @@
 <x-layouts.app title="Movies">
 
+@php
+    $backdrops = $movies
+        ->filter(fn ($m) => $m->backdrop_url)
+        ->map(fn ($m) => ['name' => $m->title, 'url' => $m->backdrop_url])
+        ->values();
+@endphp
+
 <div
     x-data="movieIndex({
         searchUrl: '{{ route('movies.search') }}',
-        storeUrl: '{{ route('movies.store') }}',
+        storeUrl:  '{{ route('movies.store') }}',
+        backdrops: @js($backdrops),
     })"
     @keydown.escape.window="addOpen = false; searchResults = []"
 >
@@ -14,6 +22,20 @@
             <button @click="addOpen = true" class="btn btn--primary btn--sm">+ Add Movie</button>
         </x-slot:actions>
     </x-layout.page-header>
+
+    <div class="media-slider" x-show="backdrops.length > 0" style="display:none;">
+        <template x-for="(slide, i) in backdrops" :key="i">
+            <div
+                class="media-slider__slide"
+                :style="`background-image: url('${slide.url}')`"
+                x-show="currentSlide === i"
+                x-transition.opacity.duration.600ms
+            >
+                <div class="media-slider__overlay"></div>
+                <div class="media-slider__label" x-text="slide.name"></div>
+            </div>
+        </template>
+    </div>
 
     @if ($movies->isNotEmpty())
         <div class="mb-4">

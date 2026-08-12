@@ -210,6 +210,44 @@
     flex-wrap:   wrap;
 }
 
+/* ── Backdrop slider ─────────────────────────────── */
+
+.media-slider {
+    position:      relative;
+    height:        20rem;
+    overflow:      hidden;
+    border-radius: var(--radius-lg);
+    margin-bottom: 1.5rem;
+    background:    var(--color-bg-secondary);
+}
+
+.media-slider__slide {
+    position:            absolute;
+    inset:               0;
+    background-size:     cover;
+    background-position: center;
+}
+
+.media-slider__overlay {
+    position:   absolute;
+    inset:      0;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.1) 0%,
+        rgba(0, 0, 0, 0.65) 100%
+    );
+}
+
+.media-slider__label {
+    position:    absolute;
+    bottom:      1.5rem;
+    left:        1.5rem;
+    font-size:   1.375rem;
+    font-weight: 700;
+    color:       #fff;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+
 /* ── Media hero ───────────────────────────────────── */
 
 .media-hero {

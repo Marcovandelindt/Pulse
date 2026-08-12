@@ -1,13 +1,29 @@
 import { csrf } from '../utils.js';
 
 export function registerTvComponents() {
-    Alpine.data('tvIndex', ({ searchUrl, storeUrl }) => ({
+    Alpine.data('tvIndex', ({ searchUrl, storeUrl, backdrops: rawBackdrops }) => ({
         filter: '',
         addOpen: false,
         searchQuery: '',
         searchResults: [],
         searching: false,
         adding: null,
+
+        backdrops: rawBackdrops.slice().sort(() => Math.random() - 0.5),
+        currentSlide: 0,
+        _timer: null,
+
+        init() {
+            if (this.backdrops.length > 1) {
+                this._timer = setInterval(() => {
+                    this.currentSlide = (this.currentSlide + 1) % this.backdrops.length;
+                }, 2500);
+            }
+        },
+
+        destroy() {
+            clearInterval(this._timer);
+        },
 
         async search() {
             if (this.searchQuery.length < 2) { this.searchResults = []; return; }
