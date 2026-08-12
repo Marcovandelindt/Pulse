@@ -3,7 +3,14 @@
 @php
     $backdrops = $movies
         ->filter(fn ($m) => $m->backdrop_url)
-        ->map(fn ($m) => ['name' => $m->title, 'url' => $m->backdrop_url])
+        ->map(fn ($m) => [
+            'name' => $m->title,
+            'url'  => $m->backdrop_url,
+            'stats' => collect([
+                $m->watch_count > 0 ? 'Watched ' . $m->watch_count . '×' : null,
+                $m->runtime ? round($m->runtime / 60, 1) . 'h runtime' : null,
+            ])->filter()->implode(' · '),
+        ])
         ->values();
 @endphp
 
@@ -32,7 +39,10 @@
                 x-transition.opacity.duration.600ms
             >
                 <div class="media-slider__overlay"></div>
-                <div class="media-slider__label" x-text="slide.name"></div>
+                <div class="media-slider__info">
+                    <div class="media-slider__label" x-text="slide.name"></div>
+                    <div class="media-slider__stats" x-show="slide.stats" x-text="slide.stats"></div>
+                </div>
             </div>
         </template>
     </div>

@@ -3,7 +3,14 @@
 @php
     $backdrops = $series
         ->filter(fn ($s) => $s->backdrop_url)
-        ->map(fn ($s) => ['name' => $s->name_en ?? $s->name, 'url' => $s->backdrop_url])
+        ->map(fn ($s) => [
+            'name' => $s->name_en ?? $s->name,
+            'url'  => $s->backdrop_url,
+            'stats' => collect([
+                $s->episodes_watched > 0 ? $s->episodes_watched . ' episodes watched' : null,
+                $s->completion_percentage > 0 ? round($s->completion_percentage) . '% complete' : null,
+            ])->filter()->implode(' · '),
+        ])
         ->values();
 @endphp
 
@@ -32,7 +39,10 @@
                 x-transition.opacity.duration.600ms
             >
                 <div class="media-slider__overlay"></div>
-                <div class="media-slider__label" x-text="slide.name"></div>
+                <div class="media-slider__info">
+                    <div class="media-slider__label" x-text="slide.name"></div>
+                    <div class="media-slider__stats" x-show="slide.stats" x-text="slide.stats"></div>
+                </div>
             </div>
         </template>
     </div>

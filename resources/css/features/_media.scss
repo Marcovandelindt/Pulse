@@ -238,14 +238,27 @@
     );
 }
 
+.media-slider__info {
+    position: absolute;
+    bottom:   1.5rem;
+    left:     1.5rem;
+}
+
 .media-slider__label {
-    position:    absolute;
-    bottom:      1.5rem;
-    left:        1.5rem;
     font-size:   1.375rem;
     font-weight: 700;
     color:       #fff;
     text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+    line-height: 1.2;
+}
+
+.media-slider__stats {
+    font-size:   0.8125rem;
+    font-weight: 500;
+    color:       rgba(255, 255, 255, 0.7);
+    margin-top:  0.3rem;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.02em;
 }
 
 /* ── Media hero ───────────────────────────────────── */
