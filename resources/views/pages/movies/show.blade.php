@@ -64,6 +64,7 @@
         },
     }"
     @keydown.escape.window="watchOpen = false"
+    @keydown.enter.window="if (watchOpen) addWatch()"
 >
 
     {{-- Backdrop hero --}}

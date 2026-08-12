@@ -147,6 +147,7 @@ foreach ($series->seasons as $season) {
         },
     }"
     @keydown.escape.window="bulkOpen = false; watchOpen = false"
+    @keydown.enter.window="if (watchOpen) addWatch(); else if (bulkOpen) bulkWatch()"
 >
 
     {{-- Backdrop hero --}}
