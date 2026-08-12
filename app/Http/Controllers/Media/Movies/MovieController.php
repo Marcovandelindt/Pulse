@@ -10,18 +10,25 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Media\StoreTmdbMovieRequest;
 use App\Models\Movie;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 final class MovieController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $movies = Movie::withCount('watches')
-            ->orderByDesc('last_watched_at')
-            ->orderByDesc('created_at')
-            ->get();
+        $sort = $request->query('sort', 'most_watched');
 
-        return view('pages.movies.index', compact('movies'));
+        $query = Movie::withCount('watches');
+
+        $movies = match($sort) {
+            'most_watched' => $query->orderByDesc('watches_count')->orderByDesc('created_at')->get(),
+            'added'        => $query->orderByDesc('created_at')->get(),
+            'alpha'        => $query->orderBy('title')->get(),
+            default        => $query->orderByDesc('last_watched_at')->orderByDesc('created_at')->get(),
+        };
+
+        return view('pages.movies.index', compact('movies', 'sort'));
     }
 
     public function show(Movie $movie): View

@@ -48,7 +48,7 @@
     </div>
 
     @if ($series->isNotEmpty())
-        <div class="mb-4">
+        <div class="media-toolbar">
             <input
                 type="text"
                 x-model="filter"
@@ -56,6 +56,16 @@
                 placeholder="Filter series…"
                 style="max-width: 24rem;"
             >
+            <select
+                class="form-input"
+                style="max-width: 12rem;"
+                onchange="window.location.href = '?sort=' + this.value"
+            >
+                <option value="most_watched" {{ $sort === 'most_watched' ? 'selected' : '' }}>Most watched</option>
+                <option value="last_watched" {{ $sort === 'last_watched' ? 'selected' : '' }}>Last watched</option>
+                <option value="added"        {{ $sort === 'added'        ? 'selected' : '' }}>Recently added</option>
+                <option value="alpha"        {{ $sort === 'alpha'        ? 'selected' : '' }}>Alphabetical</option>
+            </select>
         </div>
     @endif
 

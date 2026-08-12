@@ -15,13 +15,20 @@ use Illuminate\View\View;
 
 final class TvSeriesController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $series = TvSeries::orderByDesc('last_watched_at')
-            ->orderByDesc('created_at')
-            ->get();
+        $sort = $request->query('sort', 'most_watched');
 
-        return view('pages.tv.index', compact('series'));
+        $query = TvSeries::query();
+
+        $series = match($sort) {
+            'most_watched' => $query->orderByDesc('episodes_watched')->orderByDesc('created_at')->get(),
+            'added'        => $query->orderByDesc('created_at')->get(),
+            'alpha'        => $query->orderBy('name')->get(),
+            default        => $query->orderByDesc('last_watched_at')->orderByDesc('created_at')->get(),
+        };
+
+        return view('pages.tv.index', compact('series', 'sort'));
     }
 
     public function show(TvSeries $series): View
