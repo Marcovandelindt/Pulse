@@ -24,7 +24,8 @@ final class TvSeries extends Model
         'poster_path', 'backdrop_path', 'first_air_date', 'last_air_date',
         'vote_average', 'user_rating', 'genres', 'status', 'original_language',
         'number_of_seasons', 'number_of_episodes', 'episodes_watched',
-        'completion_percentage', 'last_watched_at', 'first_watched_at',
+        'watched_runtime_minutes', 'completion_percentage', 'last_watched_at', 'first_watched_at',
+        'is_favorite',
     ];
 
     protected function casts(): array
@@ -35,6 +36,7 @@ final class TvSeries extends Model
             'genres' => 'array',
             'last_watched_at' => 'datetime',
             'first_watched_at' => 'datetime',
+            'is_favorite' => 'boolean',
         ];
     }
 
@@ -85,6 +87,9 @@ final class TvSeries extends Model
         $this->completion_percentage = $this->number_of_episodes > 0
             ? round(($this->episodes_watched / $this->number_of_episodes) * 100, 2)
             : 0;
+        $this->watched_runtime_minutes = TvEpisode::whereHas('watches')
+            ->whereIn('tv_season_id', $this->seasons()->select('id'))
+            ->sum('runtime');
         $this->save();
     }
 

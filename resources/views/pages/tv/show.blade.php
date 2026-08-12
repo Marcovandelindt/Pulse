@@ -23,12 +23,14 @@ foreach ($series->seasons as $season) {
         seriesId:   {{ $series->id }},
         seriesName: '{{ addslashes($series->name_en ?? $series->name) }}',
         userRating: {{ $series->user_rating ?? 'null' }},
+        isFavorite: {{ $series->is_favorite ? 'true' : 'false' }},
         routes: {
-            bulk:    '{{ route('tv.watches.bulk', $series) }}',
-            refresh: '{{ route('tv.refresh', $series) }}',
-            destroy: '{{ route('tv.destroy', $series) }}',
-            index:   '{{ route('tv.index') }}',
-            rating:  '{{ route('tv.rating', $series) }}',
+            bulk:     '{{ route('tv.watches.bulk', $series) }}',
+            refresh:  '{{ route('tv.refresh', $series) }}',
+            destroy:  '{{ route('tv.destroy', $series) }}',
+            index:    '{{ route('tv.index') }}',
+            rating:   '{{ route('tv.rating', $series) }}',
+            favorite: '{{ route('tv.favorite', $series) }}',
         },
     })"
     @keydown.escape.window="bulkOpen = false; watchOpen = false"
@@ -64,6 +66,12 @@ foreach ($series->seasons as $season) {
                         @endif
                     </div>
                     <div class="flex gap-2 flex-wrap justify-end shrink-0">
+                        <button
+                            @click="toggleFavorite()"
+                            class="btn btn--secondary btn--sm"
+                            :class="{ 'btn--favorite-active': isFavorite }"
+                            x-text="isFavorite ? '★ Favorited' : '☆ Favorite'"
+                        ></button>
                         <button @click="bulkOpen = true" class="btn btn--primary btn--sm">Mark all watched</button>
                         <button @click="refreshSeries()" class="btn btn--secondary btn--sm" :disabled="refreshing">
                             <span x-show="!refreshing">Refresh</span>

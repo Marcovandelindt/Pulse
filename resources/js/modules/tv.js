@@ -63,12 +63,22 @@ export function registerTvComponents() {
         },
     }));
 
-    Alpine.data('tvShow', ({ episodeWatches, seasonEpisodeIds, seriesId, seriesName, userRating, routes }) => ({
+    Alpine.data('tvShow', ({ episodeWatches, seasonEpisodeIds, seriesId, seriesName, userRating, isFavorite, routes }) => ({
         episodeWatches,
         seasonEpisodeIds,
         openSeasons: {},
         processing: {},
         showAllCast: false,
+
+        isFavorite,
+
+        async toggleFavorite() {
+            this.isFavorite = !this.isFavorite;
+            await fetch(routes.favorite, {
+                method: 'PATCH',
+                headers: { 'X-CSRF-TOKEN': csrf() },
+            });
+        },
 
         userRating,
         ratingInput: userRating ?? '',

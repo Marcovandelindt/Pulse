@@ -53,6 +53,13 @@ final class TvSeriesController extends Controller
         ]);
     }
 
+    public function favorite(TvSeries $series): JsonResponse
+    {
+        $series->update(['is_favorite' => ! $series->is_favorite]);
+
+        return response()->json(['is_favorite' => $series->is_favorite]);
+    }
+
     public function rate(Request $request, TvSeries $series): JsonResponse
     {
         $rating = $request->validate(['rating' => ['nullable', 'numeric', 'min:1', 'max:10']])['rating'];

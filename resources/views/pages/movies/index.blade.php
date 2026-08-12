@@ -109,6 +109,10 @@
                                 · ★ {{ $movie->vote_average }}
                             @endif
                         </div>
+                        @if ($movie->watch_count > 0 && $movie->runtime)
+                            @php $totalMin = $movie->watch_count * $movie->runtime; $h = intdiv($totalMin, 60); $m = $totalMin % 60; @endphp
+                            <div class="media-card__runtime">{{ $h > 0 ? $h.'h ' : '' }}{{ $m > 0 ? $m.'m' : '' }} watched</div>
+                        @endif
                     </div>
                 </div>
             @endforeach

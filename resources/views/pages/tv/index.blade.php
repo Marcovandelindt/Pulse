@@ -84,23 +84,38 @@
                     data-original="{{ strtolower($show->original_name) }}"
                     data-name-en="{{ strtolower($show->name_en ?? '') }}"
                     x-show="matchesFilter($el)"
+                    x-data="{ isFavorite: {{ $show->is_favorite ? 'true' : 'false' }} }"
                 >
-                    <a href="{{ route('tv.show', $show) }}" class="media-card__poster-link">
-                        @if ($show->poster_url)
-                            <img src="{{ $show->poster_url }}" alt="{{ $show->name }}" class="media-card__poster">
-                        @else
-                            <div class="media-card__poster media-card__poster--empty">
-                                <svg viewBox="0 0 24 24" fill="currentColor" style="width:2rem;height:2rem;opacity:0.3">
-                                    <path d="M2 7a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V7zm2 0v10h16V7H4zm2 2h4v4H6V9zm6 0h6v2h-6V9zm0 4h4v2h-4v-2z"/>
-                                </svg>
-                            </div>
-                        @endif
-                        @if ($show->completion_percentage >= 100)
-                            <span class="media-card__badge media-card__badge--success">✓</span>
-                        @elseif ($show->episodes_watched > 0)
-                            <span class="media-card__badge">{{ round($show->completion_percentage) }}%</span>
-                        @endif
-                    </a>
+                    <div class="media-card__poster-wrap">
+                        <a href="{{ route('tv.show', $show) }}" class="media-card__poster-link">
+                            @if ($show->poster_url)
+                                <img src="{{ $show->poster_url }}" alt="{{ $show->name }}" class="media-card__poster">
+                            @else
+                                <div class="media-card__poster media-card__poster--empty">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" style="width:2rem;height:2rem;opacity:0.3">
+                                        <path d="M2 7a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V7zm2 0v10h16V7H4zm2 2h4v4H6V9zm6 0h6v2h-6V9zm0 4h4v2h-4v-2z"/>
+                                    </svg>
+                                </div>
+                            @endif
+                            @if ($show->completion_percentage >= 100)
+                                <span class="media-card__badge media-card__badge--success">✓</span>
+                            @elseif ($show->episodes_watched > 0)
+                                <span class="media-card__badge">{{ round($show->completion_percentage) }}%</span>
+                            @endif
+                        </a>
+                        <button
+                            class="media-card__favorite"
+                            :class="{ 'media-card__favorite--active': isFavorite }"
+                            @click.prevent="
+                                isFavorite = !isFavorite;
+                                fetch('{{ route('tv.favorite', $show) }}', {
+                                    method: 'PATCH',
+                                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
+                                });
+                            "
+                            :title="isFavorite ? 'Remove from favorites' : 'Add to favorites'"
+                        >★</button>
+                    </div>
                     <div class="media-card__body">
                         <a href="{{ route('tv.show', $show) }}" class="media-card__title">
                             {{ $show->name_en ?? $show->name }}
@@ -115,6 +130,10 @@
                                      style="width: {{ min(100, $show->completion_percentage) }}%"></div>
                             </div>
                             <div class="media-card__watched">{{ $show->episodes_watched }} / {{ $show->number_of_episodes }} ep</div>
+                            @if ($show->watched_runtime_minutes > 0)
+                                @php $h = intdiv($show->watched_runtime_minutes, 60); $m = $show->watched_runtime_minutes % 60; @endphp
+                                <div class="media-card__runtime">{{ $h > 0 ? $h.'h ' : '' }}{{ $m > 0 ? $m.'m' : '' }} watched</div>
+                            @endif
                         @endif
                     </div>
                 </div>
