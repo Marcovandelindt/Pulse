@@ -17,5 +17,11 @@
             <span class="sidebar__group-label">Finance</span>
             <x-layout.nav-item route="finance.index" icon="credit-card" label="Expenses" />
         </div>
+
+        <div class="sidebar__group">
+            <span class="sidebar__group-label">Media</span>
+            <x-layout.nav-item route="movies.index" icon="film" label="Movies" />
+            <x-layout.nav-item route="tv.index" icon="tv" label="TV" />
+        </div>
     </nav>
 </aside>

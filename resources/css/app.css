@@ -7,6 +7,7 @@
 @import './base/_reset.css';
 @import './base/_typography.scss';
 @import './components/_button.scss';
+@import './components/_toast.scss';
 @import './components/_card.scss';
 @import './components/_badge.scss';
 @import './components/_stat-card.scss';
@@ -18,6 +19,7 @@
 @import './features/_dashboard.scss';
 @import './features/_health.scss';
 @import './features/_finance.scss';
+@import './features/_media.scss';
 
 @theme {
     --color-brand:        oklch(0.60 0.18 260);

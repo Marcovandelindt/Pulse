@@ -23,5 +23,23 @@
         </main>
     </div>
 
+    <div
+        x-data="{ toasts: [] }"
+        @toast.window="toasts.push({ message: $event.detail.message, type: $event.detail.type ?? 'success', id: Date.now() })"
+        class="toast-container"
+    >
+        <template x-for="toast in toasts" :key="toast.id">
+            <div
+                class="toast"
+                :class="toast.type === 'success' ? 'toast--success' : 'toast--error'"
+                x-show="true"
+                x-transition
+                x-init="setTimeout(() => { toasts = toasts.filter(t => t.id !== toast.id) }, 3000)"
+            >
+                <span x-text="toast.message"></span>
+            </div>
+        </template>
+    </div>
+
 </body>
 </html>
