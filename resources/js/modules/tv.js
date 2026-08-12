@@ -71,6 +71,7 @@ export function registerTvComponents() {
         showAllCast: false,
 
         watchOpen: false,
+        watchUpTo: false,
         pendingEpisodeId: null,
         pendingEpisodeName: '',
         watchDateMode: 'exact',
@@ -107,10 +108,23 @@ export function registerTvComponents() {
         openAddWatch(episodeId, episodeName) {
             this.pendingEpisodeId   = episodeId;
             this.pendingEpisodeName = episodeName;
+            this.watchUpTo = false;
+            this.watchOpen = true;
+        },
+
+        openUpToWatch(episodeId, episodeName) {
+            this.pendingEpisodeId   = episodeId;
+            this.pendingEpisodeName = episodeName;
+            this.watchUpTo = true;
             this.watchOpen = true;
         },
 
         async addWatch() {
+            if (this.watchUpTo) {
+                await this._addWatchUpTo();
+                return;
+            }
+
             const episodeId = this.pendingEpisodeId;
             if (!episodeId) return;
             this.watchOpen = false;
@@ -139,6 +153,30 @@ export function registerTvComponents() {
                 this.processing[episodeId] = false;
                 this.pendingEpisodeId = null;
             }
+        },
+
+        async _addWatchUpTo() {
+            const episodeId = this.pendingEpisodeId;
+            if (!episodeId) return;
+            this.watchOpen = false;
+
+            let watchedAt = null;
+            let yearOnly  = false;
+            if (this.watchDateMode === 'exact') {
+                watchedAt = this.watchDate;
+            } else if (this.watchDateMode === 'year') {
+                watchedAt = this.watchYear + '-01-01';
+                yearOnly  = true;
+            }
+
+            const res = await fetch(`/tv/episodes/${episodeId}/watches/bulk-up-to`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf() },
+                body: JSON.stringify({ watched_at: watchedAt, year_only: yearOnly }),
+            });
+            const data = await res.json();
+            this.$dispatch('toast', { message: `${data.episodes_watched} episodes marked as watched!`, type: 'success' });
+            setTimeout(() => window.location.reload(), 1500);
         },
 
         async deleteWatch(watchId, episodeId) {

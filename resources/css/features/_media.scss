@@ -599,6 +599,17 @@
     margin-left: auto;
 }
 
+.media-episode__up-to {
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+    opacity:     0;
+    transition:  opacity var(--transition-base);
+}
+
+.media-episode:hover .media-episode__up-to {
+    opacity: 1;
+}
+
 /* ── Episode watch badge ──────────────────────────── */
 
 .ep-watch-badge {

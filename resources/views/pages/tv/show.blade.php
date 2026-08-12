@@ -186,7 +186,7 @@ foreach ($series->seasons as $season) {
                                             <div class="media-episode__number">
                                                 E{{ str_pad($episode->episode_number, 2, '0', STR_PAD_LEFT) }}
                                             </div>
-                                            <div class="media-episode__info">
+                                            <div class="media-episode__info" style="flex:1">
                                                 <div class="media-episode__name">{{ $episode->name }}</div>
                                                 <div class="media-episode__meta">
                                                     @if ($episode->air_date)
@@ -209,6 +209,12 @@ foreach ($series->seasons as $season) {
                                                     </template>
                                                 </div>
                                             </div>
+                                            <button
+                                                type="button"
+                                                class="btn btn--secondary btn--sm media-episode__up-to"
+                                                @click.stop="openUpToWatch({{ $episode->id }}, '{{ addslashes($episode->name) }}')"
+                                                title="Mark all episodes up to here as watched"
+                                            >↑ Up to here</button>
                                         </div>
                                     @endforeach
                                 </div>
@@ -226,7 +232,7 @@ foreach ($series->seasons as $season) {
         <div class="modal__backdrop" @click="watchOpen = false; pendingEpisodeId = null"></div>
         <div class="modal__panel">
             <div class="modal__header">
-                <h2 class="modal__title">Mark as watched</h2>
+                <h2 class="modal__title" x-text="watchUpTo ? 'Mark all up to here' : 'Mark as watched'"></h2>
                 <button @click="watchOpen = false; pendingEpisodeId = null" class="btn btn--icon btn--secondary" type="button">&times;</button>
             </div>
             <div class="text-sm text-[var(--color-text-muted)] mb-4" x-text="pendingEpisodeName" x-show="pendingEpisodeName"></div>
