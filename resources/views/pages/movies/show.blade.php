@@ -197,21 +197,17 @@
                 <div class="text-sm text-[var(--color-text-muted)] py-2">Not watched yet.</div>
             </template>
             <template x-if="watches.length > 0">
-                <div class="flex flex-col divide-y divide-[var(--color-border)]">
+                <div class="flex flex-wrap gap-2">
                     <template x-for="watch in watches" :key="watch.id">
-                        <div class="flex items-center gap-4 py-3">
-                            <div class="text-sm text-[var(--color-text-primary)]" x-text="watch.date || 'Date unknown'"></div>
-                            <div class="text-sm text-[var(--color-text-muted)]"
-                                 x-text="watch.rating ? '★ ' + watch.rating + '/10' : ''"
-                                 x-show="watch.rating"></div>
-                            <div class="text-sm text-[var(--color-text-muted)] flex-1 truncate"
-                                 x-text="watch.notes"
-                                 x-show="watch.notes"></div>
+                        <span class="ep-watch-badge ep-watch-badge--lg">
+                            <span class="ep-watch-badge__date" x-text="watch.date || 'Date unknown'"></span>
+                            <span class="ep-watch-badge__rating" x-show="watch.rating" x-text="'· ★' + watch.rating"></span>
                             <button
+                                class="ep-watch-badge__delete"
                                 @click="deleteWatch(watch.id)"
-                                class="btn btn--danger btn--sm shrink-0"
-                            >Delete</button>
-                        </div>
+                                title="Delete watch"
+                            >&times;</button>
+                        </span>
                     </template>
                 </div>
             </template>

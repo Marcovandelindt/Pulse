@@ -311,18 +311,20 @@ foreach ($series->seasons as $season) {
                                                         <span>{{ $episode->runtime }} min</span>
                                                     @endif
                                                 </div>
+                                                <div class="media-episode__pills" x-show="watchesForEpisode({{ $episode->id }}).length > 0" style="display:none;">
+                                                    <template x-for="watch in watchesForEpisode({{ $episode->id }})" :key="watch.id">
+                                                        <span class="ep-watch-badge">
+                                                            <span class="ep-watch-badge__date" x-text="watch.date || '?'"></span>
+                                                            <button
+                                                                class="ep-watch-badge__delete"
+                                                                @click="deleteWatch(watch.id, {{ $episode->id }})"
+                                                                title="Remove watch"
+                                                            >&times;</button>
+                                                        </span>
+                                                    </template>
+                                                </div>
                                             </div>
-                                            <div class="media-episode__watches">
-                                                <template x-for="watch in watchesForEpisode({{ $episode->id }})" :key="watch.id">
-                                                    <span class="ep-watch-badge">
-                                                        <span class="ep-watch-badge__date" x-text="watch.date || '?'"></span>
-                                                        <button
-                                                            class="ep-watch-badge__delete"
-                                                            @click="deleteWatch(watch.id, {{ $episode->id }})"
-                                                            title="Remove watch"
-                                                        >&times;</button>
-                                                    </span>
-                                                </template>
+                                            <div class="media-episode__action">
                                                 <button
                                                     type="button"
                                                     class="btn btn--secondary btn--sm"
