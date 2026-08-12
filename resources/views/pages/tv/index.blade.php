@@ -4,9 +4,10 @@
     $backdrops = $series
         ->filter(fn ($s) => $s->backdrop_url)
         ->map(fn ($s) => [
-            'name' => $s->name_en ?? $s->name,
-            'url'  => $s->backdrop_url,
-            'stats' => collect([
+            'name'     => $s->name_en ?? $s->name,
+            'url'      => $s->backdrop_url,
+            'favorite' => (bool) $s->is_favorite,
+            'stats'    => collect([
                 $s->episodes_watched > 0 ? $s->episodes_watched . ' episodes watched' : null,
                 $s->completion_percentage > 0 ? round($s->completion_percentage) . '% complete' : null,
             ])->filter()->implode(' · '),
@@ -43,6 +44,7 @@
                     <div class="media-slider__label" x-text="slide.name"></div>
                     <div class="media-slider__stats" x-show="slide.stats" x-text="slide.stats"></div>
                 </div>
+                <div class="media-slider__favorite" x-show="slide.favorite">★</div>
             </div>
         </template>
     </div>

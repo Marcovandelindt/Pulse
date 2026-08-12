@@ -64,8 +64,11 @@ final class HealthStatsController extends Controller
         $current = 0;
         $longest = 0;
         $running = 0;
-        $check = now()->startOfDay();
         $inCurrent = true;
+
+        $firstEntryDate = $entries->first()?->date->startOfDay();
+        $todayLogged = $firstEntryDate && $firstEntryDate->equalTo(now()->startOfDay());
+        $check = $todayLogged ? now()->startOfDay() : now()->subDay()->startOfDay();
 
         foreach ($entries as $entry) {
             $entryDate = $entry->date->startOfDay();

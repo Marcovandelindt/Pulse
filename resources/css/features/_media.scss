@@ -299,6 +299,16 @@
     left:     1.5rem;
 }
 
+.media-slider__favorite {
+    position:    absolute;
+    top:         1rem;
+    right:       1rem;
+    font-size:   1.5rem;
+    color:       #facc15;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+    line-height: 1;
+}
+
 .media-slider__label {
     font-size:   1.375rem;
     font-weight: 700;
