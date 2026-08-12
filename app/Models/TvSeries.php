@@ -22,7 +22,7 @@ final class TvSeries extends Model
     protected $fillable = [
         'tmdb_id', 'name', 'name_en', 'original_name', 'overview',
         'poster_path', 'backdrop_path', 'first_air_date', 'last_air_date',
-        'vote_average', 'genres', 'status', 'original_language',
+        'vote_average', 'user_rating', 'genres', 'status', 'original_language',
         'number_of_seasons', 'number_of_episodes', 'episodes_watched',
         'completion_percentage', 'last_watched_at', 'first_watched_at',
     ];

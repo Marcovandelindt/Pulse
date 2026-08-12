@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Media\StoreTmdbSeriesRequest;
 use App\Models\TvSeries;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 final class TvSeriesController extends Controller
@@ -43,6 +44,15 @@ final class TvSeriesController extends Controller
             'poster_url' => $series->poster_url,
             'added' => true,
         ]);
+    }
+
+    public function rate(Request $request, TvSeries $series): JsonResponse
+    {
+        $rating = $request->validate(['rating' => ['nullable', 'numeric', 'min:1', 'max:10']])['rating'];
+
+        $series->update(['user_rating' => $rating ? round((float) $rating, 1) : null]);
+
+        return response()->json(['user_rating' => $series->user_rating]);
     }
 
     public function destroy(TvSeries $series, DeleteSeries $action): JsonResponse

@@ -63,12 +63,30 @@ export function registerTvComponents() {
         },
     }));
 
-    Alpine.data('tvShow', ({ episodeWatches, seasonEpisodeIds, seriesId, seriesName, routes }) => ({
+    Alpine.data('tvShow', ({ episodeWatches, seasonEpisodeIds, seriesId, seriesName, userRating, routes }) => ({
         episodeWatches,
         seasonEpisodeIds,
         openSeasons: {},
         processing: {},
         showAllCast: false,
+
+        userRating,
+        ratingInput: userRating ?? '',
+        ratingEditing: false,
+
+        async saveRating() {
+            this.ratingEditing = false;
+            const value = this.ratingInput === '' ? null : parseFloat(this.ratingInput);
+            const res = await fetch(routes.rating, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf() },
+                body: JSON.stringify({ rating: value }),
+            });
+            const data = await res.json();
+            this.userRating = data.user_rating;
+            this.ratingInput = data.user_rating ?? '';
+            this.$dispatch('toast', { message: 'Rating saved!', type: 'success' });
+        },
 
         watchOpen: false,
         watchUpTo: false,
