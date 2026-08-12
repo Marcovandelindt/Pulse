@@ -326,9 +326,10 @@
 }
 
 .media-cast__member {
-    flex-shrink: 0;
-    width:       6rem;
-    text-align:  center;
+    flex-shrink:     0;
+    width:           6rem;
+    text-align:      center;
+    text-decoration: none;
 }
 
 .media-cast__photo {
@@ -590,12 +591,18 @@
 }
 
 .media-cast--grid .media-cast__member {
-    flex-shrink: unset;
-    width:       unset;
+    flex-shrink:     unset;
+    width:           unset;
     text-decoration: none;
-    transition:  opacity var(--transition-base);
+    transition:      transform var(--transition-base), box-shadow var(--transition-base);
 
-    &:hover { opacity: 0.8; }
+    &:hover {
+        transform:  translateY(-2px);
+
+        .media-cast__photo {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+    }
 }
 
 /* ── Directors ────────────────────────────────────── */
@@ -607,13 +614,13 @@
 }
 
 .media-director {
-    display:     flex;
-    align-items: center;
-    gap:         0.75rem;
+    display:         flex;
+    align-items:     center;
+    gap:             0.75rem;
     text-decoration: none;
-    transition:  opacity var(--transition-base);
+    transition:      transform var(--transition-base);
 
-    &:hover { opacity: 0.8; }
+    &:hover { transform: translateY(-1px); }
 }
 
 .media-director__photo {
@@ -732,6 +739,7 @@
     display:         flex;
     align-items:     center;
     gap:             1rem;
+    text-decoration: none;
     padding:         0.75rem;
     background:      var(--color-bg-tertiary);
     border-radius:   var(--radius-md);
