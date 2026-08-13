@@ -67,7 +67,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <span class="play-item__time">{{ $play->played_at->diffForHumans() }}</span>
+                                <span class="play-item__time">{{ $play->played_at->format('d M, H:i') }}</span>
                             </div>
                         @endforeach
                     </div>
