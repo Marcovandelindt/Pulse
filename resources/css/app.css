@@ -21,6 +21,7 @@
 @import './features/_health.scss';
 @import './features/_finance.scss';
 @import './features/_media.scss';
+@import './features/_music.scss';
 
 @theme {
     --color-brand:        oklch(0.60 0.18 260);
