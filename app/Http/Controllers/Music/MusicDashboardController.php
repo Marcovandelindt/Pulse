@@ -39,7 +39,7 @@ final class MusicDashboardController extends Controller
             ->join('plays', 'tracks.id', '=', 'plays.track_id')
             ->where('plays.played_at', '>=', now()->subWeek())
             ->where('track_artists.is_primary', true)
-            ->groupBy('artists.id')
+            ->groupBy('artists.id', 'artists.spotify_artist_id', 'artists.name', 'artists.image_url', 'artists.genres', 'artists.popularity', 'artists.created_at', 'artists.updated_at')
             ->orderByDesc('play_count')
             ->limit(5)
             ->get();

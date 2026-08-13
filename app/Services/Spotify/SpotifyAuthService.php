@@ -41,6 +41,10 @@ final class SpotifyAuthService
             'redirect_uri' => config('spotify.redirect_uri'),
         ])->json();
 
+        if (empty($tokenResponse['access_token'])) {
+            throw new RuntimeException('Failed to obtain Spotify access token: '.($tokenResponse['error'] ?? 'unknown error'));
+        }
+
         $meResponse = Http::withToken($tokenResponse['access_token'])
             ->get('https://api.spotify.com/v1/me')
             ->json();

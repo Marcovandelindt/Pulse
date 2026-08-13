@@ -11,7 +11,7 @@ use App\Http\Controllers\Spotify\SpotifyAuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/spotify/auth', [SpotifyAuthController::class, 'redirect'])->name('spotify.auth');
-Route::get('/spotify/auth/callback', [SpotifyAuthController::class, 'callback'])->name('spotify.callback');
+Route::get('/callback/spotify', [SpotifyAuthController::class, 'callback'])->name('spotify.callback');
 Route::post('/spotify/disconnect', [SpotifyAuthController::class, 'disconnect'])->name('spotify.disconnect');
 
 Route::prefix('music')->name('music.')->middleware('spotify.connected')->group(function () {

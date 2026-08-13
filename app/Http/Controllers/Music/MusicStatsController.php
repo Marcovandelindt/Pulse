@@ -36,7 +36,7 @@ final class MusicStatsController extends Controller
             ->join('tracks', 'track_artists.track_id', '=', 'tracks.id')
             ->join('plays', 'tracks.id', '=', 'plays.track_id')
             ->where('track_artists.is_primary', true)
-            ->groupBy('artists.id')
+            ->groupBy('artists.id', 'artists.spotify_artist_id', 'artists.name', 'artists.image_url', 'artists.genres', 'artists.popularity', 'artists.created_at', 'artists.updated_at')
             ->orderByDesc('play_count')
             ->limit(10)
             ->get();
@@ -45,7 +45,7 @@ final class MusicStatsController extends Controller
             ->selectRaw('COUNT(plays.id) as play_count')
             ->join('tracks', 'albums.id', '=', 'tracks.album_id')
             ->join('plays', 'tracks.id', '=', 'plays.track_id')
-            ->groupBy('albums.id')
+            ->groupBy('albums.id', 'albums.spotify_album_id', 'albums.name', 'albums.image_url', 'albums.release_date', 'albums.album_type', 'albums.total_tracks', 'albums.created_at', 'albums.updated_at')
             ->orderByDesc('play_count')
             ->limit(10)
             ->get();

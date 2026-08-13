@@ -25,6 +25,11 @@ final class SpotifyAuthController extends Controller
 
     public function callback(Request $request): RedirectResponse
     {
+        if ($request->has('error')) {
+            return redirect()->route('spotify.auth')
+                ->with('error', 'Spotify authorization failed: '.$request->string('error'));
+        }
+
         $code = $request->string('code')->toString();
         $state = $request->string('state')->toString();
 
