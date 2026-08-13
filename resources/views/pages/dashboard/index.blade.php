@@ -30,11 +30,8 @@
 
     {{-- Main grid --}}
     <div class="dashboard-grid">
-        <x-ui.card title="Activity">
-            <x-ui.empty-state
-                title="No activity data yet"
-                description="Start logging your health data to see trends here."
-            />
+        <x-ui.card title="Recent Activity">
+            <x-dashboard.activity-timeline :activities="$timeline" />
         </x-ui.card>
 
         <div class="flex flex-col gap-6">
