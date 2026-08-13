@@ -17,6 +17,7 @@
 @import './components/_table.scss';
 @import './components/_form.scss';
 @import './components/_activity-timeline.scss';
+@import './components/_pagination.scss';
 @import './features/_dashboard.scss';
 @import './features/_health.scss';
 @import './features/_finance.scss';

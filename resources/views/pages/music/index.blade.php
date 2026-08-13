@@ -39,7 +39,7 @@
         <div class="lg:col-span-2">
             <x-ui.card title="Recent plays">
                 <x-slot:action>
-                    <span class="text-xs text-[var(--color-text-muted)]">Last 20</span>
+                    <span class="text-xs text-[var(--color-text-muted)]">{{ number_format($recentPlays->total()) }} total</span>
                 </x-slot:action>
 
                 @if($recentPlays->isEmpty())
@@ -71,6 +71,12 @@
                             </div>
                         @endforeach
                     </div>
+
+                    @if($recentPlays->hasPages())
+                        <div class="card__footer">
+                            {{ $recentPlays->links() }}
+                        </div>
+                    @endif
                 @endif
             </x-ui.card>
         </div>

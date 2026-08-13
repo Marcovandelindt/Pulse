@@ -21,8 +21,7 @@ final class MusicDashboardController extends Controller
     {
         $recentPlays = Play::with(['track.album', 'track.artists'])
             ->orderByDesc('played_at')
-            ->limit(20)
-            ->get();
+            ->paginate(20);
 
         $topTracksThisWeek = Play::selectRaw('track_id, count(*) as play_count')
             ->where('played_at', '>=', now()->subWeek())
