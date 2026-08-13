@@ -39,7 +39,7 @@ final class SpotifyTrackService
 
         foreach ($items as $item) {
             $trackData = $item['track'];
-            $playedAt = Carbon::parse($item['played_at']);
+            $playedAt = Carbon::parse($item['played_at'], 'UTC')->setTimezone(config('app.timezone'));
 
             if ($maxPlayedAt === null || $playedAt->gt($maxPlayedAt)) {
                 $maxPlayedAt = $playedAt;
