@@ -16,6 +16,7 @@ Route::post('/spotify/disconnect', [SpotifyAuthController::class, 'disconnect'])
 
 Route::prefix('music')->name('music.')->middleware('spotify.connected')->group(function () {
     Route::get('/', [MusicDashboardController::class, 'index'])->name('index');
+    Route::post('/sync', [MusicDashboardController::class, 'sync'])->name('sync');
     Route::get('/stats', [MusicStatsController::class, 'index'])->name('stats');
     Route::get('/tracks/{track}', [TrackController::class, 'show'])->name('tracks.show');
     Route::get('/albums/{album}', [AlbumController::class, 'show'])->name('albums.show');

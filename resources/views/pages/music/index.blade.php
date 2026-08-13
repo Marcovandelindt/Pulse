@@ -3,6 +3,10 @@
     <x-layout.page-header title="Music">
         <x-slot:actions>
             <a href="{{ route('music.stats') }}" class="btn btn--secondary btn--sm">Stats</a>
+            <form method="POST" action="{{ route('music.sync') }}">
+                @csrf
+                <button type="submit" class="btn btn--primary btn--sm">Sync now</button>
+            </form>
             <form method="POST" action="{{ route('spotify.disconnect') }}">
                 @csrf
                 <button type="submit" class="btn btn--secondary btn--sm">Disconnect Spotify</button>

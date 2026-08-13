@@ -10,12 +10,21 @@ use App\Models\Play;
 use App\Models\SpotifySyncCursor;
 use App\Services\Spotify\SpotifyTrackService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 
 final class MusicDashboardController extends Controller
 {
     public function __construct(
         private readonly SpotifyTrackService $trackService,
     ) {}
+
+    public function sync(): RedirectResponse
+    {
+        $result = $this->trackService->syncRecentlyPlayed();
+
+        return redirect()->route('music.index')
+            ->with('success', "Synced {$result['synced']} new plays ({$result['skipped']} skipped).");
+    }
 
     public function index(): View
     {
