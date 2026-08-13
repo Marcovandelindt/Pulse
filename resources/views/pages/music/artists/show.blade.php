@@ -13,9 +13,9 @@
         <div class="track-detail__info">
             <h2 class="track-detail__title">{{ $artist->name }}</h2>
             @if($artist->genres && count($artist->genres) > 0)
-                <div class="track-detail__meta">
-                    @foreach(array_slice($artist->genres, 0, 4) as $genre)
-                        <span class="badge">{{ $genre }}</span>
+                <div class="flex flex-wrap gap-1.5 mt-1">
+                    @foreach(array_slice($artist->genres, 0, 5) as $genre)
+                        <span class="badge badge--muted">{{ $genre }}</span>
                     @endforeach
                 </div>
             @endif
