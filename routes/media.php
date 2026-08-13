@@ -11,6 +11,11 @@ use App\Http\Controllers\Media\Tv\TvSearchController;
 use App\Http\Controllers\Media\Tv\TvSeriesController;
 use App\Http\Controllers\Media\Tv\TvStatsController;
 use App\Http\Controllers\Media\Tv\TvWatchController;
+use App\Http\Controllers\Music\AlbumController;
+use App\Http\Controllers\Music\AlbumListenController;
+use App\Http\Controllers\Music\AlbumSearchController;
+use App\Http\Controllers\Music\AlbumStatsController;
+use App\Http\Controllers\Music\ArtistController;
 use App\Http\Controllers\PeopleController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,3 +47,15 @@ Route::prefix('tv')->name('tv.')->group(function () {
 });
 
 Route::get('/people/{person}', [PeopleController::class, 'show'])->name('people.show');
+
+Route::prefix('music')->name('music.')->group(function () {
+    Route::get('/', [AlbumController::class,       'index'])->name('index');
+    Route::get('/stats', [AlbumStatsController::class,  'index'])->name('stats');
+    Route::get('/artists/{artist}', [ArtistController::class,      'show'])->name('artists.show');
+    Route::post('/search', [AlbumSearchController::class, 'index'])->name('search');
+    Route::post('/', [AlbumController::class,       'store'])->name('store');
+    Route::get('/{album}', [AlbumController::class,       'show'])->name('show');
+    Route::post('/{album}/listens', [AlbumListenController::class, 'store'])->name('listens.store');
+    Route::delete('/listens/{listen}', [AlbumListenController::class, 'destroy'])->name('listens.destroy');
+    Route::delete('/{album}', [AlbumController::class,       'destroy'])->name('destroy');
+});
