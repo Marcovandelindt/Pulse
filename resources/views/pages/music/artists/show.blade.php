@@ -19,21 +19,28 @@
                     @endforeach
                 </div>
             @endif
-
-            <div class="flex flex-wrap gap-4 mt-4">
-                <div>
-                    <div class="text-xs text-[var(--color-text-muted)] uppercase tracking-wide">Total plays</div>
-                    <div class="text-sm font-medium text-[var(--color-text-primary)] mt-0.5">{{ number_format($totalPlays) }}</div>
-                </div>
-                <div>
-                    <div class="text-xs text-[var(--color-text-muted)] uppercase tracking-wide">Unique tracks</div>
-                    <div class="text-sm font-medium text-[var(--color-text-primary)] mt-0.5">{{ number_format($uniqueTracks) }}</div>
-                </div>
-            </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="grid grid-cols-3 gap-4 mt-2">
+        <x-stats.stat-card
+            label="Listening time"
+            :value="$totalListeningFormatted"
+            icon="clock"
+        />
+        <x-stats.stat-card
+            label="Total plays"
+            :value="number_format($totalPlays)"
+            icon="play"
+        />
+        <x-stats.stat-card
+            label="Unique tracks"
+            :value="number_format($uniqueTracks)"
+            icon="musical-note"
+        />
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 mt-6 lg:grid-cols-2">
 
         <x-ui.card title="Top tracks">
             @if($topTracks->isEmpty())
@@ -93,6 +100,41 @@
         </x-ui.card>
 
     </div>
+
+    <x-ui.card title="Play history" class="mt-6">
+        @if($recentPlays->isEmpty())
+            <x-ui.empty-state title="No plays recorded" />
+        @else
+            <div class="play-list">
+                @foreach($recentPlays as $play)
+                    <div class="play-item">
+                        @if($play->track->album?->image_url)
+                            <img src="{{ $play->track->album->image_url }}" alt="" class="play-item__cover">
+                        @else
+                            <div class="play-item__cover"></div>
+                        @endif
+                        <div class="play-item__info">
+                            <a href="{{ route('music.tracks.show', $play->track) }}" class="play-item__title">
+                                {{ $play->track->title }}
+                            </a>
+                            @if($play->track->album)
+                                <div class="play-item__meta">
+                                    <a href="{{ route('music.albums.show', $play->track->album) }}" class="hover:underline">{{ $play->track->album->name }}</a>
+                                </div>
+                            @endif
+                        </div>
+                        <span class="play-item__time">{{ $play->played_at->format('d M, H:i') }}</span>
+                    </div>
+                @endforeach
+            </div>
+
+            @if($recentPlays->hasPages())
+                <div class="card__footer">
+                    {{ $recentPlays->links() }}
+                </div>
+            @endif
+        @endif
+    </x-ui.card>
 
     <x-layout.notification />
 
