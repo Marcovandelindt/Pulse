@@ -22,7 +22,7 @@ final class TvSeriesController extends Controller
         $query = TvSeries::query();
 
         $series = match($sort) {
-            'most_watched' => $query->orderByDesc('episodes_watched')->orderByDesc('created_at')->get(),
+            'most_watched' => $query->orderByDesc('watched_runtime_minutes')->orderByDesc('created_at')->get(),
             'added'        => $query->orderByDesc('created_at')->get(),
             'alpha'        => $query->orderBy('name')->get(),
             default        => $query->orderByDesc('last_watched_at')->orderByDesc('created_at')->get(),
