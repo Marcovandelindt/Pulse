@@ -342,7 +342,7 @@
 
 .media-hero--blur {
     background: var(--color-bg-primary);
-    overflow: hidden;
+    clip-path: inset(-3rem 0 -4rem 0);
 
     &::before {
         content: '';
