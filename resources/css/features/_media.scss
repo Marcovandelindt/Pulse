@@ -342,7 +342,7 @@
 
 .media-hero--blur {
     background: var(--color-bg-primary);
-    clip-path: inset(-3rem 0 -4rem 0);
+    clip-path: inset(0 0 -4rem 0);
 
     &::before {
         content: '';
@@ -352,11 +352,21 @@
         background-size: cover;
         background-position: center;
         filter: blur(2rem) brightness(0.55);
+        pointer-events: none;
     }
 
     .media-hero__overlay {
-        position: relative;
-        z-index: 1;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: -4rem;
+        background: linear-gradient(
+            to bottom,
+            rgba(15, 17, 23, 0.2) 0%,
+            rgba(15, 17, 23, 0.97) calc(100% - 4rem),
+            rgba(15, 17, 23, 1) 100%
+        );
     }
 }
 
