@@ -2,7 +2,7 @@
 
     {{-- Hero: artist photo --}}
     @if($artist->image_url)
-        <div class="media-hero media-hero--centered" style="background-image: url('{{ $artist->image_url }}')">
+        <div class="media-hero media-hero--blur" style="--hero-img: url('{{ $artist->image_url }}')">
             <div class="media-hero__overlay"></div>
         </div>
     @endif

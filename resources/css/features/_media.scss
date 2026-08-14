@@ -340,6 +340,25 @@
     background-position: center center;
 }
 
+.media-hero--blur {
+    background: var(--color-bg-primary);
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: -3rem;
+        background-image: var(--hero-img);
+        background-size: cover;
+        background-position: center;
+        filter: blur(2rem) brightness(0.55);
+    }
+
+    .media-hero__overlay {
+        position: relative;
+        z-index: 1;
+    }
+}
+
 .media-hero__overlay {
     position:   absolute;
     inset:      0;
