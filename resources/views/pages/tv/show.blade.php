@@ -39,7 +39,7 @@ foreach ($series->seasons as $season) {
 
     {{-- Backdrop hero --}}
     @if ($series->backdrop_url)
-        <div class="media-hero" style="background-image: url('{{ $series->backdrop_url }}')">
+        <div class="media-hero media-hero--centered" style="background-image: url('{{ $series->backdrop_url }}')">
             <div class="media-hero__overlay"></div>
         </div>
     @endif

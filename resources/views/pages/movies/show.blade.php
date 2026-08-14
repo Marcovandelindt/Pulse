@@ -15,7 +15,7 @@
 
     {{-- Backdrop hero --}}
     @if ($movie->backdrop_url)
-        <div class="media-hero" style="background-image: url('{{ $movie->backdrop_url }}')">
+        <div class="media-hero media-hero--centered" style="background-image: url('{{ $movie->backdrop_url }}')">
             <div class="media-hero__overlay"></div>
         </div>
     @endif
