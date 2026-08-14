@@ -20,14 +20,6 @@ final class ArtistController extends Controller
         $topTracks = $artist->tracks->sortByDesc(fn ($track) => $track->plays->count())->take(10);
         $albums = $artist->tracks->pluck('album')->unique('id')->values();
 
-        $sliderImages = $topTracks
-            ->map(fn ($t) => $t->album?->image_url)
-            ->filter()
-            ->unique()
-            ->values()
-            ->take(8)
-            ->all();
-
         $totalListeningMs = $artist->tracks->sum(
             fn ($track) => $track->plays->count() * ($track->duration_ms ?? 0)
         );
@@ -43,6 +35,6 @@ final class ArtistController extends Controller
             ->orderByDesc('played_at')
             ->paginate(25);
 
-        return view('pages.music.artists.show', compact('artist', 'totalPlays', 'uniqueTracks', 'topTracks', 'albums', 'totalListeningFormatted', 'recentPlays', 'sliderImages'));
+        return view('pages.music.artists.show', compact('artist', 'totalPlays', 'uniqueTracks', 'topTracks', 'albums', 'totalListeningFormatted', 'recentPlays'));
     }
 }
