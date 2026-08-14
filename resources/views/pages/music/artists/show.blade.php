@@ -1,10 +1,10 @@
 <x-layouts.app :title="$artist->name">
 
-    {{-- Slider header --}}
+    {{-- Hero slider --}}
     @if(count($sliderImages) > 0)
         <div
-            class="media-slider"
-            style="margin-bottom: 0;"
+            class="media-hero"
+            style="background: var(--color-bg-secondary);"
             x-data="{
                 slides: @js($sliderImages),
                 current: 0,
@@ -22,13 +22,10 @@
                 <div
                     class="media-slider__slide"
                     :style="{ backgroundImage: `url('${url}')`, opacity: current === i ? 1 : 0, transition: 'opacity 0.8s ease-in-out' }"
-                >
-                    <div class="media-slider__overlay"></div>
-                </div>
+                ></div>
             </template>
+            <div class="media-hero__overlay"></div>
         </div>
-    @else
-        <div style="height: 26rem; background: var(--color-bg-secondary); border-radius: var(--radius-lg);"></div>
     @endif
 
     <div class="media-detail">
@@ -41,7 +38,6 @@
                         src="{{ $artist->image_url }}"
                         alt="{{ $artist->name }}"
                         class="media-detail__poster"
-                        style="border-radius: 9999px;"
                     >
                 </div>
             @endif
