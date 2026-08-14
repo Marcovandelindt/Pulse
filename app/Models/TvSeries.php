@@ -87,9 +87,10 @@ final class TvSeries extends Model
         $this->completion_percentage = $this->number_of_episodes > 0
             ? round(($this->episodes_watched / $this->number_of_episodes) * 100, 2)
             : 0;
-        $this->watched_runtime_minutes = TvEpisode::whereHas('watches')
-            ->whereIn('tv_season_id', $this->seasons()->select('id'))
-            ->sum('runtime');
+        $this->watched_runtime_minutes = EpisodeWatch::join('tv_episodes', 'episode_watches.tv_episode_id', '=', 'tv_episodes.id')
+            ->whereIn('tv_episodes.tv_season_id', $this->seasons()->select('id'))
+            ->whereNotNull('tv_episodes.runtime')
+            ->sum('tv_episodes.runtime');
         $this->save();
     }
 
