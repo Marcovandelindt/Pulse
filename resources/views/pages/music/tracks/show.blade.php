@@ -32,7 +32,15 @@
                             @endif
                         </div>
                     </div>
-                    <a href="{{ route('music.index') }}" class="btn btn--secondary btn--sm">&larr; Music</a>
+                    <div class="flex items-center gap-2">
+                        <form method="POST" action="{{ route('music.tracks.obsession', $track) }}">
+                            @csrf
+                            <button type="submit" class="btn btn--{{ $track->is_obsession ? 'primary' : 'secondary' }} btn--sm">
+                                {{ $track->is_obsession ? '★ Obsession' : '☆ Mark as obsession' }}
+                            </button>
+                        </form>
+                        <a href="{{ route('music.index') }}" class="btn btn--secondary btn--sm">&larr; Music</a>
+                    </div>
                 </div>
 
                 <div class="media-detail__meta-row">

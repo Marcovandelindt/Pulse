@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Artist;
 use App\Models\Play;
 use App\Models\SpotifySyncCursor;
+use App\Models\Track;
 use App\Services\Spotify\SpotifyTrackService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -55,12 +56,34 @@ final class MusicDashboardController extends Controller
         $currentlyPlaying = $this->trackService->getCurrentlyPlaying();
         $lastSync = SpotifySyncCursor::latest()->first();
 
+        $obsessions = Track::where('is_obsession', true)
+            ->whereNotNull('obsession_since')
+            ->with(['album', 'artists'])
+            ->get()
+            ->each(function (Track $track) {
+                $track->plays_since_obsession = Play::where('track_id', $track->id)
+                    ->where('played_at', '>=', $track->obsession_since)
+                    ->count();
+            });
+
+        $obsessionSlides = $obsessions
+            ->filter(fn (Track $t) => $t->album?->image_url)
+            ->map(fn (Track $t) => [
+                'name' => $t->title,
+                'artist' => $t->artists_string,
+                'image' => $t->album->image_url,
+                'plays' => $t->plays_since_obsession,
+            ])
+            ->values();
+
         return view('pages.music.index', compact(
             'recentPlays',
             'topTracksThisWeek',
             'topArtistsThisWeek',
             'currentlyPlaying',
             'lastSync',
+            'obsessions',
+            'obsessionSlides',
         ));
     }
 }

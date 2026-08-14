@@ -20,6 +20,41 @@
         </p>
     @endif
 
+    @if($obsessionSlides->isNotEmpty())
+        <div
+            class="media-slider media-slider--blur"
+            x-data="{
+                slides: @js($obsessionSlides),
+                currentSlide: 0,
+                init() {
+                    if (this.slides.length > 1) {
+                        setInterval(() => {
+                            this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+                        }, 3500);
+                    }
+                }
+            }"
+        >
+            <template x-for="(slide, i) in slides" :key="i">
+                <div
+                    class="media-slider__slide"
+                    x-show="currentSlide === i"
+                    x-transition.opacity.duration.600ms
+                >
+                    <div class="media-slider__blur-bg" :style="`background-image: url('${slide.image}')`"></div>
+                    <div class="media-slider__overlay"></div>
+                    <div class="media-slider__cover">
+                        <img :src="slide.image" :alt="slide.name">
+                    </div>
+                    <div class="media-slider__info">
+                        <div class="media-slider__label" x-text="slide.name"></div>
+                        <div class="media-slider__stats" x-text="slide.artist + ' · ' + slide.plays + '× since obsession'"></div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    @endif
+
     @if($currentlyPlaying)
         <div class="now-playing">
             @if($currentlyPlaying['album_image_url'])
@@ -133,6 +168,31 @@
                                     </a>
                                 </div>
                                 <span class="play-item__time">{{ $artist->play_count }}×</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </x-ui.card>
+
+            <x-ui.card title="Obsessions">
+                @if($obsessions->isEmpty())
+                    <x-ui.empty-state title="No obsessions yet" description="Mark a track as obsession from its detail page." />
+                @else
+                    <div class="play-list">
+                        @foreach($obsessions as $track)
+                            <div class="play-item">
+                                @if($track->album?->image_url)
+                                    <img src="{{ $track->album->image_url }}" alt="" class="play-item__cover">
+                                @else
+                                    <div class="play-item__cover"></div>
+                                @endif
+                                <div class="play-item__info">
+                                    <a href="{{ route('music.tracks.show', $track) }}" class="play-item__title">
+                                        {{ $track->title }}
+                                    </a>
+                                    <div class="play-item__meta">{{ $track->artists_string }}</div>
+                                </div>
+                                <span class="play-item__time">{{ $track->plays_since_obsession }}×</span>
                             </div>
                         @endforeach
                     </div>
