@@ -3,7 +3,7 @@
     {{-- Hero slider --}}
     @if(count($sliderImages) > 0)
         <div
-            class="media-hero"
+            class="media-hero media-hero--centered"
             style="background: var(--color-bg-secondary);"
             x-data="{
                 slides: @js($sliderImages),
