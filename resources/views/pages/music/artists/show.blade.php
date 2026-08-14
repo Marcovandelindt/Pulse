@@ -11,7 +11,7 @@
                     if (this.slides.length > 1) {
                         this.timer = setInterval(() => {
                             this.current = (this.current + 1) % this.slides.length;
-                        }, 5000);
+                        }, 3500);
                     }
                 }
             }"

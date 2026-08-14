@@ -345,7 +345,7 @@
     inset: -3rem 0 0;
     background-size: cover;
     background-position: center;
-    filter: blur(2rem) brightness(0.55);
+    filter: blur(1rem) brightness(0.55);
     pointer-events: none;
 }
 
@@ -360,7 +360,7 @@
         background-image: var(--hero-img);
         background-size: cover;
         background-position: center;
-        filter: blur(2rem) brightness(0.55);
+        filter: blur(1rem) brightness(0.55);
         pointer-events: none;
     }
 
