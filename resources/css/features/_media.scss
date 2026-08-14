@@ -329,7 +329,7 @@
 /* ── Media hero ───────────────────────────────────── */
 
 .media-hero {
-    height:            28rem;
+    height:            20rem;
     background-size:   cover;
     background-position: center top;
     position:          relative;
@@ -381,7 +381,7 @@
 .media-detail__poster-wrap {
     flex-shrink: 0;
     width:       10rem;
-    margin-top:  -8rem;
+    margin-top:  -6rem;
     position:    relative;
     z-index:     1;
 }
