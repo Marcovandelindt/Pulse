@@ -36,7 +36,6 @@
                         src="{{ $artist->image_url }}"
                         alt="{{ $artist->name }}"
                         class="media-detail__poster"
-                        style="border-radius: 9999px;"
                     >
                 </div>
             @endif
