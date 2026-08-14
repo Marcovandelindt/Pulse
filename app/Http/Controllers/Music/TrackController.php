@@ -17,7 +17,8 @@ final class TrackController extends Controller
         $playCount = $track->plays->count();
         $firstPlay = $track->plays->sortBy('played_at')->first();
         $lastPlay = $track->plays->sortByDesc('played_at')->first();
+        $heroImage = $track->primaryArtist?->image_url ?? $track->album?->image_url;
 
-        return view('pages.music.tracks.show', compact('track', 'playCount', 'firstPlay', 'lastPlay'));
+        return view('pages.music.tracks.show', compact('track', 'playCount', 'firstPlay', 'lastPlay', 'heroImage'));
     }
 }
