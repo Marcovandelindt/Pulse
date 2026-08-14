@@ -13,10 +13,10 @@ final class BulkMarkUpToEpisode
     {
         $targetEpisode->load('season.series');
         $series = $targetEpisode->season->series;
-        $series->load('seasons.episodes.watches');
+        $series->load('seasons.episodes');
 
         $count = 0;
-        $done  = false;
+        $done = false;
 
         foreach ($series->seasons->sortBy('season_number') as $season) {
             if ($season->season_number === 0) {
@@ -24,13 +24,11 @@ final class BulkMarkUpToEpisode
             }
 
             foreach ($season->episodes->sortBy('episode_number') as $episode) {
-                if ($episode->watches->isEmpty()) {
-                    $episode->watches()->create([
-                        'watched_at' => $watchedAt,
-                        'year_only'  => $yearOnly,
-                    ]);
-                    $count++;
-                }
+                $episode->watches()->create([
+                    'watched_at' => $watchedAt,
+                    'year_only' => $yearOnly,
+                ]);
+                $count++;
 
                 if ($episode->id === $targetEpisode->id) {
                     $done = true;

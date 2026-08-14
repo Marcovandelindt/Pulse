@@ -11,16 +11,14 @@ final class BulkMarkSeriesWatched
 {
     public function handle(TvSeries $series, ?Carbon $watchedAt, bool $yearOnly): void
     {
-        $series->load('seasons.episodes.watches');
+        $series->load('seasons.episodes');
 
         foreach ($series->seasons as $season) {
             foreach ($season->episodes as $episode) {
-                if ($episode->watches->isEmpty()) {
-                    $episode->watches()->create([
-                        'watched_at' => $watchedAt,
-                        'year_only' => $yearOnly,
-                    ]);
-                }
+                $episode->watches()->create([
+                    'watched_at' => $watchedAt,
+                    'year_only' => $yearOnly,
+                ]);
             }
 
             $season->updateProgress();
