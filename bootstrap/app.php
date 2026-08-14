@@ -19,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->group(base_path('routes/media.php'));
             Route::middleware('web')
                 ->group(base_path('routes/music.php'));
+            Route::middleware('web')
+                ->group(base_path('routes/gaming.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

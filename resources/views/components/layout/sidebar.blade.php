@@ -23,5 +23,10 @@
             <x-layout.nav-item route="movies.index" icon="film" label="Movies" />
             <x-layout.nav-item route="tv.index" icon="tv" label="TV" />
         </div>
+
+        <div class="sidebar__group">
+            <span class="sidebar__group-label">Gaming</span>
+            <x-layout.nav-item route="playstation.index" icon="puzzle-piece" label="PlayStation" />
+        </div>
     </nav>
 </aside>
