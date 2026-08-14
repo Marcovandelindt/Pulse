@@ -340,6 +340,15 @@
     background-position: center center;
 }
 
+.media-hero__blur-slide {
+    position: absolute;
+    inset: -3rem 0 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(2rem) brightness(0.55);
+    pointer-events: none;
+}
+
 .media-hero--blur {
     background: var(--color-bg-primary);
     overflow: hidden;

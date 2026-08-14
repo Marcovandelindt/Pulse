@@ -1,8 +1,27 @@
 <x-layouts.app :title="$artist->name">
 
-    {{-- Hero: artist photo --}}
-    @if($artist->image_url)
-        <div class="media-hero media-hero--blur" style="--hero-img: url('{{ $artist->image_url }}')">
+    {{-- Hero slider: album covers of top played tracks --}}
+    @if(count($sliderImages) > 0)
+        <div
+            class="media-hero media-hero--blur"
+            x-data="{
+                slides: @js($sliderImages),
+                current: 0,
+                init() {
+                    if (this.slides.length > 1) {
+                        this.timer = setInterval(() => {
+                            this.current = (this.current + 1) % this.slides.length;
+                        }, 5000);
+                    }
+                }
+            }"
+        >
+            <template x-for="(url, i) in slides" :key="i">
+                <div
+                    class="media-hero__blur-slide"
+                    :style="{ backgroundImage: `url('${url}')`, opacity: current === i ? 1 : 0, transition: 'opacity 0.8s ease-in-out' }"
+                ></div>
+            </template>
             <div class="media-hero__overlay"></div>
         </div>
     @endif
@@ -17,6 +36,7 @@
                         src="{{ $artist->image_url }}"
                         alt="{{ $artist->name }}"
                         class="media-detail__poster"
+                        style="border-radius: 9999px;"
                     >
                 </div>
             @endif
