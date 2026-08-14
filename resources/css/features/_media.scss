@@ -342,6 +342,7 @@
 
 .media-hero--blur {
     background: var(--color-bg-primary);
+    overflow: hidden;
 
     &::before {
         content: '';
