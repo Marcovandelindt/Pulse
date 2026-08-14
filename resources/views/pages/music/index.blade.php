@@ -63,7 +63,10 @@
                                     </a>
                                     <div class="play-item__meta">
                                         @if($play->track?->artists->isNotEmpty())
-                                            <a href="{{ route('music.artists.show', $play->track->artists->first()) }}" class="hover:underline">{{ $play->track->artists_string }}</a>
+                                            @foreach($play->track->artists as $artist)
+                                                <a href="{{ route('music.artists.show', $artist) }}" class="hover:underline">{{ $artist->name }}</a>
+                                                @if(!$loop->last)<span> · </span>@endif
+                                            @endforeach
                                             ·
                                         @endif
                                         @if($play->track?->album)
