@@ -88,9 +88,9 @@
                         @foreach($recentPlays as $play)
                             <div class="play-item">
                                 @if($play->track?->album?->image_url)
-                                    <img src="{{ $play->track->album->image_url }}" alt="{{ $play->track->album->name }}" class="play-item__cover">
+                                    <img src="{{ $play->track->album->image_url }}" alt="{{ $play->track->album->name }}" class="play-item__cover {{ $play->track->is_obsession ? 'play-item__cover--obsession' : '' }}">
                                 @else
-                                    <div class="play-item__cover"></div>
+                                    <div class="play-item__cover {{ $play->track?->is_obsession ? 'play-item__cover--obsession' : '' }}"></div>
                                 @endif
                                 <div class="play-item__info">
                                     <a href="{{ route('music.tracks.show', $play->track) }}" class="play-item__title">
