@@ -13,6 +13,7 @@ use Illuminate\View\View;
 
 final class DashboardController extends Controller
 {
+    private const TIMELINE_DAYS = 14;
     private const TIMELINE_LIMIT = 15;
 
     public function index(): View
@@ -27,18 +28,32 @@ final class DashboardController extends Controller
     {
         $watches = EpisodeWatch::with(['episode.season.series'])
             ->whereNotNull('watched_at')
+            ->where('watched_at', '>=', now()->subDays(self::TIMELINE_DAYS)->startOfDay())
             ->orderByDesc('watched_at')
-            ->limit(self::TIMELINE_LIMIT)
             ->get();
 
-        $watchActivities = $watches->map(fn (EpisodeWatch $watch): ActivityItem => new ActivityItem(
-            type: 'episode_watch',
-            title: $watch->episode->season->series->name,
-            subtitle: 'S'.$watch->episode->season->season_number.'E'.$watch->episode->episode_number.' — '.$watch->episode->name,
-            imageUrl: $watch->episode->season->series->poster_url,
-            occurredAt: $watch->watched_at,
-            isPinned: false,
-        ));
+        // Group by series + calendar date so binge sessions collapse into one item
+        $watchActivities = $watches
+            ->groupBy(fn (EpisodeWatch $w) => $w->episode->season->series->id.'_'.$w->watched_at->toDateString())
+            ->map(function (Collection $group): ActivityItem {
+                $first = $group->first();
+                $series = $first->episode->season->series;
+                $count = $group->count();
+
+                $subtitle = $count === 1
+                    ? 'S'.$first->episode->season->season_number.'E'.$first->episode->episode_number.' — '.$first->episode->name
+                    : $count.' episodes';
+
+                return new ActivityItem(
+                    type: 'episode_watch',
+                    title: $series->name,
+                    subtitle: $subtitle,
+                    imageUrl: $series->poster_url,
+                    occurredAt: $first->watched_at,
+                    isPinned: false,
+                );
+            })
+            ->values();
 
         // Only fetch steps for days already covered by the episode watches,
         // so steps never crowd out episodes entirely.
