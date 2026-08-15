@@ -101,11 +101,11 @@
             <div class="media-directors mt-6">
                 @foreach ($directors as $director)
                     <a href="{{ route('people.show', $director) }}" class="media-director">
-                        @if ($director->profile_url)
-                            <img src="{{ $director->profile_url }}" alt="{{ $director->name }}" class="media-director__photo">
-                        @else
-                            <div class="media-director__photo media-director__photo--empty"></div>
-                        @endif
+                        <img
+                            src="{{ $director->profile_url ?? asset('cast-placeholder.svg') }}"
+                            alt="{{ $director->name }}"
+                            class="media-director__photo"
+                        >
                         <div>
                             <div class="media-director__name">{{ $director->name }}</div>
                             <div class="media-director__label">Director</div>
@@ -125,11 +125,11 @@
                             class="media-cast__member"
                             x-show="{{ $loop->index }} < 20 || showAllCast"
                         >
-                            @if ($person->profile_url)
-                                <img src="{{ $person->profile_url }}" alt="{{ $person->name }}" class="media-cast__photo">
-                            @else
-                                <div class="media-cast__photo media-cast__photo--empty"></div>
-                            @endif
+                            <img
+                                src="{{ $person->profile_url ?? asset('cast-placeholder.svg') }}"
+                                alt="{{ $person->name }}"
+                                class="media-cast__photo"
+                            >
                             <div class="media-cast__name">{{ $person->name }}</div>
                             @if ($person->pivot->character)
                                 <div class="media-cast__role">{{ $person->pivot->character }}</div>

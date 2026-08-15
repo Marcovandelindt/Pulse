@@ -9,11 +9,11 @@
     {{-- Profile card --}}
     <x-ui.card class="mb-6">
         <div class="people-profile">
-            @if ($person->profile_url)
-                <img src="{{ $person->profile_url }}" alt="{{ $person->name }}" class="people-profile__photo">
-            @else
-                <div class="people-profile__photo people-profile__photo--empty"></div>
-            @endif
+            <img
+                src="{{ $person->profile_url ?? asset('cast-placeholder.svg') }}"
+                alt="{{ $person->name }}"
+                class="people-profile__photo"
+            >
 
             <div class="people-profile__stats">
                 <div class="people-profile__stat">

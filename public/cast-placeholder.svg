@@ -1,0 +1,35 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f2937"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="figure" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4b5563"/>
+      <stop offset="100%" stop-color="#374151"/>
+    </linearGradient>
+  </defs>
+
+  <!-- achtergrond -->
+  <rect width="400" height="400" fill="url(#bg)"/>
+
+  <!-- subtiele rand -->
+  <rect x="1" y="1" width="398" height="398" fill="none" stroke="#374151" stroke-width="2"/>
+
+  <!-- silhouet: hoofd -->
+  <circle cx="200" cy="155" r="70" fill="url(#figure)"/>
+
+  <!-- silhouet: schouders/torso, geclipt binnen het frame -->
+  <clipPath id="frameClip">
+    <rect x="0" y="0" width="400" height="400"/>
+  </clipPath>
+  <path d="M 200 240 C 100 240 55 300 55 400 L 345 400 C 345 300 300 240 200 240 Z"
+        fill="url(#figure)" clip-path="url(#frameClip)"/>
+
+  <!-- camera/film icoon als subtiele hint naar cast/media -->
+  <g transform="translate(200,340)" opacity="0.55">
+    <rect x="-22" y="-14" width="44" height="28" rx="4" fill="#111827"/>
+    <path d="M -22 -6 L -34 -14 L -34 10 L -22 2 Z" fill="#111827"/>
+    <circle cx="0" cy="0" r="7" fill="#4b5563"/>
+  </g>
+</svg>

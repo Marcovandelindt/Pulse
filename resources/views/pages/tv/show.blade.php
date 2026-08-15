@@ -163,11 +163,11 @@ foreach ($series->seasons as $season) {
                             class="media-cast__member"
                             x-show="{{ $loop->index }} < 20 || showAllCast"
                         >
-                            @if ($person->profile_url)
-                                <img src="{{ $person->profile_url }}" alt="{{ $person->name }}" class="media-cast__photo">
-                            @else
-                                <div class="media-cast__photo media-cast__photo--empty"></div>
-                            @endif
+                            <img
+                                src="{{ $person->profile_url ?? asset('cast-placeholder.svg') }}"
+                                alt="{{ $person->name }}"
+                                class="media-cast__photo"
+                            >
                             <div class="media-cast__name">{{ $person->name }}</div>
                             @if ($person->pivot->character)
                                 <div class="media-cast__role">{{ $person->pivot->character }}</div>
