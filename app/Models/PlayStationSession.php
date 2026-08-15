@@ -29,7 +29,7 @@ final class PlayStationSession extends Model
 
     public function game(): BelongsTo
     {
-        return $this->belongsTo(PlayStationGame::class);
+        return $this->belongsTo(PlayStationGame::class, 'play_station_game_id');
     }
 
     public function scopeRecent(Builder $query, int $limit = 10): Builder

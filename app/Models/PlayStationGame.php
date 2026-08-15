@@ -49,7 +49,7 @@ final class PlayStationGame extends Model
         ];
     }
 
-    public function sessions(): HasMany
+    public function playSessions(): HasMany
     {
         return $this->hasMany(PlayStationSession::class);
     }
@@ -58,7 +58,7 @@ final class PlayStationGame extends Model
     {
         return Attribute::make(
             get: function () {
-                $fromSessions = $this->sessions->sum('duration_minutes') / 60;
+                $fromSessions = $this->playSessions->sum('duration_minutes') / 60;
                 $fromManual = ($this->manual_minutes ?? 0) / 60;
 
                 return round($fromSessions + $fromManual, 1);
@@ -69,14 +69,14 @@ final class PlayStationGame extends Model
     protected function formattedHours(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->calculated_hours.'h'
+            get: fn () => number_format((float) $this->hours, 1).'h'
         );
     }
 
     protected function calculatedSessions(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->sessions->count()
+            get: fn () => $this->playSessions->count()
         );
     }
 
@@ -84,13 +84,13 @@ final class PlayStationGame extends Model
     {
         return Attribute::make(
             get: function () {
-                $count = $this->sessions->count();
+                $count = $this->playSessions->count();
 
                 if ($count === 0) {
                     return '—';
                 }
 
-                $avgMinutes = (int) round($this->sessions->avg('duration_minutes'));
+                $avgMinutes = (int) round($this->playSessions->avg('duration_minutes'));
 
                 if ($avgMinutes >= 60) {
                     $hours = intdiv($avgMinutes, 60);

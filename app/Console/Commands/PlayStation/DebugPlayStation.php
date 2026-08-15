@@ -10,7 +10,7 @@ use Symfony\Component\DomCrawler\Crawler;
 
 final class DebugPlayStation extends Command
 {
-    protected $signature = 'playstation:debug {username? : PSN username} {--cookie= : Session cookie} {--game= : Scrape session page for this game name}';
+    protected $signature = 'playstation:debug {username? : PSN username} {--cookie= : Session cookie value (_my_app_session)}';
 
     protected $description = 'Debug PS-Timetracker scraper — dumps response and found elements';
 
@@ -18,7 +18,6 @@ final class DebugPlayStation extends Command
     {
         $username = $this->argument('username') ?? config('services.playstation.username');
         $cookie = $this->option('cookie');
-        $gameName = $this->option('game');
 
         if (! $username) {
             $this->error('No username provided.');
@@ -26,15 +25,29 @@ final class DebugPlayStation extends Command
             return;
         }
 
-        $url = $gameName
-            ? "https://ps-timetracker.com/user/{$username}/game/".urlencode($gameName)
-            : "https://ps-timetracker.com/user/{$username}";
+        $this->testUrl(
+            'Profile (games)',
+            "https://ps-timetracker.com/profile/{$username}",
+            $cookie,
+        );
 
-        $this->info("Fetching: {$url}");
+        $this->newLine();
 
-        $response = Http::withoutVerifying()
-            ->withHeaders(['Cookie' => $cookie ?? ''])
-            ->get($url);
+        $this->testUrl(
+            'Playtimes page 1 (sessions)',
+            "https://ps-timetracker.com/profile/{$username}/playtimes?page=1",
+            $cookie,
+        );
+    }
+
+    private function testUrl(string $label, string $url, ?string $cookie): void
+    {
+        $this->info("[{$label}]");
+        $this->line("URL: {$url}");
+
+        $headers = $cookie ? ['Cookie' => "_my_app_session={$cookie}"] : [];
+
+        $response = Http::withoutVerifying()->withHeaders($headers)->get($url);
 
         $this->line("Status: {$response->status()}");
         $this->line('Response size: '.strlen($response->body()).' bytes');
@@ -46,13 +59,19 @@ final class DebugPlayStation extends Command
             return;
         }
 
-        $crawler = new Crawler($response->body());
+        $html = $response->body();
 
-        // Show page title
+        if (str_contains($html, 'Your PSN-Name') && str_contains($html, 'Your Code')) {
+            $this->warn('Cookie is invalid or expired — login page detected.');
+
+            return;
+        }
+
+        $crawler = new Crawler($html);
+
         $title = $crawler->filter('title')->count() > 0 ? $crawler->filter('title')->text() : '—';
         $this->line("Page title: {$title}");
 
-        // Find all tables
         $tableCount = $crawler->filter('table')->count();
         $this->line("Tables found: {$tableCount}");
 
@@ -63,20 +82,22 @@ final class DebugPlayStation extends Command
             $table->filter('tbody tr')->each(function (Crawler $row, int $r) {
                 if ($r >= 3) {
                     return;
-                } // only show first 3 rows
+                }
                 $cells = $row->filter('td');
                 $values = [];
-                $cells->each(function (Crawler $cell) use (&$values) {
-                    $values[] = trim(substr($cell->text(''), 0, 40));
+                $cells->each(function (Crawler $cell, int $c) use (&$values) {
+                    $values[] = "#{$c}: ".trim(substr($cell->text(''), 0, 30));
                 });
-                $this->line('    Row '.$r.': ['.implode('] [', $values).']');
+                $this->line('    Row '.$r.': '.implode(' | ', $values));
             });
         });
 
-        // Dump first 2000 chars of body if no tables found
         if ($tableCount === 0) {
-            $this->warn('No tables found. First 2000 chars of response:');
-            $this->line(substr(strip_tags($response->body()), 0, 2000));
+            $this->warn('No tables found. First 2000 chars:');
+            $this->line(substr(strip_tags($html), 0, 2000));
         }
+
+        $hasNext = $crawler->filter('a[rel="next"]')->count() > 0;
+        $this->line('Has next page: '.($hasNext ? 'yes' : 'no'));
     }
 }

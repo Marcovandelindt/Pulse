@@ -23,7 +23,7 @@ final class PlayStationController extends Controller
         $sort = $request->get('sort', 'hours');
         $platform = $request->get('platform');
 
-        $query = PlayStationGame::with('sessions');
+        $query = PlayStationGame::query();
 
         if ($platform) {
             $query->where('platform', $platform);
@@ -39,12 +39,16 @@ final class PlayStationController extends Controller
 
         $games = $query->get();
 
-        $totalHours = $games->sum(fn ($g) => (float) $g->calculated_hours);
+        $totalHours = round($games->sum(fn ($g) => (float) $g->hours), 1);
         $totalGames = $games->count();
         $totalSessions = $games->sum('sessions');
         $totalTrophies = $games->sum('trophies');
 
-        $recentSessions = PlayStationSession::with('game')->latest('started_at')->limit(5)->get();
+        $recentSessions = PlayStationSession::with('game')
+            ->whereHas('game')
+            ->latest('started_at')
+            ->limit(5)
+            ->get();
 
         return view('pages.playstation.index', compact(
             'games',
@@ -60,11 +64,11 @@ final class PlayStationController extends Controller
 
     public function show(PlayStationGame $playStationGame): View
     {
-        $playStationGame->load('sessions');
+        $playStationGame->load('playSessions');
 
-        $recentSessions = $playStationGame->sessions()->latest('started_at')->paginate(20);
+        $recentSessions = $playStationGame->playSessions()->latest('started_at')->paginate(20);
 
-        $monthlyStats = $playStationGame->sessions()
+        $monthlyStats = $playStationGame->playSessions()
             ->selectRaw("DATE_FORMAT(started_at, '%Y-%m') as month, SUM(duration_minutes) as total_minutes")
             ->groupByRaw("DATE_FORMAT(started_at, '%Y-%m')")
             ->orderBy('month')
