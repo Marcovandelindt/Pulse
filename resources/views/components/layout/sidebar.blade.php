@@ -22,6 +22,7 @@
             <span class="sidebar__group-label">Media</span>
             <x-layout.nav-item route="movies.index" icon="film" label="Movies" />
             <x-layout.nav-item route="tv.index" icon="tv" label="TV" />
+            <x-layout.nav-item route="recommendations.index" icon="sparkles" label="Recommendations" />
         </div>
 
         <div class="sidebar__group">

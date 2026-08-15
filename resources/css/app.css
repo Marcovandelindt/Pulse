@@ -24,6 +24,7 @@
 @import './features/_media.scss';
 @import './features/_music.scss';
 @import './features/_gaming.scss';
+@import './features/_recommendations.scss';
 
 @theme {
     --color-brand:        oklch(0.60 0.18 260);
