@@ -169,10 +169,17 @@
     backdrop-filter: blur(4px);
 }
 
+.rec-filter-row {
+    display:       flex;
+    align-items:   center;
+    gap:           1rem;
+    flex-wrap:     wrap;
+    margin-bottom: 2rem;
+}
+
 .rec-filter-tabs {
-    display:   flex;
-    gap:       0.25rem;
-    margin-bottom: 1.25rem;
+    display: flex;
+    gap:     0.25rem;
 }
 
 .rec-filter-tab {

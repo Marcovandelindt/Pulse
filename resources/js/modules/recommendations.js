@@ -3,7 +3,10 @@ export function registerRecommendationComponents() {
         showActorSearch: mode === 'actor',
         actorSearch: '',
         showDropdown: false,
-        creditFilter: 'all',
+        showMovies: true,
+        showSeries: true,
+        showWatched: true,
+        showUnwatched: true,
 
         get filteredPeople() {
             if (this.actorSearch.length < 1) return [];
@@ -18,6 +21,26 @@ export function registerRecommendationComponents() {
 
         selectActor(person) {
             window.location.href = actorBaseUrl + '/' + person.id;
+        },
+
+        toggleMovies() {
+            if (!this.showSeries) return;
+            this.showMovies = !this.showMovies;
+        },
+
+        toggleSeries() {
+            if (!this.showMovies) return;
+            this.showSeries = !this.showSeries;
+        },
+
+        toggleWatched() {
+            if (!this.showUnwatched) return;
+            this.showWatched = !this.showWatched;
+        },
+
+        toggleUnwatched() {
+            if (!this.showWatched) return;
+            this.showUnwatched = !this.showUnwatched;
         },
     }));
 }

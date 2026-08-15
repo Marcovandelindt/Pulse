@@ -70,6 +70,13 @@
     {{-- ── GENERAL MODE ── --}}
     @if($mode === 'general')
 
+        <div class="rec-filter-row">
+            <div class="rec-filter-tabs">
+                <button class="rec-filter-tab" :class="{ 'rec-filter-tab--active': showMovies }" @click="toggleMovies()">Movies</button>
+                <button class="rec-filter-tab" :class="{ 'rec-filter-tab--active': showSeries }" @click="toggleSeries()">Series</button>
+            </div>
+        </div>
+
         @if($recommendations->isEmpty())
             <x-ui.empty-state
                 title="No recommendations yet"
@@ -78,7 +85,10 @@
         @else
             <div class="media-grid">
                 @foreach($recommendations as $rec)
-                    <div class="media-card">
+                    <div
+                        class="media-card"
+                        x-show="{{ $rec['media_type'] === 'movie' ? 'showMovies' : 'showSeries' }}"
+                    >
                         <div class="media-card__poster-link" style="position:relative; display:block;">
                             @if($rec['poster_url'])
                                 <img src="{{ $rec['poster_url'] }}" alt="{{ $rec['title'] }}" class="media-card__poster">
@@ -95,13 +105,7 @@
                                     · ★ {{ $rec['vote_average'] }}
                                 @endif
                             </div>
-                            <div class="rec-card__because">
-                                @if($rec['because_type'] === 'actor')
-                                    Because you watch {{ $rec['because'] }}
-                                @else
-                                    Similar to {{ $rec['because'] }}
-                                @endif
-                            </div>
+                            <div class="rec-card__because">Similar to {{ $rec['because'] }}</div>
                         </div>
                     </div>
                 @endforeach
@@ -113,22 +117,15 @@
     {{-- ── ACTOR MODE ── --}}
     @if($mode === 'actor' && $person)
 
-        <div class="rec-filter-tabs">
-            <button
-                class="rec-filter-tab"
-                :class="{ 'rec-filter-tab--active': creditFilter === 'all' }"
-                @click="creditFilter = 'all'"
-            >All ({{ $credits->count() }})</button>
-            <button
-                class="rec-filter-tab"
-                :class="{ 'rec-filter-tab--active': creditFilter === 'unwatched' }"
-                @click="creditFilter = 'unwatched'"
-            >Unwatched ({{ $credits->where('watched', false)->count() }})</button>
-            <button
-                class="rec-filter-tab"
-                :class="{ 'rec-filter-tab--active': creditFilter === 'watched' }"
-                @click="creditFilter = 'watched'"
-            >Watched ({{ $credits->where('watched', true)->count() }})</button>
+        <div class="rec-filter-row">
+            <div class="rec-filter-tabs">
+                <button class="rec-filter-tab" :class="{ 'rec-filter-tab--active': showUnwatched }" @click="toggleUnwatched()">Unwatched ({{ $credits->where('watched', false)->count() }})</button>
+                <button class="rec-filter-tab" :class="{ 'rec-filter-tab--active': showWatched }"   @click="toggleWatched()">Watched ({{ $credits->where('watched', true)->count() }})</button>
+            </div>
+            <div class="rec-filter-tabs">
+                <button class="rec-filter-tab" :class="{ 'rec-filter-tab--active': showMovies }" @click="toggleMovies()">Movies</button>
+                <button class="rec-filter-tab" :class="{ 'rec-filter-tab--active': showSeries }" @click="toggleSeries()">Series</button>
+            </div>
         </div>
 
         @if($credits->isEmpty())
@@ -138,10 +135,7 @@
                 @foreach($credits as $credit)
                     <div
                         class="media-card"
-                        data-watched="{{ $credit['watched'] ? '1' : '0' }}"
-                        x-show="creditFilter === 'all'
-                            || (creditFilter === 'watched'   && $el.dataset.watched === '1')
-                            || (creditFilter === 'unwatched' && $el.dataset.watched === '0')"
+                        x-show="{{ $credit['watched'] ? 'showWatched' : 'showUnwatched' }} && {{ $credit['media_type'] === 'movie' ? 'showMovies' : 'showSeries' }}"
                     >
                         <div style="position:relative; display:block;">
                             @if($credit['poster_url'])
