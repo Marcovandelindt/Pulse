@@ -13,8 +13,7 @@ use Illuminate\View\View;
 
 final class DashboardController extends Controller
 {
-    private const TIMELINE_DAYS = 14;
-    private const TIMELINE_LIMIT = 15;
+    private const TIMELINE_DAYS = 7;
 
     public function index(): View
     {
@@ -55,15 +54,8 @@ final class DashboardController extends Controller
             })
             ->values();
 
-        // Only fetch steps for days already covered by the episode watches,
-        // so steps never crowd out episodes entirely.
-        $since = min(
-            $watches->last()?->watched_at?->toDateString() ?? today()->subDays(14)->toDateString(),
-            today()->subDay()->toDateString(),
-        );
-
         $stepActivities = HealthEntry::withSteps()
-            ->where('date', '>=', $since)
+            ->where('date', '>=', now()->subDays(self::TIMELINE_DAYS)->startOfDay())
             ->where('date', '<', today())
             ->orderByDesc('date')
             ->get()
@@ -76,24 +68,10 @@ final class DashboardController extends Controller
                 isPinned: true,
             ));
 
-        $sorted = $watchActivities
+        return $watchActivities
             ->concat($stepActivities)
             ->sort(fn (ActivityItem $a, ActivityItem $b): int => $this->compareActivities($a, $b))
             ->values();
-
-        // If over the limit, drop the oldest episode watches first (steps stay).
-        if ($sorted->count() > self::TIMELINE_LIMIT) {
-            $steps    = $sorted->filter(fn (ActivityItem $i) => $i->isPinned)->values();
-            $episodes = $sorted->filter(fn (ActivityItem $i) => !$i->isPinned)
-                ->take(self::TIMELINE_LIMIT - $steps->count())
-                ->values();
-
-            $sorted = $steps->concat($episodes)
-                ->sort(fn (ActivityItem $a, ActivityItem $b): int => $this->compareActivities($a, $b))
-                ->values();
-        }
-
-        return $sorted;
     }
 
     private function compareActivities(ActivityItem $a, ActivityItem $b): int
