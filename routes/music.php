@@ -20,6 +20,7 @@ Route::prefix('music')->name('music.')->middleware('spotify.connected')->group(f
     Route::post('/sync', [MusicDashboardController::class, 'sync'])->name('sync');
     Route::get('/stats', [MusicStatsController::class, 'index'])->name('stats');
     Route::get('/tracks/{track}', [TrackController::class, 'show'])->name('tracks.show');
+    Route::patch('/tracks/{track}', [TrackController::class, 'update'])->name('tracks.update');
     Route::post('/tracks/{track}/obsession', [ObsessionController::class, 'toggle'])->name('tracks.obsession');
     Route::get('/albums/{album}', [AlbumController::class, 'show'])->name('albums.show');
     Route::get('/artists/{artist}', [ArtistController::class, 'show'])->name('artists.show');

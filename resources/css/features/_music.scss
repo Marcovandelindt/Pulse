@@ -118,12 +118,26 @@
 }
 
 .play-item__meta {
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
+    font-size:  0.75rem;
+    color:      var(--color-text-muted);
     margin-top: 0.125rem;
     white-space: nowrap;
-    overflow: hidden;
+    overflow:   hidden;
     text-overflow: ellipsis;
+}
+
+.play-item__genres {
+    display:    flex;
+    flex-wrap:  wrap;
+    gap:        0.25rem;
+    margin-top: 0.4rem;
+}
+
+.play-item__genre {
+    font-size:       0.65rem;
+    padding:         0.125rem 0.4rem;
+    opacity:         0.75;
+    text-transform:  capitalize;
 }
 
 .play-item__time {

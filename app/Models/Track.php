@@ -21,6 +21,7 @@ final class Track extends Model
         'preview_url',
         'spotify_uri',
         'is_explicit',
+        'genres',
         'is_obsession',
         'obsession_since',
     ];
@@ -28,8 +29,9 @@ final class Track extends Model
     protected function casts(): array
     {
         return [
-            'is_explicit' => 'boolean',
-            'is_obsession' => 'boolean',
+            'is_explicit'    => 'boolean',
+            'genres'         => 'array',
+            'is_obsession'   => 'boolean',
             'obsession_since' => 'datetime',
         ];
     }

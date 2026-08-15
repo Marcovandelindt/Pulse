@@ -43,6 +43,55 @@
                     </div>
                 </div>
 
+                <div
+                    class="media-detail__genres"
+                    x-data="{
+                        genres: @js($track->genres ?? []),
+                        input: '',
+                        saving: false,
+                        add() {
+                            const val = this.input.trim().toLowerCase();
+                            if (val && !this.genres.includes(val)) {
+                                this.genres.push(val);
+                                this.save();
+                            }
+                            this.input = '';
+                        },
+                        remove(genre) {
+                            this.genres = this.genres.filter(g => g !== genre);
+                            this.save();
+                        },
+                        async save() {
+                            this.saving = true;
+                            await fetch('{{ route('music.tracks.update', $track) }}', {
+                                method: 'PATCH',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                                },
+                                body: JSON.stringify({ genres: this.genres }),
+                            });
+                            this.saving = false;
+                        },
+                    }"
+                >
+                    <template x-for="genre in genres" :key="genre">
+                        <span class="badge badge--muted" style="cursor:default;">
+                            <span x-text="genre"></span>
+                            <button @click="remove(genre)" class="badge-remove" type="button" title="Remove">&times;</button>
+                        </span>
+                    </template>
+                    <input
+                        type="text"
+                        x-model="input"
+                        @keydown.enter.prevent="add()"
+                        @keydown.comma.prevent="add()"
+                        placeholder="Add genre…"
+                        class="genre-input"
+                    >
+                    <span x-show="saving" class="genre-saving">saving…</span>
+                </div>
+
                 <div class="media-detail__meta-row">
                     @if($track->is_explicit)
                         <span class="explicit-badge">E</span>

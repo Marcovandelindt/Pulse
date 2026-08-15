@@ -108,6 +108,13 @@
                                             <a href="{{ route('music.albums.show', $play->track->album) }}" class="hover:underline">{{ $play->track->album->name }}</a>
                                         @endif
                                     </div>
+                                    @if($play->track?->genres)
+                                        <div class="play-item__genres">
+                                            @foreach($play->track->genres as $genre)
+                                                <span class="badge badge--muted play-item__genre">{{ $genre }}</span>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </div>
                                 <span class="play-item__time">{{ $play->played_at->format('d M, H:i') }}</span>
                             </div>

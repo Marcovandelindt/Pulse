@@ -7,6 +7,8 @@ namespace App\Http\Controllers\Music;
 use App\Http\Controllers\Controller;
 use App\Models\Track;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 final class TrackController extends Controller
 {
@@ -20,5 +22,17 @@ final class TrackController extends Controller
         $heroImage = $track->primaryArtist?->image_url ?? $track->album?->image_url;
 
         return view('pages.music.tracks.show', compact('track', 'playCount', 'firstPlay', 'lastPlay', 'heroImage'));
+    }
+
+    public function update(Request $request, Track $track): JsonResponse
+    {
+        $validated = $request->validate([
+            'genres'   => ['nullable', 'array'],
+            'genres.*' => ['string', 'max:50'],
+        ]);
+
+        $track->update(['genres' => $validated['genres'] ?? []]);
+
+        return response()->json(['genres' => $track->fresh()->genres ?? []]);
     }
 }
