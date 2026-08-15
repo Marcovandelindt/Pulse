@@ -6,6 +6,7 @@
         routes: {
             store:   '{{ route('movies.watches.store', $movie) }}',
             destroy: '{{ route('movies.destroy', $movie) }}',
+            refresh: '{{ route('movies.refresh', $movie) }}',
             index:   '{{ route('movies.index') }}',
         },
     })"
@@ -40,6 +41,7 @@
                     </div>
                     <div class="flex gap-2 flex-wrap justify-end shrink-0">
                         <button @click="watchOpen = true" class="btn btn--primary btn--sm">+ Mark watched</button>
+                        <button @click="refreshMovie()" class="btn btn--secondary btn--sm">↻ Refresh cast</button>
                         <button @click="deleteMovie()" class="btn btn--danger btn--sm">Remove</button>
                         <a href="{{ route('movies.index') }}" class="btn btn--secondary btn--sm">&larr; Back</a>
                     </div>
@@ -71,6 +73,13 @@
                         <div class="media-detail__stat-value" x-text="watches.length">{{ $movie->watch_count }}</div>
                         <div class="media-detail__stat-label">times watched</div>
                     </div>
+                    @php $singleWatch = $movie->watches->count() === 1 ? $movie->watches->first() : null; @endphp
+                    @if ($singleWatch && $singleWatch->watched_at && ! $singleWatch->year_only)
+                        <div class="media-detail__stat">
+                            <div class="media-detail__stat-value">{{ $singleWatch->watched_at->translatedFormat('l') }}</div>
+                            <div class="media-detail__stat-label">watched at</div>
+                        </div>
+                    @endif
                     @if ($totalRuntime > 0)
                         <div class="media-detail__stat">
                             <div class="media-detail__stat-value">{{ round($totalRuntime / 60, 1) }}h</div>

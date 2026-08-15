@@ -11,6 +11,7 @@ use App\Http\Requests\Media\StoreTmdbMovieRequest;
 use App\Models\Movie;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 final class MovieController extends Controller
@@ -66,6 +67,14 @@ final class MovieController extends Controller
             'poster_url' => $movie->poster_url,
             'added' => true,
         ]);
+    }
+
+    public function refresh(Movie $movie, AddMovieFromTmdb $action): JsonResponse
+    {
+        Cache::forget('tmdb_movie_details_'.$movie->tmdb_id);
+        $action->handle($movie->tmdb_id);
+
+        return response()->json(['refreshed' => true]);
     }
 
     public function destroy(Movie $movie, DeleteMovie $action): JsonResponse

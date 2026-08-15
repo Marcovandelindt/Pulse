@@ -14,6 +14,20 @@ final class PersonSyncService
     {
         $pivot = [];
 
+        // Crew first so cast always wins when the same person appears in both
+        foreach ($credits['crew'] ?? [] as $member) {
+            if (! in_array($member['job'] ?? '', ['Director', 'Producer', 'Screenplay', 'Writer'], true)) {
+                continue;
+            }
+            $person = $this->findOrCreatePerson($member);
+            $pivot[$person->id] = [
+                'character' => null,
+                'department' => $member['department'] ?? null,
+                'job' => $member['job'] ?? null,
+                'cast_order' => null,
+            ];
+        }
+
         foreach ($credits['cast'] ?? [] as $member) {
             $person = $this->findOrCreatePerson($member);
             $pivot[$person->id] = [
@@ -24,24 +38,7 @@ final class PersonSyncService
             ];
         }
 
-        foreach ($credits['crew'] ?? [] as $member) {
-            if (! in_array($member['job'] ?? '', ['Director', 'Producer', 'Screenplay', 'Writer'], true)) {
-                continue;
-            }
-            $person = $this->findOrCreatePerson($member);
-            $key = $person->id.'_'.($member['job'] ?? '');
-            $pivot[$key] = [
-                'character' => null,
-                'department' => $member['department'] ?? null,
-                'job' => $member['job'] ?? null,
-                'cast_order' => null,
-            ];
-        }
-
-        $movie->people()->sync(array_values($pivot) === $pivot ? $pivot : array_combine(
-            array_map(fn ($k) => (int) explode('_', (string) $k)[0], array_keys($pivot)),
-            array_values($pivot),
-        ));
+        $movie->people()->sync($pivot);
     }
 
     public function syncTvCast(TvSeries $series, array $aggregateCredits): void

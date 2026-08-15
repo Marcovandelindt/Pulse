@@ -22,6 +22,7 @@ Route::prefix('movies')->name('movies.')->group(function () {
     Route::get('/{movie}', [MovieController::class,       'show'])->name('show');
     Route::post('/{movie}/watches', [MovieWatchController::class,  'store'])->name('watches.store');
     Route::delete('/watches/{watch}', [MovieWatchController::class,  'destroy'])->name('watches.destroy');
+    Route::post('/{movie}/refresh', [MovieController::class,  'refresh'])->name('refresh');
     Route::delete('/{movie}', [MovieController::class,       'destroy'])->name('destroy');
 });
 

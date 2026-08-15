@@ -115,6 +115,15 @@ export function registerMovieComponents() {
             this.$dispatch('toast', { message: 'Watch deleted', type: 'success' });
         },
 
+        async refreshMovie() {
+            if (!confirm('Refresh cast and crew from TMDB?')) return;
+            await fetch(routes.refresh, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrf() },
+            });
+            window.location.reload();
+        },
+
         async deleteMovie() {
             if (!confirm('Remove this movie and all watch history?')) return;
             await fetch(routes.destroy, {
