@@ -39,7 +39,9 @@
                 @if($currentlyPlaying)
                     <div class="now-listening now-listening--playing">
                         @if($currentlyPlaying['album_image_url'])
-                            <img src="{{ $currentlyPlaying['album_image_url'] }}" alt="" class="now-listening__cover">
+                            <div class="now-listening__cover-wrap">
+                                <img src="{{ $currentlyPlaying['album_image_url'] }}" alt="">
+                            </div>
                         @endif
                         <div class="now-listening__info">
                             <div class="now-listening__track">{{ $currentlyPlaying['track_name'] }}</div>
@@ -58,7 +60,9 @@
                 @elseif($recentPlay)
                     <div class="now-listening">
                         @if($recentPlay->track->album?->image_url)
-                            <img src="{{ $recentPlay->track->album->image_url }}" alt="" class="now-listening__cover">
+                            <div class="now-listening__cover-wrap">
+                                <img src="{{ $recentPlay->track->album->image_url }}" alt="">
+                            </div>
                         @endif
                         <div class="now-listening__info">
                             <div class="now-listening__track">{{ $recentPlay->track->title }}</div>
