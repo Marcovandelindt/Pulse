@@ -39,7 +39,6 @@ return [
 
     'playstation' => [
         'username' => env('PLAYSTATION_USERNAME', ''),
-        'cookie' => env('PLAYSTATION_COOKIE', ''),
     ],
 
 ];

@@ -3,11 +3,7 @@
     <x-layout.page-header title="PlayStation">
         <x-slot:actions>
             <a href="{{ route('playstation.sessions') }}" class="btn btn--secondary btn--sm">Sessions</a>
-            <a href="{{ route('playstation.create') }}" class="btn btn--secondary btn--sm">+ Add Game</a>
-            <form method="POST" action="{{ route('playstation.sync') }}" style="display:inline">
-                @csrf
-                <button type="submit" class="btn btn--primary btn--sm">Sync</button>
-            </form>
+            <a href="{{ route('playstation.create') }}" class="btn btn--secondary btn--sm">+ Add game</a>
         </x-slot:actions>
     </x-layout.page-header>
 
