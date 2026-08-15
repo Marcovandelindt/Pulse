@@ -130,8 +130,9 @@
 .now-listening__bar:nth-child(4) { height: 40%; animation: eq 0.9s ease-in-out infinite 0.10s; }
 
 .now-listening__label {
-    font-size: 0.7rem;
-    color:     var(--color-text-muted);
+    font-size:   0.7rem;
+    color:       var(--color-text-muted);
+    line-height: 7px;
 }
 
 @keyframes eq {
