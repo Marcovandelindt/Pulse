@@ -4,24 +4,33 @@ export function registerRecommendationComponents() {
         actorSearch: '',
         showDropdown: false,
         searchResults: [],
-        _debounce: null,
+        debounceTimer: null,
         showMovies: true,
         showSeries: true,
         showWatched: true,
         showUnwatched: true,
 
-        async searchActors() {
-            clearTimeout(this._debounce);
-            if (this.actorSearch.length < 2) {
-                this.searchResults = [];
-                this.showDropdown = false;
-                return;
-            }
-            this._debounce = setTimeout(async () => {
-                const res = await fetch(`${searchUrl}?q=${encodeURIComponent(this.actorSearch)}`);
-                this.searchResults = await res.json();
-                this.showDropdown = this.searchResults.length > 0;
-            }, 200);
+        init() {
+            this.$watch('actorSearch', (value) => {
+                clearTimeout(this.debounceTimer);
+
+                if (value.length < 2) {
+                    this.searchResults = [];
+                    this.showDropdown = false;
+                    return;
+                }
+
+                this.debounceTimer = setTimeout(async () => {
+                    try {
+                        const res = await fetch(`${searchUrl}?q=${encodeURIComponent(value)}`);
+                        this.searchResults = await res.json();
+                        this.showDropdown = this.searchResults.length > 0;
+                    } catch {
+                        this.searchResults = [];
+                        this.showDropdown = false;
+                    }
+                }, 200);
+            });
         },
 
         openActorSearch() {

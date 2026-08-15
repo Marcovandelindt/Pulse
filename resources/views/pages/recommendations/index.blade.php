@@ -45,7 +45,6 @@
                 type="text"
                 x-model="actorSearch"
                 x-ref="actorInput"
-                @input="searchActors()"
                 @focus="if (actorSearch.length >= 2) showDropdown = searchResults.length > 0"
                 @keydown.escape="showDropdown = false"
                 class="form-input"
