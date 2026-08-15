@@ -15,5 +15,7 @@ final readonly class ActivityItem
         public ?string $imageUrl,
         public Carbon $occurredAt,
         public bool $isPinned,
+        /** @var list<string> */
+        public array $episodes = [],
     ) {}
 }

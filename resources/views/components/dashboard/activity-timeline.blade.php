@@ -2,7 +2,10 @@
 
 <div class="activity-timeline">
     @forelse($activities as $activity)
-        <div class="activity-timeline__item activity-timeline__item--{{ str_replace('_', '-', $activity->type) }}{{ $activity->isPinned ? ' activity-timeline__item--pinned' : '' }}">
+        <div
+            class="activity-timeline__item activity-timeline__item--{{ str_replace('_', '-', $activity->type) }}{{ $activity->isPinned ? ' activity-timeline__item--pinned' : '' }}"
+            @if(count($activity->episodes) > 0) x-data="{ open: false }" @endif
+        >
             <div class="activity-timeline__connector">
                 <div class="activity-timeline__dot"></div>
                 @unless($loop->last)
@@ -28,7 +31,25 @@
 
                 <div class="activity-timeline__info">
                     <div class="activity-timeline__title">{{ $activity->title }}</div>
-                    <div class="activity-timeline__subtitle">{{ $activity->subtitle }}</div>
+                    <div class="activity-timeline__subtitle">
+                        {{ $activity->subtitle }}
+                        @if(count($activity->episodes) > 0)
+                            <button
+                                @click="open = !open"
+                                class="activity-timeline__expand-btn"
+                                x-text="open ? '▲' : '▼'"
+                                :aria-expanded="open"
+                                type="button"
+                            ></button>
+                        @endif
+                    </div>
+                    @if(count($activity->episodes) > 0)
+                        <ul class="activity-timeline__episode-list" x-show="open" x-transition style="display:none;">
+                            @foreach($activity->episodes as $ep)
+                                <li>{{ $ep }}</li>
+                            @endforeach
+                        </ul>
+                    @endif
                 </div>
 
                 <time

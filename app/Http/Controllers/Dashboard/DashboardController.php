@@ -39,9 +39,16 @@ final class DashboardController extends Controller
                 $series = $first->episode->season->series;
                 $count = $group->count();
 
+                $episodeLabel = fn (EpisodeWatch $w): string =>
+                    'S'.$w->episode->season->season_number.'E'.$w->episode->episode_number.' — '.$w->episode->name;
+
                 $subtitle = $count === 1
-                    ? 'S'.$first->episode->season->season_number.'E'.$first->episode->episode_number.' — '.$first->episode->name
+                    ? $episodeLabel($first)
                     : $count.' episodes';
+
+                $episodes = $count > 1
+                    ? $group->sortBy('watched_at')->map($episodeLabel)->values()->all()
+                    : [];
 
                 return new ActivityItem(
                     type: 'episode_watch',
@@ -50,6 +57,7 @@ final class DashboardController extends Controller
                     imageUrl: $series->poster_url,
                     occurredAt: $first->watched_at,
                     isPinned: false,
+                    episodes: $episodes,
                 );
             })
             ->values();
