@@ -17,5 +17,6 @@ final readonly class ActivityItem
         public bool $isPinned,
         /** @var list<string> */
         public array $episodes = [],
+        public ?string $url = null,
     ) {}
 }

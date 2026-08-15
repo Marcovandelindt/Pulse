@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\EpisodeWatch;
 use App\Models\HealthEntry;
 use App\Models\Play;
+use Illuminate\Support\Carbon;
 use App\Services\Spotify\SpotifyTrackService;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -79,6 +80,7 @@ final class DashboardController extends Controller
                     occurredAt: $first->watched_at,
                     isPinned: false,
                     episodes: $episodes,
+                    url: route('tv.show', $series),
                 );
             })
             ->values();
@@ -97,8 +99,30 @@ final class DashboardController extends Controller
                 isPinned: true,
             ));
 
+        $musicActivities = Play::with(['track.artists'])
+            ->where('played_at', '>=', now()->subDays(self::TIMELINE_DAYS)->startOfDay())
+            ->orderBy('played_at')
+            ->get()
+            ->groupBy(fn (Play $p) => $p->played_at->toDateString())
+            ->map(function (Collection $group, string $date): ActivityItem {
+                $count = $group->count();
+                $tracks = $group->map(fn (Play $p) => $p->track->title.' — '.$p->track->artists_string)->values()->all();
+
+                return new ActivityItem(
+                    type: 'music',
+                    title: 'Spotify',
+                    subtitle: 'Listened to '.($count === 1 ? '1 track' : $count.' tracks'),
+                    imageUrl: null,
+                    occurredAt: Carbon::parse($date)->startOfDay(),
+                    isPinned: false,
+                    episodes: $tracks,
+                );
+            })
+            ->values();
+
         return $watchActivities
             ->concat($stepActivities)
+            ->concat($musicActivities)
             ->sort(fn (ActivityItem $a, ActivityItem $b): int => $this->compareActivities($a, $b))
             ->values();
     }

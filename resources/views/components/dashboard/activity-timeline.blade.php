@@ -8,19 +8,26 @@
         >
             <div class="activity-timeline__connector">
                 <div class="activity-timeline__dot"></div>
-                @unless($loop->last)
-                    <div class="activity-timeline__line"></div>
-                @endunless
+                <div class="activity-timeline__line {{ $loop->last ? 'activity-timeline__line--hidden' : '' }}"></div>
             </div>
 
             <div class="activity-timeline__body">
                 @if($activity->imageUrl)
-                    <img
-                        src="{{ $activity->imageUrl }}"
-                        alt="{{ $activity->title }}"
-                        class="activity-timeline__poster"
-                        loading="lazy"
-                    >
+                    @if($activity->url)
+                        <a href="{{ $activity->url }}" class="activity-timeline__poster-wrap">
+                            <img src="{{ $activity->imageUrl }}" alt="{{ $activity->title }}" class="activity-timeline__poster" loading="lazy">
+                        </a>
+                    @else
+                        <div class="activity-timeline__poster-wrap">
+                            <img src="{{ $activity->imageUrl }}" alt="{{ $activity->title }}" class="activity-timeline__poster" loading="lazy">
+                        </div>
+                    @endif
+                @elseif($activity->type === 'music')
+                    <div class="activity-timeline__icon activity-timeline__icon--music">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                        </svg>
+                    </div>
                 @else
                     <div class="activity-timeline__icon">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
@@ -30,7 +37,13 @@
                 @endif
 
                 <div class="activity-timeline__info">
-                    <div class="activity-timeline__title">{{ $activity->title }}</div>
+                    <div class="activity-timeline__title">
+                        @if($activity->url)
+                            <a href="{{ $activity->url }}" class="activity-timeline__title-link">{{ $activity->title }}</a>
+                        @else
+                            {{ $activity->title }}
+                        @endif
+                    </div>
                     <div class="activity-timeline__subtitle">
                         {{ $activity->subtitle }}
                         @if(count($activity->episodes) > 0)
@@ -44,7 +57,7 @@
                         @endif
                     </div>
                     @if(count($activity->episodes) > 0)
-                        <ul class="activity-timeline__episode-list" x-show="open" x-transition style="display:none;">
+                        <ul class="activity-timeline__episode-list" x-show="open" x-collapse style="display:none;">
                             @foreach($activity->episodes as $ep)
                                 <li>{{ $ep }}</li>
                             @endforeach

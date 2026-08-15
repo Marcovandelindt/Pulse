@@ -13,7 +13,11 @@
     flex-direction: column;
     align-items:    center;
     flex-shrink:    0;
-    padding-top:    0.3125rem;
+}
+
+.activity-timeline__connector::before {
+    content: '';
+    flex:    1;
 }
 
 .activity-timeline__dot {
@@ -27,9 +31,12 @@
 .activity-timeline__line {
     width:      1px;
     flex:       1;
-    min-height: 0.75rem;
     background: var(--color-border);
     margin-top: 0.25rem;
+}
+
+.activity-timeline__line--hidden {
+    visibility: hidden;
 }
 
 .activity-timeline__body {
@@ -41,13 +48,29 @@
     min-width:      0;
 }
 
-.activity-timeline__poster {
+.activity-timeline__poster-wrap {
     width:         2rem;
-    height:        2.875rem;
-    object-fit:    cover;
+    height:        2rem;
+    min-width:     2rem;
     border-radius: var(--radius-sm);
+    overflow:      hidden;
     flex-shrink:   0;
     margin-top:    0.125rem;
+    display:       block;
+}
+
+.activity-timeline__poster {
+    width:      100%;
+    height:     100%;
+    object-fit: cover;
+    display:    block;
+}
+
+.activity-timeline__title-link {
+    color:           inherit;
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
 }
 
 .activity-timeline__icon {
@@ -126,4 +149,17 @@
 
 .activity-timeline__item--pinned .activity-timeline__dot {
     background: #4ade80;
+}
+
+.activity-timeline__item--episode-watch .activity-timeline__dot {
+    background: #e50914;
+}
+
+.activity-timeline__item--music .activity-timeline__dot {
+    background: #a78bfa;
+}
+
+.activity-timeline__icon--music {
+    background: rgba(167, 139, 250, 0.12);
+    color:      #a78bfa;
 }
