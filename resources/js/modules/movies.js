@@ -47,11 +47,8 @@ export function registerMovieComponents() {
             });
             const data = await res.json();
             this.adding = null;
-            this.searchResults = this.searchResults.map(r =>
-                r.tmdb_id === tmdbId ? { ...r, already_added: true } : r
-            );
             this.$dispatch('toast', { message: `${data.title} added!`, type: 'success' });
-            setTimeout(() => window.location.reload(), 1000);
+            setTimeout(() => window.location.href = data.show_url, 800);
         },
 
         matchesFilter(el) {

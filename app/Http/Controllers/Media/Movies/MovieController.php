@@ -61,11 +61,12 @@ final class MovieController extends Controller
         $movie = $action->handle((int) $request->validated('tmdb_id'));
 
         return response()->json([
-            'id' => $movie->id,
-            'title' => $movie->title,
-            'year' => $movie->release_date?->year,
+            'id'       => $movie->id,
+            'title'    => $movie->title,
+            'year'     => $movie->release_date?->year,
             'poster_url' => $movie->poster_url,
-            'added' => true,
+            'show_url' => route('movies.show', $movie),
+            'added'    => true,
         ]);
     }
 
