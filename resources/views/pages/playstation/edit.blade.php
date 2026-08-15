@@ -21,9 +21,7 @@
                 @endif
                 <input type="file" id="image" name="image" accept="image/*" class="form-input">
                 <p class="text-xs mt-1" style="color: var(--color-text-muted)">Max 2MB. Uploads a new cover and replaces the existing one.</p>
-                @error('image')
-                    <x-form.error>{{ $message }}</x-form.error>
-                @enderror
+                <x-form.error name="image" />
             </div>
 
             <div class="form-group">
@@ -38,9 +36,7 @@
                     class="form-input"
                     placeholder="e.g. 59.99"
                 >
-                @error('price')
-                    <x-form.error>{{ $message }}</x-form.error>
-                @enderror
+                <x-form.error name="price" />
             </div>
 
             <div class="form-group">
@@ -54,9 +50,7 @@
                     class="form-input"
                     placeholder="Extra playtime in minutes"
                 >
-                @error('manual_minutes')
-                    <x-form.error>{{ $message }}</x-form.error>
-                @enderror
+                <x-form.error name="manual_minutes" />
             </div>
 
             <div class="form-group">
@@ -72,9 +66,7 @@
                     class="form-input"
                     placeholder="e.g. 8.5"
                 >
-                @error('user_rating')
-                    <x-form.error>{{ $message }}</x-form.error>
-                @enderror
+                <x-form.error name="user_rating" />
             </div>
 
             <div class="form-group">
@@ -90,9 +82,7 @@
                     class="form-input"
                     placeholder="e.g. 9.2"
                 >
-                @error('critic_rating')
-                    <x-form.error>{{ $message }}</x-form.error>
-                @enderror
+                <x-form.error name="critic_rating" />
             </div>
 
             <div class="form-group">
@@ -106,9 +96,7 @@
                         </option>
                     @endforeach
                 </select>
-                @error('backlog_status')
-                    <x-form.error>{{ $message }}</x-form.error>
-                @enderror
+                <x-form.error name="backlog_status" />
             </div>
 
             <div class="form-group">
@@ -129,9 +117,7 @@
                         </label>
                     @endforeach
                 </div>
-                @error('play_mode')
-                    <x-form.error>{{ $message }}</x-form.error>
-                @enderror
+                <x-form.error name="play_mode" />
             </div>
 
             <div class="form-group">
@@ -146,9 +132,7 @@
                     value="{{ old('completion_percentage', $game->completion_percentage) }}"
                     class="form-input"
                 >
-                @error('completion_percentage')
-                    <x-form.error>{{ $message }}</x-form.error>
-                @enderror
+                <x-form.error name="completion_percentage" />
             </div>
 
             <div class="form-group">
@@ -161,9 +145,7 @@
                     value="{{ old('trophies', $game->trophies) }}"
                     class="form-input"
                 >
-                @error('trophies')
-                    <x-form.error>{{ $message }}</x-form.error>
-                @enderror
+                <x-form.error name="trophies" />
             </div>
 
             <div class="form-group">
