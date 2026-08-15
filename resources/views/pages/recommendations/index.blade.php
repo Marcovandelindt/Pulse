@@ -35,7 +35,7 @@
                     alt="{{ $person->name }}"
                     class="rec-actor-current__photo"
                 >
-                <span class="rec-actor-current__name">{{ $person->name }}</span>
+                <span class="rec-actor-current__name">{{ $person->name_en ?? $person->name }}</span>
                 <span class="rec-actor-current__sep">·</span>
                 <span class="rec-actor-current__hint">Search for another:</span>
             </div>
@@ -57,10 +57,11 @@
                     <button class="rec-people-dropdown__item" @click="selectActor(p)">
                         <img
                             :src="p.profile_url ?? '{{ asset('cast-placeholder.svg') }}'"
-                            :alt="p.name"
+                            :alt="p.name_en ?? p.name"
                             class="rec-people-dropdown__photo"
                         >
-                        <span x-text="p.name"></span>
+                        <span x-text="p.name_en ?? p.name"></span>
+                        <span class="rec-people-dropdown__alt" x-show="p.name_en" x-text="p.name"></span>
                     </button>
                 </template>
             </div>

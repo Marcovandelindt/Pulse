@@ -221,14 +221,15 @@ final class RecommendationController extends Controller
         return $results;
     }
 
-    /** @return Collection<int, array{id: int, name: string, profile_url: string|null}> */
+    /** @return Collection<int, array{id: int, name: string, name_en: string|null, profile_url: string|null}> */
     private function allPeople(): Collection
     {
         return Person::orderBy('name')
-            ->get(['id', 'name', 'profile_path'])
+            ->get(['id', 'name', 'name_en', 'profile_path'])
             ->map(fn (Person $p): array => [
                 'id'          => $p->id,
                 'name'        => $p->name,
+                'name_en'     => $p->name_en,
                 'profile_url' => $p->profile_path
                     ? config('tmdb.image_base_url').config('tmdb.profile_sizes.small').$p->profile_path
                     : null,

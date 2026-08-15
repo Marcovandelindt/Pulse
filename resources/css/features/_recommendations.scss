@@ -92,6 +92,12 @@
     &:hover { background: var(--color-bg-tertiary); }
 }
 
+.rec-people-dropdown__alt {
+    margin-left: auto;
+    font-size:   0.75rem;
+    color:       var(--color-text-muted);
+}
+
 .rec-people-dropdown__photo {
     width:         1.75rem;
     height:        1.75rem;

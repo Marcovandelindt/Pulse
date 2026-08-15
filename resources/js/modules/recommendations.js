@@ -11,7 +11,10 @@ export function registerRecommendationComponents() {
         get filteredPeople() {
             if (this.actorSearch.length < 1) return [];
             const q = this.actorSearch.toLowerCase();
-            return allPeople.filter(p => p.name.toLowerCase().includes(q)).slice(0, 8);
+            return allPeople.filter(p =>
+                p.name.toLowerCase().includes(q) ||
+                (p.name_en && p.name_en.toLowerCase().includes(q))
+            ).slice(0, 8);
         },
 
         openActorSearch() {

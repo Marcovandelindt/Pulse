@@ -15,7 +15,7 @@ final class Person extends Model
     /** @use HasFactory<PersonFactory> */
     use HasFactory;
 
-    protected $fillable = ['tmdb_id', 'name', 'profile_path'];
+    protected $fillable = ['tmdb_id', 'name', 'name_en', 'profile_path'];
 
     public function movies(): BelongsToMany
     {
