@@ -20,10 +20,31 @@ final class SyncPlayStationSessions extends Command
 
         if ($cookie) {
             $scraper->setSessionCookie($cookie);
+
+            if ($this->option('save-cookie')) {
+                $this->saveCookieToEnv($cookie);
+                $this->info('Cookie saved to .env.');
+            }
         }
 
         $synced = $scraper->syncSessions($username, (bool) $this->option('all'));
 
         $this->info("Synced {$synced} new sessions.");
+    }
+
+    private function saveCookieToEnv(string $cookie): void
+    {
+        $envPath = base_path('.env');
+        $envContent = file_get_contents($envPath);
+
+        if (str_contains($envContent, 'PLAYSTATION_COOKIE=')) {
+            file_put_contents($envPath, preg_replace(
+                '/^PLAYSTATION_COOKIE=.*/m',
+                'PLAYSTATION_COOKIE='.$cookie,
+                $envContent,
+            ));
+        } else {
+            file_put_contents($envPath, $envContent."\nPLAYSTATION_COOKIE={$cookie}");
+        }
     }
 }
