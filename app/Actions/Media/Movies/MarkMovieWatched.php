@@ -18,7 +18,10 @@ final class MarkMovieWatched
             'rating' => $data->rating,
         ]);
 
-        $movie->incrementWatchCount();
+        $movie->watch_count      = $movie->watches()->count();
+        $movie->last_watched_at  = $movie->watches()->latest('watched_at')->value('watched_at');
+        $movie->first_watched_at = $movie->watches()->oldest('watched_at')->value('watched_at');
+        $movie->save();
 
         return $watch;
     }

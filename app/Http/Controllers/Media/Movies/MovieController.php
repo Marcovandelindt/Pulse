@@ -18,7 +18,7 @@ final class MovieController extends Controller
 {
     public function index(Request $request): View
     {
-        $sort = $request->query('sort', 'most_watched');
+        $sort = $request->query('sort', 'last_watched');
 
         $query = Movie::withCount('watches');
 
