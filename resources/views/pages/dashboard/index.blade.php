@@ -8,8 +8,8 @@
     {{-- Stats row --}}
     <div class="stats-row">
         <x-stats.stat-card
-            label="Steps today"
-            value="—"
+            label="Steps this week"
+            :value="$stepsThisWeek ?? '—'"
             icon="heart"
         />
         <x-stats.stat-card

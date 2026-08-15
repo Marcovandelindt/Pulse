@@ -17,8 +17,11 @@ final class DashboardController extends Controller
 
     public function index(): View
     {
+        $stepsThisWeek = HealthEntry::withSteps()->thisWeek()->sum('steps');
+
         return view('pages.dashboard.index', [
-            'timeline' => $this->buildTimeline(),
+            'timeline'      => $this->buildTimeline(),
+            'stepsThisWeek' => $stepsThisWeek > 0 ? number_format((int) $stepsThisWeek) : null,
         ]);
     }
 
