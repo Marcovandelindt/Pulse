@@ -8,6 +8,8 @@ use App\Data\ActivityItem;
 use App\Http\Controllers\Controller;
 use App\Models\EpisodeWatch;
 use App\Models\HealthEntry;
+use App\Models\Play;
+use App\Services\Spotify\SpotifyTrackService;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
@@ -15,13 +17,29 @@ final class DashboardController extends Controller
 {
     private const TIMELINE_DAYS = 7;
 
+    public function __construct(
+        private readonly SpotifyTrackService $trackService,
+    ) {}
+
     public function index(): View
     {
         $stepsThisWeek = HealthEntry::withSteps()->thisWeek()->sum('steps');
 
+        try {
+            $currentlyPlaying = $this->trackService->getCurrentlyPlaying();
+        } catch (\Throwable) {
+            $currentlyPlaying = null;
+        }
+
+        $recentPlay = $currentlyPlaying === null
+            ? Play::with(['track.album', 'track.artists'])->orderByDesc('played_at')->first()
+            : null;
+
         return view('pages.dashboard.index', [
-            'timeline'      => $this->buildTimeline(),
-            'stepsThisWeek' => $stepsThisWeek > 0 ? number_format((int) $stepsThisWeek) : null,
+            'timeline'         => $this->buildTimeline(),
+            'stepsThisWeek'    => $stepsThisWeek > 0 ? number_format((int) $stepsThisWeek) : null,
+            'currentlyPlaying' => $currentlyPlaying,
+            'recentPlay'       => $recentPlay,
         ]);
     }
 

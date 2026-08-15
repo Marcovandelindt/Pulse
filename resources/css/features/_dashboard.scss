@@ -42,3 +42,78 @@
         grid-template-columns: 2fr 1fr;
     }
 }
+
+.now-listening {
+    display:    flex;
+    gap:        0.875rem;
+    align-items: flex-start;
+
+    &__cover {
+        width:         3.5rem;
+        height:        3.5rem;
+        border-radius: var(--radius-md);
+        object-fit:    cover;
+        flex-shrink:   0;
+    }
+
+    &__info {
+        flex:      1;
+        min-width: 0;
+    }
+
+    &__track {
+        font-size:     0.9375rem;
+        font-weight:   600;
+        color:         var(--color-text-primary);
+        white-space:   nowrap;
+        overflow:      hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__artist {
+        font-size:     0.8125rem;
+        color:         var(--color-text-muted);
+        margin-top:    0.125rem;
+        white-space:   nowrap;
+        overflow:      hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__album {
+        font-size:     0.75rem;
+        color:         var(--color-text-muted);
+        margin-top:    0.125rem;
+        white-space:   nowrap;
+        overflow:      hidden;
+        text-overflow: ellipsis;
+        font-style:    italic;
+    }
+
+    &__status {
+        display:     flex;
+        align-items: center;
+        gap:         0.375rem;
+        font-size:   0.75rem;
+        color:       var(--color-brand-light);
+        margin-top:  0.5rem;
+        font-weight: 500;
+
+        &--muted {
+            color: var(--color-text-muted);
+            font-weight: 400;
+        }
+    }
+
+    &__dot {
+        width:         0.45rem;
+        height:        0.45rem;
+        border-radius: 50%;
+        background:    currentColor;
+        animation:     now-playing-pulse 1.5s ease-in-out infinite;
+    }
+}
+
+@keyframes now-playing-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+}
