@@ -7,9 +7,24 @@
     </x-layout.page-header>
 
     <x-ui.card>
-        <form method="POST" action="{{ route('playstation.update', $game) }}">
+        <form method="POST" action="{{ route('playstation.update', $game) }}" enctype="multipart/form-data">
             @csrf
             @method('PATCH')
+
+            <div class="form-group">
+                <label class="form-label">Cover Image</label>
+                @if($game->image_url)
+                    <div class="mb-3">
+                        <img src="{{ $game->image_url }}" alt="{{ $game->name }}"
+                             style="width: 6rem; border-radius: var(--radius-md); display: block;">
+                    </div>
+                @endif
+                <input type="file" id="image" name="image" accept="image/*" class="form-input">
+                <p class="text-xs mt-1" style="color: var(--color-text-muted)">Max 2MB. Uploads a new cover and replaces the existing one.</p>
+                @error('image')
+                    <x-form.error>{{ $message }}</x-form.error>
+                @enderror
+            </div>
 
             <div class="form-group">
                 <label class="form-label" for="price">Price (€)</label>

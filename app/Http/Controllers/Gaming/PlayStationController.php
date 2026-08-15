@@ -137,8 +137,19 @@ final class PlayStationController extends Controller
             'exclude_from_sync' => ['nullable', 'boolean'],
             'completion_percentage' => ['nullable', 'numeric', 'between:0,100'],
             'trophies' => ['nullable', 'integer', 'min:0'],
+            'image' => ['nullable', 'image', 'max:2048'],
         ]);
 
+        if ($request->hasFile('image')) {
+            if ($playStationGame->image_url && str_starts_with($playStationGame->image_url, '/storage/')) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $playStationGame->image_url));
+            }
+
+            $path = $request->file('image')->store('playstation', 'public');
+            $validated['image_url'] = Storage::url($path);
+        }
+
+        unset($validated['image']);
         $playStationGame->update($validated);
 
         return redirect()->route('playstation.show', $playStationGame)->with('success', 'Game updated.');
