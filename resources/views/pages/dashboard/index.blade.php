@@ -13,17 +13,18 @@
             icon="heart"
         />
         <x-stats.stat-card
-            label="Sleep"
-            value="—"
+            label="Watchtime this week"
+            :value="$watchtimeThisWeek ?? '—'"
+            icon="film"
         />
         <x-stats.stat-card
-            label="Expenses this month"
-            value="—"
-            icon="credit-card"
+            label="PlayStation this week"
+            :value="$playtimeThisWeek ?? '—'"
+            icon="gamepad"
         />
         <x-stats.stat-card
-            label="Now playing"
-            value="—"
+            label="Tracks this week"
+            :value="$tracksThisWeek ?? '—'"
             icon="musical-note"
         />
     </div>
