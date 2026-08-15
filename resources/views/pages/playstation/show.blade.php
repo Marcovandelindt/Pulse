@@ -34,9 +34,16 @@
             </div>
             <h2 class="text-2xl font-bold mb-1" style="color: var(--color-text-primary)">{{ $game->name }}</h2>
             @if($game->play_mode?->isNotEmpty())
-                <div class="flex flex-wrap gap-1 mb-3">
+                <div class="flex flex-wrap gap-1 mb-2">
                     @foreach($game->play_mode as $mode)
                         <x-ui.badge color="gray">{{ $mode->label() }}</x-ui.badge>
+                    @endforeach
+                </div>
+            @endif
+            @if($game->categories->isNotEmpty())
+                <div class="flex flex-wrap gap-1 mb-3">
+                    @foreach($game->categories as $category)
+                        <x-ui.badge color="brand">{{ $category->name }}</x-ui.badge>
                     @endforeach
                 </div>
             @endif

@@ -9,6 +9,7 @@ use App\Enums\PlayMode;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 final class PlayStationGame extends Model
@@ -53,6 +54,11 @@ final class PlayStationGame extends Model
     public function playSessions(): HasMany
     {
         return $this->hasMany(PlayStationSession::class);
+    }
+
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(PlayStationCategory::class, 'play_station_game_category');
     }
 
     protected function calculatedHours(): Attribute

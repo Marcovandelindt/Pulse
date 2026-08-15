@@ -3,6 +3,7 @@
     <x-layout.page-header title="PlayStation">
         <x-slot:actions>
             <a href="{{ route('playstation.sessions') }}" class="btn btn--secondary btn--sm">Sessions</a>
+            <a href="{{ route('playstation.categories.index') }}" class="btn btn--secondary btn--sm">Categories</a>
             <a href="{{ route('playstation.create') }}" class="btn btn--secondary btn--sm">+ Add game</a>
         </x-slot:actions>
     </x-layout.page-header>

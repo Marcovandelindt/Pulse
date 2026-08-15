@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Gaming;
 use App\Enums\BacklogStatus;
 use App\Enums\PlayMode;
 use App\Http\Controllers\Controller;
+use App\Models\PlayStationCategory;
 use App\Models\PlayStationGame;
 use App\Models\PlayStationSession;
 use App\Services\PlayStation\PlayStationScraperService;
@@ -64,7 +65,7 @@ final class PlayStationController extends Controller
 
     public function show(PlayStationGame $playStationGame): View
     {
-        $playStationGame->load('playSessions');
+        $playStationGame->load('playSessions', 'categories');
 
         $recentSessions = $playStationGame->playSessions()->latest('started_at')->paginate(20);
 
@@ -121,7 +122,12 @@ final class PlayStationController extends Controller
 
     public function edit(PlayStationGame $playStationGame): View
     {
-        return view('pages.playstation.edit', ['game' => $playStationGame]);
+        $categories = PlayStationCategory::orderBy('name')->get();
+
+        return view('pages.playstation.edit', [
+            'game' => $playStationGame,
+            'categories' => $categories,
+        ]);
     }
 
     public function update(Request $request, PlayStationGame $playStationGame): RedirectResponse
@@ -139,6 +145,8 @@ final class PlayStationController extends Controller
             'completion_percentage' => ['nullable', 'numeric', 'between:0,100'],
             'trophies' => ['nullable', 'integer', 'min:0'],
             'image' => ['nullable', 'image', 'max:2048'],
+            'categories' => ['nullable', 'array'],
+            'categories.*' => ['integer', 'exists:play_station_categories,id'],
         ]);
 
         if ($request->hasFile('image')) {
@@ -150,8 +158,11 @@ final class PlayStationController extends Controller
             $validated['image_url'] = Storage::url($path);
         }
 
-        unset($validated['image']);
+        $categoryIds = $validated['categories'] ?? [];
+        unset($validated['image'], $validated['categories']);
+
         $playStationGame->update($validated);
+        $playStationGame->categories()->sync($categoryIds);
 
         return redirect()->route('playstation.show', $playStationGame)->with('success', 'Game updated.');
     }

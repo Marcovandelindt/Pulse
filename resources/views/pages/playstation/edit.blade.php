@@ -7,7 +7,7 @@
     </x-layout.page-header>
 
     <x-ui.card>
-        <form method="POST" action="{{ route('playstation.update', $game) }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('playstation.update', $game) }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
             @method('PATCH')
 
@@ -116,17 +116,16 @@
                 @php
                     $selectedModes = old('play_mode', $game->play_mode?->map(fn($m) => $m->value)->toArray() ?? []);
                 @endphp
-                <div class="flex flex-wrap gap-4 mt-1">
+                <div class="flex flex-wrap gap-2 mt-1">
                     @foreach(\App\Enums\PlayMode::cases() as $mode)
-                        <label class="flex items-center gap-2 cursor-pointer">
+                        <label class="form-chip">
                             <input
                                 type="checkbox"
                                 name="play_mode[]"
                                 value="{{ $mode->value }}"
                                 {{ in_array($mode->value, $selectedModes) ? 'checked' : '' }}
-                                style="accent-color: var(--color-brand)"
                             >
-                            <span class="text-sm" style="color: var(--color-text-primary)">{{ $mode->label() }}</span>
+                            {{ $mode->label() }}
                         </label>
                     @endforeach
                 </div>
@@ -168,32 +167,66 @@
             </div>
 
             <div class="form-group">
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input
-                        type="checkbox"
-                        name="main_story_completed"
-                        value="1"
-                        {{ old('main_story_completed', $game->main_story_completed) ? 'checked' : '' }}
-                        class="rounded"
-                        style="accent-color: var(--color-brand)"
-                    >
-                    <span class="form-label" style="margin-bottom: 0">Main Story Completed</span>
-                </label>
+                <label class="form-label">Main Story Completed</label>
+                <div class="flex gap-2 mt-1">
+                    <label class="form-chip">
+                        <input
+                            type="checkbox"
+                            name="main_story_completed"
+                            value="1"
+                            {{ old('main_story_completed', $game->main_story_completed) ? 'checked' : '' }}
+                        >
+                        Yes, completed
+                    </label>
+                </div>
             </div>
 
             <div class="form-group">
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input
-                        type="checkbox"
-                        name="exclude_from_sync"
-                        value="1"
-                        {{ old('exclude_from_sync', $game->exclude_from_sync) ? 'checked' : '' }}
-                        class="rounded"
-                        style="accent-color: var(--color-brand)"
-                    >
-                    <span class="form-label" style="margin-bottom: 0">Exclude from Sync</span>
-                </label>
+                <label class="form-label">Exclude from Sync</label>
+                <div class="flex gap-2 mt-1">
+                    <label class="form-chip">
+                        <input
+                            type="checkbox"
+                            name="exclude_from_sync"
+                            value="1"
+                            {{ old('exclude_from_sync', $game->exclude_from_sync) ? 'checked' : '' }}
+                        >
+                        Exclude from sync
+                    </label>
+                </div>
             </div>
+
+            @if($categories->isNotEmpty())
+                <div class="form-group">
+                    <label class="form-label">Categories</label>
+                    @php
+                        $selectedCategories = old('categories', $game->categories->pluck('id')->toArray());
+                    @endphp
+                    <div class="flex flex-wrap gap-2 mt-1">
+                        @foreach($categories as $category)
+                            <label class="form-chip">
+                                <input
+                                    type="checkbox"
+                                    name="categories[]"
+                                    value="{{ $category->id }}"
+                                    {{ in_array($category->id, $selectedCategories) ? 'checked' : '' }}
+                                >
+                                {{ $category->name }}
+                            </label>
+                        @endforeach
+                    </div>
+                    <p class="text-xs mt-1" style="color: var(--color-text-muted)">
+                        <a href="{{ route('playstation.categories.index') }}" style="color: var(--color-brand)">Manage categories</a>
+                    </p>
+                </div>
+            @else
+                <div class="form-group">
+                    <label class="form-label">Categories</label>
+                    <p class="text-sm" style="color: var(--color-text-muted)">
+                        No categories yet. <a href="{{ route('playstation.categories.index') }}" style="color: var(--color-brand)">Create some first.</a>
+                    </p>
+                </div>
+            @endif
 
             <div class="flex gap-2 mt-6">
                 <button type="submit" class="btn btn--primary">Save Changes</button>
