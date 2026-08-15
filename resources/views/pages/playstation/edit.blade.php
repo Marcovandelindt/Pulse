@@ -112,16 +112,24 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="play_mode">Play Mode</label>
-                <select id="play_mode" name="play_mode" class="form-input">
-                    <option value="">— None —</option>
+                <label class="form-label">Play Mode</label>
+                @php
+                    $selectedModes = old('play_mode', $game->play_mode?->map(fn($m) => $m->value)->toArray() ?? []);
+                @endphp
+                <div class="flex flex-wrap gap-4 mt-1">
                     @foreach(\App\Enums\PlayMode::cases() as $mode)
-                        <option value="{{ $mode->value }}"
-                            {{ old('play_mode', $game->play_mode?->value) === $mode->value ? 'selected' : '' }}>
-                            {{ $mode->label() }}
-                        </option>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                name="play_mode[]"
+                                value="{{ $mode->value }}"
+                                {{ in_array($mode->value, $selectedModes) ? 'checked' : '' }}
+                                style="accent-color: var(--color-brand)"
+                            >
+                            <span class="text-sm" style="color: var(--color-text-primary)">{{ $mode->label() }}</span>
+                        </label>
                     @endforeach
-                </select>
+                </div>
                 @error('play_mode')
                     <x-form.error>{{ $message }}</x-form.error>
                 @enderror

@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\BacklogStatus;
 use App\Enums\PlayMode;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -37,7 +38,7 @@ final class PlayStationGame extends Model
     {
         return [
             'backlog_status' => BacklogStatus::class,
-            'play_mode' => PlayMode::class,
+            'play_mode' => AsEnumCollection::of(PlayMode::class),
             'last_played_at' => 'date',
             'main_story_completed' => 'boolean',
             'exclude_from_sync' => 'boolean',

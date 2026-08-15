@@ -33,8 +33,12 @@
                 @endif
             </div>
             <h2 class="text-2xl font-bold mb-1" style="color: var(--color-text-primary)">{{ $game->name }}</h2>
-            @if($game->play_mode)
-                <p class="text-sm mb-3" style="color: var(--color-text-muted)">{{ $game->play_mode->label() }}</p>
+            @if($game->play_mode?->isNotEmpty())
+                <div class="flex flex-wrap gap-1 mb-3">
+                    @foreach($game->play_mode as $mode)
+                        <x-ui.badge color="gray">{{ $mode->label() }}</x-ui.badge>
+                    @endforeach
+                </div>
             @endif
             <div class="flex flex-wrap gap-4">
                 @if($game->user_rating)

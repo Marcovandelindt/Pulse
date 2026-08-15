@@ -9,7 +9,6 @@ enum PlayMode: string
     case SinglePlayer = 'single_player';
     case Multiplayer = 'multiplayer';
     case Coop = 'coop';
-    case Mixed = 'mixed';
 
     public function label(): string
     {
@@ -17,7 +16,6 @@ enum PlayMode: string
             self::SinglePlayer => 'Single Player',
             self::Multiplayer => 'Multiplayer',
             self::Coop => 'Co-op',
-            self::Mixed => 'Mixed',
         };
     }
 }
