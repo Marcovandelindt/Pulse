@@ -35,41 +35,55 @@
         </x-ui.card>
 
         <div class="flex flex-col gap-6">
-            <x-ui.card title="Now listening">
+            <x-ui.card title="Now listening" class="card--flush">
                 @if($currentlyPlaying)
-                    <div class="now-listening">
-                        @if($currentlyPlaying['album_image_url'])
-                            <img src="{{ $currentlyPlaying['album_image_url'] }}" alt="{{ $currentlyPlaying['album_name'] }}" class="now-listening__cover">
-                        @endif
-                        <div class="now-listening__info">
-                            <div class="now-listening__track">{{ $currentlyPlaying['track_name'] }}</div>
-                            <div class="now-listening__artist">{{ $currentlyPlaying['artist_names'] }}</div>
-                            @if($currentlyPlaying['album_name'])
-                                <div class="now-listening__album">{{ $currentlyPlaying['album_name'] }}</div>
+                    @php $albumBg = $currentlyPlaying['album_image_url'] ?? null; @endphp
+                    <div class="now-listening {{ $albumBg ? '' : 'now-listening--no-image' }}"
+                         @if($albumBg) style="--album-bg: url('{{ $albumBg }}')" @endif>
+                        <div class="now-listening__content">
+                            @if($albumBg)
+                                <img src="{{ $albumBg }}" alt="" class="now-listening__cover">
                             @endif
-                            <div class="now-listening__status">
-                                <span class="now-listening__dot"></span> Now playing
+                            <div class="now-listening__info">
+                                <div class="now-listening__track">{{ $currentlyPlaying['track_name'] }}</div>
+                                <div class="now-listening__artist">{{ $currentlyPlaying['artist_names'] }}</div>
+                                <div class="now-listening__meta">
+                                    <div class="now-listening__bars">
+                                        <div class="now-listening__bar"></div>
+                                        <div class="now-listening__bar"></div>
+                                        <div class="now-listening__bar"></div>
+                                        <div class="now-listening__bar"></div>
+                                    </div>
+                                    <span class="now-listening__label">Now playing</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 @elseif($recentPlay)
-                    <div class="now-listening">
-                        @if($recentPlay->track->album?->image_url)
-                            <img src="{{ $recentPlay->track->album->image_url }}" alt="{{ $recentPlay->track->album->name }}" class="now-listening__cover">
-                        @endif
-                        <div class="now-listening__info">
-                            <div class="now-listening__track">{{ $recentPlay->track->title }}</div>
-                            <div class="now-listening__artist">{{ $recentPlay->track->artists_string }}</div>
-                            @if($recentPlay->track->album)
-                                <div class="now-listening__album">{{ $recentPlay->track->album->name }}</div>
+                    @php $albumBg = $recentPlay->track->album?->image_url; @endphp
+                    <div class="now-listening {{ $albumBg ? '' : 'now-listening--no-image' }}"
+                         @if($albumBg) style="--album-bg: url('{{ $albumBg }}')" @endif>
+                        <div class="now-listening__content">
+                            @if($albumBg)
+                                <img src="{{ $albumBg }}" alt="" class="now-listening__cover">
                             @endif
-                            <div class="now-listening__status now-listening__status--muted">
-                                Last played {{ $recentPlay->played_at->diffForHumans() }}
+                            <div class="now-listening__info">
+                                <div class="now-listening__track">{{ $recentPlay->track->title }}</div>
+                                <div class="now-listening__artist">{{ $recentPlay->track->artists_string }}</div>
+                                <div class="now-listening__meta">
+                                    <span class="now-listening__label">{{ $recentPlay->played_at->diffForHumans() }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 @else
-                    <x-ui.empty-state title="Nothing playing" />
+                    <div class="now-listening now-listening--no-image">
+                        <div class="now-listening__content">
+                            <div class="now-listening__info">
+                                <div class="now-listening__track" style="color: rgba(255,255,255,0.4)">Nothing playing</div>
+                            </div>
+                        </div>
+                    </div>
                 @endif
             </x-ui.card>
 

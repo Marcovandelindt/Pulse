@@ -38,3 +38,7 @@
 .card--highlighted {
     border-color: var(--color-brand);
 }
+
+.card--flush .card__body {
+    padding: 0;
+}
