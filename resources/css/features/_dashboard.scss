@@ -51,87 +51,87 @@
     border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     background:    linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.04) 100%);
     border-top:    1px solid rgba(99, 102, 241, 0.15);
+}
 
-    &--playing {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.06) 100%);
-        border-top-color: rgba(99, 102, 241, 0.3);
-    }
+.now-listening--playing {
+    background:       linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.06) 100%);
+    border-top-color: rgba(99, 102, 241, 0.3);
+}
 
-    &__cover-wrap {
-        width:         3rem;
-        height:        3rem;
-        min-width:     3rem;
-        border-radius: var(--radius-md);
-        overflow:      hidden;
-        flex-shrink:   0;
-        box-shadow:    0 0 0 1px rgba(255,255,255,0.08), 0 4px 12px rgba(0,0,0,0.4);
+.now-listening__cover-wrap {
+    width:         3rem;
+    height:        3rem;
+    min-width:     3rem;
+    border-radius: var(--radius-md);
+    overflow:      hidden;
+    flex-shrink:   0;
+    box-shadow:    0 0 0 1px rgba(255,255,255,0.08), 0 4px 12px rgba(0,0,0,0.4);
+}
 
-        img {
-            width:      100%;
-            height:     100%;
-            object-fit: cover;
-            display:    block;
-        }
-    }
+.now-listening__cover-wrap img {
+    width:      100%;
+    height:     100%;
+    object-fit: cover;
+    display:    block;
+}
 
-    &--playing &__cover-wrap {
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5), 0 4px 16px rgba(99, 102, 241, 0.25);
-    }
+.now-listening--playing .now-listening__cover-wrap {
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5), 0 4px 16px rgba(99, 102, 241, 0.25);
+}
 
-    &__info {
-        flex:      1;
-        min-width: 0;
-    }
+.now-listening__info {
+    flex:      1;
+    min-width: 0;
+}
 
-    &__track {
-        font-size:     0.875rem;
-        font-weight:   600;
-        color:         var(--color-text-primary);
-        white-space:   nowrap;
-        overflow:      hidden;
-        text-overflow: ellipsis;
-    }
+.now-listening__track {
+    font-size:     0.875rem;
+    font-weight:   600;
+    color:         var(--color-text-primary);
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
 
-    &__artist {
-        font-size:     0.75rem;
-        color:         var(--color-text-muted);
-        margin-top:    0.125rem;
-        white-space:   nowrap;
-        overflow:      hidden;
-        text-overflow: ellipsis;
-    }
+.now-listening__artist {
+    font-size:     0.75rem;
+    color:         var(--color-text-muted);
+    margin-top:    0.125rem;
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
 
-    &__meta {
-        display:     flex;
-        align-items: center;
-        gap:         0.4rem;
-        margin-top:  0.5rem;
-    }
+.now-listening__meta {
+    display:     flex;
+    align-items: center;
+    gap:         0.4rem;
+    margin-top:  0.5rem;
+}
 
-    &__bars {
-        display:     flex;
-        align-items: flex-end;
-        gap:         2px;
-        height:      0.8rem;
-        flex-shrink: 0;
-    }
+.now-listening__bars {
+    display:     flex;
+    align-items: flex-end;
+    gap:         2px;
+    height:      0.8rem;
+    flex-shrink: 0;
+}
 
-    &__bar {
-        width:            3px;
-        border-radius:    1px;
-        background:       var(--color-brand-light);
-        transform-origin: bottom;
+.now-listening__bar {
+    width:            3px;
+    border-radius:    1px;
+    background:       var(--color-brand-light);
+    transform-origin: bottom;
+}
 
-        &:nth-child(1) { height: 45%; animation: eq 0.9s ease-in-out infinite 0.00s; }
-        &:nth-child(2) { height: 90%; animation: eq 0.9s ease-in-out infinite 0.20s; }
-        &:nth-child(3) { height: 65%; animation: eq 0.9s ease-in-out infinite 0.35s; }
-        &:nth-child(4) { height: 40%; animation: eq 0.9s ease-in-out infinite 0.10s; }
-    }
+.now-listening__bar:nth-child(1) { height: 45%; animation: eq 0.9s ease-in-out infinite 0.00s; }
+.now-listening__bar:nth-child(2) { height: 90%; animation: eq 0.9s ease-in-out infinite 0.20s; }
+.now-listening__bar:nth-child(3) { height: 65%; animation: eq 0.9s ease-in-out infinite 0.35s; }
+.now-listening__bar:nth-child(4) { height: 40%; animation: eq 0.9s ease-in-out infinite 0.10s; }
 
-    &__label {
-        font-size: 0.7rem;
-        color:     var(--color-text-muted);
-    }
+.now-listening__label {
+    font-size: 0.7rem;
+    color:     var(--color-text-muted);
 }
 
 @keyframes eq {
