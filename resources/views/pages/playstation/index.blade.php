@@ -59,7 +59,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="text-sm" style="color: var(--color-text-muted)">Sort:</span>
-                    @foreach(['hours' => 'Hours', 'name' => 'Name', 'last_played' => 'Last Played', 'completion' => 'Completion', 'trophies' => 'Trophies'] as $key => $label)
+                    @foreach(['hours' => 'Most Played', 'name' => 'Name', 'last_played' => 'Last Played', 'completion' => 'Completion', 'trophies' => 'Trophies'] as $key => $label)
                         <a
                             href="{{ route('playstation.index', array_filter(['sort' => $key, 'platform' => $platform ?: null])) }}"
                             class="btn btn--sm {{ $sort === $key ? 'btn--primary' : 'btn--secondary' }}"
