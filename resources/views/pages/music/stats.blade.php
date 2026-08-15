@@ -39,13 +39,7 @@
                     data-chart="bar"
                     data-chart-data="{{ json_encode([
                         'labels' => $playsPerDay->pluck('date')->map(fn($d) => \Carbon\Carbon::parse($d)->format('d M'))->toArray(),
-                        'datasets' => [[
-                            'label' => 'Plays',
-                            'data'  => $playsPerDay->pluck('count')->toArray(),
-                            'backgroundColor' => 'rgba(99, 102, 241, 0.5)',
-                            'borderColor'     => 'rgba(99, 102, 241, 1)',
-                            'borderWidth'     => 1,
-                        ]],
+                        'values' => $playsPerDay->pluck('count')->toArray(),
                     ]) }}"
                     style="height: 200px;"
                 ></canvas>
