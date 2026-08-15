@@ -14,7 +14,7 @@ final class MarkMovieWatchedRequest extends FormRequest
             'watched_at' => ['nullable', 'date', 'before_or_equal:now'],
             'year_only' => ['boolean'],
             'notes' => ['nullable', 'string', 'max:2000'],
-            'rating' => ['nullable', 'integer', 'between:1,10'],
+            'rating' => ['nullable', 'numeric', 'between:1,10'],
         ];
     }
 }

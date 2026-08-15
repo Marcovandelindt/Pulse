@@ -13,7 +13,7 @@ final readonly class MovieWatchData
         public ?Carbon $watchedAt,
         public bool $yearOnly,
         public ?string $notes,
-        public ?int $rating,
+        public ?float $rating,
     ) {}
 
     public static function fromRequest(MarkMovieWatchedRequest $request): self
@@ -24,7 +24,7 @@ final readonly class MovieWatchData
                 : null,
             yearOnly: (bool) $request->validated('year_only', false),
             notes: $request->validated('notes'),
-            rating: $request->validated('rating') !== null ? (int) $request->validated('rating') : null,
+            rating: $request->validated('rating') !== null ? (float) $request->validated('rating') : null,
         );
     }
 }
