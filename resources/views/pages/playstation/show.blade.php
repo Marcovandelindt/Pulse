@@ -1,7 +1,24 @@
 <x-layouts.app :title="$game->name">
 
+    <div x-data="{
+        isFavorite: {{ $game->is_favorite ? 'true' : 'false' }},
+        toggleFavorite() {
+            this.isFavorite = !this.isFavorite;
+            fetch('{{ route('playstation.favorite', $game) }}', {
+                method: 'PATCH',
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
+            });
+        }
+    }">
+
     <x-layout.page-header :title="$game->name">
         <x-slot:actions>
+            <button
+                @click="toggleFavorite()"
+                class="btn btn--secondary btn--sm"
+                :class="{ 'btn--favorite-active': isFavorite }"
+                x-text="isFavorite ? '★ Favorited' : '☆ Favorite'"
+            ></button>
             <a href="{{ route('playstation.edit', $game) }}" class="btn btn--secondary btn--sm">Edit</a>
             <a href="{{ route('playstation.index') }}" class="btn btn--secondary btn--sm">← Back</a>
         </x-slot:actions>
@@ -123,5 +140,7 @@
             </div>
         @endif
     </x-ui.card>
+
+    </div>
 
 </x-layouts.app>

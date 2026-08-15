@@ -78,21 +78,35 @@
             @else
                 <div class="gaming-grid">
                     @foreach($games as $game)
-                        <div class="gaming-card">
-                            <a href="{{ route('playstation.show', $game) }}" class="gaming-card__cover-link">
-                                @if($game->image_url)
-                                    <img src="{{ $game->image_url }}" alt="{{ $game->name }}" class="gaming-card__cover">
-                                @else
-                                    <div class="gaming-card__cover gaming-card__cover--empty">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" style="width:2rem;height:2rem;opacity:0.3">
-                                            <path d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>
-                                        </svg>
-                                    </div>
-                                @endif
+                        <div class="gaming-card" x-data="{ isFavorite: {{ $game->is_favorite ? 'true' : 'false' }} }">
+                            <div class="gaming-card__cover-wrap">
+                                <a href="{{ route('playstation.show', $game) }}" class="gaming-card__cover-link">
+                                    @if($game->image_url)
+                                        <img src="{{ $game->image_url }}" alt="{{ $game->name }}" class="gaming-card__cover">
+                                    @else
+                                        <div class="gaming-card__cover gaming-card__cover--empty">
+                                            <svg viewBox="0 0 24 24" fill="currentColor" style="width:2rem;height:2rem;opacity:0.3">
+                                                <path d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </a>
                                 @if($game->completion_percentage > 0)
                                     <span class="gaming-card__completion-badge">{{ number_format($game->completion_percentage, 0) }}%</span>
                                 @endif
-                            </a>
+                                <button
+                                    class="gaming-card__favorite"
+                                    :class="{ 'gaming-card__favorite--active': isFavorite }"
+                                    @click="
+                                        isFavorite = !isFavorite;
+                                        fetch('{{ route('playstation.favorite', $game) }}', {
+                                            method: 'PATCH',
+                                            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
+                                        });
+                                    "
+                                    :title="isFavorite ? 'Remove from favorites' : 'Add to favorites'"
+                                >★</button>
+                            </div>
                             <div class="gaming-card__body">
                                 <a href="{{ route('playstation.show', $game) }}" class="gaming-card__title">{{ $game->name }}</a>
                                 <div class="gaming-card__meta">

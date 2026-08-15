@@ -23,4 +23,5 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
     Route::get('/{playStationGame}', [PlayStationController::class, 'show'])->name('show');
     Route::get('/{playStationGame}/edit', [PlayStationController::class, 'edit'])->name('edit');
     Route::patch('/{playStationGame}', [PlayStationController::class, 'update'])->name('update');
+    Route::patch('/{playStationGame}/favorite', [PlayStationController::class, 'favorite'])->name('favorite');
 });

@@ -33,6 +33,7 @@ final class PlayStationGame extends Model
         'critic_rating',
         'play_mode',
         'main_story_completed',
+        'is_favorite',
     ];
 
     protected function casts(): array
@@ -43,6 +44,7 @@ final class PlayStationGame extends Model
             'last_played_at' => 'date',
             'main_story_completed' => 'boolean',
             'exclude_from_sync' => 'boolean',
+            'is_favorite' => 'boolean',
             'hours' => 'decimal:2',
             'completion_percentage' => 'decimal:2',
             'price' => 'decimal:2',

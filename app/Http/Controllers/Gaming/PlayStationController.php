@@ -13,6 +13,7 @@ use App\Models\PlayStationSession;
 use App\Services\PlayStation\PlayStationScraperService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -99,7 +100,7 @@ final class PlayStationController extends Controller
             'platform' => ['required', 'in:PS3,PS4,PS5,PSVITA'],
             'price' => ['nullable', 'numeric', 'min:0'],
             'manual_minutes' => ['nullable', 'integer', 'min:0'],
-            'image' => ['nullable', 'image', 'max:2048'],
+            'image' => ['nullable', 'image', 'max:5120'],
         ]);
 
         $imageUrl = null;
@@ -144,7 +145,7 @@ final class PlayStationController extends Controller
             'exclude_from_sync' => ['nullable', 'boolean'],
             'completion_percentage' => ['nullable', 'numeric', 'between:0,100'],
             'trophies' => ['nullable', 'integer', 'min:0'],
-            'image' => ['nullable', 'image', 'max:2048'],
+            'image' => ['nullable', 'image', 'max:5120'],
             'categories' => ['nullable', 'array'],
             'categories.*' => ['integer', 'exists:play_station_categories,id'],
         ]);
@@ -165,6 +166,13 @@ final class PlayStationController extends Controller
         $playStationGame->categories()->sync($categoryIds);
 
         return redirect()->route('playstation.show', $playStationGame)->with('success', 'Game updated.');
+    }
+
+    public function favorite(PlayStationGame $playStationGame): JsonResponse
+    {
+        $playStationGame->update(['is_favorite' => ! $playStationGame->is_favorite]);
+
+        return response()->json(['is_favorite' => $playStationGame->is_favorite]);
     }
 
     public function sessions(Request $request): View
