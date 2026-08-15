@@ -1,6 +1,6 @@
-<x-layouts.app title="{{ $person->name }}">
+<x-layouts.app title="{{ $person->name_en ?? $person->name }}">
 
-    <x-layout.page-header :title="$person->name">
+    <x-layout.page-header :title="$person->name_en ?? $person->name">
         <x-slot:actions>
             <a href="javascript:history.back()" class="btn btn--secondary btn--sm">&larr; Back</a>
         </x-slot:actions>

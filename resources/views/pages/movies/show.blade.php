@@ -107,7 +107,10 @@
                             class="media-director__photo"
                         >
                         <div>
-                            <div class="media-director__name">{{ $director->name }}</div>
+                            <div class="media-director__name">{{ $director->name_en ?? $director->name }}</div>
+                            @if($director->name_en)
+                                <div class="media-cast__native-name">{{ $director->name }}</div>
+                            @endif
                             <div class="media-director__label">Director</div>
                         </div>
                     </a>
@@ -130,7 +133,10 @@
                                 alt="{{ $person->name }}"
                                 class="media-cast__photo"
                             >
-                            <div class="media-cast__name">{{ $person->name }}</div>
+                            <div class="media-cast__name">{{ $person->name_en ?? $person->name }}</div>
+                            @if($person->name_en)
+                                <div class="media-cast__native-name">{{ $person->name }}</div>
+                            @endif
                             @if ($person->pivot->character)
                                 <div class="media-cast__role">{{ $person->pivot->character }}</div>
                             @endif
