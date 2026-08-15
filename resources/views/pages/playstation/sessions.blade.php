@@ -50,7 +50,7 @@
                         </div>
                         <div class="gaming-session-item__meta">
                             <span class="gaming-session-item__duration">{{ $session->formatted_duration }}</span>
-                            <span class="gaming-session-item__date">{{ $session->started_at->format('d M Y, H:i') }}</span>
+                            <span class="gaming-session-item__date">{{ $session->started_at->format('d M Y, H:i') }} – {{ $session->end_time->format('H:i') }}</span>
                         </div>
                     </div>
                 @endforeach

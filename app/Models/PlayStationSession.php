@@ -47,6 +47,13 @@ final class PlayStationSession extends Model
         return $query->whereBetween('started_at', [now()->startOfWeek(), now()->endOfWeek()]);
     }
 
+    protected function endTime(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->started_at->copy()->addMinutes($this->duration_minutes)
+        );
+    }
+
     protected function formattedDuration(): Attribute
     {
         return Attribute::make(
