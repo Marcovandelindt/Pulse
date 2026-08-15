@@ -22,25 +22,9 @@ final class PeopleController extends Controller
             'tvSeries' => $tvSeries,
             'totalMovieWatches' => $movies->sum(fn ($m) => $m->watches->count()),
             'totalEpisodesWatched' => $tvSeries->sum('episodes_watched'),
-            'totalHours' => $this->calculateTotalHours($movies, $tvSeries),
             'firstSeen' => $this->firstSeen($movies, $tvSeries),
             'lastSeen' => $this->lastSeen($movies, $tvSeries),
         ]);
-    }
-
-    private function calculateTotalHours(Collection $movies, Collection $tvSeries): float
-    {
-        $movieMinutes = $movies->sum(fn ($m) => $m->watches->count() * ($m->runtime ?? 0));
-
-        $tvMinutes = $tvSeries->sum(
-            fn ($s) => $s->seasons->sum(
-                fn ($season) => $season->episodes->sum(
-                    fn ($ep) => $ep->watches->count() * ($ep->runtime ?? 0),
-                ),
-            ),
-        );
-
-        return round(($movieMinutes + $tvMinutes) / 60, 1);
     }
 
     private function firstSeen(Collection $movies, Collection $tvSeries): ?Carbon

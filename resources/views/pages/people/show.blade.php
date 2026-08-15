@@ -32,12 +32,6 @@
                     <div class="people-profile__stat-value">{{ $totalEpisodesWatched }}</div>
                     <div class="people-profile__stat-label">episodes watched</div>
                 </div>
-                @if ($totalHours > 0)
-                    <div class="people-profile__stat">
-                        <div class="people-profile__stat-value">{{ $totalHours }}h</div>
-                        <div class="people-profile__stat-label">total watch time</div>
-                    </div>
-                @endif
                 @if ($firstSeen)
                     <div class="people-profile__stat">
                         <div class="people-profile__stat-value">{{ $firstSeen->format('d M Y') }}</div>
