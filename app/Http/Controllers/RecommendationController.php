@@ -8,6 +8,8 @@ use App\Models\Movie;
 use App\Models\Person;
 use App\Models\TvSeries;
 use App\Services\Tmdb\TMDBRecommendationService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -17,6 +19,31 @@ final class RecommendationController extends Controller
     public function __construct(
         private readonly TMDBRecommendationService $tmdb,
     ) {}
+
+    public function searchPeople(Request $request): JsonResponse
+    {
+        $q = trim((string) $request->query('q', ''));
+
+        if (strlen($q) < 2) {
+            return response()->json([]);
+        }
+
+        $people = Person::where('name', 'like', "%{$q}%")
+            ->orWhere('name_en', 'like', "%{$q}%")
+            ->orderByRaw('CASE WHEN name_en IS NOT NULL THEN 0 ELSE 1 END')
+            ->limit(8)
+            ->get(['id', 'name', 'name_en', 'profile_path'])
+            ->map(fn (Person $p): array => [
+                'id'          => $p->id,
+                'name'        => $p->name,
+                'name_en'     => $p->name_en,
+                'profile_url' => $p->profile_path
+                    ? config('tmdb.image_base_url').config('tmdb.profile_sizes.small').$p->profile_path
+                    : null,
+            ]);
+
+        return response()->json($people);
+    }
 
     public function index(): View
     {
@@ -30,7 +57,6 @@ final class RecommendationController extends Controller
             'mode'            => 'general',
             'topActors'       => collect(),
             'recommendations' => $recommendations,
-            'allPeople'       => $this->allPeople(),
             'person'          => null,
             'credits'         => collect(),
         ]);
@@ -63,7 +89,6 @@ final class RecommendationController extends Controller
             'mode'            => 'actor',
             'topActors'       => $this->getTopActors(),
             'recommendations' => collect(),
-            'allPeople'       => $this->allPeople(),
             'person'          => $person,
             'credits'         => $castCredits,
         ]);
@@ -219,21 +244,6 @@ final class RecommendationController extends Controller
         }
 
         return $results;
-    }
-
-    /** @return Collection<int, array{id: int, name: string, name_en: string|null, profile_url: string|null}> */
-    private function allPeople(): Collection
-    {
-        return Person::orderBy('name')
-            ->get(['id', 'name', 'name_en', 'profile_path'])
-            ->map(fn (Person $p): array => [
-                'id'          => $p->id,
-                'name'        => $p->name,
-                'name_en'     => $p->name_en,
-                'profile_url' => $p->profile_path
-                    ? config('tmdb.image_base_url').config('tmdb.profile_sizes.small').$p->profile_path
-                    : null,
-            ]);
     }
 
     private function posterUrl(?string $path): ?string

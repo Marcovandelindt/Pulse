@@ -1,20 +1,27 @@
 export function registerRecommendationComponents() {
-    Alpine.data('recommendations', ({ mode, allPeople, actorBaseUrl }) => ({
+    Alpine.data('recommendations', ({ mode, actorBaseUrl, searchUrl }) => ({
         showActorSearch: mode === 'actor',
         actorSearch: '',
         showDropdown: false,
+        searchResults: [],
+        _debounce: null,
         showMovies: true,
         showSeries: true,
         showWatched: true,
         showUnwatched: true,
 
-        get filteredPeople() {
-            if (this.actorSearch.length < 1) return [];
-            const q = this.actorSearch.toLowerCase();
-            return allPeople.filter(p =>
-                p.name.toLowerCase().includes(q) ||
-                (p.name_en && p.name_en.toLowerCase().includes(q))
-            ).slice(0, 8);
+        async searchActors() {
+            clearTimeout(this._debounce);
+            if (this.actorSearch.length < 2) {
+                this.searchResults = [];
+                this.showDropdown = false;
+                return;
+            }
+            this._debounce = setTimeout(async () => {
+                const res = await fetch(`${searchUrl}?q=${encodeURIComponent(this.actorSearch)}`);
+                this.searchResults = await res.json();
+                this.showDropdown = this.searchResults.length > 0;
+            }, 200);
         },
 
         openActorSearch() {

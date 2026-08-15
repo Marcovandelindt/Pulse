@@ -3,8 +3,8 @@
 <div
     x-data="recommendations({
         mode: '{{ $mode }}',
-        allPeople: @js($allPeople),
         actorBaseUrl: '{{ url('/recommendations/actor') }}',
+        searchUrl: '{{ route('recommendations.people.search') }}',
     })"
     @click.away="showDropdown = false"
 >
@@ -45,15 +45,15 @@
                 type="text"
                 x-model="actorSearch"
                 x-ref="actorInput"
-                @input="showDropdown = actorSearch.length > 0"
-                @focus="showDropdown = actorSearch.length > 0"
+                @input="searchActors()"
+                @focus="if (actorSearch.length >= 2) showDropdown = searchResults.length > 0"
                 @keydown.escape="showDropdown = false"
                 class="form-input"
                 placeholder="Search actor…"
                 style="min-width: 22rem;"
             >
-            <div class="rec-people-dropdown" x-show="showDropdown && filteredPeople.length > 0" style="display:none;">
-                <template x-for="p in filteredPeople" :key="p.id">
+            <div class="rec-people-dropdown" x-show="showDropdown && searchResults.length > 0" style="display:none;">
+                <template x-for="p in searchResults" :key="p.id">
                     <button class="rec-people-dropdown__item" @click="selectActor(p)">
                         <img
                             :src="p.profile_url ?? '{{ asset('cast-placeholder.svg') }}'"

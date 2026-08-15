@@ -7,5 +7,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('recommendations')->name('recommendations.')->group(function () {
     Route::get('/', [RecommendationController::class, 'index'])->name('index');
+    Route::get('/people/search', [RecommendationController::class, 'searchPeople'])->name('people.search');
     Route::get('/actor/{person}', [RecommendationController::class, 'byActor'])->name('actor');
 });
