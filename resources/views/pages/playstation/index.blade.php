@@ -117,6 +117,12 @@
                 </div>
             @endif
 
+            @if($games->hasPages())
+                <div class="mt-6">
+                    {{ $games->links() }}
+                </div>
+            @endif
+
         </div>
 
         <div>

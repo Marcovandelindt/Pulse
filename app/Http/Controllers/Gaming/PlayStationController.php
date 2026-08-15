@@ -23,26 +23,26 @@ final class PlayStationController extends Controller
         $sort = $request->get('sort', 'hours');
         $platform = $request->get('platform');
 
-        $query = PlayStationGame::query();
+        $baseQuery = PlayStationGame::query();
 
         if ($platform) {
-            $query->where('platform', $platform);
+            $baseQuery->where('platform', $platform);
         }
 
+        $totalHours = round((float) (clone $baseQuery)->sum('hours'), 1);
+        $totalGames = (clone $baseQuery)->count();
+        $totalSessions = (clone $baseQuery)->sum('sessions');
+        $totalTrophies = (clone $baseQuery)->sum('trophies');
+
         $query = match ($sort) {
-            'name' => $query->orderBy('name'),
-            'last_played' => $query->orderByDesc('last_played_at'),
-            'completion' => $query->orderByDesc('completion_percentage'),
-            'trophies' => $query->orderByDesc('trophies'),
-            default => $query->orderByDesc('hours'),
+            'name' => (clone $baseQuery)->orderBy('name'),
+            'last_played' => (clone $baseQuery)->orderByDesc('last_played_at'),
+            'completion' => (clone $baseQuery)->orderByDesc('completion_percentage'),
+            'trophies' => (clone $baseQuery)->orderByDesc('trophies'),
+            default => (clone $baseQuery)->orderByDesc('hours'),
         };
 
-        $games = $query->get();
-
-        $totalHours = round($games->sum(fn ($g) => (float) $g->hours), 1);
-        $totalGames = $games->count();
-        $totalSessions = $games->sum('sessions');
-        $totalTrophies = $games->sum('trophies');
+        $games = $query->paginate(24)->withQueryString();
 
         $recentSessions = PlayStationSession::with('game')
             ->whereHas('game')
