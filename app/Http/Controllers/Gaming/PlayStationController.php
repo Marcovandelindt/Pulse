@@ -117,7 +117,7 @@ final class PlayStationController extends Controller
             'platform' => ['required', 'in:PS3,PS4,PS5,PSVITA'],
             'price' => ['nullable', 'numeric', 'min:0'],
             'manual_minutes' => ['nullable', 'integer', 'min:0'],
-            'image' => ['nullable', 'image', 'max:5120'],
+            'image' => ['nullable', 'image', 'max:10240'],
         ]);
 
         $imageUrl = null;
@@ -162,7 +162,7 @@ final class PlayStationController extends Controller
             'main_story_completed' => ['nullable', 'boolean'],
             'exclude_from_sync' => ['nullable', 'boolean'],
             'completion_percentage' => ['nullable', 'numeric', 'between:0,100'],
-            'image' => ['nullable', 'image', 'max:5120'],
+            'image' => ['nullable', 'image', 'max:10240'],
             'categories' => ['nullable', 'array'],
             'categories.*' => ['integer', 'exists:play_station_categories,id'],
         ]);
