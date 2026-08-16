@@ -167,9 +167,11 @@
              :style="sleepItem ? `background-image: url('${sleepItem.backdrop_url || sleepItem.poster_url}')` : ''">
         </div>
 
+        <div class="sleep-mode__fade" :class="{ 'sleep-mode__fade--active': sleepTransitioning }"></div>
+
         <button class="sleep-mode__close" @click="exitSleep()">✕</button>
 
-        <div class="sleep-mode__content" :class="{ 'sleep-mode__content--transitioning': sleepTransitioning }">
+        <div class="sleep-mode__content">
             <div class="sleep-mode__poster-wrap">
                 <img :src="sleepItem?.poster_url" :alt="sleepItem?.title" class="sleep-mode__poster">
             </div>

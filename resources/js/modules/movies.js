@@ -29,7 +29,7 @@ export function registerMovieComponents() {
         sleepOpen: false,
         sleepIndex: 0,
         sleepTransitioning: false,
-        sleepItems: rawSleepItems ?? [],
+        sleepItems: (rawSleepItems ?? []).slice().sort(() => Math.random() - 0.5),
         sleepTimer: null,
         sleepKeyHandler: null,
 
@@ -66,7 +66,7 @@ export function registerMovieComponents() {
             setTimeout(() => {
                 this.sleepIndex = (this.sleepIndex + 1) % this.sleepItems.length;
                 this.sleepTransitioning = false;
-            }, 250);
+            }, 400);
         },
 
         _sleepPrev() {
@@ -75,7 +75,7 @@ export function registerMovieComponents() {
             setTimeout(() => {
                 this.sleepIndex = (this.sleepIndex - 1 + this.sleepItems.length) % this.sleepItems.length;
                 this.sleepTransitioning = false;
-            }, 250);
+            }, 400);
         },
 
         _resetSleepTimer() {

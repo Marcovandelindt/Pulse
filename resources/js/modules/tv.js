@@ -66,7 +66,7 @@ export function registerTvComponents() {
             setTimeout(() => {
                 this.sleepIndex = (this.sleepIndex + 1) % this.sleepItems.length;
                 this.sleepTransitioning = false;
-            }, 250);
+            }, 400);
         },
 
         _sleepPrev() {
@@ -75,7 +75,7 @@ export function registerTvComponents() {
             setTimeout(() => {
                 this.sleepIndex = (this.sleepIndex - 1 + this.sleepItems.length) % this.sleepItems.length;
                 this.sleepTransitioning = false;
-            }, 250);
+            }, 400);
         },
 
         _resetSleepTimer() {

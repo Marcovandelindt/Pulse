@@ -18,11 +18,25 @@
     filter:              blur(.5px) brightness(0.25);
 }
 
+.sleep-mode__fade {
+    position:       absolute;
+    inset:          0;
+    z-index:        5;
+    background:     #000;
+    opacity:        0;
+    pointer-events: none;
+    transition:     opacity 0.4s ease;
+}
+
+.sleep-mode__fade--active {
+    opacity: 1;
+}
+
 .sleep-mode__close {
-    position:        fixed;
+    position:        absolute;
     top:             1.25rem;
     right:           1.25rem;
-    z-index:         10000;
+    z-index:         10;
     background:      rgba(255, 255, 255, 0.1);
     border:          1px solid rgba(255, 255, 255, 0.2);
     color:           rgba(255, 255, 255, 0.8);
@@ -36,11 +50,11 @@
     cursor:          pointer;
     transition:      background var(--transition-base);
     line-height:     1;
+}
 
-    &:hover {
-        background: rgba(255, 255, 255, 0.2);
-        color:      #fff;
-    }
+.sleep-mode__close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color:      #fff;
 }
 
 .sleep-mode__content {
@@ -52,9 +66,6 @@
     max-width:   56rem;
     width:       100%;
     padding:     0 5rem;
-    transition:  opacity 0.25s ease;
-
-    &--transitioning { opacity: 0; }
 }
 
 .sleep-mode__poster-wrap {
@@ -136,7 +147,7 @@
     position:        absolute;
     top:             50%;
     transform:       translateY(-50%);
-    z-index:         1;
+    z-index:         10;
     background:      rgba(255, 255, 255, 0.08);
     border:          1px solid rgba(255, 255, 255, 0.12);
     color:           rgba(255, 255, 255, 0.7);
@@ -150,21 +161,21 @@
     cursor:          pointer;
     transition:      background var(--transition-base), color var(--transition-base);
     line-height:     1;
-
-    &:hover {
-        background: rgba(255, 255, 255, 0.18);
-        color:      #fff;
-    }
-
-    &--prev { left:  1.5rem; }
-    &--next { right: 1.5rem; }
 }
+
+.sleep-mode__nav:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color:      #fff;
+}
+
+.sleep-mode__nav--prev { left:  1.5rem; }
+.sleep-mode__nav--next { right: 1.5rem; }
 
 .sleep-mode__counter {
     position:  absolute;
     bottom:    1.25rem;
     right:     1.5rem;
-    z-index:   1;
+    z-index:   10;
     font-size: 0.8125rem;
     color:     rgba(255, 255, 255, 0.35);
 }
@@ -176,7 +187,7 @@
     right:      0;
     height:     3px;
     background: rgba(255, 255, 255, 0.1);
-    z-index:    1;
+    z-index:    10;
 }
 
 .sleep-progress__fill {
