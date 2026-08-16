@@ -38,9 +38,20 @@ foreach ($series->seasons as $season) {
 >
 
     {{-- Backdrop hero --}}
-    @if ($series->backdrop_url)
-        <div class="media-hero media-hero--centered" style="background-image: url('{{ $series->backdrop_url }}')">
-            <div class="media-hero__overlay"></div>
+    @php $backdropUrl = $series->custom_backdrop_url ?? $series->backdrop_url; @endphp
+    @if ($backdropUrl)
+        <div x-data="{ backdropOpen: false }">
+            <div class="media-hero media-hero--centered media-hero--clickable"
+                 style="background-image: url('{{ $backdropUrl }}')"
+                 @click="backdropOpen = true">
+                <div class="media-hero__overlay"></div>
+                <span class="media-hero__expand" aria-hidden="true">⛶</span>
+            </div>
+
+            <div class="backdrop-lightbox" x-show="backdropOpen" @click="backdropOpen = false" @keydown.escape.window="backdropOpen = false" style="display:none;">
+                <img src="{{ $backdropUrl }}" alt="{{ $series->name }}" class="backdrop-lightbox__img">
+                <button class="backdrop-lightbox__close" @click.stop="backdropOpen = false">✕</button>
+            </div>
         </div>
     @endif
 
