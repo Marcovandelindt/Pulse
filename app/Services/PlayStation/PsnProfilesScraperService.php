@@ -89,6 +89,10 @@ final class PsnProfilesScraperService
 
     private function findGameSlug(PlayStationGame $game): string
     {
+        if ($game->psnprofiles_slug) {
+            return $game->psnprofiles_slug;
+        }
+
         $platform = match ($game->platform) {
             'PS5'    => 'ps5',
             'PS4'    => 'ps4',
@@ -108,7 +112,7 @@ final class PsnProfilesScraperService
         if (! $slug) {
             throw new RuntimeException(
                 "Could not find \"{$game->name}\" on PSNProfiles. ".
-                'Try searching manually at psnprofiles.com and set the slug via the game URL.'
+                'Ga naar Edit en vul de PSNProfiles-slug handmatig in (het stuk na /trophies/ in de URL op psnprofiles.com).'
             );
         }
 

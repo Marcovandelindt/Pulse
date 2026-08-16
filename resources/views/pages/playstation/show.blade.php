@@ -97,6 +97,11 @@
         </div>
     </div>
 
+    @php
+        $trophyEarned = $game->trophyList->where('is_earned', true)->count();
+        $trophyTotal  = $game->trophyList->count();
+    @endphp
+
     <div class="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
         <x-stats.stat-card
             label="Hours Played"
@@ -114,8 +119,8 @@
             icon="clock"
         />
         <x-stats.stat-card
-            label="Completion"
-            :value="number_format($game->completion_percentage, 1) . '%'"
+            label="Trophies"
+            :value="$trophyTotal ? $trophyEarned . ' / ' . $trophyTotal : '—'"
             icon="heart"
         />
     </div>
@@ -141,15 +146,13 @@
                 'silver'   => ['label' => 'Silver',   'emoji' => '🥈'],
                 'bronze'   => ['label' => 'Bronze',   'emoji' => '🥉'],
             ];
-            $earnedTotal = $game->trophyList->where('is_earned', true)->count();
-            $totalCount  = $game->trophyList->count();
         @endphp
-        <div x-data="{ search: '', earnedCount: {{ $earnedTotal }} }" @trophy-toggled="earnedCount += $event.detail.delta">
+        <div x-data="{ search: '', earnedCount: {{ $trophyEarned }} }" @trophy-toggled="earnedCount += $event.detail.delta">
         <x-ui.card class="mb-6">
             <x-slot:title>
                 Trophies
                 <span style="color: var(--color-text-muted); font-weight: 400; font-size: 0.875rem;">
-                    <span x-text="earnedCount">{{ $earnedTotal }}</span> / {{ $totalCount }}
+                    <span x-text="earnedCount">{{ $trophyEarned }}</span> / {{ $trophyTotal }}
                 </span>
             </x-slot:title>
 

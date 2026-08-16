@@ -16,6 +16,7 @@ final class PlayStationGame extends Model
 {
     protected $fillable = [
         'name',
+        'psnprofiles_slug',
         'platform',
         'image_url',
         'hours',

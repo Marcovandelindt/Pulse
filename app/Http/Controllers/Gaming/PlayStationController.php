@@ -44,7 +44,10 @@ final class PlayStationController extends Controller
             default => (clone $baseQuery)->orderByDesc('hours'),
         };
 
-        $games = $query->paginate(24)->withQueryString();
+        $games = $query->withCount([
+            'trophyList',
+            'trophyList as earned_trophy_count' => fn ($q) => $q->where('is_earned', true),
+        ])->paginate(24)->withQueryString();
 
         $recentSessions = PlayStationSession::with('game')
             ->whereHas('game')
@@ -133,6 +136,7 @@ final class PlayStationController extends Controller
     public function update(Request $request, PlayStationGame $playStationGame): RedirectResponse
     {
         $validated = $request->validate([
+            'psnprofiles_slug' => ['nullable', 'string', 'max:255'],
             'price' => ['nullable', 'numeric', 'min:0'],
             'manual_minutes' => ['nullable', 'integer', 'min:0'],
             'user_rating' => ['nullable', 'numeric', 'between:0,10'],

@@ -112,6 +112,10 @@
                                 </div>
                                 <div class="gaming-card__stats">
                                     <span>{{ $game->formatted_hours }}</span>
+                                    @if($game->trophy_list_count > 0)
+                                        <span>·</span>
+                                        <span>🏆 {{ $game->earned_trophy_count }}/{{ $game->trophy_list_count }}</span>
+                                    @endif
                                 </div>
                                 @if($game->completion_percentage > 0)
                                     <div class="gaming-card__progress">
