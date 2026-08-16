@@ -12,6 +12,9 @@ export function registerTvComponents() {
         backdrops: rawBackdrops.slice().sort(() => Math.random() - 0.5),
         currentSlide: 0,
         _timer: null,
+        clockTime: '',
+        clockDate: '',
+        _clockTimer: null,
 
         init() {
             if (this.backdrops.length > 1) {
@@ -19,11 +22,19 @@ export function registerTvComponents() {
                     this.currentSlide = (this.currentSlide + 1) % this.backdrops.length;
                 }, 2500);
             }
+            const tick = () => {
+                const now = new Date();
+                this.clockTime = now.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                this.clockDate = now.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' });
+            };
+            tick();
+            this._clockTimer = setInterval(tick, 1000);
         },
 
         destroy() {
             clearInterval(this._timer);
             clearInterval(this.sleepTimer);
+            clearInterval(this._clockTimer);
         },
 
         sleepOpen: false,

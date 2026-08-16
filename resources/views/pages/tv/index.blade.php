@@ -171,6 +171,11 @@
 
         <button class="sleep-mode__close" @click="exitSleep()">✕</button>
 
+        <div class="sleep-mode__clock">
+            <div class="sleep-mode__clock-time" x-text="clockTime"></div>
+            <div class="sleep-mode__clock-date" x-text="clockDate"></div>
+        </div>
+
         <div class="sleep-mode__content">
             <div class="sleep-mode__poster-wrap">
                 <img :src="sleepItem?.poster_url" :alt="sleepItem?.title" class="sleep-mode__poster">
