@@ -22,8 +22,9 @@ Route::prefix('movies')->name('movies.')->group(function () {
     Route::get('/{movie}', [MovieController::class,       'show'])->name('show');
     Route::post('/{movie}/watches', [MovieWatchController::class,  'store'])->name('watches.store');
     Route::delete('/watches/{watch}', [MovieWatchController::class,  'destroy'])->name('watches.destroy');
-    Route::post('/{movie}/refresh', [MovieController::class,  'refresh'])->name('refresh');
-    Route::delete('/{movie}', [MovieController::class,       'destroy'])->name('destroy');
+    Route::post('/{movie}/refresh', [MovieController::class,      'refresh'])->name('refresh');
+    Route::post('/{movie}/backdrop', [MovieController::class,     'uploadBackdrop'])->name('backdrop');
+    Route::delete('/{movie}', [MovieController::class,            'destroy'])->name('destroy');
 });
 
 Route::prefix('tv')->name('tv.')->group(function () {
@@ -37,9 +38,10 @@ Route::prefix('tv')->name('tv.')->group(function () {
     Route::post('/episodes/{episode}/watches', [TvWatchController::class,  'store'])->name('episodes.watches.store');
     Route::post('/episodes/{episode}/watches/bulk-up-to', [TvWatchController::class, 'bulkUpTo'])->name('episodes.watches.bulk-up-to');
     Route::post('/{series}/watches/bulk', [TvWatchController::class,  'bulkStore'])->name('watches.bulk');
-    Route::post('/{series}/refresh', [TvRefreshController::class, 'store'])->name('refresh');
-    Route::delete('/watches/{watch}', [TvWatchController::class,  'destroy'])->name('watches.destroy');
-    Route::delete('/{series}', [TvSeriesController::class, 'destroy'])->name('destroy');
+    Route::post('/{series}/refresh', [TvRefreshController::class,  'store'])->name('refresh');
+    Route::post('/{series}/backdrop', [TvSeriesController::class,  'uploadBackdrop'])->name('backdrop');
+    Route::delete('/watches/{watch}', [TvWatchController::class,   'destroy'])->name('watches.destroy');
+    Route::delete('/{series}', [TvSeriesController::class,         'destroy'])->name('destroy');
 });
 
 Route::get('/people/{person}', [PeopleController::class, 'show'])->name('people.show');

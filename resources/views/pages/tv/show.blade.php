@@ -77,6 +77,11 @@ foreach ($series->seasons as $season) {
                             <span x-show="!refreshing">Refresh</span>
                             <span x-show="refreshing">Refreshing…</span>
                         </button>
+                        <form method="POST" action="{{ route('tv.backdrop', $series) }}" enctype="multipart/form-data">
+                            @csrf
+                            <input type="file" name="backdrop" id="tv-backdrop-input" accept="image/*" class="hidden" onchange="this.form.submit()">
+                            <button type="button" onclick="document.getElementById('tv-backdrop-input').click()" class="btn btn--secondary btn--sm">🖼 Backdrop</button>
+                        </form>
                         <button @click="removeSeries()" class="btn btn--danger btn--sm">Remove</button>
                         <a href="{{ route('tv.index') }}" class="btn btn--secondary btn--sm">&larr; Back</a>
                     </div>

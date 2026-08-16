@@ -17,7 +17,7 @@
         'title'        => $m->title,
         'year'         => $m->release_date?->year,
         'poster_url'   => $m->poster_url,
-        'backdrop_url' => $m->backdrop_url,
+        'backdrop_url' => $m->custom_backdrop_url ?? $m->backdrop_url,
         'watch_count'  => $m->watch_count,
         'runtime_str'  => $m->runtime
             ? intdiv($m->runtime, 60).'h '.($m->runtime % 60).'m'

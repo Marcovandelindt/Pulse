@@ -10,8 +10,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Media\StoreTmdbMovieRequest;
 use App\Models\Movie;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 final class MovieController extends Controller
@@ -76,6 +78,20 @@ final class MovieController extends Controller
         $action->handle($movie->tmdb_id);
 
         return response()->json(['refreshed' => true]);
+    }
+
+    public function uploadBackdrop(Request $request, Movie $movie): RedirectResponse
+    {
+        $request->validate(['backdrop' => ['required', 'image', 'max:10240']]);
+
+        if ($movie->custom_backdrop_url && str_starts_with($movie->custom_backdrop_url, '/storage/')) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $movie->custom_backdrop_url));
+        }
+
+        $path = $request->file('backdrop')->store('backdrops/movies', 'public');
+        $movie->update(['custom_backdrop_url' => Storage::url($path)]);
+
+        return redirect()->back()->with('success', 'Backdrop updated.');
     }
 
     public function destroy(Movie $movie, DeleteMovie $action): JsonResponse

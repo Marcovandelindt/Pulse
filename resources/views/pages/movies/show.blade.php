@@ -42,6 +42,11 @@
                     <div class="flex gap-2 flex-wrap justify-end shrink-0">
                         <button @click="watchOpen = true" class="btn btn--primary btn--sm">+ Mark watched</button>
                         <button @click="refreshMovie()" class="btn btn--secondary btn--sm">↻ Refresh cast</button>
+                        <form method="POST" action="{{ route('movies.backdrop', $movie) }}" enctype="multipart/form-data">
+                            @csrf
+                            <input type="file" name="backdrop" id="movie-backdrop-input" accept="image/*" class="hidden" onchange="this.form.submit()">
+                            <button type="button" onclick="document.getElementById('movie-backdrop-input').click()" class="btn btn--secondary btn--sm">🖼 Backdrop</button>
+                        </form>
                         <button @click="deleteMovie()" class="btn btn--danger btn--sm">Remove</button>
                         <a href="{{ route('movies.index') }}" class="btn btn--secondary btn--sm">&larr; Back</a>
                     </div>

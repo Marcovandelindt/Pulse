@@ -18,7 +18,7 @@ final class Movie extends Model
 
     protected $fillable = [
         'tmdb_id', 'title', 'original_title', 'overview',
-        'poster_path', 'backdrop_path', 'release_date', 'runtime',
+        'poster_path', 'backdrop_path', 'custom_backdrop_url', 'release_date', 'runtime',
         'vote_average', 'genres', 'original_language',
         'watch_count', 'last_watched_at', 'first_watched_at',
     ];

@@ -10,7 +10,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Media\StoreTmdbSeriesRequest;
 use App\Models\TvSeries;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 final class TvSeriesController extends Controller
@@ -67,6 +69,20 @@ final class TvSeriesController extends Controller
         $series->update(['user_rating' => $rating ? round((float) $rating, 1) : null]);
 
         return response()->json(['user_rating' => $series->user_rating]);
+    }
+
+    public function uploadBackdrop(Request $request, TvSeries $series): RedirectResponse
+    {
+        $request->validate(['backdrop' => ['required', 'image', 'max:10240']]);
+
+        if ($series->custom_backdrop_url && str_starts_with($series->custom_backdrop_url, '/storage/')) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $series->custom_backdrop_url));
+        }
+
+        $path = $request->file('backdrop')->store('backdrops/tv', 'public');
+        $series->update(['custom_backdrop_url' => Storage::url($path)]);
+
+        return redirect()->back()->with('success', 'Backdrop updated.');
     }
 
     public function destroy(TvSeries $series, DeleteSeries $action): JsonResponse

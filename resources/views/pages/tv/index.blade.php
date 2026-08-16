@@ -18,7 +18,7 @@
         'title'             => $s->name_en ?? $s->name,
         'year'              => $s->first_air_date?->year,
         'poster_url'        => $s->poster_url,
-        'backdrop_url'      => $s->backdrop_url,
+        'backdrop_url'      => $s->custom_backdrop_url ?? $s->backdrop_url,
         'episodes_watched'  => $s->episodes_watched ?? 0,
         'total_episodes'    => $s->number_of_episodes,
         'completion'        => (int) round(min(100, $s->completion_percentage ?? 0)),
