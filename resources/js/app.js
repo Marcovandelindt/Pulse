@@ -4,6 +4,7 @@ import { initCharts } from './modules/charts.js';
 import { registerTvComponents } from './modules/tv.js';
 import { registerMovieComponents } from './modules/movies.js';
 import { registerRecommendationComponents } from './modules/recommendations.js';
+import { registerPlayStationComponents } from './modules/playstation.js';
 
 window.Alpine = Alpine;
 Alpine.plugin(Collapse);
@@ -11,6 +12,7 @@ Alpine.plugin(Collapse);
 registerTvComponents();
 registerMovieComponents();
 registerRecommendationComponents();
+registerPlayStationComponents();
 
 Alpine.start();
 

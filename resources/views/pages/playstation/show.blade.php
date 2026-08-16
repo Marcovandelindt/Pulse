@@ -41,12 +41,15 @@
         </div>
     @endif
 
+    @php
+        $fallbacks = ['ps1.jpg','ps2.webp','ps3.jpg','ps4.jpg','ps5.jpg'];
+        $coverUrl  = $game->image_url ?? '/images/playstation/' . $fallbacks[$game->id % 5];
+    @endphp
+
     <div class="gaming-hero mb-6">
-        @if($game->image_url)
-            <div class="gaming-hero__cover">
-                <img src="{{ $game->image_url }}" alt="{{ $game->name }}" class="gaming-hero__img">
-            </div>
-        @endif
+        <div class="gaming-hero__cover">
+            <img src="{{ $coverUrl }}" alt="{{ $game->name }}" class="gaming-hero__img">
+        </div>
         <div class="gaming-hero__info">
             <div class="flex items-center gap-2 mb-2">
                 <span class="gaming-platform-badge" style="background: {{ $game->platformColor() }}">

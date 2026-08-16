@@ -57,6 +57,28 @@
     color:      #fff;
 }
 
+.sleep-mode__clock {
+    position:    relative;
+    z-index:     1;
+    text-align:  center;
+    margin-bottom: 2.5rem;
+}
+
+.sleep-mode__clock-time {
+    font-size:   5rem;
+    font-weight: 200;
+    color:       #fff;
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+
+.sleep-mode__clock-date {
+    font-size:  1rem;
+    color:      rgba(255, 255, 255, 0.45);
+    margin-top: 0.5rem;
+    text-transform: capitalize;
+}
+
 .sleep-mode__content {
     position:    relative;
     z-index:     1;

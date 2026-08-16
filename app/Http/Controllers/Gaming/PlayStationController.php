@@ -55,6 +55,20 @@ final class PlayStationController extends Controller
             ->limit(5)
             ->get();
 
+        $fallbacks = ['ps1.jpg', 'ps2.webp', 'ps3.jpg', 'ps4.jpg', 'ps5.jpg'];
+
+        $sleepItems = PlayStationGame::orderByDesc('hours')
+            ->get(['id', 'name', 'platform', 'image_url', 'hours', 'completion_percentage', 'last_played_at'])
+            ->map(fn ($g) => [
+                'title'       => $g->name,
+                'platform'    => $g->platform,
+                'image_url'   => $g->image_url ?? '/images/playstation/'.$fallbacks[$g->id % 5],
+                'hours'       => round((float) $g->hours, 1),
+                'completion'  => round((float) $g->completion_percentage, 0),
+                'last_played' => $g->last_played_at?->format('d M Y'),
+                'url'         => route('playstation.show', $g),
+            ]);
+
         return view('pages.playstation.index', compact(
             'games',
             'sort',
@@ -63,6 +77,7 @@ final class PlayStationController extends Controller
             'totalGames',
             'totalSessions',
             'recentSessions',
+            'sleepItems',
         ));
     }
 

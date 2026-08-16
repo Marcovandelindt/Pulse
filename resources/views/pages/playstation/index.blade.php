@@ -1,7 +1,10 @@
 <x-layouts.app title="PlayStation">
 
+<div x-data="playstationIndex({ sleepItems: @js($sleepItems) })">
+
     <x-layout.page-header title="PlayStation">
         <x-slot:actions>
+            <button @click="enterSleep()" class="btn btn--secondary btn--sm" x-show="sleepItems.length > 0" style="display:none;">☾ Sleep</button>
             <a href="{{ route('playstation.sessions') }}" class="btn btn--secondary btn--sm">Sessions</a>
             <a href="{{ route('playstation.categories.index') }}" class="btn btn--secondary btn--sm">Categories</a>
             <a href="{{ route('playstation.create') }}" class="btn btn--secondary btn--sm">+ Add game</a>
@@ -75,16 +78,12 @@
                     @foreach($games as $game)
                         <div class="gaming-card" x-data="{ isFavorite: {{ $game->is_favorite ? 'true' : 'false' }} }">
                             <div class="gaming-card__cover-wrap">
+                                @php
+                                    $fallbacks = ['ps1.jpg','ps2.webp','ps3.jpg','ps4.jpg','ps5.jpg'];
+                                    $coverUrl  = $game->image_url ?? '/images/playstation/' . $fallbacks[$game->id % 5];
+                                @endphp
                                 <a href="{{ route('playstation.show', $game) }}" class="gaming-card__cover-link">
-                                    @if($game->image_url)
-                                        <img src="{{ $game->image_url }}" alt="{{ $game->name }}" class="gaming-card__cover">
-                                    @else
-                                        <div class="gaming-card__cover gaming-card__cover--empty">
-                                            <svg viewBox="0 0 24 24" fill="currentColor" style="width:2rem;height:2rem;opacity:0.3">
-                                                <path d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>
-                                            </svg>
-                                        </div>
-                                    @endif
+                                    <img src="{{ $coverUrl }}" alt="{{ $game->name }}" class="gaming-card__cover">
                                 </a>
                                 @if($game->completion_percentage > 0)
                                     <span class="gaming-card__completion-badge">{{ number_format($game->completion_percentage, 0) }}%</span>
@@ -168,5 +167,66 @@
         </div>
 
     </div>
+
+    {{-- Sleep mode --}}
+    <div class="sleep-mode" x-show="sleepOpen" style="display:none;">
+        <div class="sleep-mode__backdrop"
+             :style="sleepItem ? `background-image: url('${sleepItem.image_url}')` : ''">
+        </div>
+
+        <div class="sleep-mode__fade" :class="{ 'sleep-mode__fade--active': sleepTransitioning }"></div>
+
+        <button class="sleep-mode__close" @click="exitSleep()">✕</button>
+
+        <button class="sleep-mode__nav sleep-mode__nav--prev" @click="_sleepPrev()">‹</button>
+        <button class="sleep-mode__nav sleep-mode__nav--next" @click="_sleepNext()">›</button>
+
+        <div class="sleep-mode__clock">
+            <div class="sleep-mode__clock-time" x-text="clockTime"></div>
+            <div class="sleep-mode__clock-date" x-text="clockDate"></div>
+        </div>
+
+        <div class="sleep-mode__content">
+            <div class="sleep-mode__poster-wrap">
+                <img :src="sleepItem?.image_url" :alt="sleepItem?.title" class="sleep-mode__poster">
+            </div>
+            <div class="sleep-mode__info">
+                <div class="sleep-mode__title" x-text="sleepItem?.title"></div>
+                <div class="sleep-mode__meta" x-text="sleepItem?.platform"></div>
+                <div class="sleep-mode__stats">
+                    <div>
+                        <div class="sleep-mode__stat-label">Hours played</div>
+                        <div class="sleep-mode__stat" x-text="sleepItem?.hours + 'h'"></div>
+                    </div>
+                    <template x-if="sleepItem?.completion > 0">
+                        <div>
+                            <div class="sleep-mode__stat-label">Completion</div>
+                            <div class="sleep-mode__stat" x-text="sleepItem?.completion + '%'"></div>
+                            <div class="sleep-mode__bar-wrap">
+                                <div class="sleep-mode__bar" :style="`width: ${sleepItem?.completion}%`"></div>
+                            </div>
+                        </div>
+                    </template>
+                    <template x-if="sleepItem?.last_played">
+                        <div>
+                            <div class="sleep-mode__stat-label">Last played</div>
+                            <div class="sleep-mode__stat" x-text="sleepItem?.last_played"></div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <div class="sleep-mode__counter" x-text="`${sleepIndex + 1} / ${sleepItems.length}`"></div>
+
+        <div class="sleep-progress">
+            <div
+                class="sleep-progress__fill"
+                x-effect="sleepIndex; $el.style.animation = 'none'; $el.offsetWidth; $el.style.animation = ''"
+            ></div>
+        </div>
+    </div>
+
+</div>
 
 </x-layouts.app>
