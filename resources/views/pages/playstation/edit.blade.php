@@ -136,19 +136,6 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="trophies">Trophies</label>
-                <input
-                    type="number"
-                    id="trophies"
-                    name="trophies"
-                    min="0"
-                    value="{{ old('trophies', $game->trophies) }}"
-                    class="form-input"
-                >
-                <x-form.error name="trophies" />
-            </div>
-
-            <div class="form-group">
                 <label class="form-label">Main Story Completed</label>
                 <div class="flex gap-2 mt-1">
                     <label class="form-chip">

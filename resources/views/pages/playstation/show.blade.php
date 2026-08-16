@@ -19,6 +19,10 @@
                 :class="{ 'btn--favorite-active': isFavorite }"
                 x-text="isFavorite ? '★ Favorited' : '☆ Favorite'"
             ></button>
+            <form method="POST" action="{{ route('playstation.fetch-trophies', $game) }}" style="display:inline;">
+                @csrf
+                <button type="submit" class="btn btn--secondary btn--sm">🏆 Fetch Trophies</button>
+            </form>
             <a href="{{ route('playstation.edit', $game) }}" class="btn btn--secondary btn--sm">Edit</a>
             <a href="{{ route('playstation.index') }}" class="btn btn--secondary btn--sm">← Back</a>
         </x-slot:actions>
@@ -28,6 +32,12 @@
         <div class="mb-4 px-4 py-3 rounded-lg text-sm font-medium"
              style="background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.25);">
             {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="mb-4 px-4 py-3 rounded-lg text-sm font-medium"
+             style="background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.25);">
+            {{ session('error') }}
         </div>
     @endif
 
@@ -121,6 +131,97 @@
                 style="max-height: 200px;"
             ></canvas>
         </x-ui.card>
+    @endif
+
+    @if($game->trophyList->isNotEmpty())
+        @php
+            $trophyTypes = [
+                'platinum' => ['label' => 'Platinum', 'emoji' => '💎'],
+                'gold'     => ['label' => 'Gold',     'emoji' => '🥇'],
+                'silver'   => ['label' => 'Silver',   'emoji' => '🥈'],
+                'bronze'   => ['label' => 'Bronze',   'emoji' => '🥉'],
+            ];
+            $earnedTotal = $game->trophyList->where('is_earned', true)->count();
+            $totalCount  = $game->trophyList->count();
+        @endphp
+        <div x-data="{ search: '', earnedCount: {{ $earnedTotal }} }" @trophy-toggled="earnedCount += $event.detail.delta">
+        <x-ui.card class="mb-6">
+            <x-slot:title>
+                Trophies
+                <span style="color: var(--color-text-muted); font-weight: 400; font-size: 0.875rem;">
+                    <span x-text="earnedCount">{{ $earnedTotal }}</span> / {{ $totalCount }}
+                </span>
+            </x-slot:title>
+
+            <div class="trophy-search-wrap">
+                <input
+                    type="search"
+                    x-model="search"
+                    placeholder="Search trophies…"
+                    class="trophy-search"
+                >
+            </div>
+
+            @foreach($trophyTypes as $type => $meta)
+                @php
+                    $group   = $game->trophyList->where('type', $type);
+                    $earned  = $group->where('is_earned', true)->sortByDesc('earned_at');
+                    $locked  = $group->where('is_earned', false);
+                    $ordered = $earned->merge($locked);
+                @endphp
+                @if($group->isNotEmpty())
+                    <div class="trophy-group">
+                        <div class="trophy-group__label">
+                            {{ $meta['emoji'] }} {{ $meta['label'] }}
+                            <span style="font-weight: 400; opacity: 0.6;">
+                                {{ $earned->count() }} / {{ $group->count() }}
+                            </span>
+                        </div>
+                        <div class="trophy-grid">
+                            @foreach($ordered as $trophy)
+                                <div
+                                    class="trophy-item trophy-item--toggleable"
+                                    x-data="{
+                                        name: '{{ addslashes(strtolower($trophy->name)) }}',
+                                        earned: {{ $trophy->is_earned ? 'true' : 'false' }},
+                                        toggle() {
+                                            fetch('{{ route('playstation.trophy.toggle', $trophy) }}', {
+                                                method: 'PATCH',
+                                                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
+                                            })
+                                            .then(r => r.json())
+                                            .then(data => {
+                                                this.earned = data.is_earned;
+                                                this.$dispatch('trophy-toggled', { delta: data.is_earned ? 1 : -1 });
+                                            });
+                                        }
+                                    }"
+                                    x-show="!search || name.includes(search.toLowerCase())"
+                                    :class="earned ? 'trophy-item--earned' : 'trophy-item--locked'"
+                                    @click="toggle()"
+                                >
+                                    @if($trophy->icon_url)
+                                        <img src="{{ $trophy->icon_url }}" alt="" class="trophy-item__icon">
+                                    @else
+                                        <div class="trophy-item__icon--placeholder" style="font-size: 1.25rem; color: {{ $trophy->typeColor() }}">
+                                            {{ $meta['emoji'] }}
+                                        </div>
+                                    @endif
+                                    <div class="trophy-item__info">
+                                        <div class="trophy-item__name">{{ $trophy->name }}</div>
+                                        @if($trophy->detail)
+                                            <div class="trophy-item__detail">{{ $trophy->detail }}</div>
+                                        @endif
+                                    </div>
+                                    <div class="trophy-item__badge" style="color: {{ $trophy->typeColor() }}" x-show="earned">✓</div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+        </x-ui.card>
+        </div>
     @endif
 
     <x-ui.card title="Sessions">

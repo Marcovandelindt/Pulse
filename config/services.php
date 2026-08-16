@@ -39,6 +39,13 @@ return [
 
     'playstation' => [
         'username' => env('PLAYSTATION_USERNAME', ''),
+        'npsso'    => env('PSN_NPSSO'),
+    ],
+
+    'psnprofiles' => [
+        'username'     => env('PSNPROFILES_USERNAME', env('PLAYSTATION_USERNAME', '')),
+        'cf_clearance' => env('PSNPROFILES_CF_CLEARANCE'),
+        'user_agent'   => env('PSNPROFILES_USER_AGENT'),
     ],
 
 ];

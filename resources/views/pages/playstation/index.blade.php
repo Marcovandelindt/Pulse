@@ -22,7 +22,7 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-3 mb-6">
         <x-stats.stat-card
             label="Total Hours"
             :value="number_format($totalHours, 1) . 'h'"
@@ -37,11 +37,6 @@
             label="Sessions"
             :value="number_format($totalSessions)"
             icon="play"
-        />
-        <x-stats.stat-card
-            label="Trophies"
-            :value="number_format($totalTrophies)"
-            icon="trophy"
         />
     </div>
 
@@ -60,7 +55,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="text-sm" style="color: var(--color-text-muted)">Sort:</span>
-                    @foreach(['hours' => 'Most Played', 'name' => 'Name', 'last_played' => 'Last Played', 'completion' => 'Completion', 'trophies' => 'Trophies'] as $key => $label)
+                    @foreach(['hours' => 'Most Played', 'name' => 'Name', 'last_played' => 'Last Played', 'completion' => 'Completion'] as $key => $label)
                         <a
                             href="{{ route('playstation.index', array_filter(['sort' => $key, 'platform' => $platform ?: null])) }}"
                             class="btn btn--sm {{ $sort === $key ? 'btn--primary' : 'btn--secondary' }}"
@@ -117,9 +112,6 @@
                                 </div>
                                 <div class="gaming-card__stats">
                                     <span>{{ $game->formatted_hours }}</span>
-                                    @if($game->trophies > 0)
-                                        <span>🏆 {{ $game->trophies }}</span>
-                                    @endif
                                 </div>
                                 @if($game->completion_percentage > 0)
                                     <div class="gaming-card__progress">

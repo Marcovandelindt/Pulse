@@ -289,3 +289,206 @@
     height:     100%;
     transition: flex var(--transition-base);
 }
+
+/* ── Trophies ─────────────────────────────────────── */
+
+/* ── Trophy Search ────────────────────────────────── */
+
+.trophy-search-wrap {
+    margin-bottom: 1.25rem;
+}
+
+.trophy-search {
+    width:         100%;
+    background:    var(--color-bg-tertiary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding:       0.5rem 0.75rem;
+    font-size:     0.875rem;
+    color:         var(--color-text-primary);
+    outline:       none;
+    transition:    border-color var(--transition-base);
+
+    &::placeholder {
+        color: var(--color-text-muted);
+    }
+
+    &:focus {
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+}
+
+.trophy-group {
+    margin-bottom: 1.5rem;
+}
+
+.trophy-group:last-child {
+    margin-bottom: 0;
+}
+
+.trophy-group__label {
+    font-size:      0.6875rem;
+    font-weight:    600;
+    color:          var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom:  0.625rem;
+}
+
+.trophy-grid {
+    display:               grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap:                   0.5rem;
+}
+
+.trophy-item {
+    display:       flex;
+    align-items:   center;
+    gap:           0.75rem;
+    padding:       0.625rem 0.75rem;
+    border-radius: var(--radius-md);
+    border:        1px solid var(--color-border);
+    transition:    opacity var(--transition-base);
+}
+
+.trophy-item--locked {
+    opacity: 0.4;
+}
+
+.trophy-item--earned {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.trophy-item--toggleable {
+    cursor: pointer;
+
+    &:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        opacity:      1;
+    }
+}
+
+.trophy-item__icon {
+    width:         2.5rem;
+    height:        2.5rem;
+    border-radius: var(--radius-sm);
+    object-fit:    cover;
+    flex-shrink:   0;
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+}
+
+.trophy-item__icon--placeholder {
+    width:         2.5rem;
+    height:        2.5rem;
+    border-radius: var(--radius-sm);
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+    flex-shrink:   0;
+}
+
+.trophy-item__info {
+    flex:      1;
+    min-width: 0;
+}
+
+.trophy-item__name {
+    font-size:     0.8125rem;
+    font-weight:   500;
+    color:         var(--color-text-primary);
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
+.trophy-item__detail {
+    font-size:     0.75rem;
+    color:         var(--color-text-muted);
+    margin-top:    0.125rem;
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
+.trophy-item__earned-at {
+    font-size:   0.6875rem;
+    color:       var(--color-text-muted);
+    margin-top:  0.125rem;
+    opacity:     0.7;
+}
+
+.trophy-item__badge {
+    font-size:  1rem;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+/* ── Trophy Progress Bar ──────────────────────────── */
+
+.trophy-progress-bar {
+    display:       flex;
+    height:        0.4rem;
+    border-radius: 999px;
+    overflow:      hidden;
+    background:    var(--color-bg-tertiary);
+    gap:           2px;
+}
+
+.trophy-progress-bar__segment {
+    height:        100%;
+    border-radius: 999px;
+    transition:    flex var(--transition-base);
+}
+
+/* ── Trophy Type Grid ─────────────────────────────── */
+
+.trophy-type-grid {
+    display:               grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:                   0.75rem;
+    margin-top:            1rem;
+}
+
+.trophy-type-item {
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
+    gap:             0.25rem;
+    padding:         0.75rem 0.5rem;
+    border-radius:   var(--radius-md);
+    background:      var(--color-bg-tertiary);
+    border:          1px solid var(--color-border);
+}
+
+.trophy-type-item__icon {
+    font-size:   1.25rem;
+    line-height: 1;
+}
+
+.trophy-type-item__counts {
+    display:     flex;
+    align-items: baseline;
+    gap:         0.125rem;
+}
+
+.trophy-type-item__earned {
+    font-size:   1.125rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+}
+
+.trophy-type-item__sep,
+.trophy-type-item__total {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+}
+
+.trophy-type-item__label {
+    font-size:      0.625rem;
+    font-weight:    600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color:          var(--color-text-muted);
+}

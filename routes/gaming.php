@@ -20,8 +20,11 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
         Route::delete('/{playStationCategory}', [PlayStationCategoryController::class, 'destroy'])->name('destroy');
     });
 
+    Route::patch('/trophies/{playStationTrophy}/toggle', [PlayStationController::class, 'toggleTrophy'])->name('trophy.toggle');
+
     Route::get('/{playStationGame}', [PlayStationController::class, 'show'])->name('show');
     Route::get('/{playStationGame}/edit', [PlayStationController::class, 'edit'])->name('edit');
     Route::patch('/{playStationGame}', [PlayStationController::class, 'update'])->name('update');
     Route::patch('/{playStationGame}/favorite', [PlayStationController::class, 'favorite'])->name('favorite');
+    Route::post('/{playStationGame}/fetch-trophies', [PlayStationController::class, 'fetchTrophies'])->name('fetch-trophies');
 });

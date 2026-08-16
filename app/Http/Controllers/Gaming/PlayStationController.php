@@ -10,7 +10,9 @@ use App\Http\Controllers\Controller;
 use App\Models\PlayStationCategory;
 use App\Models\PlayStationGame;
 use App\Models\PlayStationSession;
+use App\Models\PlayStationTrophy;
 use App\Services\PlayStation\PlayStationScraperService;
+use App\Services\PlayStation\PsnProfilesScraperService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
@@ -34,13 +36,11 @@ final class PlayStationController extends Controller
         $totalHours = round((float) (clone $baseQuery)->sum('hours'), 1);
         $totalGames = (clone $baseQuery)->count();
         $totalSessions = (clone $baseQuery)->sum('sessions');
-        $totalTrophies = (clone $baseQuery)->sum('trophies');
 
         $query = match ($sort) {
             'name' => (clone $baseQuery)->orderBy('name'),
             'last_played' => (clone $baseQuery)->orderByDesc('last_played_at'),
             'completion' => (clone $baseQuery)->orderByDesc('completion_percentage'),
-            'trophies' => (clone $baseQuery)->orderByDesc('trophies'),
             default => (clone $baseQuery)->orderByDesc('hours'),
         };
 
@@ -59,14 +59,13 @@ final class PlayStationController extends Controller
             'totalHours',
             'totalGames',
             'totalSessions',
-            'totalTrophies',
             'recentSessions',
         ));
     }
 
     public function show(PlayStationGame $playStationGame): View
     {
-        $playStationGame->load('playSessions', 'categories');
+        $playStationGame->load('playSessions', 'categories', 'trophyList');
 
         $recentSessions = $playStationGame->playSessions()->latest('started_at')->paginate(20);
 
@@ -82,9 +81,9 @@ final class PlayStationController extends Controller
             ]);
 
         return view('pages.playstation.show', [
-            'game' => $playStationGame,
+            'game'           => $playStationGame,
             'recentSessions' => $recentSessions,
-            'monthlyStats' => $monthlyStats,
+            'monthlyStats'   => $monthlyStats,
         ]);
     }
 
@@ -144,7 +143,6 @@ final class PlayStationController extends Controller
             'main_story_completed' => ['nullable', 'boolean'],
             'exclude_from_sync' => ['nullable', 'boolean'],
             'completion_percentage' => ['nullable', 'numeric', 'between:0,100'],
-            'trophies' => ['nullable', 'integer', 'min:0'],
             'image' => ['nullable', 'image', 'max:5120'],
             'categories' => ['nullable', 'array'],
             'categories.*' => ['integer', 'exists:play_station_categories,id'],
@@ -215,6 +213,40 @@ final class PlayStationController extends Controller
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', 'Sync failed: '.$e->getMessage());
         }
+    }
+
+    public function fetchTrophies(PlayStationGame $playStationGame): RedirectResponse
+    {
+        try {
+            $result  = app(PsnProfilesScraperService::class)->fetchAndStore($playStationGame);
+            $count   = $result['count'];
+            $message = $result['user_page']
+                ? "{$count} trophies geladen inclusief earned status."
+                : "{$count} trophies geladen (geen earned status — zoek je PSN-naam éénmalig op op psnprofiles.com om dat te activeren).";
+
+            return redirect()
+                ->route('playstation.show', $playStationGame)
+                ->with('success', $message);
+        } catch (\Throwable $e) {
+            return redirect()
+                ->route('playstation.show', $playStationGame)
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    public function toggleTrophy(PlayStationTrophy $playStationTrophy): JsonResponse
+    {
+        $isEarned = ! $playStationTrophy->is_earned;
+
+        $playStationTrophy->update([
+            'is_earned' => $isEarned,
+            'earned_at' => $isEarned ? now() : null,
+        ]);
+
+        return response()->json([
+            'is_earned' => $isEarned,
+            'earned_at' => $isEarned ? $playStationTrophy->fresh()->earned_at->format('d M Y') : null,
+        ]);
     }
 
     public function dailyActivity(Request $request): JsonResponse

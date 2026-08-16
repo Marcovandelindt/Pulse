@@ -25,6 +25,8 @@ final class PlayStationGame extends Model
         'trophies',
         'completion_percentage',
         'psn_url',
+        'np_communication_id',
+        'np_service_name',
         'price',
         'manual_minutes',
         'exclude_from_sync',
@@ -34,6 +36,10 @@ final class PlayStationGame extends Model
         'play_mode',
         'main_story_completed',
         'is_favorite',
+        'trophy_progress',
+        'trophy_earned',
+        'trophy_defined',
+        'trophies_last_synced_at',
     ];
 
     protected function casts(): array
@@ -47,6 +53,9 @@ final class PlayStationGame extends Model
             'is_favorite' => 'boolean',
             'hours' => 'decimal:2',
             'completion_percentage' => 'decimal:2',
+            'trophy_earned' => 'array',
+            'trophy_defined' => 'array',
+            'trophies_last_synced_at' => 'datetime',
             'price' => 'decimal:2',
             'user_rating' => 'decimal:1',
             'critic_rating' => 'decimal:1',
@@ -56,6 +65,11 @@ final class PlayStationGame extends Model
     public function playSessions(): HasMany
     {
         return $this->hasMany(PlayStationSession::class);
+    }
+
+    public function trophyList(): HasMany
+    {
+        return $this->hasMany(PlayStationTrophy::class);
     }
 
     public function categories(): BelongsToMany
