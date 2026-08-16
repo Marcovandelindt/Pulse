@@ -118,6 +118,23 @@ final class DashboardController extends Controller
                 isPinned: true,
             ));
 
+        $movieActivities = MovieWatch::with('movie')
+            ->whereNotNull('watched_at')
+            ->where('watched_at', '>=', now()->subDays(self::TIMELINE_DAYS)->startOfDay())
+            ->orderByDesc('watched_at')
+            ->get()
+            ->map(fn (MovieWatch $w): ActivityItem => new ActivityItem(
+                type: 'movie_watch',
+                title: $w->movie->title,
+                subtitle: $w->movie->release_date?->year
+                    ? 'Movie · '.$w->movie->release_date->year
+                    : 'Movie',
+                imageUrl: $w->movie->poster_url,
+                occurredAt: $w->watched_at,
+                isPinned: false,
+                url: route('movies.show', $w->movie),
+            ));
+
         $musicActivities = Play::with(['track.artists'])
             ->where('played_at', '>=', now()->subDays(self::TIMELINE_DAYS)->startOfDay())
             ->orderBy('played_at')
@@ -140,6 +157,7 @@ final class DashboardController extends Controller
             ->values();
 
         return $watchActivities
+            ->concat($movieActivities)
             ->concat($stepActivities)
             ->concat($musicActivities)
             ->sort(fn (ActivityItem $a, ActivityItem $b): int => $this->compareActivities($a, $b))
