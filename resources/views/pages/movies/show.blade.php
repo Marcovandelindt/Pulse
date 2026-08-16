@@ -15,20 +15,9 @@
 >
 
     {{-- Backdrop hero --}}
-    @php $backdropUrl = $movie->custom_backdrop_url ?? $movie->backdrop_url; @endphp
-    @if ($backdropUrl)
-        <div x-data="{ backdropOpen: false }">
-            <div class="media-hero media-hero--centered media-hero--clickable"
-                 style="background-image: url('{{ $backdropUrl }}')"
-                 @click="backdropOpen = true">
-                <div class="media-hero__overlay"></div>
-                <span class="media-hero__expand" aria-hidden="true">⛶</span>
-            </div>
-
-            <div class="backdrop-lightbox" x-show="backdropOpen" @click="backdropOpen = false" @keydown.escape.window="backdropOpen = false" style="display:none;">
-                <img src="{{ $backdropUrl }}" alt="{{ $movie->title }}" class="backdrop-lightbox__img">
-                <button class="backdrop-lightbox__close" @click.stop="backdropOpen = false">✕</button>
-            </div>
+    @if ($movie->backdrop_url)
+        <div class="media-hero media-hero--centered" style="background-image: url('{{ $movie->backdrop_url }}')">
+            <div class="media-hero__overlay"></div>
         </div>
     @endif
 
