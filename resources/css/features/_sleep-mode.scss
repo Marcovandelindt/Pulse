@@ -1,0 +1,196 @@
+.sleep-mode {
+    position:        fixed;
+    inset:           0;
+    z-index:         9999;
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
+    justify-content: center;
+    overflow:        hidden;
+    animation:       sleep-fadein 0.35s ease;
+}
+
+.sleep-mode__backdrop {
+    position:            absolute;
+    inset:               -5%;
+    background-size:     cover;
+    background-position: center;
+    filter:              blur(.5px) brightness(0.25);
+}
+
+.sleep-mode__close {
+    position:        fixed;
+    top:             1.25rem;
+    right:           1.25rem;
+    z-index:         10000;
+    background:      rgba(255, 255, 255, 0.1);
+    border:          1px solid rgba(255, 255, 255, 0.2);
+    color:           rgba(255, 255, 255, 0.8);
+    border-radius:   var(--radius-md);
+    width:           2.25rem;
+    height:          2.25rem;
+    font-size:       1.125rem;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    cursor:          pointer;
+    transition:      background var(--transition-base);
+    line-height:     1;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color:      #fff;
+    }
+}
+
+.sleep-mode__content {
+    position:    relative;
+    z-index:     1;
+    display:     flex;
+    gap:         3.5rem;
+    align-items: center;
+    max-width:   56rem;
+    width:       100%;
+    padding:     0 5rem;
+    transition:  opacity 0.25s ease;
+
+    &--transitioning { opacity: 0; }
+}
+
+.sleep-mode__poster-wrap {
+    flex-shrink: 0;
+}
+
+.sleep-mode__poster {
+    width:         220px;
+    aspect-ratio:  2/3;
+    object-fit:    cover;
+    border-radius: var(--radius-xl);
+    box-shadow:    0 24px 80px rgba(0, 0, 0, 0.8);
+    display:       block;
+}
+
+.sleep-mode__poster--empty {
+    width:         220px;
+    aspect-ratio:  2/3;
+    background:    rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-xl);
+    border:        1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sleep-mode__info {
+    flex:      1;
+    min-width: 0;
+}
+
+.sleep-mode__title {
+    font-size:     2.25rem;
+    font-weight:   800;
+    color:         #fff;
+    line-height:   1.15;
+    margin-bottom: 0.5rem;
+}
+
+.sleep-mode__meta {
+    font-size:     0.9375rem;
+    color:         rgba(255, 255, 255, 0.5);
+    margin-bottom: 2rem;
+}
+
+.sleep-mode__stats {
+    display:        flex;
+    flex-direction: column;
+    gap:            1.25rem;
+}
+
+.sleep-mode__stat-label {
+    font-size:      0.6875rem;
+    font-weight:    600;
+    color:          rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom:  0.25rem;
+}
+
+.sleep-mode__stat {
+    font-size: 1.125rem;
+    color:     rgba(255, 255, 255, 0.9);
+}
+
+.sleep-mode__bar-wrap {
+    margin-top:    0.5rem;
+    height:        4px;
+    background:    rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    overflow:      hidden;
+    max-width:     16rem;
+}
+
+.sleep-mode__bar {
+    height:        100%;
+    background:    var(--color-brand);
+    border-radius: 2px;
+}
+
+.sleep-mode__nav {
+    position:        absolute;
+    top:             50%;
+    transform:       translateY(-50%);
+    z-index:         1;
+    background:      rgba(255, 255, 255, 0.08);
+    border:          1px solid rgba(255, 255, 255, 0.12);
+    color:           rgba(255, 255, 255, 0.7);
+    border-radius:   50%;
+    width:           3rem;
+    height:          3rem;
+    font-size:       1.75rem;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    cursor:          pointer;
+    transition:      background var(--transition-base), color var(--transition-base);
+    line-height:     1;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.18);
+        color:      #fff;
+    }
+
+    &--prev { left:  1.5rem; }
+    &--next { right: 1.5rem; }
+}
+
+.sleep-mode__counter {
+    position:  absolute;
+    bottom:    1.25rem;
+    right:     1.5rem;
+    z-index:   1;
+    font-size: 0.8125rem;
+    color:     rgba(255, 255, 255, 0.35);
+}
+
+.sleep-progress {
+    position:   absolute;
+    bottom:     0;
+    left:       0;
+    right:      0;
+    height:     3px;
+    background: rgba(255, 255, 255, 0.1);
+    z-index:    1;
+}
+
+.sleep-progress__fill {
+    height:     100%;
+    background: var(--color-brand);
+    animation:  sleep-tick 5s linear;
+}
+
+@keyframes sleep-tick {
+    from { width: 0%; }
+    to   { width: 100%; }
+}
+
+@keyframes sleep-fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}

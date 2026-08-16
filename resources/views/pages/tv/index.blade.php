@@ -13,19 +13,35 @@
             ])->filter()->implode(' · '),
         ])
         ->values();
+
+    $sleepItems = $series->filter(fn ($s) => $s->poster_url)->map(fn ($s) => [
+        'title'             => $s->name_en ?? $s->name,
+        'year'              => $s->first_air_date?->year,
+        'poster_url'        => $s->poster_url,
+        'backdrop_url'      => $s->backdrop_url,
+        'episodes_watched'  => $s->episodes_watched ?? 0,
+        'total_episodes'    => $s->number_of_episodes,
+        'completion'        => (int) round(min(100, $s->completion_percentage ?? 0)),
+        'runtime_str'       => $s->watched_runtime_minutes > 0
+            ? intdiv($s->watched_runtime_minutes, 60).'h '.($s->watched_runtime_minutes % 60).'m'
+            : null,
+        'url'               => route('tv.show', $s),
+    ])->values();
 @endphp
 
 <div
     x-data="tvIndex({
         searchUrl: '{{ route('tv.search') }}',
         storeUrl:  '{{ route('tv.store') }}',
-        backdrops: @js($backdrops),
+        backdrops:  @js($backdrops),
+        sleepItems: @js($sleepItems),
     })"
     @keydown.escape.window="addOpen = false; searchResults = []"
 >
 
     <x-layout.page-header title="TV Series">
         <x-slot:actions>
+            <button @click="enterSleep()" class="btn btn--secondary btn--sm" x-show="sleepItems.length > 0" style="display:none;">☾ Sleep</button>
             <a href="{{ route('tv.stats') }}" class="btn btn--secondary btn--sm">Statistics</a>
             <button @click="addOpen = true" class="btn btn--primary btn--sm">+ Add Series</button>
         </x-slot:actions>
@@ -142,6 +158,62 @@
             @endforeach
         </div>
     @endif
+
+    {{-- Sleep mode --}}
+    <div class="sleep-mode"
+         x-show="sleepOpen"
+         style="display:none;">
+        <div class="sleep-mode__backdrop"
+             :style="sleepItem ? `background-image: url('${sleepItem.backdrop_url || sleepItem.poster_url}')` : ''">
+        </div>
+
+        <button class="sleep-mode__close" @click="exitSleep()">✕</button>
+
+        <div class="sleep-mode__content" :class="{ 'sleep-mode__content--transitioning': sleepTransitioning }">
+            <div class="sleep-mode__poster-wrap">
+                <img :src="sleepItem?.poster_url" :alt="sleepItem?.title" class="sleep-mode__poster">
+            </div>
+            <div class="sleep-mode__info">
+                <div class="sleep-mode__title" x-text="sleepItem?.title"></div>
+                <div class="sleep-mode__meta"
+                     x-text="[sleepItem?.year, sleepItem?.runtime_str].filter(Boolean).join(' · ')">
+                </div>
+                <div class="sleep-mode__stats">
+                    <div>
+                        <div class="sleep-mode__stat-label">Episodes watched</div>
+                        <div class="sleep-mode__stat"
+                             x-text="`${sleepItem?.episodes_watched} / ${sleepItem?.total_episodes ?? '?'}`">
+                        </div>
+                        <div class="sleep-mode__bar-wrap">
+                            <div class="sleep-mode__bar"
+                                 :style="`width: ${sleepItem?.completion ?? 0}%`">
+                            </div>
+                        </div>
+                    </div>
+                    <template x-if="sleepItem?.runtime_str">
+                        <div>
+                            <div class="sleep-mode__stat-label">Time watched</div>
+                            <div class="sleep-mode__stat" x-text="sleepItem?.runtime_str"></div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <button class="sleep-mode__nav sleep-mode__nav--prev" @click="_sleepPrev()">&#8249;</button>
+        <button class="sleep-mode__nav sleep-mode__nav--next" @click="_sleepNext()">&#8250;</button>
+
+        <div class="sleep-mode__counter"
+             x-text="`${sleepIndex + 1} / ${sleepItems.length}`">
+        </div>
+
+        <div class="sleep-progress">
+            <div
+                class="sleep-progress__fill"
+                x-effect="sleepIndex; $el.style.animation = 'none'; $el.offsetWidth; $el.style.animation = ''"
+            ></div>
+        </div>
+    </div>
 
     {{-- Add Series modal --}}
     <div class="modal" x-show="addOpen" x-transition style="display:none;">

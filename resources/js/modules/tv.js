@@ -1,7 +1,7 @@
 import { csrf } from '../utils.js';
 
 export function registerTvComponents() {
-    Alpine.data('tvIndex', ({ searchUrl, storeUrl, backdrops: rawBackdrops }) => ({
+    Alpine.data('tvIndex', ({ searchUrl, storeUrl, backdrops: rawBackdrops, sleepItems: rawSleepItems }) => ({
         filter: '',
         addOpen: false,
         searchQuery: '',
@@ -23,6 +23,64 @@ export function registerTvComponents() {
 
         destroy() {
             clearInterval(this._timer);
+            clearInterval(this.sleepTimer);
+        },
+
+        sleepOpen: false,
+        sleepIndex: 0,
+        sleepTransitioning: false,
+        sleepItems: (rawSleepItems ?? []).slice().sort(() => Math.random() - 0.5),
+        sleepTimer: null,
+        sleepKeyHandler: null,
+
+        get sleepItem() {
+            return this.sleepItems[this.sleepIndex] ?? null;
+        },
+
+        enterSleep() {
+            if (!this.sleepItems.length) return;
+            this.sleepOpen  = true;
+            this.sleepIndex = 0;
+            document.body.style.overflow = 'hidden';
+            this.sleepTimer = setInterval(() => this._sleepNext(), 5000);
+            this.sleepKeyHandler = (e) => {
+                if (e.key === 'Escape')     this.exitSleep();
+                if (e.key === 'ArrowRight') this._sleepNext();
+                if (e.key === 'ArrowLeft')  this._sleepPrev();
+            };
+            document.addEventListener('keydown', this.sleepKeyHandler);
+        },
+
+        exitSleep() {
+            this.sleepOpen = false;
+            document.body.style.overflow = '';
+            clearInterval(this.sleepTimer);
+            if (this.sleepKeyHandler) {
+                document.removeEventListener('keydown', this.sleepKeyHandler);
+            }
+        },
+
+        _sleepNext() {
+            this.sleepTransitioning = true;
+            this._resetSleepTimer();
+            setTimeout(() => {
+                this.sleepIndex = (this.sleepIndex + 1) % this.sleepItems.length;
+                this.sleepTransitioning = false;
+            }, 250);
+        },
+
+        _sleepPrev() {
+            this.sleepTransitioning = true;
+            this._resetSleepTimer();
+            setTimeout(() => {
+                this.sleepIndex = (this.sleepIndex - 1 + this.sleepItems.length) % this.sleepItems.length;
+                this.sleepTransitioning = false;
+            }, 250);
+        },
+
+        _resetSleepTimer() {
+            clearInterval(this.sleepTimer);
+            this.sleepTimer = setInterval(() => this._sleepNext(), 5000);
         },
 
         async search() {

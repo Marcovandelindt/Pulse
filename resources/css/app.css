@@ -25,6 +25,7 @@
 @import './features/_music.scss';
 @import './features/_gaming.scss';
 @import './features/_recommendations.scss';
+@import './features/_sleep-mode.scss';
 
 @theme {
     --color-brand:        oklch(0.60 0.18 260);
