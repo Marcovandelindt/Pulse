@@ -311,12 +311,18 @@ export function registerTvComponents() {
         async refreshSeries() {
             this.refreshing = true;
             this.$dispatch('toast', { message: 'Refreshing from TMDB…', type: 'success' });
-            await fetch(routes.refresh, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': csrf() },
-            });
-            this.$dispatch('toast', { message: 'Series refreshed! Reloading…', type: 'success' });
-            setTimeout(() => window.location.reload(), 1200);
+            try {
+                const res = await fetch(routes.refresh, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrf() },
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                this.$dispatch('toast', { message: 'Series refreshed! Reloading…', type: 'success' });
+                setTimeout(() => window.location.reload(), 1200);
+            } catch (e) {
+                this.refreshing = false;
+                this.$dispatch('toast', { message: 'Refresh failed. Please try again.', type: 'error' });
+            }
         },
 
         async removeSeries() {

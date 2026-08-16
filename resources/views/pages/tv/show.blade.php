@@ -67,13 +67,14 @@ foreach ($series->seasons as $season) {
                     </div>
                     <div class="flex gap-2 flex-wrap justify-end shrink-0">
                         <button
+                            type="button"
                             @click="toggleFavorite()"
                             class="btn btn--secondary btn--sm"
                             :class="{ 'btn--favorite-active': isFavorite }"
                             x-text="isFavorite ? '★ Favorited' : '☆ Favorite'"
                         ></button>
-                        <button @click="bulkOpen = true" class="btn btn--primary btn--sm">Mark all watched</button>
-                        <button @click="refreshSeries()" class="btn btn--secondary btn--sm" :disabled="refreshing">
+                        <button type="button" @click="bulkOpen = true" class="btn btn--primary btn--sm">Mark all watched</button>
+                        <button type="button" @click="refreshSeries()" class="btn btn--secondary btn--sm" :disabled="refreshing">
                             <span x-show="!refreshing">Refresh</span>
                             <span x-show="refreshing">Refreshing…</span>
                         </button>
@@ -82,7 +83,7 @@ foreach ($series->seasons as $season) {
                             <input type="file" name="backdrop" id="tv-backdrop-input" accept="image/*" class="hidden" onchange="this.form.submit()">
                             <button type="button" onclick="document.getElementById('tv-backdrop-input').click()" class="btn btn--secondary btn--sm">🖼 Backdrop</button>
                         </form>
-                        <button @click="removeSeries()" class="btn btn--danger btn--sm">Remove</button>
+                        <button type="button" @click="removeSeries()" class="btn btn--danger btn--sm">Remove</button>
                         <a href="{{ route('tv.index') }}" class="btn btn--secondary btn--sm">&larr; Back</a>
                     </div>
                 </div>
