@@ -34,7 +34,7 @@ final class MusicDashboardController extends Controller
             ->paginate(20);
 
         $topTracksThisWeek = Play::selectRaw('track_id, count(*) as play_count')
-            ->where('played_at', '>=', now()->subWeek())
+            ->whereBetween('played_at', [now()->startOfWeek(), now()->endOfWeek()])
             ->groupBy('track_id')
             ->orderByDesc('play_count')
             ->limit(5)
@@ -46,7 +46,7 @@ final class MusicDashboardController extends Controller
             ->join('track_artists', 'artists.id', '=', 'track_artists.artist_id')
             ->join('tracks', 'track_artists.track_id', '=', 'tracks.id')
             ->join('plays', 'tracks.id', '=', 'plays.track_id')
-            ->where('plays.played_at', '>=', now()->subWeek())
+            ->whereBetween('plays.played_at', [now()->startOfWeek(), now()->endOfWeek()])
             ->where('track_artists.is_primary', true)
             ->groupBy('artists.id', 'artists.spotify_artist_id', 'artists.name', 'artists.image_url', 'artists.genres', 'artists.popularity', 'artists.created_at', 'artists.updated_at')
             ->orderByDesc('play_count')
