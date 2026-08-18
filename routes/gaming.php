@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Gaming\BacklogController;
 use App\Http\Controllers\Gaming\PlayStationCategoryController;
 use App\Http\Controllers\Gaming\PlayStationController;
+use App\Http\Controllers\Gaming\SteamController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('playstation')->name('playstation.')->group(function () {
@@ -28,3 +30,15 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
     Route::patch('/{playStationGame}/favorite', [PlayStationController::class, 'favorite'])->name('favorite');
     Route::post('/{playStationGame}/fetch-trophies', [PlayStationController::class, 'fetchTrophies'])->name('fetch-trophies');
 });
+
+Route::prefix('steam')->name('steam.')->group(function () {
+    Route::get('/', [SteamController::class, 'index'])->name('index');
+    Route::get('/settings', [SteamController::class, 'settings'])->name('settings');
+    Route::post('/sync', [SteamController::class, 'sync'])->name('sync');
+    Route::post('/test-connection', [SteamController::class, 'testConnection'])->name('test-connection');
+    Route::get('/games/{game}', [SteamController::class, 'show'])->name('games.show');
+    Route::get('/games/{game}/edit', [SteamController::class, 'edit'])->name('games.edit');
+    Route::put('/games/{game}', [SteamController::class, 'update'])->name('games.update');
+});
+
+Route::patch('/gaming/backlog/{type}/{id}/status', [BacklogController::class, 'update'])->name('gaming.backlog.update');

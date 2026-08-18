@@ -33,4 +33,15 @@ enum BacklogStatus: string
             self::Dropped => 'red',
         };
     }
+
+    public function icon(): string
+    {
+        return match ($this) {
+            self::NotStarted => '⏳',
+            self::InProgress => '🎮',
+            self::Completed  => '✅',
+            self::OnHold     => '⏸️',
+            self::Dropped    => '❌',
+        };
+    }
 }

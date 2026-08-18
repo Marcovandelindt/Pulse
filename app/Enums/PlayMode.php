@@ -18,4 +18,22 @@ enum PlayMode: string
             self::Coop => 'Co-op',
         };
     }
+
+    public function icon(): string
+    {
+        return match ($this) {
+            self::SinglePlayer => '🎮',
+            self::Multiplayer  => '👥',
+            self::Coop         => '🤝',
+        };
+    }
+
+    public function color(): string
+    {
+        return match ($this) {
+            self::SinglePlayer => 'blue',
+            self::Multiplayer  => 'purple',
+            self::Coop         => 'green',
+        };
+    }
 }

@@ -28,6 +28,7 @@
         <div class="sidebar__group">
             <span class="sidebar__group-label">Gaming</span>
             <x-layout.nav-item route="playstation.index" icon="puzzle-piece" label="PlayStation" />
+            <x-layout.nav-item route="steam.index" icon="computer-desktop" label="Steam" />
         </div>
     </nav>
 </aside>
