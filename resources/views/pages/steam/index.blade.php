@@ -64,12 +64,11 @@
             <div class="space-y-3">
                 @foreach($mostPlayed as $game)
                     <div class="flex items-center gap-3">
-                        @if($game->image_url)
-                            <img src="{{ $game->image_url }}" alt="{{ $game->name }}"
-                                 class="w-8 h-8 rounded object-cover flex-shrink-0">
-                        @else
-                            <div class="w-8 h-8 rounded flex-shrink-0" style="background: var(--color-bg-tertiary);"></div>
-                        @endif
+                        <div class="gaming-icon {{ $game->image_url ? '' : 'gaming-icon--empty' }}">
+                            @if($game->image_url)
+                                <img src="{{ $game->image_url }}" alt="{{ $game->name }}">
+                            @endif
+                        </div>
                         <div class="flex-1 min-w-0">
                             <a href="{{ route('steam.games.show', $game) }}"
                                class="text-sm font-medium truncate block"
@@ -93,12 +92,11 @@
             <div class="space-y-3">
                 @foreach($recentlyPlayed as $game)
                     <div class="flex items-center gap-3">
-                        @if($game->image_url)
-                            <img src="{{ $game->image_url }}" alt="{{ $game->name }}"
-                                 class="w-8 h-8 rounded object-cover flex-shrink-0">
-                        @else
-                            <div class="w-8 h-8 rounded flex-shrink-0" style="background: var(--color-bg-tertiary);"></div>
-                        @endif
+                        <div class="gaming-icon {{ $game->image_url ? '' : 'gaming-icon--empty' }}">
+                            @if($game->image_url)
+                                <img src="{{ $game->image_url }}" alt="{{ $game->name }}">
+                            @endif
+                        </div>
                         <div class="flex-1 min-w-0">
                             <a href="{{ route('steam.games.show', $game) }}"
                                class="text-sm font-medium truncate block"
@@ -195,11 +193,11 @@
                 @foreach($games as $game)
                     <tr>
                         <td style="width: 2.5rem;">
-                            @if($game->image_url)
-                                <img src="{{ $game->image_url }}" alt="{{ $game->name }}" class="w-8 h-8 rounded object-cover">
-                            @else
-                                <div class="w-8 h-8 rounded" style="background: var(--color-bg-tertiary);"></div>
-                            @endif
+                            <div class="gaming-icon {{ $game->image_url ? '' : 'gaming-icon--empty' }}">
+                                @if($game->image_url)
+                                    <img src="{{ $game->image_url }}" alt="{{ $game->name }}">
+                                @endif
+                            </div>
                         </td>
                         <td>
                             <a href="{{ route('steam.games.show', $game) }}"

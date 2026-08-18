@@ -13,6 +13,27 @@
     line-height:    1.5;
 }
 
+/* ── Game Icon ────────────────────────────────────── */
+
+.gaming-icon {
+    width:         2rem;
+    height:        2rem;
+    border-radius: var(--radius-sm);
+    overflow:      hidden;
+    flex-shrink:   0;
+
+    img {
+        width:      100%;
+        height:     100%;
+        object-fit: cover;
+        display:    block;
+    }
+
+    &--empty {
+        background: var(--color-bg-tertiary);
+    }
+}
+
 /* ── Games Grid ───────────────────────────────────── */
 
 .gaming-grid {
