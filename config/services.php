@@ -48,9 +48,4 @@ return [
         'user_agent'   => env('PSNPROFILES_USER_AGENT'),
     ],
 
-    'steam' => [
-        'api_key'  => env('STEAM_API_KEY'),
-        'steam_id' => env('STEAM_ID'),
-    ],
-
 ];

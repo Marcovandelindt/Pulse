@@ -10,6 +10,7 @@ use App\Traits\HasBacklogStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class SteamGame extends Model
@@ -17,6 +18,7 @@ class SteamGame extends Model
     use HasBacklogStatus;
 
     protected $fillable = [
+        'steam_account_id',
         'steam_appid',
         'name',
         'image_url',
@@ -40,6 +42,11 @@ class SteamGame extends Model
             'play_mode'            => PlayMode::class,
             'price'                => 'decimal:2',
         ];
+    }
+
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(SteamAccount::class, 'steam_account_id');
     }
 
     public function genres(): BelongsToMany

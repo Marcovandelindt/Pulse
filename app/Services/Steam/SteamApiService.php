@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Steam;
 
+use App\Models\SteamAccount;
 use App\Models\SteamGame;
 use Illuminate\Support\Facades\Http;
 
@@ -11,59 +12,36 @@ final class SteamApiService
 {
     private const BASE_URL = 'https://api.steampowered.com';
 
-    private string $apiKey;
-    private string $steamId;
-
-    public function __construct()
-    {
-        $this->apiKey = config('services.steam.api_key', '');
-        $this->steamId = config('services.steam.steam_id', '');
-    }
-
-    public function setApiKey(string $apiKey): self
-    {
-        $this->apiKey = $apiKey;
-
-        return $this;
-    }
-
-    public function setSteamId(string $steamId): self
-    {
-        $this->steamId = $steamId;
-
-        return $this;
-    }
-
-    public function getOwnedGames(): array
+    public function getOwnedGames(SteamAccount $account): array
     {
         $response = Http::get(self::BASE_URL.'/IPlayerService/GetOwnedGames/v1/', [
-            'key'                   => $this->apiKey,
-            'steamid'               => $this->steamId,
-            'include_appinfo'       => 1,
+            'key'                       => $account->api_key,
+            'steamid'                   => $account->steam_id,
+            'include_appinfo'           => 1,
             'include_played_free_games' => 1,
-            'format'                => 'json',
+            'format'                    => 'json',
         ]);
 
         return $response->json('response.games', []);
     }
 
-    public function getRecentlyPlayedGames(): array
+    public function getRecentlyPlayedGames(SteamAccount $account): array
     {
         $response = Http::get(self::BASE_URL.'/IPlayerService/GetRecentlyPlayedGames/v1/', [
-            'key'     => $this->apiKey,
-            'steamid' => $this->steamId,
+            'key'     => $account->api_key,
+            'steamid' => $account->steam_id,
             'format'  => 'json',
         ]);
 
         return $response->json('response.games', []);
     }
 
-    public function resolveVanityUrl(string $url): array
+    public function resolveVanityUrl(SteamAccount $account, string $url): array
     {
         $vanityUrl = basename(rtrim($url, '/'));
 
         $response = Http::get(self::BASE_URL.'/ISteamUser/ResolveVanityURL/v1/', [
-            'key'       => $this->apiKey,
+            'key'       => $account->api_key,
             'vanityurl' => $vanityUrl,
             'format'    => 'json',
         ]);
@@ -77,18 +55,10 @@ final class SteamApiService
         return ['success' => false, 'error' => $data['message'] ?? 'Could not resolve vanity URL.'];
     }
 
-    public function testConnection(): array
+    public function testConnection(SteamAccount $account): array
     {
-        if (empty($this->apiKey)) {
-            return ['success' => false, 'error' => 'API key is not configured.'];
-        }
-
-        if (empty($this->steamId)) {
-            return ['success' => false, 'error' => 'Steam ID is not configured.'];
-        }
-
         try {
-            $games = $this->getOwnedGames();
+            $games = $this->getOwnedGames($account);
 
             return ['success' => true, 'game_count' => count($games)];
         } catch (\Throwable $e) {
@@ -96,11 +66,11 @@ final class SteamApiService
         }
     }
 
-    public function syncGames(): array
+    public function syncGames(SteamAccount $account): array
     {
         try {
-            $games = $this->getOwnedGames();
-            $recentGames = $this->getRecentlyPlayedGames();
+            $games = $this->getOwnedGames($account);
+            $recentGames = $this->getRecentlyPlayedGames($account);
 
             $recentMap = collect($recentGames)->keyBy('appid');
 
@@ -109,15 +79,15 @@ final class SteamApiService
                 $recent = $recentMap->get($appid);
 
                 SteamGame::updateOrCreate(
-                    ['steam_appid' => $appid],
+                    ['steam_account_id' => $account->id, 'steam_appid' => $appid],
                     [
-                        'name'                   => $game['name'] ?? 'Unknown',
-                        'image_url'              => isset($game['img_icon_url'])
+                        'name'                    => $game['name'] ?? 'Unknown',
+                        'image_url'               => isset($game['img_icon_url'])
                             ? "https://media.steampowered.com/steamcommunity/public/images/apps/{$appid}/{$game['img_icon_url']}.jpg"
                             : null,
-                        'playtime_minutes'       => $game['playtime_forever'] ?? 0,
+                        'playtime_minutes'        => $game['playtime_forever'] ?? 0,
                         'playtime_2weeks_minutes' => $recent ? ($recent['playtime_2weeks'] ?? null) : null,
-                        'last_played_at'         => isset($game['rtime_last_played']) && $game['rtime_last_played'] > 0
+                        'last_played_at'          => isset($game['rtime_last_played']) && $game['rtime_last_played'] > 0
                             ? date('Y-m-d H:i:s', $game['rtime_last_played'])
                             : null,
                     ],

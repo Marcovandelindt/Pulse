@@ -39,6 +39,10 @@ Route::prefix('steam')->name('steam.')->group(function () {
     Route::get('/games/{game}', [SteamController::class, 'show'])->name('games.show');
     Route::get('/games/{game}/edit', [SteamController::class, 'edit'])->name('games.edit');
     Route::put('/games/{game}', [SteamController::class, 'update'])->name('games.update');
+
+    Route::post('/accounts', [SteamController::class, 'storeAccount'])->name('accounts.store');
+    Route::post('/accounts/{account}/activate', [SteamController::class, 'activateAccount'])->name('accounts.activate');
+    Route::delete('/accounts/{account}', [SteamController::class, 'destroyAccount'])->name('accounts.destroy');
 });
 
 Route::patch('/gaming/backlog/{type}/{id}/status', [BacklogController::class, 'update'])->name('gaming.backlog.update');

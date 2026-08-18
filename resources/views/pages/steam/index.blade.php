@@ -2,11 +2,27 @@
 
 <x-layout.page-header title="Steam">
     <x-slot:actions>
+        @if($accounts->count() > 1)
+            <div class="flex items-center gap-1">
+                @foreach($accounts as $account)
+                    @if($account->is_active)
+                        <span class="btn btn--primary btn--sm">{{ $account->label }}</span>
+                    @else
+                        <form method="POST" action="{{ route('steam.accounts.activate', $account) }}" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="btn btn--secondary btn--sm">{{ $account->label }}</button>
+                        </form>
+                    @endif
+                @endforeach
+            </div>
+        @endif
         <a href="{{ route('steam.settings') }}" class="btn btn--secondary btn--sm">⚙ Settings</a>
-        <form method="POST" action="{{ route('steam.sync') }}" style="display:inline;">
-            @csrf
-            <button type="submit" class="btn btn--primary btn--sm">↻ Sync from Steam</button>
-        </form>
+        @if($activeAccount)
+            <form method="POST" action="{{ route('steam.sync') }}" style="display:inline;">
+                @csrf
+                <button type="submit" class="btn btn--primary btn--sm">↻ Sync</button>
+            </form>
+        @endif
     </x-slot:actions>
 </x-layout.page-header>
 
@@ -24,27 +40,19 @@
     </div>
 @endif
 
+@if(! $activeAccount)
+    <x-ui.empty-state title="No Steam account configured" description="Add a Steam account in Settings to get started.">
+        <x-slot:action>
+            <a href="{{ route('steam.settings') }}" class="btn btn--primary btn--sm">⚙ Go to Settings</a>
+        </x-slot:action>
+    </x-ui.empty-state>
+@else
+
 <div class="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
-    <x-stats.stat-card
-        label="Total Games"
-        :value="number_format($totalGames)"
-        icon="play"
-    />
-    <x-stats.stat-card
-        label="Total Spent"
-        :value="'€ ' . number_format($totalSpent, 2, ',', '.')"
-        icon="credit-card"
-    />
-    <x-stats.stat-card
-        label="Total Hours"
-        :value="number_format($totalHours, 1) . 'h'"
-        icon="clock"
-    />
-    <x-stats.stat-card
-        label="Last 2 Weeks"
-        :value="number_format($recentHours, 1) . 'h'"
-        icon="clock"
-    />
+    <x-stats.stat-card label="Total Games"    :value="number_format($totalGames)"                       icon="play" />
+    <x-stats.stat-card label="Total Spent"    :value="'€ ' . number_format($totalSpent, 2, ',', '.')"  icon="credit-card" />
+    <x-stats.stat-card label="Total Hours"    :value="number_format($totalHours, 1) . 'h'"              icon="clock" />
+    <x-stats.stat-card label="Last 2 Weeks"   :value="number_format($recentHours, 1) . 'h'"             icon="clock" />
 </div>
 
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-6">
@@ -60,8 +68,7 @@
                             <img src="{{ $game->image_url }}" alt="{{ $game->name }}"
                                  class="w-8 h-8 rounded object-cover flex-shrink-0">
                         @else
-                            <div class="w-8 h-8 rounded flex-shrink-0"
-                                 style="background: var(--color-bg-tertiary);"></div>
+                            <div class="w-8 h-8 rounded flex-shrink-0" style="background: var(--color-bg-tertiary);"></div>
                         @endif
                         <div class="flex-1 min-w-0">
                             <a href="{{ route('steam.games.show', $game) }}"
@@ -90,8 +97,7 @@
                             <img src="{{ $game->image_url }}" alt="{{ $game->name }}"
                                  class="w-8 h-8 rounded object-cover flex-shrink-0">
                         @else
-                            <div class="w-8 h-8 rounded flex-shrink-0"
-                                 style="background: var(--color-bg-tertiary);"></div>
+                            <div class="w-8 h-8 rounded flex-shrink-0" style="background: var(--color-bg-tertiary);"></div>
                         @endif
                         <div class="flex-1 min-w-0">
                             <a href="{{ route('steam.games.show', $game) }}"
@@ -112,13 +118,13 @@
     <x-ui.card title="Library">
         <div class="space-y-2">
             @foreach(\App\Enums\BacklogStatus::cases() as $bs)
-                @php $count = \App\Models\SteamGame::where('backlog_status', $bs->value)->count(); @endphp
+                @php $count = \App\Models\SteamGame::where('steam_account_id', $activeAccount->id)->where('backlog_status', $bs->value)->count(); @endphp
                 <div class="flex items-center justify-between text-sm">
                     <span style="color: var(--color-text-muted)">{{ $bs->icon() }} {{ $bs->label() }}</span>
                     <span class="font-medium" style="color: var(--color-text-primary)">{{ $count }}</span>
                 </div>
             @endforeach
-            @php $unset = \App\Models\SteamGame::whereNull('backlog_status')->count(); @endphp
+            @php $unset = \App\Models\SteamGame::where('steam_account_id', $activeAccount->id)->whereNull('backlog_status')->count(); @endphp
             <div class="flex items-center justify-between text-sm">
                 <span style="color: var(--color-text-muted)">— Untracked</span>
                 <span class="font-medium" style="color: var(--color-text-primary)">{{ $unset }}</span>
@@ -129,12 +135,6 @@
 </div>
 
 <x-ui.card>
-    <x-slot:header>
-        <div class="flex items-center justify-between w-full">
-            <span class="card__header-title">Library</span>
-        </div>
-    </x-slot:header>
-
     <div class="media-toolbar mb-4">
         <form method="GET" action="{{ route('steam.index') }}" class="flex gap-2 flex-wrap items-center flex-1">
             <input
@@ -196,8 +196,7 @@
                     <tr>
                         <td style="width: 2.5rem;">
                             @if($game->image_url)
-                                <img src="{{ $game->image_url }}" alt="{{ $game->name }}"
-                                     class="w-8 h-8 rounded object-cover">
+                                <img src="{{ $game->image_url }}" alt="{{ $game->name }}" class="w-8 h-8 rounded object-cover">
                             @else
                                 <div class="w-8 h-8 rounded" style="background: var(--color-bg-tertiary);"></div>
                             @endif
@@ -211,33 +210,28 @@
                         </td>
                         <td>
                             @if($game->backlog_status)
-                                <span class="badge" style="background: rgba(var(--color-{{ $game->backlog_status->color() }}-rgb, 99,102,241), 0.15); color: var(--color-text-primary);">
+                                <span class="badge">
                                     {{ $game->backlog_status->icon() }} {{ $game->backlog_status->label() }}
                                 </span>
                             @else
                                 <span class="text-xs" style="color: var(--color-text-muted)">—</span>
                             @endif
                         </td>
-                        <td class="text-sm" style="color: var(--color-text-muted)">
-                            {{ $game->formatted_playtime }}
-                        </td>
-                        <td class="text-sm" style="color: var(--color-text-muted)">
-                            {{ $game->last_played_at?->format('d M Y') ?? '—' }}
-                        </td>
+                        <td class="text-sm" style="color: var(--color-text-muted)">{{ $game->formatted_playtime }}</td>
+                        <td class="text-sm" style="color: var(--color-text-muted)">{{ $game->last_played_at?->format('d M Y') ?? '—' }}</td>
                         <td style="width: 3rem;">
                             <a href="{{ route('steam.games.edit', $game) }}"
-                               class="btn btn--secondary btn--sm btn--icon"
-                               title="Edit">✎</a>
+                               class="btn btn--secondary btn--sm btn--icon" title="Edit">✎</a>
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
 
-        <div class="mt-4">
-            {{ $games->links() }}
-        </div>
+        <div class="mt-4">{{ $games->links() }}</div>
     @endif
 </x-ui.card>
+
+@endif
 
 </x-layouts.app>
