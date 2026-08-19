@@ -34,33 +34,23 @@
     </div>
 
     {{-- Filters --}}
-    <form method="GET" action="{{ route('playstation.sessions') }}" class="session-filters mb-4">
-        <div class="session-filters__row">
-            <div class="session-filters__field">
-                <label class="session-filters__label">Game</label>
-                <input
-                    type="text"
-                    name="search"
-                    value="{{ $search }}"
-                    placeholder="Search game…"
-                    class="form-input"
-                >
+    <form method="GET" action="{{ route('playstation.sessions') }}"
+          class="mb-4 rounded-xl border p-5"
+          style="background: var(--color-bg-secondary); border-color: var(--color-border);">
+        <div class="flex flex-wrap items-end gap-x-5 gap-y-4">
+
+            <div class="flex flex-col gap-1.5 flex-1" style="min-width: 180px;">
+                <label class="text-xs font-medium uppercase tracking-wide" style="color: var(--color-text-muted)">Game</label>
+                <input type="text" name="search" value="{{ $search }}" placeholder="Search game…" class="form-input">
             </div>
 
-            <div class="session-filters__field session-filters__field--sm">
-                <label class="session-filters__label">Min. duration (min)</label>
-                <input
-                    type="number"
-                    name="min_duration"
-                    value="{{ $minDuration }}"
-                    min="1"
-                    placeholder="e.g. 30"
-                    class="form-input"
-                >
+            <div class="flex flex-col gap-1.5" style="min-width: 140px; flex: 0 1 160px;">
+                <label class="text-xs font-medium uppercase tracking-wide" style="color: var(--color-text-muted)">Min. duration (min)</label>
+                <input type="number" name="min_duration" value="{{ $minDuration }}" min="1" placeholder="e.g. 30" class="form-input">
             </div>
 
-            <div class="session-filters__field">
-                <label class="session-filters__label">Category</label>
+            <div class="flex flex-col gap-1.5 flex-1" style="min-width: 180px;">
+                <label class="text-xs font-medium uppercase tracking-wide" style="color: var(--color-text-muted)">Category</label>
                 <select name="category_id" class="form-input">
                     <option value="">All categories</option>
                     @foreach($categories as $id => $name)
@@ -69,32 +59,23 @@
                 </select>
             </div>
 
-            <div class="session-filters__field session-filters__field--sm">
-                <label class="session-filters__label">From</label>
-                <input
-                    type="date"
-                    name="date_from"
-                    value="{{ $dateFrom }}"
-                    class="form-input"
-                >
+            <div class="flex flex-col gap-1.5" style="min-width: 140px; flex: 0 1 160px;">
+                <label class="text-xs font-medium uppercase tracking-wide" style="color: var(--color-text-muted)">From</label>
+                <input type="date" name="date_from" value="{{ $dateFrom }}" class="form-input">
             </div>
 
-            <div class="session-filters__field session-filters__field--sm">
-                <label class="session-filters__label">To</label>
-                <input
-                    type="date"
-                    name="date_to"
-                    value="{{ $dateTo }}"
-                    class="form-input"
-                >
+            <div class="flex flex-col gap-1.5" style="min-width: 140px; flex: 0 1 160px;">
+                <label class="text-xs font-medium uppercase tracking-wide" style="color: var(--color-text-muted)">To</label>
+                <input type="date" name="date_to" value="{{ $dateTo }}" class="form-input">
             </div>
 
-            <div class="session-filters__actions">
+            <div class="flex gap-2 items-end pb-px">
                 <button type="submit" class="btn btn--primary btn--sm">Filter</button>
                 @if($search || $minDuration || $categoryId || $dateFrom || $dateTo)
                     <a href="{{ route('playstation.sessions') }}" class="btn btn--secondary btn--sm">Clear</a>
                 @endif
             </div>
+
         </div>
     </form>
 
