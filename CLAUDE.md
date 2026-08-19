@@ -1258,8 +1258,117 @@ export default defineConfig({
 ### Git workflow
 
 - Branch per feature: `feature/health-entries`, `feature/finance-expenses`
-- Commit message formaat: `Add health entry creation with streak tracking`
 - Geen WIP commits op main
+
+### Conventional commits
+
+Commit messages volgen de [Conventional Commits](https://www.conventionalcommits.org/) standaard:
+
+```
+type(scope): korte beschrijving
+
+- Optionele bullet met detail
+- Nog een detail
+```
+
+**Types:**
+
+| Type | Wanneer |
+|---|---|
+| `feat` | Nieuwe functionaliteit |
+| `fix` | Bugfix |
+| `chore` | Onderhoud, deps, config (geen productie-impact) |
+| `refactor` | Code herstructureren zonder gedragswijziging |
+| `style` | Opmaak, CSS, geen logica |
+| `docs` | Documentatie |
+| `test` | Tests toevoegen of aanpassen |
+| `perf` | Performantieverbeteringen |
+
+**Scope** is optioneel maar aanbevolen — gebruik de feature-naam: `(playstation)`, `(health)`, `(finance)`.
+
+```bash
+# ✅ correct
+feat(playstation): add game search filter
+fix(sessions): cast avg() result to float before round()
+chore: update max upload size to 10MB
+
+# ❌ vermijd
+fixed bug
+update
+WIP
+```
+
+Bij meerdere types in één commit: gebruik het meest prominente type (`feat` wint van `fix`), en lijst de rest op in de body.
+
+### Commit best practices
+
+**1. Imperatieve wijs — altijd**
+
+Schrijf alsof je de codebase een opdracht geeft. Test het met: *"If applied, this commit will…"*
+
+```bash
+# ✅ correct — imperatief
+feat(health): add weekly step average calculation
+fix(auth): redirect unauthenticated users to login
+
+# ❌ vermijd — verleden tijd / beschrijvend
+feat(health): added weekly step average calculation
+fix(auth): redirecting unauthenticated users to login
+```
+
+**2. Subject line ≤ 50 tekens**
+
+De subject line wordt afgekapt in GitHub, `git log --oneline` en veel tools bij 50–72 tekens. Houd het beknopt.
+
+```bash
+# ✅ past op één regel in git log
+feat(playstation): add game search filter
+
+# ❌ te lang — wordt afgekapt
+feat(playstation): add game search filter with platform and sort state preservation to the index page
+```
+
+**3. Atomic commits — één logische wijziging per commit**
+
+Elke commit is zelfstandig reverteerbaar en begrijpbaar zonder context van andere commits.
+
+```bash
+# ✅ atomair — elke commit doet één ding
+feat(playstation): add game search filter
+fix(sessions): cast avg() result to float
+
+# ❌ niet atomair — meerdere ongerelateerde wijzigingen
+feat: add search, fix bug, update upload limit, refactor controller
+```
+
+**4. Body uitleggen WAAROM, niet WAT**
+
+De code zelf vertelt wat er gebeurt. De body legt uit waarom de keuze gemaakt is.
+
+```bash
+fix(sessions): cast avg() result to float before round()
+
+MySQL/SQLite returns aggregate results as strings.
+PHP's round() requires int|float — explicit cast prevents TypeError.
+```
+
+**5. Geen punt aan het einde van de subject line**
+
+```bash
+# ✅
+feat(finance): add monthly expense chart
+
+# ❌
+feat(finance): add monthly expense chart.
+```
+
+**6. Breaking changes markeren met `!`**
+
+```bash
+feat(api)!: rename duration_minutes to duration_seconds
+
+BREAKING CHANGE: all callers must update their field references.
+```
 
 ### Volgorde bij het implementeren van een nieuwe feature
 
