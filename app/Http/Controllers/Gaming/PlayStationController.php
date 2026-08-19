@@ -26,11 +26,16 @@ final class PlayStationController extends Controller
     {
         $sort = $request->get('sort', 'hours');
         $platform = $request->get('platform');
+        $search = $request->get('search', '');
 
         $baseQuery = PlayStationGame::query();
 
         if ($platform) {
             $baseQuery->where('platform', $platform);
+        }
+
+        if ($search !== '') {
+            $baseQuery->where('name', 'like', "%{$search}%");
         }
 
         $totalHours = round((float) (clone $baseQuery)->sum('hours'), 1);
@@ -73,6 +78,7 @@ final class PlayStationController extends Controller
             'games',
             'sort',
             'platform',
+            'search',
             'totalHours',
             'totalGames',
             'totalSessions',
@@ -197,9 +203,9 @@ final class PlayStationController extends Controller
         $sessions = PlayStationSession::with('game')->latest('started_at')->paginate(30);
 
         $totalSessions = PlayStationSession::count();
-        $avgDuration = (int) round(PlayStationSession::avg('duration_minutes') ?? 0);
+        $avgDuration = (int) round((float) (PlayStationSession::avg('duration_minutes') ?? 0));
         $longestSession = PlayStationSession::max('duration_minutes') ?? 0;
-        $totalHours = round(PlayStationSession::sum('duration_minutes') / 60, 1);
+        $totalHours = round((float) (PlayStationSession::sum('duration_minutes') ?? 0) / 60, 1);
 
         return view('pages.playstation.sessions', compact(
             'sessions',

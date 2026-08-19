@@ -48,10 +48,26 @@
         <div class="lg:col-span-2">
 
             <div class="media-toolbar mb-4">
-                <div class="flex gap-2 flex-wrap">
+                <div class="flex gap-2 flex-wrap items-center">
+                    <form method="GET" action="{{ route('playstation.index') }}" class="flex items-center gap-2">
+                        <input type="hidden" name="sort" value="{{ $sort }}">
+                        <input type="hidden" name="platform" value="{{ $platform }}">
+                        <input
+                            type="text"
+                            name="search"
+                            value="{{ $search }}"
+                            placeholder="Search games…"
+                            class="form-input"
+                            style="max-width: 200px;"
+                        >
+                        @if($search)
+                            <a href="{{ route('playstation.index', array_filter(['sort' => $sort, 'platform' => $platform ?: null])) }}"
+                               class="btn btn--secondary btn--sm">Clear</a>
+                        @endif
+                    </form>
                     @foreach(['', 'PS5', 'PS4', 'PS3', 'PSVITA'] as $p)
                         <a
-                            href="{{ route('playstation.index', array_filter(['platform' => $p ?: null, 'sort' => $sort])) }}"
+                            href="{{ route('playstation.index', array_filter(['platform' => $p ?: null, 'sort' => $sort, 'search' => $search ?: null])) }}"
                             class="btn btn--sm {{ ($platform === $p || ($p === '' && ! $platform)) ? 'btn--primary' : 'btn--secondary' }}"
                         >{{ $p ?: 'All' }}</a>
                     @endforeach
@@ -60,7 +76,7 @@
                     <span class="text-sm" style="color: var(--color-text-muted)">Sort:</span>
                     @foreach(['hours' => 'Most Played', 'name' => 'Name', 'last_played' => 'Last Played', 'completion' => 'Completion'] as $key => $label)
                         <a
-                            href="{{ route('playstation.index', array_filter(['sort' => $key, 'platform' => $platform ?: null])) }}"
+                            href="{{ route('playstation.index', array_filter(['sort' => $key, 'platform' => $platform ?: null, 'search' => $search ?: null])) }}"
                             class="btn btn--sm {{ $sort === $key ? 'btn--primary' : 'btn--secondary' }}"
                         >{{ $label }}</a>
                     @endforeach

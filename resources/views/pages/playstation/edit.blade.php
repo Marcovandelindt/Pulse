@@ -20,7 +20,7 @@
                     </div>
                 @endif
                 <input type="file" id="image" name="image" accept="image/*" class="form-input">
-                <p class="text-xs mt-1" style="color: var(--color-text-muted)">Max 5MB. Uploads a new cover and replaces the existing one.</p>
+                <p class="text-xs mt-1" style="color: var(--color-text-muted)">Max 10MB. Uploads a new cover and replaces the existing one.</p>
                 <x-form.error name="image" />
             </div>
 
