@@ -78,6 +78,12 @@
                 @endif
             </x-ui.card>
 
+            @if($currentGame)
+                <x-ui.card title="Now gaming" class="card--flush">
+                    <x-playstation.now-gaming :game="$currentGame" />
+                </x-ui.card>
+            @endif
+
             <x-ui.card title="Recent expenses">
                 <x-ui.empty-state title="No expenses yet" />
             </x-ui.card>

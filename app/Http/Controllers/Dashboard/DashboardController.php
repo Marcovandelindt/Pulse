@@ -12,6 +12,7 @@ use App\Models\MovieWatch;
 use App\Models\Play;
 use App\Models\PlayStationSession;
 use Illuminate\Support\Carbon;
+use App\Services\PlayStation\PsnPresenceService;
 use App\Services\Spotify\SpotifyTrackService;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -22,6 +23,7 @@ final class DashboardController extends Controller
 
     public function __construct(
         private readonly SpotifyTrackService $trackService,
+        private readonly PsnPresenceService $psnPresence,
     ) {}
 
     public function index(): View
@@ -48,6 +50,12 @@ final class DashboardController extends Controller
             $currentlyPlaying = null;
         }
 
+        try {
+            $currentGame = $this->psnPresence->getCurrentGame();
+        } catch (\Throwable) {
+            $currentGame = null;
+        }
+
         $recentPlay = $currentlyPlaying === null
             ? Play::with(['track.album', 'track.artists'])->orderByDesc('played_at')->first()
             : null;
@@ -60,6 +68,7 @@ final class DashboardController extends Controller
             'tracksThisWeek'    => $tracksThisWeek > 0 ? number_format($tracksThisWeek) : null,
             'currentlyPlaying'  => $currentlyPlaying,
             'recentPlay'        => $recentPlay,
+            'currentGame'       => $currentGame,
         ]);
     }
 

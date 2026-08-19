@@ -16,6 +16,21 @@ final class PsnAuthService
     private const REDIRECT_URI  = 'com.scee.psxandroid.scecompcall://redirect';
     private const SCOPE         = 'psn:mobile.v2.core psn:clientapp';
 
+    public function getAccountId(): string
+    {
+        return Cache::rememberForever('psn_account_id', function () {
+            $response = Http::withToken($this->getAccessToken())
+                ->withHeaders(['User-Agent' => 'PlayStation/21090100 CFNetwork/1126 Darwin/19.5.0'])
+                ->get('https://dms.api.playstation.com/api/v1/devices/accounts/me');
+
+            if (! $response->successful()) {
+                throw new RuntimeException('Failed to fetch PSN account ID: '.$response->body());
+            }
+
+            return (string) $response->json('accountId');
+        });
+    }
+
     public function getAccessToken(): string
     {
         return Cache::remember('psn_access_token', 3000, function () {

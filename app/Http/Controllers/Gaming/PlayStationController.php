@@ -12,6 +12,7 @@ use App\Models\PlayStationGame;
 use App\Models\PlayStationSession;
 use App\Models\PlayStationTrophy;
 use App\Services\PlayStation\PlayStationScraperService;
+use App\Services\PlayStation\PsnPresenceService;
 use App\Services\PlayStation\PsnProfilesScraperService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -75,6 +76,12 @@ final class PlayStationController extends Controller
                 'url'         => route('playstation.show', $g),
             ]);
 
+        try {
+            $currentGame = app(PsnPresenceService::class)->getCurrentGame();
+        } catch (\Throwable) {
+            $currentGame = null;
+        }
+
         return view('pages.playstation.index', compact(
             'games',
             'sort',
@@ -85,6 +92,7 @@ final class PlayStationController extends Controller
             'totalSessions',
             'recentSessions',
             'sleepItems',
+            'currentGame',
         ));
     }
 

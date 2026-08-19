@@ -152,6 +152,12 @@
         </div>
 
         <div>
+            @if($currentGame)
+                <x-ui.card title="Now gaming" class="card--flush mb-6">
+                    <x-playstation.now-gaming :game="$currentGame" />
+                </x-ui.card>
+            @endif
+
             @if($recentSessions->isNotEmpty())
                 <x-ui.card title="Recent Sessions">
                     <div class="gaming-session-list">
