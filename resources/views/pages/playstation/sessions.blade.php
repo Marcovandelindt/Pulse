@@ -86,6 +86,14 @@
             <div class="gaming-session-list">
                 @foreach($sessions as $session)
                     <div class="gaming-session-item">
+                        @if($session->game->image_url)
+                            <img src="{{ $session->game->image_url }}"
+                                 alt="{{ $session->game->name }}"
+                                 class="gaming-session-item__image">
+                        @else
+                            <div class="gaming-session-item__image"></div>
+                        @endif
+
                         <div class="gaming-session-item__game">
                             <a href="{{ route('playstation.show', $session->game) }}" class="gaming-session-item__title">
                                 {{ $session->game->name }}
@@ -94,9 +102,10 @@
                                 {{ $session->game->platform }}
                             </span>
                         </div>
+
                         <div class="gaming-session-item__meta">
                             <span class="gaming-session-item__duration">{{ $session->formatted_duration }}</span>
-                            <span class="gaming-session-item__date">{{ $session->started_at->format('d M Y, H:i') }} – {{ $session->end_time->format('H:i') }}</span>
+                            <span class="gaming-session-item__date">{{ $session->started_at->format('l, d M Y, H:i') }} – {{ $session->end_time->format('H:i') }}</span>
                         </div>
                     </div>
                 @endforeach
