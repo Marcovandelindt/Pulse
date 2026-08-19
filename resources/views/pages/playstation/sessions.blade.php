@@ -33,9 +33,74 @@
         />
     </div>
 
+    {{-- Filters --}}
+    <form method="GET" action="{{ route('playstation.sessions') }}" class="session-filters mb-4">
+        <div class="session-filters__row">
+            <div class="session-filters__field">
+                <label class="session-filters__label">Game</label>
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ $search }}"
+                    placeholder="Search game…"
+                    class="form-input"
+                >
+            </div>
+
+            <div class="session-filters__field session-filters__field--sm">
+                <label class="session-filters__label">Min. duration (min)</label>
+                <input
+                    type="number"
+                    name="min_duration"
+                    value="{{ $minDuration }}"
+                    min="1"
+                    placeholder="e.g. 30"
+                    class="form-input"
+                >
+            </div>
+
+            <div class="session-filters__field">
+                <label class="session-filters__label">Category</label>
+                <select name="category_id" class="form-input">
+                    <option value="">All categories</option>
+                    @foreach($categories as $id => $name)
+                        <option value="{{ $id }}" @selected($categoryId == $id)>{{ $name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="session-filters__field session-filters__field--sm">
+                <label class="session-filters__label">From</label>
+                <input
+                    type="date"
+                    name="date_from"
+                    value="{{ $dateFrom }}"
+                    class="form-input"
+                >
+            </div>
+
+            <div class="session-filters__field session-filters__field--sm">
+                <label class="session-filters__label">To</label>
+                <input
+                    type="date"
+                    name="date_to"
+                    value="{{ $dateTo }}"
+                    class="form-input"
+                >
+            </div>
+
+            <div class="session-filters__actions">
+                <button type="submit" class="btn btn--primary btn--sm">Filter</button>
+                @if($search || $minDuration || $categoryId || $dateFrom || $dateTo)
+                    <a href="{{ route('playstation.sessions') }}" class="btn btn--secondary btn--sm">Clear</a>
+                @endif
+            </div>
+        </div>
+    </form>
+
     <x-ui.card title="All Sessions">
         @if($sessions->isEmpty())
-            <p class="text-sm" style="color: var(--color-text-muted)">No sessions recorded yet.</p>
+            <p class="text-sm" style="color: var(--color-text-muted)">No sessions found for the selected filters.</p>
         @else
             <div class="gaming-session-list">
                 @foreach($sessions as $session)

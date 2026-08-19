@@ -13,6 +13,7 @@ use App\Models\PlayStationSession;
 use App\Models\PlayStationTrophy;
 use App\Services\PlayStation\PlayStationScraperService;
 use App\Services\PlayStation\PsnProfilesScraperService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
@@ -200,12 +201,43 @@ final class PlayStationController extends Controller
 
     public function sessions(Request $request): View
     {
-        $sessions = PlayStationSession::with('game')->latest('started_at')->paginate(30);
+        $search      = $request->get('search', '');
+        $minDuration = $request->integer('min_duration', 0) ?: null;
+        $categoryId  = $request->integer('category_id', 0) ?: null;
+        $dateFrom    = $request->get('date_from');
+        $dateTo      = $request->get('date_to');
 
-        $totalSessions = PlayStationSession::count();
-        $avgDuration = (int) round((float) (PlayStationSession::avg('duration_minutes') ?? 0));
-        $longestSession = PlayStationSession::max('duration_minutes') ?? 0;
-        $totalHours = round((float) (PlayStationSession::sum('duration_minutes') ?? 0) / 60, 1);
+        $query = PlayStationSession::with('game')->latest('started_at');
+
+        if ($search !== '') {
+            $query->whereHas('game', fn ($q) => $q->where('name', 'like', "%{$search}%"));
+        }
+
+        if ($minDuration) {
+            $query->where('duration_minutes', '>=', $minDuration);
+        }
+
+        if ($categoryId) {
+            $query->whereHas('game.categories', fn ($q) => $q->where('play_station_categories.id', $categoryId));
+        }
+
+        if ($dateFrom && $dateTo) {
+            $query->whereBetween('started_at', [
+                Carbon::parse($dateFrom)->startOfDay(),
+                Carbon::parse($dateTo)->endOfDay(),
+            ]);
+        } elseif ($dateFrom) {
+            $query->whereDate('started_at', $dateFrom);
+        }
+
+        $totalSessions  = (clone $query)->count();
+        $avgDuration    = (int) round((float) ((clone $query)->avg('duration_minutes') ?? 0));
+        $longestSession = (int) ((clone $query)->max('duration_minutes') ?? 0);
+        $totalHours     = round((float) ((clone $query)->sum('duration_minutes') ?? 0) / 60, 1);
+
+        $sessions = $query->paginate(30)->withQueryString();
+
+        $categories = PlayStationCategory::orderBy('name')->pluck('name', 'id');
 
         return view('pages.playstation.sessions', compact(
             'sessions',
@@ -213,6 +245,12 @@ final class PlayStationController extends Controller
             'avgDuration',
             'longestSession',
             'totalHours',
+            'categories',
+            'search',
+            'minDuration',
+            'categoryId',
+            'dateFrom',
+            'dateTo',
         ));
     }
 
