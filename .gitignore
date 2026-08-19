@@ -6,6 +6,7 @@
 .phpactor.json
 .phpunit.result.cache
 /.codex
+/.claude/
 /.cursor/
 /.idea
 /.nova
@@ -19,6 +20,7 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/*.html
 /storage/pail
 /vendor
 _ide_helper.php
