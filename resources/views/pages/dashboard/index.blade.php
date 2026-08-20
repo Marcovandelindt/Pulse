@@ -1,7 +1,16 @@
 <x-layouts.app title="Dashboard">
 
+    @php
+        $hour = now()->hour;
+        $greeting = match(true) {
+            $hour >= 5 && $hour < 12  => 'Good morning',
+            $hour >= 12 && $hour < 18 => 'Good afternoon',
+            default                   => 'Good evening',
+        };
+    @endphp
+
     <x-layout.page-header
-        title="Good morning, Marco"
+        title="{{ $greeting }}, Marco"
         subtitle="Here's what's happening today."
     />
 
