@@ -96,8 +96,20 @@ final class TvSeries extends Model
 
     public function recordWatch(): void
     {
-        $this->last_watched_at = now();
-        $this->first_watched_at ??= now();
+        $seasonIds = $this->seasons()->select('id');
+
+        $latest = EpisodeWatch::join('tv_episodes', 'episode_watches.tv_episode_id', '=', 'tv_episodes.id')
+            ->whereIn('tv_episodes.tv_season_id', $seasonIds)
+            ->whereNotNull('episode_watches.watched_at')
+            ->max('episode_watches.watched_at');
+
+        $earliest = EpisodeWatch::join('tv_episodes', 'episode_watches.tv_episode_id', '=', 'tv_episodes.id')
+            ->whereIn('tv_episodes.tv_season_id', $seasonIds)
+            ->whereNotNull('episode_watches.watched_at')
+            ->min('episode_watches.watched_at');
+
+        $this->last_watched_at  = $latest   ? \Carbon\Carbon::parse($latest)   : now();
+        $this->first_watched_at ??= $earliest ? \Carbon\Carbon::parse($earliest) : now();
         $this->updateProgress();
     }
 }
