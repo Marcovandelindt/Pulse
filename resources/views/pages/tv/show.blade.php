@@ -110,12 +110,17 @@ foreach ($series->seasons as $season) {
 
                 <div class="media-detail__stats-row">
                     <div class="media-detail__stat">
-                        <div class="media-detail__stat-value">{{ $series->episodes_watched }}</div>
+                        @if ($series->completion_percentage < 100)
+                            <div class="media-detail__stat-value">{{ $series->episodes_watched }} / {{ $series->number_of_episodes }}</div>
+                        @else
+                            <div class="media-detail__stat-value">{{ $series->episodes_watched }}</div>
+                        @endif
                         <div class="media-detail__stat-label">episodes watched</div>
                     </div>
                     <div class="media-detail__stat">
-                        <div class="media-detail__stat-value">{{ round($series->completion_percentage) }}%</div>
-                        <div class="media-detail__stat-label">completion</div>
+                        @php $watchedHours = $series->watched_runtime_minutes > 0 ? round($series->watched_runtime_minutes / 60, 1) : null; @endphp
+                        <div class="media-detail__stat-value">{{ $watchedHours ? $watchedHours . 'h' : '—' }}</div>
+                        <div class="media-detail__stat-label">time watched</div>
                     </div>
                     @if ($series->last_watched_at)
                         <div class="media-detail__stat">
