@@ -240,6 +240,68 @@
             </div>
         </x-ui.card>
 
+        {{-- Quarterly averages --}}
+        @if ($seasonalPatterns['quarterly']->isNotEmpty())
+            <x-ui.card title="Quarterly averages" class="health-stats-grid__wide">
+                <div class="health-quarterly">
+                    @foreach ($seasonalPatterns['quarterly'] as $year => $quarters)
+                        <div class="health-quarterly__year">
+                            <div class="health-quarterly__year-label">{{ $year }}</div>
+                            <div class="health-quarterly__bars">
+                                @foreach ($seasonalPatterns['quarterLabels'] as $q => $label)
+                                    @php $data = $quarters[$q] ?? null; @endphp
+                                    <div class="health-quarterly__bar-group">
+                                        <div class="health-quarterly__bar-wrap">
+                                            @if ($data)
+                                                @php $maxAvg = $seasonalPatterns['quarterly']->flatten(1)->max('avg') ?: 1; @endphp
+                                                <div class="health-quarterly__bar"
+                                                     style="height: {{ round(($data['avg'] / $maxAvg) * 100) }}%"
+                                                     title="{{ number_format($data['avg']) }} avg steps ({{ $data['count'] }} days)"></div>
+                                            @endif
+                                        </div>
+                                        <div class="health-quarterly__bar-label">{{ $label }}</div>
+                                        <div class="health-quarterly__bar-value">
+                                            {{ $data ? number_format($data['avg']) : '—' }}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </x-ui.card>
+        @endif
+
+        {{-- Year-on-year by month --}}
+        @if (count($seasonalPatterns['years']) > 0)
+            <x-ui.card title="Year-on-year by month" class="health-stats-grid__wide">
+                <div class="health-yoy-table-wrap">
+                    <x-ui.table>
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                @foreach ($seasonalPatterns['years'] as $year)
+                                    <th>{{ $year }}</th>
+                                @endforeach
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($seasonalPatterns['monthNames'] as $i => $month)
+                                @php $monthNum = $i + 1; @endphp
+                                <tr>
+                                    <td>{{ $month }}</td>
+                                    @foreach ($seasonalPatterns['years'] as $year)
+                                        @php $avg = $seasonalPatterns['yearByMonth'][$year][$monthNum] ?? null; @endphp
+                                        <td>{{ $avg !== null ? number_format($avg) : '—' }}</td>
+                                    @endforeach
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </x-ui.table>
+                </div>
+            </x-ui.card>
+        @endif
+
         {{-- Weekday patterns --}}
         <x-ui.card title="Weekday patterns" class="health-stats-grid__wide">
             @if ($weekdayPatterns->sum('count') > 0)

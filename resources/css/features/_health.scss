@@ -312,6 +312,71 @@
     opacity:     0.65;
 }
 
+/* ── Seasonal patterns ────────────────────────────── */
+
+.health-quarterly {
+    display:        flex;
+    flex-direction: column;
+    gap:            2rem;
+}
+
+.health-quarterly__year-label {
+    font-size:     0.75rem;
+    font-weight:   600;
+    color:         var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom:  0.75rem;
+}
+
+.health-quarterly__bars {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:     1rem;
+    height:  8rem;
+    align-items: flex-end;
+}
+
+.health-quarterly__bar-group {
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    height:         100%;
+}
+
+.health-quarterly__bar-wrap {
+    flex:    1;
+    width:   100%;
+    display: flex;
+    align-items: flex-end;
+}
+
+.health-quarterly__bar {
+    width:         100%;
+    background:    var(--color-brand);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    min-height:    0.25rem;
+    opacity:       0.7;
+    transition:    height 0.3s ease;
+}
+
+.health-quarterly__bar-label {
+    font-size:  0.6875rem;
+    color:      var(--color-text-muted);
+    margin-top: 0.375rem;
+    text-align: center;
+}
+
+.health-quarterly__bar-value {
+    font-size:   0.6875rem;
+    color:       var(--color-text-muted);
+    font-weight: 500;
+}
+
+.health-yoy-table-wrap {
+    overflow-x: auto;
+}
+
 /* ── Stats page ───────────────────────────────────── */
 
 .health-stats-grid {

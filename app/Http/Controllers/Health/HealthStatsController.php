@@ -50,6 +50,7 @@ final class HealthStatsController extends Controller
         $goalPerformance    = $this->goalPerformanceExtended((int) $stepGoal, $allGoals);
         $stepsDistribution  = $this->stepsDistribution((int) $stepGoal);
         $consistency        = $this->consistencyStats();
+        $seasonalPatterns   = $this->seasonalPatterns();
 
         $distanceComparisons = collect([
             ['label' => 'Amsterdam → Paris',          'km' => 500],
@@ -79,7 +80,45 @@ final class HealthStatsController extends Controller
             'goalPerformance',
             'stepsDistribution',
             'consistency',
+            'seasonalPatterns',
         ));
+    }
+
+    /** @return array<string, mixed> */
+    private function seasonalPatterns(): array
+    {
+        $quarterLabels = [1 => 'Q1 (Jan–Mar)', 2 => 'Q2 (Apr–Jun)', 3 => 'Q3 (Jul–Sep)', 4 => 'Q4 (Oct–Dec)'];
+
+        $quarterly = HealthEntry::withSteps()
+            ->selectRaw('YEAR(date) as year, QUARTER(date) as quarter, AVG(steps) as avg_steps, COUNT(*) as count')
+            ->groupByRaw('YEAR(date), QUARTER(date)')
+            ->orderByRaw('YEAR(date), QUARTER(date)')
+            ->get()
+            ->groupBy('year')
+            ->map(fn ($rows) => $rows->keyBy('quarter')->map(fn ($r) => [
+                'avg'   => (int) round((float) $r->avg_steps),
+                'count' => (int) $r->count,
+            ]));
+
+        $monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+        $yearByMonth = HealthEntry::withSteps()
+            ->selectRaw('YEAR(date) as year, MONTH(date) as month, AVG(steps) as avg_steps')
+            ->groupByRaw('YEAR(date), MONTH(date)')
+            ->orderByRaw('YEAR(date), MONTH(date)')
+            ->get()
+            ->groupBy('year')
+            ->map(fn ($rows) => $rows->keyBy('month')->map(fn ($r) => (int) round((float) $r->avg_steps)));
+
+        $years = $yearByMonth->keys()->sort()->values()->all();
+
+        return [
+            'quarterly'    => $quarterly,
+            'quarterLabels'=> $quarterLabels,
+            'yearByMonth'  => $yearByMonth,
+            'monthNames'   => $monthNames,
+            'years'        => $years,
+        ];
     }
 
     /** @return array<string, mixed> */
