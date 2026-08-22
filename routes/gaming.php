@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Gaming\BacklogController;
 use App\Http\Controllers\Gaming\PlayStationCategoryController;
 use App\Http\Controllers\Gaming\PlayStationController;
+use App\Http\Controllers\Gaming\PlayStationStatsController;
 use App\Http\Controllers\Gaming\SteamController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,7 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
     Route::get('/sessions', [PlayStationController::class, 'sessions'])->name('sessions');
     Route::post('/sync', [PlayStationController::class, 'sync'])->name('sync');
     Route::get('/daily-activity', [PlayStationController::class, 'dailyActivity'])->name('daily-activity');
+    Route::get('/stats', [PlayStationStatsController::class, 'index'])->name('stats');
 
     Route::prefix('categories')->name('categories.')->group(function () {
         Route::get('/', [PlayStationCategoryController::class, 'index'])->name('index');

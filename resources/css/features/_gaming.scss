@@ -568,3 +568,450 @@
     color:          var(--color-text-muted);
 }
 
+/* ═══════════════════════════════════════════════════
+   PlayStation Stats page
+   ═══════════════════════════════════════════════════ */
+
+/* ── Stats grid ───────────────────────────────────── */
+
+.psn-stats-grid {
+    display:               grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:                   1.5rem;
+}
+
+.psn-stats-grid__wide {
+    grid-column: 1 / -1;
+}
+
+/* ── Year in review ───────────────────────────────── */
+
+.psn-year-review {
+    background:   linear-gradient(135deg, rgba(0, 64, 153, 0.12) 0%, rgba(0, 48, 135, 0.05) 100%);
+    border-color: rgba(0, 112, 204, 0.25) !important;
+}
+
+.psn-year-review__header {
+    display:       flex;
+    align-items:   baseline;
+    gap:           0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.psn-year-review__year {
+    font-size:   2rem;
+    font-weight: 800;
+    color:       #5b9cf6;
+    line-height: 1;
+}
+
+.psn-year-review__title {
+    font-size:   1rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+}
+
+.psn-year-review__vs {
+    margin-left: auto;
+    font-size:   0.875rem;
+    font-weight: 600;
+}
+
+.psn-year-review__vs--up   { color: #4ade80; }
+.psn-year-review__vs--down { color: #f87171; }
+
+.psn-year-review__grid {
+    display:               grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap:                   1.25rem;
+}
+
+@media (max-width: 1024px) {
+    .psn-year-review__grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 640px) {
+    .psn-year-review__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.psn-year-review__block {
+    border-left:  2px solid rgba(0, 112, 204, 0.3);
+    padding-left: 0.875rem;
+}
+
+.psn-year-review__value {
+    font-size:   1.5rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+    line-height: 1.1;
+}
+
+.psn-year-review__value--sm {
+    font-size: 1.125rem;
+}
+
+.psn-year-review__label {
+    font-size:  0.75rem;
+    color:      var(--color-text-muted);
+    margin-top: 0.25rem;
+}
+
+/* ── Personal records ─────────────────────────────── */
+
+.psn-records {
+    display:               grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:                   1.5rem;
+}
+
+@media (max-width: 768px) {
+    .psn-records { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+    .psn-records { grid-template-columns: 1fr; }
+}
+
+.psn-record {
+    display:     flex;
+    align-items: flex-start;
+    gap:         0.875rem;
+}
+
+.psn-record__icon {
+    font-size:   1.75rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.psn-record__value {
+    font-size:   1.75rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+    line-height: 1;
+}
+
+.psn-record__label {
+    font-size:   0.8125rem;
+    color:       var(--color-text-muted);
+    margin-top:  0.25rem;
+}
+
+.psn-record__sub {
+    font-size:   0.75rem;
+    color:       var(--color-text-muted);
+    margin-top:  0.125rem;
+    opacity:     0.7;
+}
+
+.psn-record__link {
+    color:           inherit;
+    text-decoration: none;
+
+    &:hover { color: var(--color-brand-light); }
+}
+
+/* ── Platform breakdown bars ──────────────────────── */
+
+.psn-platform-bars {
+    display:        flex;
+    flex-direction: column;
+    gap:            1rem;
+}
+
+.psn-platform-bar__header {
+    display:         flex;
+    justify-content: space-between;
+    align-items:     baseline;
+    margin-bottom:   0.375rem;
+}
+
+.psn-platform-bar__label {
+    font-size:   0.875rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+}
+
+.psn-platform-bar__meta {
+    font-size: 0.8125rem;
+    color:     var(--color-text-muted);
+}
+
+.psn-platform-bar__track {
+    background:    var(--color-bg-tertiary);
+    border-radius: 999px;
+    height:        0.375rem;
+    overflow:      hidden;
+}
+
+.psn-platform-bar__fill {
+    height:        100%;
+    border-radius: 999px;
+    opacity:       0.8;
+    transition:    width 0.5s ease;
+}
+
+/* ── Trophy stats ─────────────────────────────────── */
+
+.psn-trophy-platinum {
+    display:       flex;
+    align-items:   center;
+    gap:           1rem;
+    padding-bottom: 1rem;
+    border-bottom:  1px solid var(--color-border);
+    margin-bottom:  1rem;
+}
+
+.psn-trophy-platinum__icon {
+    font-size:   2.5rem;
+    line-height: 1;
+}
+
+.psn-trophy-platinum__value {
+    font-size:   2rem;
+    font-weight: 800;
+    color:       #6b7fe3;
+    line-height: 1;
+}
+
+.psn-trophy-platinum__label {
+    font-size:   0.8125rem;
+    color:       var(--color-text-muted);
+    margin-top:  0.125rem;
+}
+
+.psn-trophy-types {
+    display:               grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:                   0.75rem;
+    margin-bottom:         1rem;
+}
+
+.psn-trophy-type {
+    text-align:    center;
+    padding:       0.625rem 0.5rem;
+    background:    var(--color-bg-tertiary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.psn-trophy-type__icon {
+    font-size:     1.125rem;
+    line-height:   1;
+    margin-bottom: 0.25rem;
+}
+
+.psn-trophy-type__value {
+    font-size:   1.125rem;
+    font-weight: 700;
+    color:       var(--trophy-color, var(--color-text-primary));
+}
+
+.psn-trophy-type__label {
+    font-size:      0.625rem;
+    font-weight:    600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color:          var(--color-text-muted);
+    margin-top:     0.125rem;
+}
+
+.psn-trophy-total {
+    font-size:     0.8125rem;
+    color:         var(--color-text-muted);
+    margin-bottom: 1.25rem;
+}
+
+.psn-trophy-chart__label {
+    font-size:      0.6875rem;
+    font-weight:    600;
+    color:          var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom:  0.625rem;
+}
+
+/* ── Hourly chart ─────────────────────────────────── */
+
+.psn-hourly-chart {
+    display:     flex;
+    align-items: flex-end;
+    gap:         0.25rem;
+    height:      8rem;
+    padding-top: 0.5rem;
+}
+
+.psn-hourly-chart__col {
+    flex:           1;
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    height:         100%;
+}
+
+.psn-hourly-chart__bar-wrap {
+    flex:    1;
+    width:   100%;
+    display: flex;
+    align-items: flex-end;
+}
+
+.psn-hourly-chart__bar {
+    width:         100%;
+    background:    var(--color-brand);
+    border-radius: 2px 2px 0 0;
+    min-height:    0.125rem;
+    opacity:       0.65;
+    transition:    height 0.3s ease;
+}
+
+.psn-hourly-chart__label {
+    font-size:   0.5625rem;
+    color:       var(--color-text-muted);
+    margin-top:  0.25rem;
+    height:      0.875rem;
+    line-height: 1;
+}
+
+/* ── Library / backlog ────────────────────────────── */
+
+.psn-backlog-list {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.75rem;
+    margin-bottom:  1rem;
+}
+
+.psn-backlog-item__header {
+    display:     flex;
+    align-items: center;
+    gap:         0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.psn-backlog-item__icon {
+    font-size:   0.875rem;
+    line-height: 1;
+}
+
+.psn-backlog-item__label {
+    font-size:   0.8125rem;
+    color:       var(--color-text-primary);
+    flex:        1;
+}
+
+.psn-backlog-item__count {
+    font-size:   0.8125rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+}
+
+.psn-backlog-item__pct {
+    font-size:  0.75rem;
+    color:      var(--color-text-muted);
+    min-width:  2.5rem;
+    text-align: right;
+}
+
+.psn-backlog-item__track {
+    background:    var(--color-bg-tertiary);
+    border-radius: 999px;
+    height:        0.25rem;
+    overflow:      hidden;
+}
+
+.psn-backlog-item__fill {
+    height:        100%;
+    border-radius: 999px;
+    opacity:       0.75;
+    transition:    width 0.4s ease;
+}
+
+.psn-backlog-footer {
+    display:         flex;
+    justify-content: space-between;
+    font-size:       0.8125rem;
+    color:           var(--color-text-muted);
+    padding-top:     0.75rem;
+    border-top:      1px solid var(--color-border);
+    margin-bottom:   1rem;
+
+    strong { color: var(--color-text-primary); }
+}
+
+.psn-platform-counts {
+    display:    flex;
+    flex-wrap:  wrap;
+    gap:        0.5rem;
+    padding-top: 0.75rem;
+    border-top:  1px solid var(--color-border);
+}
+
+.psn-platform-count {
+    display:       flex;
+    align-items:   center;
+    gap:           0.375rem;
+    padding:       0.2rem 0.6rem;
+    border-radius: var(--radius-sm);
+    background:    var(--color-bg-tertiary);
+    border:        1px solid var(--color-border);
+}
+
+.psn-platform-count__label {
+    font-size:      0.6875rem;
+    font-weight:    700;
+    color:          var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.psn-platform-count__value {
+    font-size:   0.8125rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+}
+
+/* ── Consistency ──────────────────────────────────── */
+
+.psn-consistency {
+    display:               grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:                   1.25rem;
+    margin-bottom:         1rem;
+}
+
+.psn-consistency__block {
+    text-align: center;
+}
+
+.psn-consistency__value {
+    font-size:   2rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+    line-height: 1;
+}
+
+.psn-consistency__label {
+    font-size:   0.8125rem;
+    font-weight: 500;
+    color:       var(--color-text-muted);
+    margin-top:  0.375rem;
+}
+
+.psn-consistency__sub {
+    font-size:   0.6875rem;
+    color:       var(--color-text-muted);
+    margin-top:  0.125rem;
+    opacity:     0.65;
+}
+
+.psn-consistency__since {
+    text-align:  center;
+    font-size:   0.875rem;
+    color:       var(--color-text-muted);
+    padding-top: 0.75rem;
+    border-top:  1px solid var(--color-border);
+
+    strong { color: var(--color-text-primary); }
+}
+
