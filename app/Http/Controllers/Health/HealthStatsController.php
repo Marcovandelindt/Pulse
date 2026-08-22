@@ -46,6 +46,8 @@ final class HealthStatsController extends Controller
         $allTimeKm    = round($allTimeSteps * 0.00075, 1);
         $thisYearKm   = round((int) HealthEntry::withSteps()->whereYear('date', now()->year)->sum('steps') * 0.00075, 1);
 
+        $personalRecords = $this->personalRecords();
+
         $distanceComparisons = collect([
             ['label' => 'Amsterdam → Paris',          'km' => 500],
             ['label' => 'Around the Netherlands',     'km' => 1075],
@@ -70,7 +72,35 @@ final class HealthStatsController extends Controller
             'goalHistory',
             'allTimeSteps', 'allTimeKm', 'thisYearKm',
             'distanceComparisons',
+            'personalRecords',
         ));
+    }
+
+    /** @return array<string, mixed> */
+    private function personalRecords(): array
+    {
+        $bestDay = HealthEntry::withSteps()->orderByDesc('steps')->first(['date', 'steps']);
+
+        $bestWeekRow = HealthEntry::withSteps()
+            ->selectRaw('YEARWEEK(date, 1) as yw, SUM(steps) as total, MIN(date) as week_start')
+            ->groupByRaw('YEARWEEK(date, 1)')
+            ->orderByDesc('total')
+            ->first();
+
+        $bestMonthRow = HealthEntry::withSteps()
+            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(steps) as total')
+            ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
+            ->orderByDesc('total')
+            ->first();
+
+        return [
+            'bestDaySteps'   => $bestDay?->steps,
+            'bestDayDate'    => $bestDay?->date->format('d M Y'),
+            'bestWeekSteps'  => $bestWeekRow ? (int) $bestWeekRow->total : null,
+            'bestWeekStart'  => $bestWeekRow ? Carbon::parse($bestWeekRow->week_start)->format('d M Y') : null,
+            'bestMonthSteps' => $bestMonthRow ? (int) $bestMonthRow->total : null,
+            'bestMonthLabel' => $bestMonthRow ? Carbon::createFromFormat('Y-m', $bestMonthRow->month)->format('F Y') : null,
+        ];
     }
 
     /** @param Collection<int, StepGoal> $allGoals */

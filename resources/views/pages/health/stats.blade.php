@@ -39,6 +39,50 @@
         </div>
     </x-ui.card>
 
+    {{-- Personal records --}}
+    <x-ui.card title="Personal records" class="mb-6">
+        <div class="health-records">
+            <div class="health-record">
+                <div class="health-record__icon">🏅</div>
+                <div class="health-record__body">
+                    <div class="health-record__value">
+                        {{ $personalRecords['bestDaySteps'] ? number_format($personalRecords['bestDaySteps']) : '—' }}
+                    </div>
+                    <div class="health-record__label">Best day ever</div>
+                    @if ($personalRecords['bestDayDate'])
+                        <div class="health-record__sub">{{ $personalRecords['bestDayDate'] }}</div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="health-record">
+                <div class="health-record__icon">📅</div>
+                <div class="health-record__body">
+                    <div class="health-record__value">
+                        {{ $personalRecords['bestWeekSteps'] ? number_format($personalRecords['bestWeekSteps']) : '—' }}
+                    </div>
+                    <div class="health-record__label">Best week ever</div>
+                    @if ($personalRecords['bestWeekStart'])
+                        <div class="health-record__sub">Week of {{ $personalRecords['bestWeekStart'] }}</div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="health-record">
+                <div class="health-record__icon">🗓️</div>
+                <div class="health-record__body">
+                    <div class="health-record__value">
+                        {{ $personalRecords['bestMonthSteps'] ? number_format($personalRecords['bestMonthSteps']) : '—' }}
+                    </div>
+                    <div class="health-record__label">Best month ever</div>
+                    @if ($personalRecords['bestMonthLabel'])
+                        <div class="health-record__sub">{{ $personalRecords['bestMonthLabel'] }}</div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </x-ui.card>
+
     <div class="health-stats-grid">
 
         {{-- Weekly comparison --}}
