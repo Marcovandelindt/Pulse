@@ -63,11 +63,4 @@ final class Movie extends Model
         );
     }
 
-    public function incrementWatchCount(): void
-    {
-        $this->watch_count++;
-        $this->last_watched_at = now();
-        $this->first_watched_at ??= now();
-        $this->save();
-    }
 }
