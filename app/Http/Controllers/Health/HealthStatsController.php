@@ -45,6 +45,7 @@ final class HealthStatsController extends Controller
         $allTimeSteps = (int) HealthEntry::withSteps()->sum('steps');
         $allTimeKm    = round($allTimeSteps * 0.00066, 1);
         $thisYearKm   = round((int) HealthEntry::withSteps()->whereYear('date', now()->year)->sum('steps') * 0.00066, 1);
+        $thisMonthKm  = round((int) HealthEntry::withSteps()->thisMonth()->sum('steps') * 0.00066, 1);
 
         $personalRecords    = $this->personalRecords();
         $goalPerformance    = $this->goalPerformanceExtended((int) $stepGoal, $allGoals);
@@ -75,7 +76,7 @@ final class HealthStatsController extends Controller
             'weekdayPatterns',
             'monthlyHistory',
             'goalHistory',
-            'allTimeSteps', 'allTimeKm', 'thisYearKm',
+            'allTimeSteps', 'allTimeKm', 'thisYearKm', 'thisMonthKm',
             'distanceComparisons',
             'personalRecords',
             'goalPerformance',
@@ -416,11 +417,14 @@ final class HealthStatsController extends Controller
             ->limit(12)
             ->get()
             ->map(function ($row) {
+                $totalSteps = (int) $row->total_steps;
+
                 return [
-                    'month' => Carbon::createFromFormat('Y-m', $row->month)->format('F Y'),
-                    'entries' => $row->entries,
-                    'total_steps' => number_format((int) $row->total_steps),
-                    'avg_steps' => number_format((int) round((float) $row->avg_steps)),
+                    'month'       => Carbon::createFromFormat('Y-m', $row->month)->format('F Y'),
+                    'entries'     => $row->entries,
+                    'total_steps' => number_format($totalSteps),
+                    'avg_steps'   => number_format((int) round((float) $row->avg_steps)),
+                    'km'          => number_format(round($totalSteps * 0.00066, 1), 1),
                 ];
             });
     }

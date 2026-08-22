@@ -225,8 +225,8 @@
         <x-ui.card title="Streaks">
             <div class="health-streaks">
                 <div class="health-streaks__block">
-                    <div class="health-streaks__value">{{ $currentStreak }}</div>
-                    <div class="health-streaks__label">Current streak</div>
+                    <div class="health-streaks__value">{{ number_format($thisMonthKm, 1) }} <span class="health-streaks__unit">km</span></div>
+                    <div class="health-streaks__label">Distance this month</div>
                 </div>
                 <div class="health-streaks__divider"></div>
                 <div class="health-streaks__block">
@@ -431,6 +431,7 @@
                             <th>Month</th>
                             <th>Entries</th>
                             <th>Total steps</th>
+                            <th>Distance</th>
                             <th>Avg steps/day</th>
                         </tr>
                     </thead>
@@ -440,6 +441,7 @@
                                 <td>{{ $row['month'] }}</td>
                                 <td>{{ $row['entries'] }}</td>
                                 <td>{{ $row['total_steps'] }}</td>
+                                <td>{{ $row['km'] }} km</td>
                                 <td>{{ $row['avg_steps'] }}</td>
                             </tr>
                         @endforeach
