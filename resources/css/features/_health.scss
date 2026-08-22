@@ -457,3 +457,16 @@
     font-size: 0.6875rem;
     color:     var(--color-text-muted);
 }
+
+.health-bar-chart__bar--goal-zone {
+    background: rgba(99, 102, 241, 0.5);
+}
+
+.health-bar-chart__goal-marker {
+    display:          block;
+    font-size:        0.5625rem;
+    color:            var(--color-brand-light);
+    text-transform:   uppercase;
+    letter-spacing:   0.05em;
+    font-weight:      600;
+}

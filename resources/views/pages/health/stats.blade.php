@@ -184,6 +184,34 @@
             </div>
         </x-ui.card>
 
+        {{-- Steps distribution --}}
+        <x-ui.card title="Steps distribution" class="health-stats-grid__wide">
+            @if (array_sum(array_column($stepsDistribution, 'count')) > 0)
+                @php $maxCount = max(array_column($stepsDistribution, 'count')) ?: 1; @endphp
+                <div class="health-bar-chart">
+                    @foreach ($stepsDistribution as $bucket)
+                        <div class="health-bar-chart__column">
+                            <div class="health-bar-chart__bar-wrap">
+                                <div class="health-bar-chart__bar
+                                    {{ $bucket['isGoalZone'] ? 'health-bar-chart__bar--goal-zone' : '' }}"
+                                     style="height: {{ round(($bucket['count'] / $maxCount) * 100) }}%"
+                                     title="{{ $bucket['count'] }} days ({{ $bucket['percent'] }}%)"></div>
+                            </div>
+                            <div class="health-bar-chart__label">
+                                {{ $bucket['label'] }}
+                                @if ($bucket['isGoalZone'])
+                                    <span class="health-bar-chart__goal-marker">goal</span>
+                                @endif
+                            </div>
+                            <div class="health-bar-chart__value">{{ $bucket['count'] }}d · {{ $bucket['percent'] }}%</div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <x-ui.empty-state title="Not enough data yet" />
+            @endif
+        </x-ui.card>
+
         {{-- Weekday patterns --}}
         <x-ui.card title="Weekday patterns" class="health-stats-grid__wide">
             @if ($weekdayPatterns->sum('count') > 0)

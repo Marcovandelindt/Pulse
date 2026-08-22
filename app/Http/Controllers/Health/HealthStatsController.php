@@ -48,6 +48,7 @@ final class HealthStatsController extends Controller
 
         $personalRecords    = $this->personalRecords();
         $goalPerformance    = $this->goalPerformanceExtended((int) $stepGoal, $allGoals);
+        $stepsDistribution  = $this->stepsDistribution((int) $stepGoal);
 
         $distanceComparisons = collect([
             ['label' => 'Amsterdam → Paris',          'km' => 500],
@@ -75,7 +76,35 @@ final class HealthStatsController extends Controller
             'distanceComparisons',
             'personalRecords',
             'goalPerformance',
+            'stepsDistribution',
         ));
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function stepsDistribution(int $goal): array
+    {
+        $buckets = [
+            ['label' => '0–2.5k',   'min' => 0,     'max' => 2500],
+            ['label' => '2.5–5k',   'min' => 2500,  'max' => 5000],
+            ['label' => '5–7.5k',   'min' => 5000,  'max' => 7500],
+            ['label' => '7.5–10k',  'min' => 7500,  'max' => 10000],
+            ['label' => '10–12.5k', 'min' => 10000, 'max' => 12500],
+            ['label' => '12.5k+',   'min' => 12500, 'max' => PHP_INT_MAX],
+        ];
+
+        $entries = HealthEntry::withSteps()->pluck('steps');
+        $total   = $entries->count();
+
+        return collect($buckets)->map(function (array $bucket) use ($entries, $total, $goal) {
+            $count = $entries->filter(fn (int $s) => $s >= $bucket['min'] && $s < $bucket['max'])->count();
+
+            return [
+                'label'       => $bucket['label'],
+                'count'       => $count,
+                'percent'     => $total > 0 ? round(($count / $total) * 100) : 0,
+                'isGoalZone'  => $goal >= $bucket['min'] && $goal < $bucket['max'],
+            ];
+        })->all();
     }
 
     /**
