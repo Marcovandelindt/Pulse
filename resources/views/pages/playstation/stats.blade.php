@@ -39,10 +39,6 @@
                     </div>
                 @endif
                 <div class="psn-year-review__block">
-                    <div class="psn-year-review__value">{{ number_format($yearInReview['trophiesEarned']) }}</div>
-                    <div class="psn-year-review__label">Trophies earned</div>
-                </div>
-                <div class="psn-year-review__block">
                     <div class="psn-year-review__value">{{ number_format($yearInReview['newGames']) }}</div>
                     <div class="psn-year-review__label">New games started</div>
                 </div>
@@ -138,60 +134,6 @@
                 </div>
             @else
                 <x-ui.empty-state title="No sessions yet" />
-            @endif
-        </x-ui.card>
-
-        {{-- Trophy stats --}}
-        <x-ui.card title="Trophies">
-            <div class="psn-trophy-platinum">
-                <span class="psn-trophy-platinum__icon">🏆</span>
-                <div>
-                    <div class="psn-trophy-platinum__value">{{ number_format($trophyStats['platinum']) }}</div>
-                    <div class="psn-trophy-platinum__label">Platinums earned</div>
-                </div>
-            </div>
-
-            <div class="psn-trophy-types">
-                <div class="psn-trophy-type" style="--trophy-color: #c9a227;">
-                    <div class="psn-trophy-type__icon">🥇</div>
-                    <div class="psn-trophy-type__value">{{ number_format($trophyStats['gold']) }}</div>
-                    <div class="psn-trophy-type__label">Gold</div>
-                </div>
-                <div class="psn-trophy-type" style="--trophy-color: #9ea3a8;">
-                    <div class="psn-trophy-type__icon">🥈</div>
-                    <div class="psn-trophy-type__value">{{ number_format($trophyStats['silver']) }}</div>
-                    <div class="psn-trophy-type__label">Silver</div>
-                </div>
-                <div class="psn-trophy-type" style="--trophy-color: #b36a2a;">
-                    <div class="psn-trophy-type__icon">🥉</div>
-                    <div class="psn-trophy-type__value">{{ number_format($trophyStats['bronze']) }}</div>
-                    <div class="psn-trophy-type__label">Bronze</div>
-                </div>
-            </div>
-
-            <div class="psn-trophy-total">
-                {{ number_format($trophyStats['totalEarned']) }} trophies earned in total
-            </div>
-
-            @if ($trophyStats['monthlyEarned']->isNotEmpty())
-                @php $maxTrophies = $trophyStats['monthlyEarned']->max('count') ?: 1; @endphp
-                <div class="psn-trophy-chart">
-                    <div class="psn-trophy-chart__label">Monthly trophy velocity</div>
-                    <div class="health-bar-chart" style="height: 5rem;">
-                        @foreach ($trophyStats['monthlyEarned'] as $row)
-                            <div class="health-bar-chart__column">
-                                <div class="health-bar-chart__bar-wrap">
-                                    <div class="health-bar-chart__bar"
-                                         style="height: {{ round(($row['count'] / $maxTrophies) * 100) }}%; background: #c9a227; opacity: 0.7;"
-                                         title="{{ $row['count'] }} trophies in {{ $row['month'] }}"></div>
-                                </div>
-                                <div class="health-bar-chart__label" style="font-size: 0.5625rem;">
-                                    {{ substr($row['month'], 0, 3) }}
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
             @endif
         </x-ui.card>
 

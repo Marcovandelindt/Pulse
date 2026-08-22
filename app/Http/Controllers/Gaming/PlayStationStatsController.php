@@ -8,7 +8,6 @@ use App\Enums\BacklogStatus;
 use App\Http\Controllers\Controller;
 use App\Models\PlayStationGame;
 use App\Models\PlayStationSession;
-use App\Models\PlayStationTrophy;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -29,7 +28,6 @@ final class PlayStationStatsController extends Controller
         $hourlyPatterns  = $this->hourlyPatterns();
         $monthlyTrend    = $this->monthlyTrend();
         $libraryStats    = $this->libraryStats();
-        $trophyStats     = $this->trophyStats();
         $consistency     = $this->consistencyStats();
         $yearInReview    = $this->yearInReview();
 
@@ -39,7 +37,6 @@ final class PlayStationStatsController extends Controller
             'personalRecords',
             'weekdayPatterns', 'hourlyPatterns', 'monthlyTrend',
             'libraryStats',
-            'trophyStats',
             'consistency',
             'yearInReview',
         ));
@@ -181,7 +178,7 @@ final class PlayStationStatsController extends Controller
             ->selectRaw('backlog_status, COUNT(*) as count')
             ->groupBy('backlog_status')
             ->get()
-            ->mapWithKeys(fn ($r) => [$r->backlog_status => (int) $r->count]);
+            ->mapWithKeys(fn ($r) => [$r->backlog_status->value => (int) $r->count]);
 
         $statuses = collect(BacklogStatus::cases())->map(fn (BacklogStatus $s) => [
             'value' => $s->value,
@@ -214,42 +211,6 @@ final class PlayStationStatsController extends Controller
             'statusTotal'    => $total,
             'platformCounts' => $platformCounts,
             'avgCompletion'  => $avgCompletion,
-        ];
-    }
-
-    /** @return array<string, mixed> */
-    private function trophyStats(): array
-    {
-        $byType = PlayStationTrophy::query()
-            ->where('is_earned', true)
-            ->selectRaw('type, COUNT(*) as count')
-            ->groupBy('type')
-            ->get()
-            ->keyBy('type')
-            ->map(fn ($r) => (int) $r->count);
-
-        $monthlyEarned = PlayStationTrophy::query()
-            ->where('is_earned', true)
-            ->whereNotNull('earned_at')
-            ->selectRaw("DATE_FORMAT(earned_at, '%Y-%m') as month, COUNT(*) as count")
-            ->groupByRaw("DATE_FORMAT(earned_at, '%Y-%m')")
-            ->orderByDesc('month')
-            ->limit(12)
-            ->get()
-            ->map(fn ($row) => [
-                'month' => Carbon::createFromFormat('Y-m', $row->month)->format('M Y'),
-                'count' => (int) $row->count,
-            ])
-            ->sortBy('month')
-            ->values();
-
-        return [
-            'totalEarned'   => (int) $byType->sum(),
-            'platinum'      => (int) ($byType->get('platinum') ?? 0),
-            'gold'          => (int) ($byType->get('gold') ?? 0),
-            'silver'        => (int) ($byType->get('silver') ?? 0),
-            'bronze'        => (int) ($byType->get('bronze') ?? 0),
-            'monthlyEarned' => $monthlyEarned,
         ];
     }
 
@@ -355,11 +316,6 @@ final class PlayStationStatsController extends Controller
 
         $bestMonthNum = $byMonth->sortDesc()->keys()->first();
 
-        $trophiesThisYear = PlayStationTrophy::query()
-            ->where('is_earned', true)
-            ->whereYear('earned_at', $year)
-            ->count();
-
         $newGamesThisYear = PlayStationSession::query()
             ->selectRaw('play_station_game_id, MIN(started_at) as first_session')
             ->groupBy('play_station_game_id')
@@ -383,7 +339,6 @@ final class PlayStationStatsController extends Controller
             'uniqueGames'    => $thisUniqueGames,
             'bestMonth'      => $bestMonthNum ? $monthNames[$bestMonthNum] : null,
             'bestMonthHours' => $bestMonthNum ? round((float) $byMonth[$bestMonthNum] / 60, 1) : null,
-            'trophiesEarned' => $trophiesThisYear,
             'newGames'       => $newGamesThisYear,
             'vsLastYear'     => $vsLastYear,
         ];
