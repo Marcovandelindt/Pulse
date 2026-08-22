@@ -33,8 +33,8 @@ foreach ($series->seasons as $season) {
             favorite: '{{ route('tv.favorite', $series) }}',
         },
     })"
-    @keydown.escape.window="bulkOpen = false; watchOpen = false"
-    @keydown.enter.window="if (watchOpen) addWatch(); else if (bulkOpen) bulkWatch()"
+    @keydown.escape.window="bulkOpen = false; watchOpen = false; seasonBulkOpen = false"
+    @keydown.enter.window="if (watchOpen) addWatch(); else if (bulkOpen) bulkWatch(); else if (seasonBulkOpen) bulkWatchSeason()"
 >
 
     {{-- Backdrop hero --}}
@@ -203,24 +203,31 @@ foreach ($series->seasons as $season) {
                 @foreach ($series->seasons as $season)
                     @if ($season->season_number === 0) @continue @endif
                     <div class="media-season">
-                        <button type="button"
-                                class="media-season__header"
-                                @click="toggleSeason({{ $season->id }})">
-                            <svg x-bind:style="isSeasonOpen({{ $season->id }}) ? 'transform:rotate(90deg)' : ''"
-                                 class="media-season__arrow"
-                                 viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd"
-                                      d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-                                      clip-rule="evenodd" />
-                            </svg>
-                            <span class="media-season__name">{{ $season->name }}</span>
-                            @if ($season->air_date)
-                                <span class="media-season__meta">{{ $season->air_date->year }}</span>
-                            @endif
-                            <span class="media-season__progress"
-                                  x-text="`${watchedInSeason({{ $season->id }})} / {{ $season->episodes->count() }} watched`">
-                            </span>
-                        </button>
+                        <div class="media-season__header-wrap">
+                            <button type="button"
+                                    class="media-season__header"
+                                    @click="toggleSeason({{ $season->id }})">
+                                <svg x-bind:style="isSeasonOpen({{ $season->id }}) ? 'transform:rotate(90deg)' : ''"
+                                     class="media-season__arrow"
+                                     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd"
+                                          d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                                          clip-rule="evenodd" />
+                                </svg>
+                                <span class="media-season__name">{{ $season->name }}</span>
+                                @if ($season->air_date)
+                                    <span class="media-season__meta">{{ $season->air_date->year }}</span>
+                                @endif
+                                <span class="media-season__progress"
+                                      x-text="`${watchedInSeason({{ $season->id }})} / {{ $season->episodes->count() }} watched`">
+                                </span>
+                            </button>
+                            <button type="button"
+                                    class="btn btn--secondary btn--sm media-season__bulk-btn"
+                                    @click.stop="openBulkWatchSeason({{ $season->id }}, '{{ addslashes($season->name) }}')">
+                                Mark all watched
+                            </button>
+                        </div>
 
                         <div class="media-season__body"
                              x-show="isSeasonOpen({{ $season->id }})"
@@ -315,6 +322,47 @@ foreach ($series->seasons as $season) {
             <div class="modal__footer">
                 <button type="button" @click="watchOpen = false; pendingEpisodeId = null" class="btn btn--secondary">Cancel</button>
                 <button type="button" @click="addWatch()" class="btn btn--primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Season bulk mark watched modal --}}
+    <div class="modal" x-show="seasonBulkOpen" x-transition style="display:none;">
+        <div class="modal__backdrop" @click="seasonBulkOpen = false"></div>
+        <div class="modal__panel">
+            <div class="modal__header">
+                <h2 class="modal__title">Mark season as watched</h2>
+                <button @click="seasonBulkOpen = false" class="btn btn--icon btn--secondary" type="button">&times;</button>
+            </div>
+            <p class="text-sm text-[var(--color-text-muted)] mb-4">
+                This will mark all episodes of <strong x-text="pendingSeasonName"></strong> as watched once.
+            </p>
+            <div class="flex flex-col gap-4">
+                <div class="form-group">
+                    <label class="form-label">When did you watch?</label>
+                    <div class="flex flex-col gap-2 mt-2">
+                        <label class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer">
+                            <input type="radio" x-model="seasonBulkDateMode" value="year"> Year only (default)
+                        </label>
+                        <label class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer">
+                            <input type="radio" x-model="seasonBulkDateMode" value="exact"> Exact date
+                        </label>
+                        <label class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer">
+                            <input type="radio" x-model="seasonBulkDateMode" value="none"> No date
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group" x-show="seasonBulkDateMode === 'year'">
+                    <input type="number" x-model="seasonBulkYear" class="form-input"
+                           min="1900" max="{{ today()->year }}" placeholder="{{ today()->year }}">
+                </div>
+                <div class="form-group" x-show="seasonBulkDateMode === 'exact'">
+                    <input type="date" x-model="seasonBulkDate" class="form-input" max="{{ today()->format('Y-m-d') }}">
+                </div>
+            </div>
+            <div class="modal__footer">
+                <button type="button" @click="seasonBulkOpen = false" class="btn btn--secondary">Cancel</button>
+                <button type="button" @click="bulkWatchSeason()" class="btn btn--primary">Mark all watched</button>
             </div>
         </div>
     </div>

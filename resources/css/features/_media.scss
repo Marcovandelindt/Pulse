@@ -608,8 +608,18 @@
     background:    var(--color-bg-secondary);
 }
 
+.media-season__header-wrap {
+    display:     flex;
+    align-items: center;
+}
+
+.media-season__bulk-btn {
+    flex-shrink: 0;
+    margin-right: 0.75rem;
+}
+
 .media-season__header {
-    width:       100%;
+    flex:        1;
     display:     flex;
     align-items: center;
     gap:         0.75rem;

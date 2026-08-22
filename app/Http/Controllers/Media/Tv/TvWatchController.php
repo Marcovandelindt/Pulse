@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Media\Tv;
 
+use App\Actions\Media\Tv\BulkMarkSeasonWatched;
 use App\Actions\Media\Tv\BulkMarkSeriesWatched;
 use App\Actions\Media\Tv\BulkMarkUpToEpisode;
 use App\Actions\Media\Tv\DeleteEpisodeWatch;
@@ -14,6 +15,7 @@ use App\Http\Requests\Media\BulkWatchRequest;
 use App\Http\Requests\Media\MarkEpisodeWatchedRequest;
 use App\Models\EpisodeWatch;
 use App\Models\TvEpisode;
+use App\Models\TvSeason;
 use App\Models\TvSeries;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -55,6 +57,20 @@ final class TvWatchController extends Controller
             'episodes_watched' => $series->episodes_watched,
             'completion_percentage' => $series->completion_percentage,
         ]);
+    }
+
+    public function bulkStoreSeason(
+        BulkWatchRequest $request,
+        TvSeason $season,
+        BulkMarkSeasonWatched $action,
+    ): JsonResponse {
+        $watchedAt = $request->validated('watched_at')
+            ? Carbon::parse($request->validated('watched_at'))
+            : null;
+
+        $count = $action->handle($season, $watchedAt, (bool) $request->validated('year_only', false));
+
+        return response()->json(['episodes_watched' => $count]);
     }
 
     public function bulkUpTo(

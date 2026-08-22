@@ -37,6 +37,7 @@ Route::prefix('tv')->name('tv.')->group(function () {
     Route::patch('/{series}/favorite', [TvSeriesController::class, 'favorite'])->name('favorite');
     Route::post('/episodes/{episode}/watches', [TvWatchController::class,  'store'])->name('episodes.watches.store');
     Route::post('/episodes/{episode}/watches/bulk-up-to', [TvWatchController::class, 'bulkUpTo'])->name('episodes.watches.bulk-up-to');
+    Route::post('/seasons/{season}/watches/bulk', [TvWatchController::class, 'bulkStoreSeason'])->name('seasons.watches.bulk');
     Route::post('/{series}/watches/bulk', [TvWatchController::class,  'bulkStore'])->name('watches.bulk');
     Route::post('/{series}/refresh', [TvRefreshController::class,  'store'])->name('refresh');
     Route::post('/{series}/backdrop', [TvSeriesController::class,  'uploadBackdrop'])->name('backdrop');

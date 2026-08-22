@@ -180,6 +180,13 @@ export function registerTvComponents() {
         bulkDate: new Date().toISOString().slice(0, 10),
         bulkYear: String(new Date().getFullYear()),
 
+        seasonBulkOpen: false,
+        pendingSeasonId: null,
+        pendingSeasonName: '',
+        seasonBulkDateMode: 'year',
+        seasonBulkDate: new Date().toISOString().slice(0, 10),
+        seasonBulkYear: String(new Date().getFullYear()),
+
         refreshing: false,
 
         init() {
@@ -305,6 +312,34 @@ export function registerTvComponents() {
             });
             const data = await res.json();
             this.$dispatch('toast', { message: `Marked ${data.episodes_watched} episodes as watched!`, type: 'success' });
+            setTimeout(() => window.location.reload(), 1500);
+        },
+
+        openBulkWatchSeason(seasonId, seasonName) {
+            this.pendingSeasonId   = seasonId;
+            this.pendingSeasonName = seasonName;
+            this.seasonBulkOpen    = true;
+        },
+
+        async bulkWatchSeason() {
+            this.seasonBulkOpen = false;
+
+            let watchedAt = null;
+            let yearOnly  = false;
+            if (this.seasonBulkDateMode === 'exact') {
+                watchedAt = this.seasonBulkDate;
+            } else if (this.seasonBulkDateMode === 'year') {
+                watchedAt = this.seasonBulkYear + '-01-01';
+                yearOnly  = true;
+            }
+
+            const res = await fetch(`/tv/seasons/${this.pendingSeasonId}/watches/bulk`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf() },
+                body: JSON.stringify({ watched_at: watchedAt, year_only: yearOnly }),
+            });
+            const data = await res.json();
+            this.$dispatch('toast', { message: `${data.episodes_watched} episodes marked as watched!`, type: 'success' });
             setTimeout(() => window.location.reload(), 1500);
         },
 
