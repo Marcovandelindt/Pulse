@@ -119,6 +119,74 @@
     color:      #4ade80;
 }
 
+/* ── Year in review ───────────────────────────────── */
+
+.health-year-review {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.04) 100%);
+    border-color: rgba(99, 102, 241, 0.2) !important;
+}
+
+.health-year-review__header {
+    display:     flex;
+    align-items: baseline;
+    gap:         0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.health-year-review__year {
+    font-size:   2rem;
+    font-weight: 800;
+    color:       var(--color-brand-light);
+    line-height: 1;
+}
+
+.health-year-review__title {
+    font-size:   1rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+}
+
+.health-year-review__vs {
+    margin-left: auto;
+    font-size:   0.875rem;
+    font-weight: 600;
+}
+
+.health-year-review__vs--up   { color: #4ade80; }
+.health-year-review__vs--down { color: #f87171; }
+
+.health-year-review__grid {
+    display:               grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:                   1.25rem;
+}
+
+@media (max-width: 768px) {
+    .health-year-review__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.health-year-review__block {
+    border-left:  2px solid var(--color-border);
+    padding-left: 0.875rem;
+}
+
+.health-year-review__value {
+    font-size:   1.5rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+    line-height: 1.1;
+}
+
+.health-year-review__value--sm {
+    font-size: 1.125rem;
+}
+
+.health-year-review__label {
+    font-size:   0.75rem;
+    color:       var(--color-text-muted);
+    margin-top:  0.25rem;
+}
+
 /* ── Distance milestones ──────────────────────────── */
 
 .health-distance-refs {

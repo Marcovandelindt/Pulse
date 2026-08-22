@@ -51,6 +51,7 @@ final class HealthStatsController extends Controller
         $stepsDistribution  = $this->stepsDistribution((int) $stepGoal);
         $consistency        = $this->consistencyStats();
         $seasonalPatterns   = $this->seasonalPatterns();
+        $yearInReview       = $this->yearInReview((int) $stepGoal, $allGoals);
 
         $distanceComparisons = collect([
             ['label' => 'Amsterdam → Paris',          'km' => 500],
@@ -81,7 +82,69 @@ final class HealthStatsController extends Controller
             'stepsDistribution',
             'consistency',
             'seasonalPatterns',
+            'yearInReview',
         ));
+    }
+
+    /**
+     * @param Collection<int, StepGoal> $allGoals
+     * @return array<string, mixed>
+     */
+    private function yearInReview(int $currentGoal, Collection $allGoals): array
+    {
+        $year     = now()->year;
+        $lastYear = $year - 1;
+
+        $thisYearEntries = HealthEntry::withSteps()->whereYear('date', $year)->get(['date', 'steps']);
+        $lastYearEntries = HealthEntry::withSteps()->whereYear('date', $lastYear)
+            ->where('date', '<=', now()->subYear())
+            ->get(['date', 'steps']);
+
+        if ($thisYearEntries->isEmpty()) {
+            return ['hasData' => false, 'year' => $year];
+        }
+
+        $thisYearSteps = $thisYearEntries->sum('steps');
+        $thisYearKm    = round($thisYearSteps * 0.00075, 1);
+        $thisYearGoalMet = $thisYearEntries->filter(fn ($e) => ($e->steps ?? 0) >= $currentGoal)->count();
+        $thisYearGoalRate = $thisYearEntries->count() > 0
+            ? round(($thisYearGoalMet / $thisYearEntries->count()) * 100)
+            : 0;
+
+        $byMonth = $thisYearEntries
+            ->groupBy(fn ($e) => $e->date->month)
+            ->map(fn ($group) => (int) round($group->avg('steps')));
+
+        $bestMonthNum  = $byMonth->sortDesc()->keys()->first();
+        $worstMonthNum = $byMonth->sort()->keys()->first();
+        $monthNames    = [1=>'January',2=>'February',3=>'March',4=>'April',5=>'May',6=>'June',
+                          7=>'July',8=>'August',9=>'September',10=>'October',11=>'November',12=>'December'];
+
+        $byWeekday = $thisYearEntries
+            ->groupBy(fn ($e) => $e->date->dayOfWeekIso)
+            ->map(fn ($group) => (int) round($group->avg('steps')));
+        $weekdayNames = [1=>'Monday',2=>'Tuesday',3=>'Wednesday',4=>'Thursday',5=>'Friday',6=>'Saturday',7=>'Sunday'];
+        $bestWeekdayNum = $byWeekday->sortDesc()->keys()->first();
+
+        $lastYearSteps = $lastYearEntries->sum('steps');
+        $vsLastYear = $lastYearSteps > 0
+            ? round((($thisYearSteps - $lastYearSteps) / $lastYearSteps) * 100, 1)
+            : null;
+
+        return [
+            'hasData'       => true,
+            'year'          => $year,
+            'totalSteps'    => $thisYearSteps,
+            'totalKm'       => $thisYearKm,
+            'goalRate'      => $thisYearGoalRate,
+            'daysLogged'    => $thisYearEntries->count(),
+            'bestMonth'     => $bestMonthNum ? $monthNames[$bestMonthNum] : null,
+            'bestMonthAvg'  => $bestMonthNum ? $byMonth[$bestMonthNum] : null,
+            'worstMonth'    => $worstMonthNum ? $monthNames[$worstMonthNum] : null,
+            'worstMonthAvg' => $worstMonthNum ? $byMonth[$worstMonthNum] : null,
+            'bestWeekday'   => $bestWeekdayNum ? $weekdayNames[$bestWeekdayNum] : null,
+            'vsLastYear'    => $vsLastYear,
+        ];
     }
 
     /** @return array<string, mixed> */

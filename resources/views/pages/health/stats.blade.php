@@ -7,6 +7,58 @@
         </x-slot:actions>
     </x-layout.page-header>
 
+    {{-- Year in review --}}
+    @if ($yearInReview['hasData'])
+        <x-ui.card class="health-year-review mb-6">
+            <div class="health-year-review__header">
+                <span class="health-year-review__year">{{ $yearInReview['year'] }}</span>
+                <span class="health-year-review__title">Year in review</span>
+                @if ($yearInReview['vsLastYear'] !== null)
+                    <span class="health-year-review__vs {{ $yearInReview['vsLastYear'] >= 0 ? 'health-year-review__vs--up' : 'health-year-review__vs--down' }}">
+                        {{ $yearInReview['vsLastYear'] >= 0 ? '+' : '' }}{{ $yearInReview['vsLastYear'] }}% vs {{ $yearInReview['year'] - 1 }}
+                    </span>
+                @endif
+            </div>
+
+            <div class="health-year-review__grid">
+                <div class="health-year-review__block">
+                    <div class="health-year-review__value">{{ number_format($yearInReview['totalSteps']) }}</div>
+                    <div class="health-year-review__label">Total steps</div>
+                </div>
+                <div class="health-year-review__block">
+                    <div class="health-year-review__value">{{ number_format($yearInReview['totalKm'], 1) }} km</div>
+                    <div class="health-year-review__label">Distance walked</div>
+                </div>
+                <div class="health-year-review__block">
+                    <div class="health-year-review__value">{{ $yearInReview['goalRate'] }}%</div>
+                    <div class="health-year-review__label">Goal achievement</div>
+                </div>
+                <div class="health-year-review__block">
+                    <div class="health-year-review__value">{{ number_format($yearInReview['daysLogged']) }}</div>
+                    <div class="health-year-review__label">Days logged</div>
+                </div>
+                @if ($yearInReview['bestMonth'])
+                    <div class="health-year-review__block">
+                        <div class="health-year-review__value health-year-review__value--sm">{{ $yearInReview['bestMonth'] }}</div>
+                        <div class="health-year-review__label">Best month · {{ number_format($yearInReview['bestMonthAvg']) }} avg</div>
+                    </div>
+                @endif
+                @if ($yearInReview['worstMonth'])
+                    <div class="health-year-review__block">
+                        <div class="health-year-review__value health-year-review__value--sm">{{ $yearInReview['worstMonth'] }}</div>
+                        <div class="health-year-review__label">Quietest month · {{ number_format($yearInReview['worstMonthAvg']) }} avg</div>
+                    </div>
+                @endif
+                @if ($yearInReview['bestWeekday'])
+                    <div class="health-year-review__block">
+                        <div class="health-year-review__value health-year-review__value--sm">{{ $yearInReview['bestWeekday'] }}</div>
+                        <div class="health-year-review__label">Most active day</div>
+                    </div>
+                @endif
+            </div>
+        </x-ui.card>
+    @endif
+
     {{-- All-time totals --}}
     <div class="stats-row mb-6">
         <x-stats.stat-card label="Total steps" :value="number_format($allTimeSteps)" icon="heart" />
