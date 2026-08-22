@@ -167,7 +167,7 @@
                 <div class="flex flex-wrap gap-2">
                     <template x-for="watch in watches" :key="watch.id">
                         <span class="ep-watch-badge ep-watch-badge--lg">
-                            <span class="ep-watch-badge__date" x-text="watch.date || 'Date unknown'"></span>
+                            <span class="ep-watch-badge__date" x-text="watch.date || 'Somewhere in your life'"></span>
                             <span class="ep-watch-badge__rating" x-show="watch.rating" x-text="'· ★' + watch.rating"></span>
                             <button
                                 class="ep-watch-badge__delete"

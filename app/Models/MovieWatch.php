@@ -32,7 +32,7 @@ final class MovieWatch extends Model
     public function formattedWatchedAt(): string
     {
         if ($this->watched_at === null) {
-            return 'Date unknown';
+            return 'Somewhere in your life';
         }
 
         return $this->year_only
