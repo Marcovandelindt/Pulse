@@ -135,6 +135,38 @@
                 </div>
                 <div class="health-goal-rate__goal-label">Goal: {{ number_format($stepGoal) }} steps/day</div>
             </div>
+
+            <div class="health-goal-tiers">
+                <div class="health-goal-tier health-goal-tier--good">
+                    <div class="health-goal-tier__value">{{ number_format($goalPerformance['above150']) }}</div>
+                    <div class="health-goal-tier__label">Days above 150%</div>
+                </div>
+                <div class="health-goal-tier health-goal-tier--great">
+                    <div class="health-goal-tier__value">{{ number_format($goalPerformance['above200']) }}</div>
+                    <div class="health-goal-tier__label">Days above 200%</div>
+                </div>
+                <div class="health-goal-tier health-goal-tier--low">
+                    <div class="health-goal-tier__value">{{ number_format($goalPerformance['below50']) }}</div>
+                    <div class="health-goal-tier__label">Days below 50%</div>
+                </div>
+            </div>
+
+            @if ($goalPerformance['avgStepsMet'] || $goalPerformance['avgStepsMissed'])
+                <div class="health-goal-avg-compare">
+                    @if ($goalPerformance['avgStepsMet'])
+                        <div class="health-goal-avg-compare__block health-goal-avg-compare__block--met">
+                            <div class="health-goal-avg-compare__value">{{ number_format($goalPerformance['avgStepsMet']) }}</div>
+                            <div class="health-goal-avg-compare__label">avg on goal days</div>
+                        </div>
+                    @endif
+                    @if ($goalPerformance['avgStepsMissed'])
+                        <div class="health-goal-avg-compare__block health-goal-avg-compare__block--missed">
+                            <div class="health-goal-avg-compare__value">{{ number_format($goalPerformance['avgStepsMissed']) }}</div>
+                            <div class="health-goal-avg-compare__label">avg on missed days</div>
+                        </div>
+                    @endif
+                </div>
+            @endif
         </x-ui.card>
 
         {{-- Streaks --}}
@@ -166,6 +198,28 @@
                             </div>
                             <div class="health-bar-chart__label">{{ $day['label'] }}</div>
                             <div class="health-bar-chart__value">{{ number_format($day['avg_steps']) }}</div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <x-ui.empty-state title="Not enough data yet" />
+            @endif
+        </x-ui.card>
+
+        {{-- Goal rate by month --}}
+        <x-ui.card title="Goal achievement by month" class="health-stats-grid__wide">
+            @if ($goalPerformance['goalByMonth']->isNotEmpty())
+                @php $maxRate = $goalPerformance['goalByMonth']->max('rate') ?: 1; @endphp
+                <div class="health-bar-chart health-bar-chart--goal-month">
+                    @foreach ($goalPerformance['goalByMonth'] as $row)
+                        <div class="health-bar-chart__column">
+                            <div class="health-bar-chart__bar-wrap">
+                                <div class="health-bar-chart__bar {{ $row['rate'] >= 80 ? 'health-bar-chart__bar--goal' : '' }}"
+                                     style="height: {{ round(($row['rate'] / $maxRate) * 100) }}%"
+                                     title="{{ $row['rate'] }}% — {{ $row['met'] }}/{{ $row['total'] }} days"></div>
+                            </div>
+                            <div class="health-bar-chart__label">{{ $row['month'] }}</div>
+                            <div class="health-bar-chart__value">{{ $row['rate'] }}%</div>
                         </div>
                     @endforeach
                 </div>

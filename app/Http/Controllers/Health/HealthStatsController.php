@@ -46,7 +46,8 @@ final class HealthStatsController extends Controller
         $allTimeKm    = round($allTimeSteps * 0.00075, 1);
         $thisYearKm   = round((int) HealthEntry::withSteps()->whereYear('date', now()->year)->sum('steps') * 0.00075, 1);
 
-        $personalRecords = $this->personalRecords();
+        $personalRecords    = $this->personalRecords();
+        $goalPerformance    = $this->goalPerformanceExtended((int) $stepGoal, $allGoals);
 
         $distanceComparisons = collect([
             ['label' => 'Amsterdam → Paris',          'km' => 500],
@@ -73,7 +74,67 @@ final class HealthStatsController extends Controller
             'allTimeSteps', 'allTimeKm', 'thisYearKm',
             'distanceComparisons',
             'personalRecords',
+            'goalPerformance',
         ));
+    }
+
+    /**
+     * @param Collection<int, StepGoal> $allGoals
+     * @return array<string, mixed>
+     */
+    private function goalPerformanceExtended(int $currentGoal, Collection $allGoals): array
+    {
+        $entries = HealthEntry::withSteps()->get(['date', 'steps']);
+
+        $above150 = 0;
+        $above200 = 0;
+        $below50  = 0;
+        $sumMet   = 0;
+        $countMet = 0;
+        $sumMissed   = 0;
+        $countMissed = 0;
+
+        foreach ($entries as $entry) {
+            $goal = $allGoals->first(fn (StepGoal $g) => ! $g->effective_from->isAfter($entry->date))?->steps ?? 10000;
+            $steps = $entry->steps ?? 0;
+            $pct = $goal > 0 ? ($steps / $goal) : 0;
+
+            if ($pct >= 2.0) $above200++;
+            if ($pct >= 1.5) $above150++;
+            if ($pct < 0.5)  $below50++;
+
+            if ($steps >= $goal) {
+                $sumMet += $steps;
+                $countMet++;
+            } else {
+                $sumMissed += $steps;
+                $countMissed++;
+            }
+        }
+
+        $goalByMonth = HealthEntry::withSteps()
+            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, COUNT(*) as total, SUM(CASE WHEN steps >= ? THEN 1 ELSE 0 END) as met', [$currentGoal])
+            ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
+            ->orderByDesc('month')
+            ->limit(12)
+            ->get()
+            ->map(fn ($row) => [
+                'month'   => Carbon::createFromFormat('Y-m', $row->month)->format('M Y'),
+                'rate'    => $row->total > 0 ? round(($row->met / $row->total) * 100) : 0,
+                'met'     => (int) $row->met,
+                'total'   => (int) $row->total,
+            ])
+            ->sortBy('month')
+            ->values();
+
+        return [
+            'above150'       => $above150,
+            'above200'       => $above200,
+            'below50'        => $below50,
+            'avgStepsMet'    => $countMet > 0 ? (int) round($sumMet / $countMet) : null,
+            'avgStepsMissed' => $countMissed > 0 ? (int) round($sumMissed / $countMissed) : null,
+            'goalByMonth'    => $goalByMonth,
+        ];
     }
 
     /** @return array<string, mixed> */

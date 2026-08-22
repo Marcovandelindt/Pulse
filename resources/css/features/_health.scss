@@ -212,6 +212,69 @@
     opacity:     0.7;
 }
 
+/* ── Goal performance extended ────────────────────── */
+
+.health-goal-tiers {
+    display:               grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:                   0.75rem;
+    margin-top:            1rem;
+    padding-top:           1rem;
+    border-top:            1px solid var(--color-border);
+}
+
+.health-goal-tier {
+    text-align: center;
+}
+
+.health-goal-tier__value {
+    font-size:   1.25rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.health-goal-tier__label {
+    font-size:  0.6875rem;
+    color:      var(--color-text-muted);
+    margin-top: 0.25rem;
+}
+
+.health-goal-tier--good  .health-goal-tier__value { color: #4ade80; }
+.health-goal-tier--great .health-goal-tier__value { color: #a78bfa; }
+.health-goal-tier--low   .health-goal-tier__value { color: #f87171; }
+
+.health-goal-avg-compare {
+    display:     flex;
+    gap:         1rem;
+    margin-top:  1rem;
+    padding-top: 1rem;
+    border-top:  1px solid var(--color-border);
+}
+
+.health-goal-avg-compare__block {
+    flex:       1;
+    text-align: center;
+}
+
+.health-goal-avg-compare__value {
+    font-size:   1.125rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.health-goal-avg-compare__label {
+    font-size:  0.6875rem;
+    color:      var(--color-text-muted);
+    margin-top: 0.25rem;
+}
+
+.health-goal-avg-compare__block--met    .health-goal-avg-compare__value { color: #4ade80; }
+.health-goal-avg-compare__block--missed .health-goal-avg-compare__value { color: #f87171; }
+
+.health-bar-chart--goal-month {
+    height: 12rem;
+}
+
 /* ── Stats page ───────────────────────────────────── */
 
 .health-stats-grid {
