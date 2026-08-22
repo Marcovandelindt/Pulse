@@ -49,6 +49,7 @@ final class HealthStatsController extends Controller
         $personalRecords    = $this->personalRecords();
         $goalPerformance    = $this->goalPerformanceExtended((int) $stepGoal, $allGoals);
         $stepsDistribution  = $this->stepsDistribution((int) $stepGoal);
+        $consistency        = $this->consistencyStats();
 
         $distanceComparisons = collect([
             ['label' => 'Amsterdam → Paris',          'km' => 500],
@@ -77,7 +78,53 @@ final class HealthStatsController extends Controller
             'personalRecords',
             'goalPerformance',
             'stepsDistribution',
+            'consistency',
         ));
+    }
+
+    /** @return array<string, mixed> */
+    private function consistencyStats(): array
+    {
+        $dates = HealthEntry::withSteps()
+            ->orderBy('date')
+            ->pluck('date');
+
+        if ($dates->isEmpty()) {
+            return ['logRate' => 0, 'loggingStreak' => 0, 'avgGap' => null, 'missedDays' => 0];
+        }
+
+        $first       = $dates->first();
+        $last        = $dates->last();
+        $totalSpan   = $first->diffInDays($last) + 1;
+        $logRate     = $totalSpan > 0 ? round(($dates->count() / $totalSpan) * 100) : 100;
+        $missedDays  = $totalSpan - $dates->count();
+
+        // Longest logging streak (consecutive days with any entry)
+        $longestLogging = 0;
+        $runningLogging = 1;
+        $gaps = [];
+
+        for ($i = 1; $i < $dates->count(); $i++) {
+            $diff = $dates[$i - 1]->diffInDays($dates[$i]);
+            $gaps[] = $diff;
+
+            if ($diff === 1) {
+                $runningLogging++;
+                $longestLogging = max($longestLogging, $runningLogging);
+            } else {
+                $runningLogging = 1;
+            }
+        }
+
+        $longestLogging = max($longestLogging, $runningLogging);
+        $avgGap = count($gaps) > 0 ? round(array_sum($gaps) / count($gaps), 1) : null;
+
+        return [
+            'logRate'        => $logRate,
+            'loggingStreak'  => $longestLogging,
+            'avgGap'         => $avgGap,
+            'missedDays'     => $missedDays,
+        ];
     }
 
     /** @return array<int, array<string, mixed>> */

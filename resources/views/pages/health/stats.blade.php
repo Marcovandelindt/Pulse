@@ -212,6 +212,34 @@
             @endif
         </x-ui.card>
 
+        {{-- Consistency --}}
+        <x-ui.card title="Consistency" class="health-stats-grid__wide">
+            <div class="health-consistency">
+                <div class="health-consistency__block">
+                    <div class="health-consistency__value">{{ $consistency['logRate'] }}%</div>
+                    <div class="health-consistency__label">Logging rate</div>
+                    <div class="health-consistency__sub">Days logged since first entry</div>
+                </div>
+                <div class="health-consistency__block">
+                    <div class="health-consistency__value">{{ number_format($consistency['loggingStreak']) }}</div>
+                    <div class="health-consistency__label">Longest logging streak</div>
+                    <div class="health-consistency__sub">Consecutive days with any entry</div>
+                </div>
+                <div class="health-consistency__block">
+                    <div class="health-consistency__value">
+                        {{ $consistency['avgGap'] !== null ? $consistency['avgGap'] . 'd' : '—' }}
+                    </div>
+                    <div class="health-consistency__label">Avg gap between entries</div>
+                    <div class="health-consistency__sub">Days between consecutive logs</div>
+                </div>
+                <div class="health-consistency__block">
+                    <div class="health-consistency__value">{{ number_format($consistency['missedDays']) }}</div>
+                    <div class="health-consistency__label">Unlogged days</div>
+                    <div class="health-consistency__sub">Since first entry</div>
+                </div>
+            </div>
+        </x-ui.card>
+
         {{-- Weekday patterns --}}
         <x-ui.card title="Weekday patterns" class="health-stats-grid__wide">
             @if ($weekdayPatterns->sum('count') > 0)
