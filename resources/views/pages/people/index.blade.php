@@ -31,7 +31,13 @@
                         @endif
                     </div>
                 </div>
-                <div class="people-index__total">{{ $person->movies_count + $person->tv_series_count }}</div>
+                @php
+                    $mins = (int) $person->watch_minutes;
+                    $h = intdiv($mins, 60);
+                    $m = $mins % 60;
+                    $watchTime = $h > 0 ? ($m > 0 ? "{$h}h {$m}m" : "{$h}h") : ($m > 0 ? "{$m}m" : '—');
+                @endphp
+                <div class="people-index__total" title="{{ $mins }} minutes">{{ $watchTime }}</div>
             </a>
         @endforeach
     </div>

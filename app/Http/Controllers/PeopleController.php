@@ -21,6 +21,26 @@ final class PeopleController extends Controller
             ])
             ->addSelect(DB::raw("(
                 SELECT COALESCE(SUM(
+                    CASE WHEN m.runtime IS NOT NULL THEN m.runtime ELSE 0 END
+                    * COALESCE(m.watch_count, 1)
+                ), 0)
+                FROM movie_person mp
+                INNER JOIN movies m ON m.id = mp.movie_id
+                WHERE mp.person_id = people.id AND mp.department = 'Acting'
+            ) + (
+                SELECT COALESCE(SUM(
+                    CASE
+                        WHEN tsp.episode_count IS NOT NULL AND ts.number_of_episodes > 0
+                        THEN (tsp.episode_count / ts.number_of_episodes) * ts.watched_runtime_minutes
+                        ELSE ts.watched_runtime_minutes
+                    END
+                ), 0)
+                FROM tv_series_person tsp
+                INNER JOIN tv_series ts ON ts.id = tsp.tv_series_id
+                WHERE tsp.person_id = people.id AND tsp.department = 'Acting'
+            ) as watch_minutes"))
+            ->addSelect(DB::raw("(
+                SELECT COALESCE(SUM(
                     (CASE WHEN m.runtime IS NOT NULL THEN m.runtime / 60.0 ELSE 1.0 END)
                     * COALESCE(m.watch_count, 1)
                     * CASE WHEN mp.cast_order IS NOT NULL AND mp.cast_order <= 2 THEN 1.5 ELSE 1.0 END
