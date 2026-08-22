@@ -51,11 +51,11 @@ final class HealthEntryController extends Controller
         $goalMetCount = $entries->filter(
             fn (HealthEntry $e) => $e->meetsStepGoal($calendarGoals[$e->date->format('Y-m-d')] ?? $stepGoal)
         )->count();
-        $streak = $this->currentStreak($allGoals);
+        $thisMonthKm = round((int) $entries->whereNotNull('steps')->sum('steps') * 0.00066, 1);
 
         return view('pages.health.index', compact(
             'month', 'entries', 'stepGoal', 'calendarGoals', 'daysInMonth',
-            'entryCount', 'avgSteps', 'goalMetCount', 'streak',
+            'entryCount', 'avgSteps', 'goalMetCount', 'thisMonthKm',
         ));
     }
 

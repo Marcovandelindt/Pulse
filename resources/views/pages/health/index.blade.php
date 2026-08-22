@@ -42,8 +42,8 @@
             :value="$entryCount > 0 ? $goalMetCount . ' / ' . $entryCount . ' days' : '—'"
         />
         <x-stats.stat-card
-            label="Current streak"
-            :value="$streak . ($streak === 1 ? ' day' : ' days')"
+            label="Km this month"
+            :value="number_format($thisMonthKm, 1, '.', '') . ' km'"
         />
     </div>
 
