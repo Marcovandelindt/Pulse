@@ -45,4 +45,5 @@ Route::prefix('tv')->name('tv.')->group(function () {
     Route::delete('/{series}', [TvSeriesController::class,         'destroy'])->name('destroy');
 });
 
+Route::get('/people', [PeopleController::class, 'index'])->name('people.index');
 Route::get('/people/{person}', [PeopleController::class, 'show'])->name('people.show');

@@ -1061,3 +1061,83 @@
     color:      var(--color-text-muted);
     margin-top: 0.25rem;
 }
+
+/* ── People index ─────────────────────────────────── */
+
+.people-index {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.375rem;
+}
+
+.people-index__card {
+    display:       flex;
+    align-items:   center;
+    gap:           1rem;
+    padding:       0.75rem 1rem;
+    background:    var(--color-bg-secondary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color:         inherit;
+    transition:    background var(--transition-base), border-color var(--transition-base);
+
+    &:hover {
+        background:   var(--color-bg-tertiary);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+}
+
+.people-index__rank {
+    font-size:   0.8125rem;
+    font-weight: 600;
+    color:       var(--color-text-muted);
+    width:       2rem;
+    text-align:  right;
+    flex-shrink: 0;
+}
+
+.people-index__photo {
+    width:         3rem;
+    height:        3rem;
+    border-radius: 50%;
+    object-fit:    cover;
+    flex-shrink:   0;
+    background:    var(--color-bg-tertiary);
+}
+
+.people-index__info {
+    flex:     1;
+    min-width: 0;
+}
+
+.people-index__name {
+    font-weight:   600;
+    font-size:     0.9375rem;
+    color:         var(--color-text-primary);
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
+.people-index__native {
+    font-size: 0.8125rem;
+    color:     var(--color-text-muted);
+}
+
+.people-index__counts {
+    display:    flex;
+    gap:        0.375rem;
+    margin-top: 0.375rem;
+    flex-wrap:  wrap;
+}
+
+.people-index__total {
+    font-size:   1.25rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+    flex-shrink: 0;
+    min-width:   2rem;
+    text-align:  right;
+}
+

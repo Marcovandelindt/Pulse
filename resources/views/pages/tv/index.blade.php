@@ -42,6 +42,7 @@
     <x-layout.page-header title="TV Series">
         <x-slot:actions>
             <button @click="enterSleep()" class="btn btn--secondary btn--sm" x-show="sleepItems.length > 0" style="display:none;">☾ Sleep</button>
+            <a href="{{ route('people.index') }}" class="btn btn--secondary btn--sm">People</a>
             <a href="{{ route('tv.stats') }}" class="btn btn--secondary btn--sm">Statistics</a>
             <button @click="addOpen = true" class="btn btn--primary btn--sm">+ Add Series</button>
         </x-slot:actions>

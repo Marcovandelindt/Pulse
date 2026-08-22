@@ -6,11 +6,44 @@ namespace App\Http\Controllers;
 
 use App\Models\Person;
 use Carbon\Carbon;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 
 final class PeopleController extends Controller
 {
+    public function index(): View
+    {
+        $people = Person::query()
+            ->withCount([
+                'movies'   => fn ($q) => $q->where('movie_person.department', 'Acting'),
+                'tvSeries' => fn ($q) => $q->where('tv_series_person.department', 'Acting'),
+            ])
+            ->addSelect(DB::raw("(
+                SELECT COUNT(*) FROM movie_person
+                WHERE person_id = people.id AND department = 'Acting'
+            ) + (
+                SELECT COALESCE(SUM(
+                    CASE
+                        WHEN tsp.episode_count IS NOT NULL AND ts.number_of_episodes > 0
+                        THEN tsp.episode_count / ts.number_of_episodes
+                        ELSE 1
+                    END
+                ), 0)
+                FROM tv_series_person tsp
+                INNER JOIN tv_series ts ON ts.id = tsp.tv_series_id
+                WHERE tsp.person_id = people.id AND tsp.department = 'Acting'
+            ) as prominence_score"))
+            ->where(function ($q) {
+                $q->whereHas('movies', fn ($q) => $q->where('movie_person.department', 'Acting'))
+                  ->orWhereHas('tvSeries', fn ($q) => $q->where('tv_series_person.department', 'Acting'));
+            })
+            ->orderByDesc('prominence_score')
+            ->paginate(25);
+
+        return view('pages.people.index', compact('people'));
+    }
+
     public function show(Person $person): View
     {
         $movies = $person->movies()->with('watches')->get();
