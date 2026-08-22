@@ -134,32 +134,39 @@ foreach ($series->seasons as $season) {
                             <div class="media-detail__stat-label">TMDB rating</div>
                         </div>
                     @endif
-                    <div class="media-detail__stat media-detail__stat--interactive" @click="ratingEditing = true">
-                        <template x-if="!ratingEditing">
-                            <div>
-                                <div class="media-detail__stat-value" x-text="userRating ? '★ ' + userRating : '—'"></div>
-                                <div class="media-detail__stat-label">your rating</div>
-                            </div>
-                        </template>
-                        <template x-if="ratingEditing">
-                            <div @click.stop>
-                                <input
-                                    type="number"
-                                    x-model="ratingInput"
-                                    x-ref="ratingInput"
-                                    x-effect="if (ratingEditing) $nextTick(() => $refs.ratingInput.focus())"
-                                    @blur="saveRating()"
-                                    @keydown.enter="saveRating()"
-                                    @keydown.escape="ratingEditing = false; ratingInput = userRating ?? ''"
-                                    class="form-input"
-                                    min="1" max="10" step="0.1"
-                                    placeholder="1–10"
-                                    style="width:5rem; padding: 0.25rem 0.5rem; font-size:0.875rem;"
-                                >
-                                <div class="media-detail__stat-label">your rating</div>
-                            </div>
-                        </template>
-                    </div>
+                    @if ($series->completion_percentage < 100)
+                        <div class="media-detail__stat">
+                            <div class="media-detail__stat-value">{{ round($series->completion_percentage) }}%</div>
+                            <div class="media-detail__stat-label">completion</div>
+                        </div>
+                    @else
+                        <div class="media-detail__stat media-detail__stat--interactive" @click="ratingEditing = true">
+                            <template x-if="!ratingEditing">
+                                <div>
+                                    <div class="media-detail__stat-value" x-text="userRating ? '★ ' + userRating : '—'"></div>
+                                    <div class="media-detail__stat-label">your rating</div>
+                                </div>
+                            </template>
+                            <template x-if="ratingEditing">
+                                <div @click.stop>
+                                    <input
+                                        type="number"
+                                        x-model="ratingInput"
+                                        x-ref="ratingInput"
+                                        x-effect="if (ratingEditing) $nextTick(() => $refs.ratingInput.focus())"
+                                        @blur="saveRating()"
+                                        @keydown.enter="saveRating()"
+                                        @keydown.escape="ratingEditing = false; ratingInput = userRating ?? ''"
+                                        class="form-input"
+                                        min="1" max="10" step="0.1"
+                                        placeholder="1–10"
+                                        style="width:5rem; padding: 0.25rem 0.5rem; font-size:0.875rem;"
+                                    >
+                                    <div class="media-detail__stat-label">your rating</div>
+                                </div>
+                            </template>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
