@@ -43,8 +43,8 @@ final class HealthStatsController extends Controller
         $goalHistory = StepGoal::orderByDesc('effective_from')->get();
 
         $allTimeSteps = (int) HealthEntry::withSteps()->sum('steps');
-        $allTimeKm    = round($allTimeSteps * 0.00075, 1);
-        $thisYearKm   = round((int) HealthEntry::withSteps()->whereYear('date', now()->year)->sum('steps') * 0.00075, 1);
+        $allTimeKm    = round($allTimeSteps * 0.00066, 1);
+        $thisYearKm   = round((int) HealthEntry::withSteps()->whereYear('date', now()->year)->sum('steps') * 0.00066, 1);
 
         $personalRecords    = $this->personalRecords();
         $goalPerformance    = $this->goalPerformanceExtended((int) $stepGoal, $allGoals);
@@ -105,7 +105,7 @@ final class HealthStatsController extends Controller
         }
 
         $thisYearSteps = $thisYearEntries->sum('steps');
-        $thisYearKm    = round($thisYearSteps * 0.00075, 1);
+        $thisYearKm    = round($thisYearSteps * 0.00066, 1);
         $thisYearGoalMet = $thisYearEntries->filter(fn ($e) => ($e->steps ?? 0) >= $currentGoal)->count();
         $thisYearGoalRate = $thisYearEntries->count() > 0
             ? round(($thisYearGoalMet / $thisYearEntries->count()) * 100)

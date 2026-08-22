@@ -330,7 +330,7 @@ if ($entry->meetsGoal())
 
 ```php
 // ✅ wel — niet-obvius waarom
-$totalKm = $steps * 0.00075; // gemiddeld 75 cm per stap
+$totalKm = $steps * 0.00066; // stap lengte Marco = 66 cm
 
 // ❌ niet — legt uit WAT de code doet
 $steps = $entry->steps; // steps ophalen
