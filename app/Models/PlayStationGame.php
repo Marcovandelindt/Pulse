@@ -16,6 +16,7 @@ final class PlayStationGame extends Model
 {
     protected $fillable = [
         'name',
+        'display_name',
         'psnprofiles_slug',
         'platform',
         'image_url',
@@ -76,6 +77,13 @@ final class PlayStationGame extends Model
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(PlayStationCategory::class, 'play_station_game_category');
+    }
+
+    protected function label(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->display_name ?? $this->name
+        );
     }
 
     protected function calculatedHours(): Attribute

@@ -1,4 +1,4 @@
-<x-layouts.app :title="$game->name">
+<x-layouts.app :title="$game->label">
 
     <div x-data="{
         isFavorite: {{ $game->is_favorite ? 'true' : 'false' }},
@@ -11,7 +11,7 @@
         }
     }">
 
-    <x-layout.page-header :title="$game->name">
+    <x-layout.page-header :title="$game->label">
         <x-slot:actions>
             <button
                 @click="toggleFavorite()"
@@ -48,7 +48,7 @@
 
     <div class="gaming-hero mb-6">
         <div class="gaming-hero__cover">
-            <img src="{{ $coverUrl }}" alt="{{ $game->name }}" class="gaming-hero__img">
+            <img src="{{ $coverUrl }}" alt="{{ $game->label }}" class="gaming-hero__img">
         </div>
         <div class="gaming-hero__info">
             <div class="flex items-center gap-2 mb-2">
@@ -62,7 +62,7 @@
                     <x-ui.badge color="green">Story Complete</x-ui.badge>
                 @endif
             </div>
-            <h2 class="text-2xl font-bold mb-1" style="color: var(--color-text-primary)">{{ $game->name }}</h2>
+            <h2 class="text-2xl font-bold mb-1" style="color: var(--color-text-primary)">{{ $game->label }}</h2>
             @if($game->play_mode?->isNotEmpty())
                 <div class="flex flex-wrap gap-1 mb-2">
                     @foreach($game->play_mode as $mode)

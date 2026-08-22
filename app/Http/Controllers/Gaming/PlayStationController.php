@@ -37,7 +37,10 @@ final class PlayStationController extends Controller
         }
 
         if ($search !== '') {
-            $baseQuery->where('name', 'like', "%{$search}%");
+            $baseQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('display_name', 'like', "%{$search}%");
+            });
         }
 
         $totalHours = round((float) (clone $baseQuery)->sum('hours'), 1);
@@ -65,9 +68,9 @@ final class PlayStationController extends Controller
         $fallbacks = ['ps1.jpg', 'ps2.webp', 'ps3.jpg', 'ps4.jpg', 'ps5.jpg'];
 
         $sleepItems = PlayStationGame::orderByDesc('hours')
-            ->get(['id', 'name', 'platform', 'image_url', 'hours', 'completion_percentage', 'last_played_at'])
+            ->get(['id', 'name', 'display_name', 'platform', 'image_url', 'hours', 'completion_percentage', 'last_played_at'])
             ->map(fn ($g) => [
-                'title'       => $g->name,
+                'title'       => $g->label,
                 'platform'    => $g->platform,
                 'image_url'   => $g->image_url ?? '/images/playstation/'.$fallbacks[$g->id % 5],
                 'hours'       => round((float) $g->hours, 1),
@@ -166,6 +169,7 @@ final class PlayStationController extends Controller
     public function update(Request $request, PlayStationGame $playStationGame): RedirectResponse
     {
         $validated = $request->validate([
+            'display_name' => ['nullable', 'string', 'max:255'],
             'psnprofiles_slug' => ['nullable', 'string', 'max:255'],
             'price' => ['nullable', 'numeric', 'min:0'],
             'manual_minutes' => ['nullable', 'integer', 'min:0'],

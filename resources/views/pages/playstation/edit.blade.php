@@ -1,6 +1,6 @@
-<x-layouts.app :title="'Edit — ' . $game->name">
+<x-layouts.app :title="'Edit — ' . $game->label">
 
-    <x-layout.page-header :title="'Edit: ' . $game->name">
+    <x-layout.page-header :title="'Edit: ' . $game->label">
         <x-slot:actions>
             <a href="{{ route('playstation.show', $game) }}" class="btn btn--secondary btn--sm">← Back</a>
         </x-slot:actions>
@@ -12,10 +12,26 @@
             @method('PATCH')
 
             <div class="form-group">
+                <label class="form-label" for="display_name">Display Name</label>
+                <input
+                    type="text"
+                    id="display_name"
+                    name="display_name"
+                    value="{{ old('display_name', $game->display_name) }}"
+                    class="form-input"
+                    placeholder="{{ $game->name }}"
+                >
+                <p class="text-xs mt-1" style="color: var(--color-text-muted)">
+                    Override the display name shown in the UI. The original name <code>{{ $game->name }}</code> is still used for syncing.
+                </p>
+                <x-form.error name="display_name" />
+            </div>
+
+            <div class="form-group">
                 <label class="form-label">Cover Image</label>
                 @if($game->image_url)
                     <div class="mb-3">
-                        <img src="{{ $game->image_url }}" alt="{{ $game->name }}"
+                        <img src="{{ $game->image_url }}" alt="{{ $game->label }}"
                              style="width: 6rem; border-radius: var(--radius-md); display: block;">
                     </div>
                 @endif

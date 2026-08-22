@@ -99,7 +99,7 @@
                                     $coverUrl  = $game->image_url ?? '/images/playstation/' . $fallbacks[$game->id % 5];
                                 @endphp
                                 <a href="{{ route('playstation.show', $game) }}" class="gaming-card__cover-link">
-                                    <img src="{{ $coverUrl }}" alt="{{ $game->name }}" class="gaming-card__cover">
+                                    <img src="{{ $coverUrl }}" alt="{{ $game->label }}" class="gaming-card__cover">
                                 </a>
                                 @if($game->completion_percentage > 0)
                                     <span class="gaming-card__completion-badge">{{ number_format($game->completion_percentage, 0) }}%</span>
@@ -118,7 +118,7 @@
                                 >★</button>
                             </div>
                             <div class="gaming-card__body">
-                                <a href="{{ route('playstation.show', $game) }}" class="gaming-card__title">{{ $game->name }}</a>
+                                <a href="{{ route('playstation.show', $game) }}" class="gaming-card__title">{{ $game->label }}</a>
                                 <div class="gaming-card__meta">
                                     <span class="gaming-platform-badge" style="background: {{ $game->platformColor() }}">{{ $game->platform }}</span>
                                     @if($game->backlog_status)
@@ -165,7 +165,7 @@
                             <div class="gaming-session-item">
                                 <div class="gaming-session-item__game">
                                     <a href="{{ route('playstation.show', $session->game) }}" class="gaming-session-item__title">
-                                        {{ $session->game->name }}
+                                        {{ $session->game->label }}
                                     </a>
                                     <span class="gaming-platform-badge" style="background: {{ $session->game->platformColor() }}">
                                         {{ $session->game->platform }}

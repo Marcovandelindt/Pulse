@@ -88,7 +88,7 @@
                     <div class="gaming-session-item">
                         @if($session->game->image_url)
                             <img src="{{ $session->game->image_url }}"
-                                 alt="{{ $session->game->name }}"
+                                 alt="{{ $session->game->label }}"
                                  class="gaming-session-item__image">
                         @else
                             <div class="gaming-session-item__image"></div>
@@ -96,7 +96,7 @@
 
                         <div class="gaming-session-item__game">
                             <a href="{{ route('playstation.show', $session->game) }}" class="gaming-session-item__title">
-                                {{ $session->game->name }}
+                                {{ $session->game->label }}
                             </a>
                             <span class="gaming-platform-badge" style="background: {{ $session->game->platformColor() }}">
                                 {{ $session->game->platform }}

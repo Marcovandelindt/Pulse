@@ -56,6 +56,10 @@ final class DashboardController extends Controller
             $currentGame = null;
         }
 
+        $lastPlayedSession = $currentGame === null
+            ? PlayStationSession::with('game')->latest('started_at')->first()
+            : null;
+
         $recentPlay = $currentlyPlaying === null
             ? Play::with(['track.album', 'track.artists'])->orderByDesc('played_at')->first()
             : null;
@@ -69,6 +73,12 @@ final class DashboardController extends Controller
             'currentlyPlaying'  => $currentlyPlaying,
             'recentPlay'        => $recentPlay,
             'currentGame'       => $currentGame,
+            'lastPlayedGame'    => $lastPlayedSession ? [
+                'title'     => $lastPlayedSession->game->label,
+                'platform'  => $lastPlayedSession->game->platform,
+                'image_url' => $lastPlayedSession->game->image_url,
+            ] : null,
+            'lastPlayedAt'      => $lastPlayedSession?->started_at,
         ]);
     }
 
@@ -175,14 +185,14 @@ final class DashboardController extends Controller
                 $totalMinutes = $group->sum('duration_minutes');
 
                 $sessionLabel = fn (PlayStationSession $s): string =>
-                    $s->game->name.' · '.$s->started_at->format('H:i').' – '.$s->end_time->format('H:i');
+                    $s->game->label.' · '.$s->started_at->format('H:i').' – '.$s->end_time->format('H:i');
 
                 if ($count === 1) {
                     $session = $group->first();
 
                     return new ActivityItem(
                         type: 'playstation',
-                        title: $session->game->name,
+                        title: $session->game->label,
                         subtitle: $session->started_at->format('H:i').' – '.$session->end_time->format('H:i').' · '.$this->formatMinutes($session->duration_minutes),
                         imageUrl: $session->game->image_url,
                         occurredAt: $session->started_at,
