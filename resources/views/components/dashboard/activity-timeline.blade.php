@@ -28,6 +28,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                         </svg>
                     </div>
+                @elseif($activity->type === 'playstation')
+                    <div class="activity-timeline__icon activity-timeline__icon--playstation">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h2M9 11v2M14.5 12h.01M16 12h.01M7.5 8.5h9a4.5 4.5 0 014.5 4.5V14a4.5 4.5 0 01-4.5 4.5h-9A4.5 4.5 0 013 14v-1a4.5 4.5 0 014.5-4.5z" />
+                        </svg>
+                    </div>
                 @else
                     <div class="activity-timeline__icon">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">

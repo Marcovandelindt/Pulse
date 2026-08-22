@@ -165,10 +165,48 @@ final class DashboardController extends Controller
             })
             ->values();
 
+        $playstationActivities = PlayStationSession::with('game')
+            ->where('started_at', '>=', now()->subDays(self::TIMELINE_DAYS)->startOfDay())
+            ->orderBy('started_at')
+            ->get()
+            ->groupBy(fn (PlayStationSession $s) => $s->started_at->toDateString())
+            ->map(function (Collection $group, string $date): ActivityItem {
+                $count = $group->count();
+                $totalMinutes = $group->sum('duration_minutes');
+
+                $sessionLabel = fn (PlayStationSession $s): string =>
+                    $s->game->name.' · '.$s->started_at->format('H:i').' – '.$s->end_time->format('H:i');
+
+                if ($count === 1) {
+                    $session = $group->first();
+
+                    return new ActivityItem(
+                        type: 'playstation',
+                        title: $session->game->name,
+                        subtitle: $session->started_at->format('H:i').' – '.$session->end_time->format('H:i').' · '.$this->formatMinutes($session->duration_minutes),
+                        imageUrl: $session->game->image_url,
+                        occurredAt: $session->started_at,
+                        isPinned: false,
+                    );
+                }
+
+                return new ActivityItem(
+                    type: 'playstation',
+                    title: 'PlayStation',
+                    subtitle: $count.' sessions · '.$this->formatMinutes($totalMinutes),
+                    imageUrl: null,
+                    occurredAt: Carbon::parse($date)->startOfDay(),
+                    isPinned: false,
+                    episodes: $group->sortBy('started_at')->map($sessionLabel)->values()->all(),
+                );
+            })
+            ->values();
+
         return $watchActivities
             ->concat($movieActivities)
             ->concat($stepActivities)
             ->concat($musicActivities)
+            ->concat($playstationActivities)
             ->sort(fn (ActivityItem $a, ActivityItem $b): int => $this->compareActivities($a, $b))
             ->values();
     }
