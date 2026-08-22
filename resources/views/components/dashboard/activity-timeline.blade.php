@@ -76,8 +76,8 @@
                     datetime="{{ $activity->occurredAt->toIso8601String() }}"
                 >
                     {{ $activity->occurredAt->year === now()->year
-                        ? $activity->occurredAt->format('d M')
-                        : $activity->occurredAt->format('d M Y') }}
+                        ? $activity->occurredAt->format('l, d M')
+                        : $activity->occurredAt->format('l, d M Y') }}
                 </time>
             </div>
         </div>
