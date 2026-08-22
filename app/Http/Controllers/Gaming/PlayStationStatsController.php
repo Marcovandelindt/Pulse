@@ -28,6 +28,7 @@ final class PlayStationStatsController extends Controller
         $hourlyPatterns  = $this->hourlyPatterns();
         $monthlyTrend    = $this->monthlyTrend();
         $libraryStats    = $this->libraryStats();
+        $trophyStats     = $this->trophyStats();
         $consistency     = $this->consistencyStats();
         $yearInReview    = $this->yearInReview();
 
@@ -37,6 +38,7 @@ final class PlayStationStatsController extends Controller
             'personalRecords',
             'weekdayPatterns', 'hourlyPatterns', 'monthlyTrend',
             'libraryStats',
+            'trophyStats',
             'consistency',
             'yearInReview',
         ));
@@ -211,6 +213,26 @@ final class PlayStationStatsController extends Controller
             'statusTotal'    => $total,
             'platformCounts' => $platformCounts,
             'avgCompletion'  => $avgCompletion,
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private function trophyStats(): array
+    {
+        $byType = \App\Models\PlayStationTrophy::query()
+            ->where('is_earned', true)
+            ->selectRaw('type, COUNT(*) as count')
+            ->groupBy('type')
+            ->get()
+            ->keyBy('type')
+            ->map(fn ($r) => (int) $r->count);
+
+        return [
+            'totalEarned' => (int) $byType->sum(),
+            'platinum'    => (int) ($byType->get('platinum') ?? 0),
+            'gold'        => (int) ($byType->get('gold') ?? 0),
+            'silver'      => (int) ($byType->get('silver') ?? 0),
+            'bronze'      => (int) ($byType->get('bronze') ?? 0),
         ];
     }
 

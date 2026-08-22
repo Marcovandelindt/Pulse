@@ -137,6 +137,39 @@
             @endif
         </x-ui.card>
 
+        {{-- Trophy stats --}}
+        <x-ui.card title="Trophies">
+            <div class="psn-trophy-platinum">
+                <span class="psn-trophy-platinum__icon">🏆</span>
+                <div>
+                    <div class="psn-trophy-platinum__value">{{ number_format($trophyStats['platinum']) }}</div>
+                    <div class="psn-trophy-platinum__label">Platinums earned</div>
+                </div>
+            </div>
+
+            <div class="psn-trophy-types">
+                <div class="psn-trophy-type" style="--trophy-color: #c9a227;">
+                    <div class="psn-trophy-type__icon">🥇</div>
+                    <div class="psn-trophy-type__value">{{ number_format($trophyStats['gold']) }}</div>
+                    <div class="psn-trophy-type__label">Gold</div>
+                </div>
+                <div class="psn-trophy-type" style="--trophy-color: #9ea3a8;">
+                    <div class="psn-trophy-type__icon">🥈</div>
+                    <div class="psn-trophy-type__value">{{ number_format($trophyStats['silver']) }}</div>
+                    <div class="psn-trophy-type__label">Silver</div>
+                </div>
+                <div class="psn-trophy-type" style="--trophy-color: #b36a2a;">
+                    <div class="psn-trophy-type__icon">🥉</div>
+                    <div class="psn-trophy-type__value">{{ number_format($trophyStats['bronze']) }}</div>
+                    <div class="psn-trophy-type__label">Bronze</div>
+                </div>
+            </div>
+
+            <div class="psn-trophy-total">
+                {{ number_format($trophyStats['totalEarned']) }} trophies earned in total
+            </div>
+        </x-ui.card>
+
         {{-- Weekday patterns --}}
         <x-ui.card title="Active day of week" class="psn-stats-grid__wide">
             @if ($weekdayPatterns->sum('count') > 0)
