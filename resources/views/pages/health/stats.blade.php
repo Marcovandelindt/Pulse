@@ -7,6 +7,38 @@
         </x-slot:actions>
     </x-layout.page-header>
 
+    {{-- All-time totals --}}
+    <div class="stats-row mb-6">
+        <x-stats.stat-card label="Total steps" :value="number_format($allTimeSteps)" icon="heart" />
+        <x-stats.stat-card label="Total distance" :value="number_format($allTimeKm, 1) . ' km'" icon="map-pin" />
+        <x-stats.stat-card label="Distance this year" :value="number_format($thisYearKm, 1) . ' km'" icon="calendar" />
+        <x-stats.stat-card label="Days logged" :value="number_format($totalEntries)" icon="check-circle" />
+    </div>
+
+    {{-- Distance comparisons --}}
+    <x-ui.card title="Distance milestones" class="mb-6">
+        <div class="health-distance-refs">
+            @foreach ($distanceComparisons as $ref)
+                <div class="health-distance-ref">
+                    <div class="health-distance-ref__header">
+                        <span class="health-distance-ref__label">{{ $ref['label'] }}</span>
+                        <span class="health-distance-ref__meta">
+                            @if ($ref['times'] >= 1)
+                                <strong>{{ $ref['times'] }}×</strong> completed
+                            @else
+                                {{ $ref['percent'] }}% of {{ number_format($ref['km']) }} km
+                            @endif
+                        </span>
+                    </div>
+                    <div class="health-distance-ref__track">
+                        <div class="health-distance-ref__fill {{ $ref['times'] >= 1 ? 'health-distance-ref__fill--done' : '' }}"
+                             style="width: {{ $ref['percent'] }}%"></div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </x-ui.card>
+
     <div class="health-stats-grid">
 
         {{-- Weekly comparison --}}

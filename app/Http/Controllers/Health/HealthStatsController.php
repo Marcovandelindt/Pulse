@@ -42,6 +42,23 @@ final class HealthStatsController extends Controller
         $monthlyHistory = $this->monthlyHistory();
         $goalHistory = StepGoal::orderByDesc('effective_from')->get();
 
+        $allTimeSteps = (int) HealthEntry::withSteps()->sum('steps');
+        $allTimeKm    = round($allTimeSteps * 0.00075, 1);
+        $thisYearKm   = round((int) HealthEntry::withSteps()->whereYear('date', now()->year)->sum('steps') * 0.00075, 1);
+
+        $distanceComparisons = collect([
+            ['label' => 'Amsterdam → Paris',          'km' => 500],
+            ['label' => 'Around the Netherlands',     'km' => 1075],
+            ['label' => 'Amsterdam → Rome',           'km' => 1750],
+            ['label' => 'Amsterdam → Moscow',         'km' => 2500],
+            ['label' => 'Around the Earth',           'km' => 40075],
+        ])->map(fn (array $ref) => [
+            'label'   => $ref['label'],
+            'km'      => $ref['km'],
+            'times'   => $allTimeKm > 0 ? round($allTimeKm / $ref['km'], 1) : 0,
+            'percent' => $allTimeKm > 0 ? min(100, round(($allTimeKm / $ref['km']) * 100)) : 0,
+        ]);
+
         return view('pages.health.stats', compact(
             'stepGoal',
             'thisWeekAvg', 'lastWeekAvg', 'weekChange',
@@ -51,6 +68,8 @@ final class HealthStatsController extends Controller
             'weekdayPatterns',
             'monthlyHistory',
             'goalHistory',
+            'allTimeSteps', 'allTimeKm', 'thisYearKm',
+            'distanceComparisons',
         ));
     }
 
