@@ -16,7 +16,11 @@ final class ContactController extends Controller
 {
     public function index(): View
     {
-        $contacts = Contact::with('relationshipType')
+        $contacts = Contact::with([
+            'relationshipType',
+            'relationships.relatedContact',
+            'relatedRelationships.contact',
+        ])
             ->orderBy('name')
             ->get()
             ->groupBy(fn (Contact $c) => $c->relationshipType?->name ?? 'Other');

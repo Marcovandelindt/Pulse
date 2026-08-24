@@ -69,12 +69,21 @@
                                 <div class="people-card__name">{{ $contact->name }}</div>
                                 @if ($contact->birthdate)
                                     <div class="people-card__meta">
-                                        {{ $contact->birthdate->format('d M Y') }}
+                                        {{ $contact->birth_year_unknown ? $contact->birthdate->format('d M') : $contact->birthdate->format('d M Y') }}
                                         @if ($contact->age() !== null)
                                             &middot; {{ $contact->age() }} yr
                                         @endif
                                     </div>
                                 @endif
+                                @php
+                                    $cardRels = collect($contact->relationships->map(fn ($r) => ['type' => $r->type, 'name' => $r->relatedContact->name]))
+                                        ->merge($contact->relatedRelationships->map(fn ($r) => ['type' => $r->type, 'name' => $r->contact->name]));
+                                @endphp
+                                @foreach ($cardRels as $rel)
+                                    <div class="people-card__meta people-card__meta--rel">
+                                        {{ ucfirst($rel['type']) }} · {{ $rel['name'] }}
+                                    </div>
+                                @endforeach
                             </div>
                         </a>
                     @endforeach
