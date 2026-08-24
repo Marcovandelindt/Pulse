@@ -200,6 +200,16 @@
     filter: none;
 }
 
+.calendar-pill--death-anniversary {
+    background: rgba(100, 116, 139, 0.15);
+    color:      #94a3b8;
+    cursor:     default;
+}
+
+.calendar-pill--death-anniversary:hover {
+    filter: none;
+}
+
 /* ── Modal overrides for calendar ────────────────── */
 
 .modal__body {

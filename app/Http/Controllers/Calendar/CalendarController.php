@@ -47,6 +47,18 @@ final class CalendarController extends Controller
 
         $dayEvents = $this->buildDayEvents($events, $monthStart, $monthEnd);
 
+        Contact::whereNotNull('death_date')->get()->each(function (Contact $contact) use ($month, &$dayEvents) {
+            try {
+                $occurrence = $contact->death_date->copy()->setYear($month->year);
+                if ((int) $occurrence->format('m') === $month->month
+                    && $occurrence->gte($contact->death_date)) {
+                    $dayEvents[$occurrence->format('Y-m-d')][] = ['is_death_anniversary' => true, 'contact' => $contact];
+                }
+            } catch (\Exception) {
+                // skip invalid dates
+            }
+        });
+
         Contact::whereNotNull('birthdate')->whereNull('death_date')->get()->each(function (Contact $contact) use ($month, &$dayEvents) {
             try {
                 $bday = $contact->birthdate->copy()->setYear($month->year);
