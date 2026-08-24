@@ -15,7 +15,7 @@ class ContactSeeder extends Seeder
             ['name' => 'Father',      'sort_order' => 1],
             ['name' => 'Mother',      'sort_order' => 2],
             ['name' => 'Brother',     'sort_order' => 3],
-            ['name' => 'Cousin',      'sort_order' => 4],
+            ['name' => 'Niece',       'sort_order' => 4],
             ['name' => 'Aunt',        'sort_order' => 5],
             ['name' => 'Uncle',       'sort_order' => 6],
             ['name' => 'Grandfather', 'sort_order' => 7],
