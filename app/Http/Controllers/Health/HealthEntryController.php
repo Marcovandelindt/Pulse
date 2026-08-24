@@ -56,7 +56,7 @@ final class HealthEntryController extends Controller
         $thisMonthKm = round((int) $entries->whereNotNull('steps')->sum('steps') * 0.00066, 1);
 
         return view('pages.health.index', compact(
-            'month', 'entries', 'stepGoal', 'calendarGoals', 'daysInMonth',
+            'month', 'entries', 'stepGoal', 'allGoals', 'calendarGoals', 'daysInMonth',
             'entryCount', 'avgSteps', 'goalMetCount', 'weekdayEntryCount', 'thisMonthKm',
         ));
     }

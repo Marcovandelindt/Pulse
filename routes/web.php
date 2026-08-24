@@ -19,4 +19,5 @@ Route::prefix('health')->name('health.')->group(function () {
     Route::get('/stats', [HealthStatsController::class,   'index'])->name('stats');
     Route::get('/export', [HealthExportController::class, 'index'])->name('export');
     Route::post('/goal', [StepGoalController::class,      'store'])->name('goal.store');
+    Route::delete('/goal/{goal}', [StepGoalController::class, 'destroy'])->name('goal.destroy');
 });

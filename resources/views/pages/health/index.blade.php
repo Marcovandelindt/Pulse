@@ -141,13 +141,49 @@
         <div class="modal__backdrop" @click="goalOpen = false"></div>
         <div class="modal__panel">
             <div class="modal__header">
-                <h2 class="modal__title">Set step goal</h2>
+                <h2 class="modal__title">Step goals</h2>
                 <button @click="goalOpen = false" class="btn btn--icon btn--secondary" type="button">&times;</button>
             </div>
 
-            <form method="POST" action="{{ route('health.goal.store') }}">
-                @csrf
-                <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-5 p-5">
+                {{-- Existing goals --}}
+                @if ($allGoals->isNotEmpty())
+                    <div class="flex flex-col gap-1">
+                        @foreach ($allGoals as $goal)
+                            @php
+                                $isActive = $goal->effective_from->isPast() || $goal->effective_from->isToday();
+                                $nextGoal = $allGoals->filter(fn ($g) => $g->effective_from->isAfter($goal->effective_from))->last();
+                                $endDate  = $nextGoal
+                                    ? $nextGoal->effective_from->copy()->subDay()->format('d M Y')
+                                    : null;
+                            @endphp
+                            <div class="step-goal-row {{ $loop->first ? 'step-goal-row--active' : '' }}">
+                                <div class="step-goal-row__info">
+                                    <span class="step-goal-row__steps">{{ number_format($goal->steps) }}</span>
+                                    <span class="step-goal-row__period">
+                                        from {{ $goal->effective_from->format('d M Y') }}
+                                        @if ($endDate) – {{ $endDate }} @else <span class="step-goal-row__current">current</span> @endif
+                                    </span>
+                                </div>
+                                <form method="POST" action="{{ route('health.goal.destroy', $goal) }}" onsubmit="return confirm('Remove this goal?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn--icon btn--danger" title="Remove goal">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="step-goal-divider"></div>
+                @endif
+
+                {{-- New goal form --}}
+                <form method="POST" action="{{ route('health.goal.store') }}" class="flex flex-col gap-4">
+                    @csrf
+                    <p class="text-sm" style="color: var(--color-text-muted)">Add a new goal</p>
                     <div class="form-group">
                         <label class="form-label" for="goal-steps">Daily step goal</label>
                         <input type="number" id="goal-steps" name="steps" class="form-input"
@@ -161,12 +197,12 @@
                                value="{{ today()->format('Y-m-d') }}" max="{{ today()->format('Y-m-d') }}" required>
                         <x-form.error name="effective_from" />
                     </div>
-                </div>
-                <div class="modal__footer">
-                    <button type="button" @click="goalOpen = false" class="btn btn--secondary">Cancel</button>
-                    <button type="submit" class="btn btn--primary">Save goal</button>
-                </div>
-            </form>
+                    <div class="flex justify-end gap-2">
+                        <button type="button" @click="goalOpen = false" class="btn btn--secondary">Cancel</button>
+                        <button type="submit" class="btn btn--primary">Save goal</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

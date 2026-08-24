@@ -20,4 +20,11 @@ final class StepGoalController extends Controller
 
         return redirect()->route('health.index')->with('success', 'Step goal updated.');
     }
+
+    public function destroy(StepGoal $goal): RedirectResponse
+    {
+        $goal->delete();
+
+        return redirect()->route('health.index')->with('success', 'Step goal removed.');
+    }
 }
