@@ -26,6 +26,8 @@
 @import './features/_gaming.scss';
 @import './features/_recommendations.scss';
 @import './features/_sleep-mode.scss';
+@import './features/_people.scss';
+@import './features/_calendar.scss';
 
 @theme {
     --color-brand:        oklch(0.60 0.18 260);

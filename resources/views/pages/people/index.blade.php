@@ -9,7 +9,7 @@
 
     <div class="people-index">
         @foreach ($people as $i => $person)
-            <a href="{{ route('people.show', $person) }}" class="people-index__card">
+            <a href="{{ route('actors.show', $person) }}" class="people-index__card">
                 <span class="people-index__rank">#{{ ($people->currentPage() - 1) * $people->perPage() + $loop->iteration }}</span>
                 <img
                     src="{{ $person->profile_url ?? asset('cast-placeholder.svg') }}"

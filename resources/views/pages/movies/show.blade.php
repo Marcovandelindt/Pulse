@@ -105,7 +105,7 @@
         @if ($directors->isNotEmpty())
             <div class="media-directors mt-6">
                 @foreach ($directors as $director)
-                    <a href="{{ route('people.show', $director) }}" class="media-director">
+                    <a href="{{ route('actors.show', $director) }}" class="media-director">
                         <img
                             src="{{ $director->profile_url ?? asset('cast-placeholder.svg') }}"
                             alt="{{ $director->name }}"
@@ -129,7 +129,7 @@
                 <div class="media-cast media-cast--grid">
                     @foreach ($movie->people as $person)
                         <a
-                            href="{{ route('people.show', $person) }}"
+                            href="{{ route('actors.show', $person) }}"
                             class="media-cast__member"
                             x-show="{{ $loop->index }} < 20 || showAllCast"
                         >

@@ -6,6 +6,7 @@ import { registerMovieComponents } from './modules/movies.js';
 import { registerRecommendationComponents } from './modules/recommendations.js';
 import { registerPlayStationComponents } from './modules/playstation.js';
 import { registerHealthComponents } from './modules/health.js';
+import { registerCalendarComponents } from './modules/calendar.js';
 
 window.Alpine = Alpine;
 Alpine.plugin(Collapse);
@@ -15,6 +16,7 @@ registerMovieComponents();
 registerRecommendationComponents();
 registerPlayStationComponents();
 registerHealthComponents();
+registerCalendarComponents();
 
 Alpine.start();
 

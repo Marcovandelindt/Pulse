@@ -1,0 +1,236 @@
+/* ── Calendar page ────────────────────────────────── */
+
+.calendar-page {
+    display:        flex;
+    flex-direction: column;
+    gap:            1.25rem;
+}
+
+/* ── Header ───────────────────────────────────────── */
+
+.calendar-header {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+
+    &__nav {
+        display:     flex;
+        align-items: center;
+        gap:         0.75rem;
+    }
+
+    &__title {
+        font-size:   1.125rem;
+        font-weight: 700;
+        color:       var(--color-text-primary);
+        min-width:   10rem;
+        text-align:  center;
+    }
+}
+
+/* ── Grid ─────────────────────────────────────────── */
+
+.calendar-grid {
+    display:               grid;
+    grid-template-columns: repeat(7, 1fr);
+    border:                1px solid var(--color-border);
+    border-radius:         var(--radius-lg);
+    overflow:              hidden;
+}
+
+/* ── Day-of-week header ───────────────────────────── */
+
+.calendar-day-header {
+    padding:      0.5rem;
+    text-align:   center;
+    font-size:    0.6875rem;
+    font-weight:  600;
+    color:        var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background:   var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border);
+
+    &:not(:last-child) {
+        border-right: 1px solid var(--color-border);
+    }
+}
+
+/* ── Day cell ─────────────────────────────────────── */
+
+.calendar-cell {
+    min-height:   7rem;
+    padding:      0.5rem;
+    background:   var(--color-bg-primary);
+    border-right:  1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    cursor:        pointer;
+    transition:    background var(--transition-base);
+
+    &:nth-child(7n) {
+        border-right: none;
+    }
+
+    &:hover:not(.calendar-cell--other-month) {
+        background: var(--color-bg-secondary);
+    }
+
+    &--other-month {
+        background: var(--color-bg-primary);
+        cursor:     default;
+
+        .calendar-cell__number {
+            color: var(--color-text-muted);
+            opacity: 0.35;
+        }
+    }
+
+    &--today {
+        .calendar-cell__number {
+            background:    var(--color-brand);
+            color:         #fff;
+            border-radius: 50%;
+            width:         1.625rem;
+            height:        1.625rem;
+            display:       inline-flex;
+            align-items:   center;
+            justify-content: center;
+        }
+    }
+
+    &--weekend:not(&--other-month) {
+        background: rgba(16, 185, 129, 0.03);
+    }
+
+    &__number {
+        font-size:   0.8125rem;
+        font-weight: 500;
+        color:       var(--color-text-primary);
+        line-height: 1;
+        margin-bottom: 0.375rem;
+        display:     inline-block;
+    }
+
+    &__events {
+        display:        flex;
+        flex-direction: column;
+        gap:            0.1875rem;
+    }
+}
+
+/* ── Event pills ──────────────────────────────────── */
+
+.calendar-pill {
+    display:       flex;
+    align-items:   center;
+    gap:           0.3125rem;
+    padding:       0.1875rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size:     0.6875rem;
+    font-weight:   500;
+    color:         var(--color-text-primary);
+    cursor:        pointer;
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+    transition:    filter var(--transition-base);
+    user-select:   none;
+
+    &:hover {
+        filter: brightness(1.2);
+    }
+
+    &__dot {
+        width:         0.375rem;
+        height:        0.375rem;
+        border-radius: 50%;
+        flex-shrink:   0;
+        background:    currentColor;
+        opacity:       0.8;
+    }
+
+    &__more {
+        font-size: 0.625rem;
+        color:     var(--color-text-muted);
+        padding:   0.125rem 0.375rem;
+    }
+
+    /* Type variants */
+    &--event {
+        background: rgba(99, 102, 241, 0.15);
+        color:      #a5b4fc;
+    }
+
+    &--appointment {
+        background: rgba(14, 165, 233, 0.12);
+        color:      #7dd3fc;
+    }
+
+    &--holiday {
+        background: rgba(16, 185, 129, 0.12);
+        color:      #6ee7b7;
+    }
+
+    &--reminder {
+        background: rgba(245, 158, 11, 0.12);
+        color:      #fcd34d;
+    }
+
+    &--birthday {
+        background: rgba(236, 72, 153, 0.12);
+        color:      #f9a8d4;
+        cursor:     default;
+
+        &:hover {
+            filter: none;
+        }
+    }
+}
+
+/* ── Modal overrides for calendar ────────────────── */
+
+.modal__body {
+    padding:        1.25rem;
+    display:        flex;
+    flex-direction: column;
+    gap:            1rem;
+}
+
+.modal__footer {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    padding:         1rem 1.25rem;
+    border-top:      1px solid var(--color-border);
+    background:      var(--color-bg-tertiary);
+    border-radius:   0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* ── Form helpers ─────────────────────────────────── */
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.form-group--inline {
+    display:     flex;
+    align-items: center;
+    gap:         0.5rem;
+
+    .form-label--inline {
+        margin-bottom: 0;
+        font-weight:   400;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+}
+
+.form-label__optional {
+    font-size:   0.6875rem;
+    font-weight: 400;
+    color:       var(--color-text-muted);
+    text-transform: none;
+    letter-spacing: 0;
+}

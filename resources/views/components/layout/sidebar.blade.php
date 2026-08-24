@@ -30,5 +30,11 @@
             <x-layout.nav-item route="playstation.index" icon="puzzle-piece" label="PlayStation" />
             <x-layout.nav-item route="steam.index" icon="computer-desktop" label="Steam" />
         </div>
+
+        <div class="sidebar__group">
+            <span class="sidebar__group-label">Planning</span>
+            <x-layout.nav-item route="people.index" icon="users" label="People" />
+            <x-layout.nav-item route="calendar.index" icon="calendar" label="Calendar" />
+        </div>
     </nav>
 </aside>

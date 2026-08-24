@@ -177,7 +177,7 @@ foreach ($series->seasons as $season) {
                 <div class="media-cast media-cast--grid">
                     @foreach ($series->people->take(40) as $person)
                         <a
-                            href="{{ route('people.show', $person) }}"
+                            href="{{ route('actors.show', $person) }}"
                             class="media-cast__member"
                             x-show="{{ $loop->index }} < 20 || showAllCast"
                         >
