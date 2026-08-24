@@ -71,7 +71,7 @@
                                     <span class="calendar-pill calendar-pill--death-anniversary"
                                           title="{{ $contact->name }} — passed away {{ $contact->death_date->format('d M Y') }}">
                                         <span class="calendar-pill__dot"></span>
-                                        {{ $contact->name }}
+                                        Sterfdag: {{ $contact->name }}
                                     </span>
                                 @elseif (is_array($event) && ($event['is_anniversary'] ?? false))
                                     @php $cd = $event['contact_date']; @endphp
