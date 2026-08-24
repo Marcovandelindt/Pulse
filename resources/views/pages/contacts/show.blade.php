@@ -90,7 +90,7 @@
 
         {{-- Relationships --}}
         @php
-            $allRelationships = $contact->relationships->map(fn ($r) => ['rel' => $r, 'other' => $r->relatedContact])
+            $allRelationships = collect($contact->relationships->map(fn ($r) => ['rel' => $r, 'other' => $r->relatedContact]))
                 ->merge($contact->relatedRelationships->map(fn ($r) => ['rel' => $r, 'other' => $r->contact]));
         @endphp
         <div class="contact-detail__dates">
