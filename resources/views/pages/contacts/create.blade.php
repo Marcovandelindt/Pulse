@@ -10,6 +10,8 @@
         <form method="POST" action="{{ route('people.store') }}" enctype="multipart/form-data">
             @csrf
 
+            <div class="flex flex-col gap-5">
+
             <div class="form-group">
                 <label class="form-label" for="name">Name <span style="color: #ef4444">*</span></label>
                 <input
@@ -74,6 +76,8 @@
                 >{{ old('notes') }}</textarea>
                 <x-form.error name="notes" />
             </div>
+
+            </div>{{-- /gap wrapper --}}
 
             <div class="flex gap-2 mt-6">
                 <button type="submit" class="btn btn--primary">Add person</button>
