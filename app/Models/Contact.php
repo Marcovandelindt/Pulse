@@ -1,0 +1,62 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use Carbon\Carbon;
+use Database\Factories\ContactFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+final class Contact extends Model
+{
+    /** @use HasFactory<ContactFactory> */
+    use HasFactory;
+
+    protected $fillable = ['name', 'birthdate', 'relationship_type_id', 'photo', 'notes'];
+
+    protected function casts(): array
+    {
+        return [
+            'birthdate' => 'date',
+        ];
+    }
+
+    public function relationshipType(): BelongsTo
+    {
+        return $this->belongsTo(RelationshipType::class);
+    }
+
+    public function calendarEvents(): HasMany
+    {
+        return $this->hasMany(CalendarEvent::class);
+    }
+
+    public function age(): ?int
+    {
+        return $this->birthdate?->age;
+    }
+
+    public function nextBirthday(): ?Carbon
+    {
+        if ($this->birthdate === null) {
+            return null;
+        }
+
+        $next = $this->birthdate->copy()->year(now()->year);
+
+        if ($next->isPast() && ! $next->isToday()) {
+            $next->addYear();
+        }
+
+        return $next;
+    }
+
+    public function daysUntilBirthday(): ?int
+    {
+        return $this->nextBirthday()?->diffInDays(now()->startOfDay());
+    }
+}
