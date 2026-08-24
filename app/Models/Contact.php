@@ -59,6 +59,6 @@ final class Contact extends Model
     {
         $next = $this->nextBirthday();
 
-        return $next === null ? null : (int) $next->diffInDays(now()->startOfDay());
+        return $next === null ? null : (int) now()->startOfDay()->diffInDays($next);
     }
 }

@@ -65,15 +65,17 @@
                                     </span>
                                 @endif
                             </div>
-                            <div class="people-card__name">{{ $contact->name }}</div>
-                            @if ($contact->birthdate)
-                                <div class="people-card__meta">
-                                    {{ $contact->birthdate->format('d M Y') }}
-                                    @if ($contact->age() !== null)
-                                        &middot; {{ $contact->age() }} yr
-                                    @endif
-                                </div>
-                            @endif
+                            <div class="people-card__info">
+                                <div class="people-card__name">{{ $contact->name }}</div>
+                                @if ($contact->birthdate)
+                                    <div class="people-card__meta">
+                                        {{ $contact->birthdate->format('d M Y') }}
+                                        @if ($contact->age() !== null)
+                                            &middot; {{ $contact->age() }} yr
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
                         </a>
                     @endforeach
                 </div>
