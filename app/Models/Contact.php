@@ -35,6 +35,11 @@ final class Contact extends Model
         return $this->hasMany(CalendarEvent::class);
     }
 
+    public function dates(): HasMany
+    {
+        return $this->hasMany(ContactDate::class)->orderBy('date');
+    }
+
     public function age(): ?int
     {
         return $this->birthdate?->age;

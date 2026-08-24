@@ -9,6 +9,7 @@ use App\Http\Controllers\Health\HealthExportController;
 use App\Http\Controllers\Health\HealthStatsController;
 use App\Http\Controllers\Health\StepGoalController;
 use App\Http\Controllers\People\ContactController;
+use App\Http\Controllers\People\ContactDateController;
 use App\Http\Controllers\Settings\RelationshipTypeController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +41,8 @@ Route::prefix('people')->name('people.')->group(function () {
     Route::get('/{contact}/edit', [ContactController::class, 'edit'])->name('edit');
     Route::patch('/{contact}', [ContactController::class, 'update'])->name('update');
     Route::delete('/{contact}', [ContactController::class, 'destroy'])->name('destroy');
+    Route::post('/{contact}/dates', [ContactDateController::class, 'store'])->name('dates.store');
+    Route::delete('/{contact}/dates/{date}', [ContactDateController::class, 'destroy'])->name('dates.destroy');
 });
 
 Route::prefix('settings')->name('settings.')->group(function () {

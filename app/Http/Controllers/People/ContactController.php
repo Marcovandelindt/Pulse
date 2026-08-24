@@ -51,7 +51,7 @@ final class ContactController extends Controller
 
     public function show(Contact $contact): View
     {
-        $contact->load('relationshipType', 'calendarEvents');
+        $contact->load('relationshipType', 'calendarEvents', 'dates');
 
         return view('pages.contacts.show', compact('contact'));
     }

@@ -246,6 +246,69 @@
     white-space: pre-wrap;
 }
 
+.contact-detail__dates {
+    padding:       1.25rem;
+    background:    var(--color-bg-secondary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 1.5rem;
+}
+
+.contact-detail__dates-label {
+    font-size:      0.75rem;
+    font-weight:    500;
+    color:          var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom:  0.75rem;
+}
+
+.contact-dates-list {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.25rem;
+    margin-bottom:  1rem;
+}
+
+.contact-dates-row {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    padding:         0.5rem 0.625rem;
+    border-radius:   var(--radius-sm);
+    transition:      background var(--transition-base);
+}
+
+.contact-dates-row:hover {
+    background: var(--color-bg-tertiary);
+}
+
+.contact-dates-row__info {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.125rem;
+}
+
+.contact-dates-row__label {
+    font-size:   0.9375rem;
+    color:       var(--color-text-primary);
+    font-weight: 500;
+}
+
+.contact-dates-row__date {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+}
+
+.contact-dates-add {
+    display:     flex;
+    align-items: flex-end;
+    gap:         0.625rem;
+    flex-wrap:   wrap;
+    padding-top: 0.75rem;
+    border-top:  1px solid var(--color-border);
+}
+
 /* ── Settings page ────────────────────────────────── */
 
 .settings-section {

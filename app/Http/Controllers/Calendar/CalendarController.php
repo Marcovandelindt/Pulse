@@ -58,6 +58,18 @@ final class CalendarController extends Controller
             }
         });
 
+        \App\Models\ContactDate::with('contact')->get()->each(function (\App\Models\ContactDate $cd) use ($month, &$dayEvents) {
+            try {
+                $occurrence = $cd->date->copy()->setYear($month->year);
+                if ((int) $occurrence->format('m') === $month->month) {
+                    $key = $occurrence->format('Y-m-d');
+                    $dayEvents[$key][] = ['is_anniversary' => true, 'contact_date' => $cd];
+                }
+            } catch (\Exception) {
+                // skip invalid dates
+            }
+        });
+
         $eventTypes = EventType::cases();
         $recurrenceTypes = RecurrenceType::cases();
 

@@ -185,6 +185,16 @@
     filter: none;
 }
 
+.calendar-pill--anniversary {
+    background: rgba(244, 63, 94, 0.12);
+    color:      #fda4af;
+    cursor:     default;
+}
+
+.calendar-pill--anniversary:hover {
+    filter: none;
+}
+
 /* ── Modal overrides for calendar ────────────────── */
 
 .modal__body {

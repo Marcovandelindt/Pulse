@@ -74,6 +74,44 @@
             @endif
         </div>
 
+        {{-- Important dates --}}
+        <div class="contact-detail__dates">
+            <div class="contact-detail__dates-label">Important dates</div>
+
+            @if ($contact->dates->isNotEmpty())
+                <div class="contact-dates-list">
+                    @foreach ($contact->dates as $date)
+                        <div class="contact-dates-row">
+                            <div class="contact-dates-row__info">
+                                <span class="contact-dates-row__label">{{ $date->label }}</span>
+                                <span class="contact-dates-row__date">{{ $date->date->format('d M Y') }}</span>
+                            </div>
+                            <form method="POST" action="{{ route('people.dates.destroy', [$contact, $date]) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn--danger btn--sm">Remove</button>
+                            </form>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('people.dates.store', $contact) }}" class="contact-dates-add">
+                @csrf
+                <div class="form-group" style="flex: 1; min-width: 8rem;">
+                    <label class="form-label">Label</label>
+                    <input type="text" name="label" class="form-input" placeholder="e.g. Wedding anniversary" required>
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 8rem;">
+                    <label class="form-label">Date</label>
+                    <input type="date" name="date" class="form-input" required>
+                </div>
+                <div class="form-group" style="padding-bottom: 0;">
+                    <button type="submit" class="btn btn--primary btn--sm">Add</button>
+                </div>
+            </form>
+        </div>
+
         {{-- Notes --}}
         @if ($contact->notes)
             <div class="contact-detail__notes">

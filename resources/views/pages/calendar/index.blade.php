@@ -66,7 +66,14 @@
                     @if (count($events) > 0)
                         <div class="calendar-cell__events">
                             @foreach (array_slice($events, 0, 3) as $event)
-                                @if (is_array($event) && ($event['is_birthday'] ?? false))
+                                @if (is_array($event) && ($event['is_anniversary'] ?? false))
+                                    @php $cd = $event['contact_date']; @endphp
+                                    <span class="calendar-pill calendar-pill--anniversary"
+                                          title="{{ $cd->label }} — {{ $cd->contact->name }}">
+                                        <span class="calendar-pill__dot"></span>
+                                        {{ $cd->label }} · {{ $cd->contact->name }}
+                                    </span>
+                                @elseif (is_array($event) && ($event['is_birthday'] ?? false))
                                     @php $contact = $event['contact']; @endphp
                                     <span class="calendar-pill calendar-pill--birthday" title="{{ $contact->name }}'s birthday">
                                         <span class="calendar-pill__dot"></span>
