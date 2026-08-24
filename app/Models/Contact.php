@@ -57,6 +57,8 @@ final class Contact extends Model
 
     public function daysUntilBirthday(): ?int
     {
-        return $this->nextBirthday()?->diffInDays(now()->startOfDay());
+        $next = $this->nextBirthday();
+
+        return $next === null ? null : (int) $next->diffInDays(now()->startOfDay());
     }
 }
