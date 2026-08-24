@@ -135,11 +135,13 @@
                 </div>
                 <div class="form-group" style="flex: 1; min-width: 8rem;">
                     <label class="form-label">Type</label>
-                    <select name="type" class="form-select" required>
-                        @foreach (\App\Models\ContactRelationship::types() as $type)
-                            <option value="{{ $type }}">{{ ucfirst($type) }}</option>
+                    <input type="text" name="type" list="rel-types" class="form-input"
+                           placeholder="e.g. brother" required maxlength="50">
+                    <datalist id="rel-types">
+                        @foreach (\App\Models\ContactRelationship::suggestions() as $s)
+                            <option value="{{ $s }}">
                         @endforeach
-                    </select>
+                    </datalist>
                 </div>
                 <div class="form-group" style="flex: 1; min-width: 8rem;">
                     <label class="form-label">Date <span class="form-label__optional">optional</span></label>

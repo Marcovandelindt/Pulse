@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Requests\People;
 
 use App\Models\Contact;
-use App\Models\ContactRelationship;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,7 +22,7 @@ final class StoreContactRelationshipRequest extends FormRequest
 
         return [
             'related_contact_id' => ['required', 'exists:contacts,id', Rule::notIn([$contact->id])],
-            'type' => ['required', 'string', Rule::in(ContactRelationship::types())],
+            'type' => ['required', 'string', 'max:50'],
             'date' => ['nullable', 'date'],
         ];
     }

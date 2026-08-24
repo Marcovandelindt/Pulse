@@ -32,8 +32,15 @@ final class ContactRelationship extends Model
     }
 
     /** @return list<string> */
-    public static function types(): array
+    public static function suggestions(): array
     {
-        return ['married', 'partners', 'engaged', 'siblings', 'best friends'];
+        return [
+            'married', 'partners', 'engaged',
+            'brother', 'sister', 'siblings',
+            'father', 'mother', 'son', 'daughter',
+            'grandfather', 'grandmother',
+            'uncle', 'aunt', 'nephew', 'niece',
+            'best friends', 'friends', 'colleague',
+        ];
     }
 }
