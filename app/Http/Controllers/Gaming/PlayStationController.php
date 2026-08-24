@@ -43,7 +43,10 @@ final class PlayStationController extends Controller
             });
         }
 
-        $totalHours = round((float) (clone $baseQuery)->sum('hours'), 1);
+        $totalMinutes = (int) (clone $baseQuery)
+            ->join('play_station_sessions', 'play_station_games.id', '=', 'play_station_sessions.play_station_game_id')
+            ->sum('play_station_sessions.duration_minutes');
+        $totalHours = round($totalMinutes / 60, 1);
         $totalGames = (clone $baseQuery)->count();
         $totalSessions = (clone $baseQuery)->sum('sessions');
 
