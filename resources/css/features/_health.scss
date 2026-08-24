@@ -41,6 +41,23 @@
     background: var(--color-border);
 }
 
+.step-goal-period-preview {
+    display:     flex;
+    align-items: center;
+    gap:         0.375rem;
+    margin-top:  0.375rem;
+    font-size:   0.75rem;
+    color:       var(--color-text-muted);
+
+    &__arrow {
+        color: rgba(255, 255, 255, 0.2);
+    }
+
+    &__open {
+        font-style: italic;
+    }
+}
+
 /* ── Month navigation ─────────────────────────────── */
 
 .health-month-nav {

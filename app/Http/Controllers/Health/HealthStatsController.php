@@ -32,8 +32,14 @@ final class HealthStatsController extends Controller
             ? round((((float) $thisMonthAvg - (float) $lastMonthAvg) / (float) $lastMonthAvg) * 100, 1)
             : 0;
 
-        $totalEntries = HealthEntry::withSteps()->whereRaw('DAYOFWEEK(date) NOT IN (1, 7)')->count();
-        $goalMetEntries = HealthEntry::withSteps()->whereRaw('DAYOFWEEK(date) NOT IN (1, 7)')->where('steps', '>=', $stepGoal)->count();
+        $weekdayEntries = HealthEntry::withSteps()
+            ->whereRaw('DAYOFWEEK(date) NOT IN (1, 7)')
+            ->get(['date', 'steps']);
+        $totalEntries = $weekdayEntries->count();
+        $goalMetEntries = $weekdayEntries->filter(function ($entry) use ($allGoals) {
+            $goalForDay = $allGoals->first(fn (StepGoal $g) => ! $g->effective_from->isAfter($entry->date))?->steps ?? 10000;
+            return ($entry->steps ?? 0) >= $goalForDay;
+        })->count();
         $goalRate = $totalEntries > 0 ? round(($goalMetEntries / $totalEntries) * 100) : 0;
 
         [$currentStreak, $longestStreak] = $this->calculateStreaks($allGoals);
@@ -107,7 +113,10 @@ final class HealthStatsController extends Controller
 
         $thisYearSteps = $thisYearEntries->sum('steps');
         $thisYearKm    = round($thisYearSteps * 0.00066, 1);
-        $thisYearGoalMet = $thisYearEntries->filter(fn ($e) => ($e->steps ?? 0) >= $currentGoal)->count();
+        $thisYearGoalMet = $thisYearEntries->filter(function ($e) use ($allGoals) {
+            $goalForDay = $allGoals->first(fn (StepGoal $g) => ! $g->effective_from->isAfter($e->date))?->steps ?? 10000;
+            return ($e->steps ?? 0) >= $goalForDay;
+        })->count();
         $thisYearGoalRate = $thisYearEntries->count() > 0
             ? round(($thisYearGoalMet / $thisYearEntries->count()) * 100)
             : 0;
@@ -272,6 +281,7 @@ final class HealthStatsController extends Controller
         $countMet = 0;
         $sumMissed   = 0;
         $countMissed = 0;
+        $monthlyGoalData = [];
 
         foreach ($entries as $entry) {
             if ($entry->date->isWeekend()) {
@@ -293,22 +303,23 @@ final class HealthStatsController extends Controller
                 $sumMissed += $steps;
                 $countMissed++;
             }
+
+            $monthKey = $entry->date->format('Y-m');
+            $monthlyGoalData[$monthKey] ??= ['total' => 0, 'met' => 0];
+            $monthlyGoalData[$monthKey]['total']++;
+            if ($steps >= $goal) {
+                $monthlyGoalData[$monthKey]['met']++;
+            }
         }
 
-        $goalByMonth = HealthEntry::withSteps()
-            ->whereRaw('DAYOFWEEK(date) NOT IN (1, 7)')
-            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, COUNT(*) as total, SUM(CASE WHEN steps >= ? THEN 1 ELSE 0 END) as met', [$currentGoal])
-            ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
-            ->orderByDesc('month')
-            ->limit(12)
-            ->get()
-            ->map(fn ($row) => [
-                'month'   => Carbon::createFromFormat('Y-m', $row->month)->format('M Y'),
-                'rate'    => $row->total > 0 ? round(($row->met / $row->total) * 100) : 0,
-                'met'     => (int) $row->met,
-                'total'   => (int) $row->total,
+        ksort($monthlyGoalData);
+        $goalByMonth = collect(array_slice($monthlyGoalData, -12, preserve_keys: true))
+            ->map(fn ($data, $month) => [
+                'month' => Carbon::createFromFormat('Y-m', $month)->format('M Y'),
+                'rate'  => $data['total'] > 0 ? round(($data['met'] / $data['total']) * 100) : 0,
+                'met'   => $data['met'],
+                'total' => $data['total'],
             ])
-            ->sortBy('month')
             ->values();
 
         return [

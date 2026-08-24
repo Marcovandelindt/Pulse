@@ -19,7 +19,7 @@
     <x-layout.page-header title="Health">
         <x-slot:actions>
             <button @click="goalOpen = true" class="btn btn--secondary btn--sm" type="button">
-                Goal: {{ number_format($stepGoal) }}
+                Goal: {{ number_format($monthGoal) }}
             </button>
             <a href="{{ route('health.stats') }}" class="btn btn--secondary btn--sm">Stats</a>
             <a href="{{ route('health.export') }}" class="btn btn--secondary btn--sm">Export CSV</a>
@@ -181,7 +181,10 @@
                 @endif
 
                 {{-- New goal form --}}
-                <form method="POST" action="{{ route('health.goal.store') }}" class="flex flex-col gap-4">
+                <form method="POST" action="{{ route('health.goal.store') }}" class="flex flex-col gap-4"
+                      x-data="goalForm"
+                      x-init="effectiveFrom = '{{ today()->format('Y-m-d') }}'"
+                      data-goals="{{ json_encode($allGoals->pluck('effective_from')->map(fn ($d) => $d->format('Y-m-d'))->values()) }}">
                     @csrf
                     <p class="text-sm" style="color: var(--color-text-muted)">Add a new goal</p>
                     <div class="form-group">
@@ -194,8 +197,15 @@
                     <div class="form-group">
                         <label class="form-label" for="goal-from">Effective from</label>
                         <input type="date" id="goal-from" name="effective_from" class="form-input"
+                               x-model="effectiveFrom"
                                value="{{ today()->format('Y-m-d') }}" max="{{ today()->format('Y-m-d') }}" required>
                         <x-form.error name="effective_from" />
+                        <div class="step-goal-period-preview" x-show="effectiveFrom">
+                            <span x-text="formatDate(effectiveFrom)"></span>
+                            <span class="step-goal-period-preview__arrow">→</span>
+                            <span x-show="periodEnd" x-text="periodEnd"></span>
+                            <span x-show="!periodEnd" class="step-goal-period-preview__open">no end date yet</span>
+                        </div>
                     </div>
                     <div class="flex justify-end gap-2">
                         <button type="button" @click="goalOpen = false" class="btn btn--secondary">Cancel</button>

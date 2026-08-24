@@ -36,6 +36,9 @@ final class HealthEntryController extends Controller
         /** @var Collection<int, StepGoal> $allGoals */
         $allGoals = StepGoal::orderByDesc('effective_from')->get();
         $stepGoal = StepGoal::current();
+        $monthGoal = $month->isCurrentMonth()
+            ? $stepGoal
+            : StepGoal::forDate($month->copy()->endOfMonth());
         $daysInMonth = $month->daysInMonth;
 
         // Applicable goal per calendar day (goals are sorted desc by effective_from)
@@ -56,7 +59,7 @@ final class HealthEntryController extends Controller
         $thisMonthKm = round((int) $entries->whereNotNull('steps')->sum('steps') * 0.00066, 1);
 
         return view('pages.health.index', compact(
-            'month', 'entries', 'stepGoal', 'allGoals', 'calendarGoals', 'daysInMonth',
+            'month', 'entries', 'stepGoal', 'monthGoal', 'allGoals', 'calendarGoals', 'daysInMonth',
             'entryCount', 'avgSteps', 'goalMetCount', 'weekdayEntryCount', 'thisMonthKm',
         ));
     }
