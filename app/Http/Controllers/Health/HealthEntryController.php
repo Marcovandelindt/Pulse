@@ -48,14 +48,16 @@ final class HealthEntryController extends Controller
 
         $entryCount = $entries->count();
         $avgSteps = $entries->whereNotNull('steps')->avg('steps');
-        $goalMetCount = $entries->filter(
+        $weekdayEntries = $entries->filter(fn (HealthEntry $e) => ! $e->date->isWeekend());
+        $goalMetCount = $weekdayEntries->filter(
             fn (HealthEntry $e) => $e->meetsStepGoal($calendarGoals[$e->date->format('Y-m-d')] ?? $stepGoal)
         )->count();
+        $weekdayEntryCount = $weekdayEntries->count();
         $thisMonthKm = round((int) $entries->whereNotNull('steps')->sum('steps') * 0.00066, 1);
 
         return view('pages.health.index', compact(
             'month', 'entries', 'stepGoal', 'calendarGoals', 'daysInMonth',
-            'entryCount', 'avgSteps', 'goalMetCount', 'thisMonthKm',
+            'entryCount', 'avgSteps', 'goalMetCount', 'weekdayEntryCount', 'thisMonthKm',
         ));
     }
 

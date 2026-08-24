@@ -32,8 +32,8 @@ final class HealthStatsController extends Controller
             ? round((((float) $thisMonthAvg - (float) $lastMonthAvg) / (float) $lastMonthAvg) * 100, 1)
             : 0;
 
-        $totalEntries = HealthEntry::withSteps()->count();
-        $goalMetEntries = HealthEntry::withSteps()->where('steps', '>=', $stepGoal)->count();
+        $totalEntries = HealthEntry::withSteps()->whereRaw('DAYOFWEEK(date) NOT IN (1, 7)')->count();
+        $goalMetEntries = HealthEntry::withSteps()->whereRaw('DAYOFWEEK(date) NOT IN (1, 7)')->where('steps', '>=', $stepGoal)->count();
         $goalRate = $totalEntries > 0 ? round(($goalMetEntries / $totalEntries) * 100) : 0;
 
         [$currentStreak, $longestStreak] = $this->calculateStreaks($allGoals);
@@ -274,6 +274,10 @@ final class HealthStatsController extends Controller
         $countMissed = 0;
 
         foreach ($entries as $entry) {
+            if ($entry->date->isWeekend()) {
+                continue;
+            }
+
             $goal = $allGoals->first(fn (StepGoal $g) => ! $g->effective_from->isAfter($entry->date))?->steps ?? 10000;
             $steps = $entry->steps ?? 0;
             $pct = $goal > 0 ? ($steps / $goal) : 0;
@@ -292,6 +296,7 @@ final class HealthStatsController extends Controller
         }
 
         $goalByMonth = HealthEntry::withSteps()
+            ->whereRaw('DAYOFWEEK(date) NOT IN (1, 7)')
             ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, COUNT(*) as total, SUM(CASE WHEN steps >= ? THEN 1 ELSE 0 END) as met', [$currentGoal])
             ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
             ->orderByDesc('month')
@@ -359,18 +364,35 @@ final class HealthStatsController extends Controller
         $todayLogged = $firstEntryDate && $firstEntryDate->equalTo(now()->startOfDay());
         $check = $todayLogged ? now()->startOfDay() : now()->subDay()->startOfDay();
 
+        // Start the check pointer on the last weekday
+        while ($check->isWeekend()) {
+            $check->subDay();
+        }
+
         foreach ($entries as $entry) {
             $entryDate = $entry->date->startOfDay();
+
+            // Weekends don't affect streaks
+            if ($entryDate->isWeekend()) {
+                continue;
+            }
+
             $goalForDay = $allGoals->first(fn (StepGoal $g) => ! $g->effective_from->isAfter($entry->date))?->steps ?? 10000;
             $meetsGoal = ($entry->steps ?? 0) >= $goalForDay;
 
             if ($inCurrent) {
                 if ($entryDate->equalTo($check) && $meetsGoal) {
                     $current++;
-                    $check = $check->subDay();
+                    $check->subDay();
+                    while ($check->isWeekend()) {
+                        $check->subDay();
+                    }
                 } elseif ($entryDate->equalTo(now()->startOfDay()) && ! $meetsGoal) {
                     $inCurrent = false;
                     $check = now()->subDay()->startOfDay();
+                    while ($check->isWeekend()) {
+                        $check->subDay();
+                    }
                 } else {
                     $inCurrent = false;
                 }

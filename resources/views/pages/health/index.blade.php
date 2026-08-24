@@ -39,7 +39,7 @@
         />
         <x-stats.stat-card
             label="Goal met"
-            :value="$entryCount > 0 ? $goalMetCount . ' / ' . $entryCount . ' days' : '—'"
+            :value="$weekdayEntryCount > 0 ? $goalMetCount . ' / ' . $weekdayEntryCount . ' days' : '—'"
         />
         <x-stats.stat-card
             label="Km this month"
@@ -83,14 +83,16 @@
                 $entry     = $entries->get($key);
                 $isToday   = $date->isToday();
                 $isFuture  = $date->isFuture();
-                $meetsGoal = $entry !== null && $entry->meetsStepGoal($calendarGoals[$key]);
+                $isWeekend = $date->isWeekend();
+                $meetsGoal = ! $isWeekend && $entry !== null && $entry->meetsStepGoal($calendarGoals[$key]);
 
                 $cellClass = 'health-calendar__cell';
-                if ($isFuture)      $cellClass .= ' health-calendar__cell--future';
-                elseif ($meetsGoal) $cellClass .= ' health-calendar__cell--goal-met';
-                elseif ($entry)     $cellClass .= ' health-calendar__cell--has-entry';
-                else                $cellClass .= ' health-calendar__cell--empty-day';
-                if ($isToday)       $cellClass .= ' health-calendar__cell--today';
+                if ($isFuture)         $cellClass .= ' health-calendar__cell--future';
+                elseif ($isWeekend)    $cellClass .= ' health-calendar__cell--weekend';
+                elseif ($meetsGoal)    $cellClass .= ' health-calendar__cell--goal-met';
+                elseif ($entry)        $cellClass .= ' health-calendar__cell--has-entry';
+                else                   $cellClass .= ' health-calendar__cell--empty-day';
+                if ($isToday)          $cellClass .= ' health-calendar__cell--today';
             @endphp
 
             <div
@@ -116,6 +118,10 @@
                 @endif
                 @if ($meetsGoal)
                     <span class="health-calendar__goal-indicator" title="Goal met">✓</span>
+                @elseif ($isWeekend && ! $isFuture)
+                    <svg class="health-calendar__weekend-indicator" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" title="Weekend — exempt">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                    </svg>
                 @endif
             </div>
         @endfor
