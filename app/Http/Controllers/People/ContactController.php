@@ -22,6 +22,7 @@ final class ContactController extends Controller
             ->groupBy(fn (Contact $c) => $c->relationshipType?->name ?? 'Other');
 
         $upcoming = Contact::whereNotNull('birthdate')
+            ->whereNull('death_date')
             ->get()
             ->filter(fn (Contact $c) => $c->daysUntilBirthday() !== null && $c->daysUntilBirthday() <= 30)
             ->sortBy(fn (Contact $c) => $c->daysUntilBirthday());

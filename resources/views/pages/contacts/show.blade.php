@@ -46,12 +46,17 @@
                     <span class="contact-detail__meta-value">
                         {{ $contact->birthdate->format('d M Y') }}
                         @if ($contact->age() !== null)
-                            &middot; {{ $contact->age() }} years old
+                            &middot; {{ $contact->age() }} {{ $contact->isDeceased() ? 'years old at death' : 'years old' }}
                         @endif
                     </span>
                 </div>
 
-                @if ($contact->daysUntilBirthday() !== null)
+                @if ($contact->isDeceased())
+                    <div class="contact-detail__meta-row">
+                        <span class="contact-detail__meta-label">Passed away</span>
+                        <span class="contact-detail__meta-value">{{ $contact->death_date->format('d M Y') }}</span>
+                    </div>
+                @elseif ($contact->daysUntilBirthday() !== null)
                     <div class="contact-detail__meta-row">
                         <span class="contact-detail__meta-label">Next birthday</span>
                         <span class="contact-detail__meta-value">
@@ -71,6 +76,11 @@
                         </span>
                     </div>
                 @endif
+            @elseif ($contact->isDeceased())
+                <div class="contact-detail__meta-row">
+                    <span class="contact-detail__meta-label">Passed away</span>
+                    <span class="contact-detail__meta-value">{{ $contact->death_date->format('d M Y') }}</span>
+                </div>
             @endif
         </div>
 

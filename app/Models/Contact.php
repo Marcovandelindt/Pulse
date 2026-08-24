@@ -16,13 +16,19 @@ final class Contact extends Model
     /** @use HasFactory<ContactFactory> */
     use HasFactory;
 
-    protected $fillable = ['name', 'birthdate', 'relationship_type_id', 'photo', 'notes'];
+    protected $fillable = ['name', 'birthdate', 'death_date', 'relationship_type_id', 'photo', 'notes'];
 
     protected function casts(): array
     {
         return [
             'birthdate' => 'date',
+            'death_date' => 'date',
         ];
+    }
+
+    public function isDeceased(): bool
+    {
+        return $this->death_date !== null;
     }
 
     public function relationshipType(): BelongsTo
@@ -42,12 +48,18 @@ final class Contact extends Model
 
     public function age(): ?int
     {
-        return $this->birthdate?->age;
+        if ($this->birthdate === null) {
+            return null;
+        }
+
+        $until = $this->death_date ?? now();
+
+        return (int) $this->birthdate->diffInYears($until);
     }
 
     public function nextBirthday(): ?Carbon
     {
-        if ($this->birthdate === null) {
+        if ($this->birthdate === null || $this->isDeceased()) {
             return null;
         }
 

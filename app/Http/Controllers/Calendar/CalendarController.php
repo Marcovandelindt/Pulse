@@ -11,6 +11,7 @@ use App\Http\Requests\Calendar\StoreCalendarEventRequest;
 use App\Http\Requests\Calendar\UpdateCalendarEventRequest;
 use App\Models\CalendarEvent;
 use App\Models\Contact;
+use App\Models\ContactDate;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
@@ -46,7 +47,7 @@ final class CalendarController extends Controller
 
         $dayEvents = $this->buildDayEvents($events, $monthStart, $monthEnd);
 
-        Contact::whereNotNull('birthdate')->get()->each(function (Contact $contact) use ($month, &$dayEvents) {
+        Contact::whereNotNull('birthdate')->whereNull('death_date')->get()->each(function (Contact $contact) use ($month, &$dayEvents) {
             try {
                 $bday = $contact->birthdate->copy()->setYear($month->year);
                 if ((int) $bday->format('m') === $month->month) {
@@ -58,7 +59,7 @@ final class CalendarController extends Controller
             }
         });
 
-        \App\Models\ContactDate::with('contact')->get()->each(function (\App\Models\ContactDate $cd) use ($month, &$dayEvents) {
+        ContactDate::with('contact')->get()->each(function (ContactDate $cd) use ($month, &$dayEvents) {
             try {
                 $occurrence = $cd->date->copy()->setYear($month->year);
                 if ((int) $occurrence->format('m') === $month->month) {

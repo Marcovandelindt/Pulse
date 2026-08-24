@@ -40,6 +40,18 @@
             </div>
 
             <div class="form-group">
+                <label class="form-label" for="death_date">Date of death <span class="form-label__optional">optional</span></label>
+                <input
+                    type="date"
+                    id="death_date"
+                    name="death_date"
+                    value="{{ old('death_date', $contact->death_date?->format('Y-m-d')) }}"
+                    class="form-input"
+                >
+                <x-form.error name="death_date" />
+            </div>
+
+            <div class="form-group">
                 <label class="form-label" for="relationship_type_id">Relationship type</label>
                 <select id="relationship_type_id" name="relationship_type_id" class="form-input">
                     <option value="">— None —</option>
