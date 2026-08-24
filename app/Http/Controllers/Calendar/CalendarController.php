@@ -12,6 +12,7 @@ use App\Http\Requests\Calendar\UpdateCalendarEventRequest;
 use App\Models\CalendarEvent;
 use App\Models\Contact;
 use App\Models\ContactDate;
+use App\Models\ContactRelationship;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
@@ -70,6 +71,21 @@ final class CalendarController extends Controller
                 // skip invalid dates (e.g. Feb 29 in non-leap year)
             }
         });
+
+        ContactRelationship::with(['contact', 'relatedContact'])
+            ->whereNotNull('date')
+            ->get()
+            ->each(function (ContactRelationship $rel) use ($month, &$dayEvents) {
+                try {
+                    $occurrence = $rel->date->copy()->setYear($month->year);
+                    if ((int) $occurrence->format('m') === $month->month
+                        && $occurrence->gte($rel->date)) {
+                        $dayEvents[$occurrence->format('Y-m-d')][] = ['is_relationship_date' => true, 'relationship' => $rel];
+                    }
+                } catch (\Exception) {
+                    // skip invalid dates
+                }
+            });
 
         ContactDate::with('contact')->get()->each(function (ContactDate $cd) use ($month, &$dayEvents) {
             try {

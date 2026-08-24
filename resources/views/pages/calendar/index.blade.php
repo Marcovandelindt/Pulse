@@ -66,7 +66,14 @@
                     @if (count($events) > 0)
                         <div class="calendar-cell__events">
                             @foreach (array_slice($events, 0, 3) as $event)
-                                @if (is_array($event) && ($event['is_death_anniversary'] ?? false))
+                                @if (is_array($event) && ($event['is_relationship_date'] ?? false))
+                                    @php $rel = $event['relationship']; @endphp
+                                    <span class="calendar-pill calendar-pill--anniversary"
+                                          title="{{ $rel->typeLabel() }}: {{ $rel->contact->name }} & {{ $rel->relatedContact->name }}">
+                                        <span class="calendar-pill__dot"></span>
+                                        {{ $rel->contact->name }} & {{ $rel->relatedContact->name }}
+                                    </span>
+                                @elseif (is_array($event) && ($event['is_death_anniversary'] ?? false))
                                     @php $contact = $event['contact']; @endphp
                                     <span class="calendar-pill calendar-pill--death-anniversary"
                                           title="{{ $contact->name }} — passed away {{ $contact->death_date->format('d M Y') }}">

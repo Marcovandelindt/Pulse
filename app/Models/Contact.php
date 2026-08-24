@@ -47,6 +47,16 @@ final class Contact extends Model
         return $this->hasMany(ContactDate::class)->orderBy('date');
     }
 
+    public function relationships(): HasMany
+    {
+        return $this->hasMany(ContactRelationship::class);
+    }
+
+    public function relatedRelationships(): HasMany
+    {
+        return $this->hasMany(ContactRelationship::class, 'related_contact_id');
+    }
+
     public function age(): ?int
     {
         if ($this->birthdate === null || $this->birth_year_unknown) {

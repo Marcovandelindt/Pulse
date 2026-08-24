@@ -52,9 +52,17 @@ final class ContactController extends Controller
 
     public function show(Contact $contact): View
     {
-        $contact->load('relationshipType', 'calendarEvents', 'dates');
+        $contact->load(
+            'relationshipType',
+            'calendarEvents',
+            'dates',
+            'relationships.relatedContact',
+            'relatedRelationships.contact',
+        );
 
-        return view('pages.contacts.show', compact('contact'));
+        $otherContacts = Contact::where('id', '!=', $contact->id)->orderBy('name')->get();
+
+        return view('pages.contacts.show', compact('contact', 'otherContacts'));
     }
 
     public function edit(Contact $contact): View

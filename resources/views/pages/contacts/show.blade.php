@@ -88,6 +88,69 @@
             @endif
         </div>
 
+        {{-- Relationships --}}
+        @php
+            $allRelationships = $contact->relationships->map(fn ($r) => ['rel' => $r, 'other' => $r->relatedContact])
+                ->merge($contact->relatedRelationships->map(fn ($r) => ['rel' => $r, 'other' => $r->contact]));
+        @endphp
+        <div class="contact-detail__dates">
+            <div class="contact-detail__dates-label">Relationships</div>
+
+            @if ($allRelationships->isNotEmpty())
+                <div class="contact-dates-list">
+                    @foreach ($allRelationships as $item)
+                        <div class="contact-dates-row">
+                            <div class="contact-dates-row__info">
+                                <span class="contact-dates-row__label">
+                                    {{ $item['rel']->typeLabel() }} —
+                                    <a href="{{ route('people.show', $item['other']) }}"
+                                       style="color: var(--color-brand-light); text-decoration: none;">
+                                        {{ $item['other']->name }}
+                                    </a>
+                                </span>
+                                @if ($item['rel']->date)
+                                    <span class="contact-dates-row__date">{{ $item['rel']->date->format('d M Y') }}</span>
+                                @endif
+                            </div>
+                            <form method="POST" action="{{ route('people.relationships.destroy', [$contact, $item['rel']]) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn--danger btn--sm">Remove</button>
+                            </form>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('people.relationships.store', $contact) }}" class="contact-dates-add">
+                @csrf
+                <div class="form-group" style="flex: 1; min-width: 9rem;">
+                    <label class="form-label">Person</label>
+                    <select name="related_contact_id" class="form-select" required>
+                        <option value="">— Select —</option>
+                        @foreach ($otherContacts as $c)
+                            <option value="{{ $c->id }}">{{ $c->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 8rem;">
+                    <label class="form-label">Type</label>
+                    <select name="type" class="form-select" required>
+                        @foreach (\App\Models\ContactRelationship::types() as $type)
+                            <option value="{{ $type }}">{{ ucfirst($type) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 8rem;">
+                    <label class="form-label">Date <span class="form-label__optional">optional</span></label>
+                    <input type="date" name="date" class="form-input">
+                </div>
+                <div class="form-group" style="padding-bottom: 0;">
+                    <button type="submit" class="btn btn--primary btn--sm">Link</button>
+                </div>
+            </form>
+        </div>
+
         {{-- Important dates --}}
         <div class="contact-detail__dates">
             <div class="contact-detail__dates-label">Important dates</div>

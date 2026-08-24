@@ -10,6 +10,7 @@ use App\Http\Controllers\Health\HealthStatsController;
 use App\Http\Controllers\Health\StepGoalController;
 use App\Http\Controllers\People\ContactController;
 use App\Http\Controllers\People\ContactDateController;
+use App\Http\Controllers\People\ContactRelationshipController;
 use App\Http\Controllers\Settings\RelationshipTypeController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,8 @@ Route::prefix('people')->name('people.')->group(function () {
     Route::delete('/{contact}', [ContactController::class, 'destroy'])->name('destroy');
     Route::post('/{contact}/dates', [ContactDateController::class, 'store'])->name('dates.store');
     Route::delete('/{contact}/dates/{date}', [ContactDateController::class, 'destroy'])->name('dates.destroy');
+    Route::post('/{contact}/relationships', [ContactRelationshipController::class, 'store'])->name('relationships.store');
+    Route::delete('/{contact}/relationships/{relationship}', [ContactRelationshipController::class, 'destroy'])->name('relationships.destroy');
 });
 
 Route::prefix('settings')->name('settings.')->group(function () {
