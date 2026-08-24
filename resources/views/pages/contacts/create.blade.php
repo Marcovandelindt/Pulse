@@ -27,16 +27,45 @@
                 <x-form.error name="name" />
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="birthdate">Birthday</label>
+            <div class="form-group" x-data="{ yearUnknown: {{ old('birth_year_unknown') ? 'true' : 'false' }} }">
+                <label class="form-label">Birthday</label>
+
                 <input
                     type="date"
                     id="birthdate"
                     name="birthdate"
                     value="{{ old('birthdate') }}"
                     class="form-input"
+                    :disabled="yearUnknown"
+                    x-show="!yearUnknown"
                 >
+
+                <div class="flex gap-2" x-show="yearUnknown">
+                    <select name="birth_month" class="form-select" :disabled="!yearUnknown">
+                        <option value="">Month</option>
+                        @foreach (range(1, 12) as $m)
+                            <option value="{{ $m }}" {{ old('birth_month') == $m ? 'selected' : '' }}>
+                                {{ \Carbon\Carbon::create()->month($m)->format('F') }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <select name="birth_day" class="form-select" :disabled="!yearUnknown">
+                        <option value="">Day</option>
+                        @foreach (range(1, 31) as $d)
+                            <option value="{{ $d }}" {{ old('birth_day') == $d ? 'selected' : '' }}>{{ $d }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <label class="flex items-center gap-2 mt-1" style="cursor: pointer;">
+                    <input type="checkbox" name="birth_year_unknown" value="1"
+                           x-model="yearUnknown" class="form-checkbox">
+                    <span style="font-size: 0.8125rem; color: var(--color-text-muted);">Birth year unknown</span>
+                </label>
+
                 <x-form.error name="birthdate" />
+                <x-form.error name="birth_month" />
+                <x-form.error name="birth_day" />
             </div>
 
             <div class="form-group">

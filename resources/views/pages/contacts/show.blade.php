@@ -44,9 +44,13 @@
                 <div class="contact-detail__meta-row">
                     <span class="contact-detail__meta-label">Birthday</span>
                     <span class="contact-detail__meta-value">
-                        {{ $contact->birthdate->format('d M Y') }}
-                        @if ($contact->age() !== null)
-                            &middot; {{ $contact->age() }} {{ $contact->isDeceased() ? 'years old at death' : 'years old' }}
+                        @if ($contact->birth_year_unknown)
+                            {{ $contact->birthdate->format('d F') }}
+                        @else
+                            {{ $contact->birthdate->format('d M Y') }}
+                            @if ($contact->age() !== null)
+                                &middot; {{ $contact->age() }} {{ $contact->isDeceased() ? 'years old at death' : 'years old' }}
+                            @endif
                         @endif
                     </span>
                 </div>

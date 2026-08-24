@@ -85,7 +85,7 @@
                                     <span class="calendar-pill calendar-pill--birthday" title="{{ $contact->name }}'s birthday">
                                         <span class="calendar-pill__dot"></span>
                                         {{ $contact->name }}
-                                        @if ($contact->birthdate)
+                                        @if ($contact->birthdate && ! $contact->birth_year_unknown)
                                             ({{ now()->year - $contact->birthdate->year }})
                                         @endif
                                     </span>

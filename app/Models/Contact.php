@@ -16,12 +16,13 @@ final class Contact extends Model
     /** @use HasFactory<ContactFactory> */
     use HasFactory;
 
-    protected $fillable = ['name', 'birthdate', 'death_date', 'relationship_type_id', 'photo', 'notes'];
+    protected $fillable = ['name', 'birthdate', 'birth_year_unknown', 'death_date', 'relationship_type_id', 'photo', 'notes'];
 
     protected function casts(): array
     {
         return [
             'birthdate' => 'date',
+            'birth_year_unknown' => 'boolean',
             'death_date' => 'date',
         ];
     }
@@ -48,7 +49,7 @@ final class Contact extends Model
 
     public function age(): ?int
     {
-        if ($this->birthdate === null) {
+        if ($this->birthdate === null || $this->birth_year_unknown) {
             return null;
         }
 
