@@ -79,6 +79,11 @@
                                     $cardRels = collect($contact->relationships->map(fn ($r) => ['type' => $r->type, 'name' => $r->relatedContact->name]))
                                         ->merge($contact->relatedRelationships->map(fn ($r) => ['type' => $r->type, 'name' => $r->contact->name]));
                                 @endphp
+                                @if ($contact->death_date)
+                                    <div class="people-card__meta people-card__meta--deceased">
+                                        Sterfdag · {{ $contact->death_date->format('d M Y') }}
+                                    </div>
+                                @endif
                                 @foreach ($cardRels as $rel)
                                     <div class="people-card__meta people-card__meta--rel">
                                         {{ ucfirst($rel['type']) }} · {{ $rel['name'] }}
