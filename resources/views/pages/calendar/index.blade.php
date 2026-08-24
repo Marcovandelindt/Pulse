@@ -200,13 +200,15 @@
                             <button type="button" @click="open = false" class="btn btn--secondary">Cancel</button>
                         </div>
                         <div x-show="mode === 'edit'">
-                            <form x-ref="deleteForm" method="POST" :action="`/calendar/${eventId}`">
-                                @csrf
-                                @method('DELETE')
-                            </form>
                             <button type="button" @click="confirmDelete()" class="btn btn--danger btn--sm">Remove</button>
                         </div>
                     </div>
+                </form>
+
+                {{-- Delete form lives outside the event form to avoid nested-form issues --}}
+                <form x-ref="deleteForm" method="POST" :action="`/calendar/${eventId}`" style="display:none;">
+                    @csrf
+                    @method('DELETE')
                 </form>
             </div>
         </div>
