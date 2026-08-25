@@ -173,40 +173,57 @@ foreach ($series->seasons as $season) {
 
         {{-- Cast --}}
         @if ($series->people->isNotEmpty())
-            <x-ui.card title="Cast" class="mt-6">
-                <div class="media-cast media-cast--grid">
-                    @foreach ($series->people->take(40) as $person)
-                        <a
-                            href="{{ route('actors.show', $person) }}"
-                            class="media-cast__member"
-                            x-show="{{ $loop->index }} < 20 || showAllCast"
+            <div x-data="{ castSearch: '' }">
+                <x-ui.card title="Cast" class="mt-6">
+                    <x-slot:action>
+                        <input
+                            type="search"
+                            x-model="castSearch"
+                            placeholder="Search actor or character…"
+                            class="cast-search-input"
                         >
-                            <img
-                                src="{{ $person->profile_url ?? asset('cast-placeholder.svg') }}"
-                                alt="{{ $person->name }}"
-                                class="media-cast__photo"
+                    </x-slot:action>
+
+                    <div class="media-cast media-cast--grid">
+                        @foreach ($series->people->take(40) as $person)
+                            <a
+                                href="{{ route('actors.show', $person) }}"
+                                class="media-cast__member"
+                                data-name="{{ Str::lower(($person->name_en ?? $person->name) . ' ' . $person->name) }}"
+                                data-character="{{ Str::lower($person->pivot->character ?? '') }}"
+                                x-show="castSearch
+                                    ? $el.dataset.name.includes(castSearch.toLowerCase()) || $el.dataset.character.includes(castSearch.toLowerCase())
+                                    : {{ $loop->index }} < 20 || showAllCast"
                             >
-                            <div class="media-cast__name">{{ $person->name_en ?? $person->name }}</div>
-                            @if($person->name_en)
-                                <div class="media-cast__native-name">{{ $person->name }}</div>
-                            @endif
-                            @if ($person->pivot->character)
-                                <div class="media-cast__role">{{ $person->pivot->character }}</div>
-                            @endif
-                            @if ($person->pivot->episode_count)
-                                <div class="media-cast__episodes">{{ $person->pivot->episode_count }} ep</div>
-                            @endif
-                        </a>
-                    @endforeach
-                </div>
-                @if ($series->people->count() > 20)
-                    <button
-                        @click="showAllCast = !showAllCast"
-                        class="btn btn--secondary btn--sm mt-4"
-                        x-text="showAllCast ? 'Show less' : 'Show {{ min($series->people->count(), 40) - 20 }} more'"
-                    ></button>
-                @endif
-            </x-ui.card>
+                                <img
+                                    src="{{ $person->profile_url ?? asset('cast-placeholder.svg') }}"
+                                    alt="{{ $person->name }}"
+                                    class="media-cast__photo"
+                                >
+                                <div class="media-cast__name">{{ $person->name_en ?? $person->name }}</div>
+                                @if($person->name_en)
+                                    <div class="media-cast__native-name">{{ $person->name }}</div>
+                                @endif
+                                @if ($person->pivot->character)
+                                    <div class="media-cast__role">{{ $person->pivot->character }}</div>
+                                @endif
+                                @if ($person->pivot->episode_count)
+                                    <div class="media-cast__episodes">{{ $person->pivot->episode_count }} ep</div>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+
+                    @if ($series->people->count() > 20)
+                        <button
+                            x-show="!castSearch"
+                            @click="showAllCast = !showAllCast"
+                            class="btn btn--secondary btn--sm mt-4"
+                            x-text="showAllCast ? 'Show less' : 'Show {{ min($series->people->count(), 40) - 20 }} more'"
+                        ></button>
+                    @endif
+                </x-ui.card>
+            </div>
         @endif
 
         {{-- Seasons accordion --}}
