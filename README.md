@@ -1,5 +1,10 @@
 # Pulse
 
+<details>
+<summary>🇳🇱 Nederlandse versie</summary>
+
+## Over Pulse
+
 Een persoonlijk dashboard voor het bijhouden van gezondheid, media, gaming, muziek en contacten — alles op één plek.
 
 ---
@@ -62,12 +67,9 @@ Kopieer `.env.example` naar `.env` en pas aan:
 - `DB_*` — MySQL-verbindingsgegevens
 - `APP_TIMEZONE` — standaard `Europe/Amsterdam`
 
+</details>
+
 ---
-
-<details>
-<summary>🇬🇧 English version</summary>
-
-## About
 
 A personal dashboard for tracking health, media, gaming, music, and people — all in one place.
 
@@ -130,5 +132,3 @@ Copy `.env.example` to `.env` and adjust:
 
 - `DB_*` — MySQL connection details
 - `APP_TIMEZONE` — defaults to `Europe/Amsterdam`
-
-</details>
