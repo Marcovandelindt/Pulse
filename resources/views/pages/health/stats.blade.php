@@ -4,6 +4,10 @@
         <x-slot:actions>
             @if (count($availableYears) > 1)
                 <div class="flex gap-1">
+                    <a
+                        href="{{ route('health.stats') }}"
+                        class="btn btn--sm {{ $year === null ? 'btn--primary' : 'btn--secondary' }}"
+                    >All</a>
                     @foreach ($availableYears as $y)
                         <a
                             href="{{ route('health.stats', ['year' => $y]) }}"
@@ -71,9 +75,9 @@
 
     {{-- Year totals --}}
     <div class="stats-row mb-6">
-        <x-stats.stat-card label="Steps in {{ $year }}" :value="number_format($yearSteps)" icon="heart" />
-        <x-stats.stat-card label="Distance in {{ $year }}" :value="number_format($thisYearKm, 1) . ' km'" icon="map-pin" />
-        <x-stats.stat-card label="Days logged in {{ $year }}" :value="number_format($yearDaysLogged)" icon="check-circle" />
+        <x-stats.stat-card :label="$year ? 'Steps in ' . $year : 'Total steps'" :value="number_format($yearSteps)" icon="heart" />
+        <x-stats.stat-card :label="$year ? 'Distance in ' . $year : 'Total distance'" :value="number_format($thisYearKm, 1) . ' km'" icon="map-pin" />
+        <x-stats.stat-card :label="$year ? 'Days logged in ' . $year : 'Total days logged'" :value="number_format($yearDaysLogged)" icon="check-circle" />
         <x-stats.stat-card label="All-time distance" :value="number_format($allTimeKm, 1) . ' km'" icon="calendar" />
     </div>
 
