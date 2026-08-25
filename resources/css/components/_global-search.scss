@@ -115,6 +115,11 @@
     background:    var(--color-bg-tertiary);
 }
 
+.global-search__poster--empty {
+    background: var(--color-bg-tertiary);
+    border:     1px solid var(--color-border);
+}
+
 .global-search__result-info {
     flex:      1;
     min-width: 0;

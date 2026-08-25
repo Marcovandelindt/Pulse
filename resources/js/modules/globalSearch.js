@@ -3,6 +3,7 @@ export function registerGlobalSearch() {
         open: false,
         query: '',
         results: [],
+        pageResults: [],
         loading: false,
         selectedIndex: -1,
         pageMode: false,
@@ -66,33 +67,45 @@ export function registerGlobalSearch() {
         filterPage(query) {
             const items = document.querySelectorAll('[data-searchable]');
             const q = query.toLowerCase().trim();
-            let visible = 0;
+            const matches = [];
+
             items.forEach(el => {
-                const matches = !q || el.dataset.searchable.includes(q);
-                el.classList.toggle('gs-hidden', !matches);
-                if (matches) visible++;
+                const hit = !q || el.dataset.searchable.includes(q);
+                el.classList.toggle('gs-hidden', !hit);
+                if (hit && q) {
+                    matches.push({
+                        label: el.dataset.label || el.dataset.title || el.dataset.name || '',
+                        url:   el.dataset.url || el.href || el.querySelector('a')?.href || '#',
+                        img:   el.querySelector('img')?.src || null,
+                    });
+                }
             });
-            this.pageResultCount = visible;
-            this.pageTotalCount = items.length;
+
+            this.pageResults     = matches.slice(0, 8);
+            this.pageResultCount = q ? matches.length : items.length;
+            this.pageTotalCount  = items.length;
+            this.selectedIndex   = -1;
         },
 
         resetPage() {
             document.querySelectorAll('[data-searchable]').forEach(el => {
                 el.classList.remove('gs-hidden');
             });
+            this.pageResults     = [];
             this.pageResultCount = this.pageTotalCount;
         },
 
         onKeydown(e) {
+            const list = this.pageMode ? this.pageResults : this.results;
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
+                this.selectedIndex = Math.min(this.selectedIndex + 1, list.length - 1);
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
                 this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
             } else if (e.key === 'Enter' && this.selectedIndex >= 0) {
                 e.preventDefault();
-                window.location.href = this.results[this.selectedIndex].url;
+                window.location.href = list[this.selectedIndex].url;
             } else if (e.key === 'Escape') {
                 this.close();
             }

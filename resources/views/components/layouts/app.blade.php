@@ -92,18 +92,38 @@
                 </div>
             </template>
 
-            {{-- Page mode: live counter --}}
+            {{-- Page mode: results list + counter --}}
             <template x-if="pageMode">
-                <div class="global-search__page-status">
-                    <template x-if="query.length === 0">
-                        <span class="global-search__page-hint">Typ om te filteren…</span>
-                    </template>
-                    <template x-if="query.length > 0 && pageResultCount > 0">
-                        <span class="global-search__page-count" x-text="`${pageResultCount} van ${pageTotalCount} resultaten`"></span>
-                    </template>
-                    <template x-if="query.length > 0 && pageResultCount === 0">
-                        <span class="global-search__page-empty">Geen resultaten voor "<span x-text="query"></span>"</span>
-                    </template>
+                <div>
+                    <div x-show="pageResults.length > 0" class="global-search__results">
+                        <template x-for="(result, i) in pageResults" :key="result.url">
+                            <a
+                                :href="result.url"
+                                class="global-search__result"
+                                :class="{ 'global-search__result--active': i === selectedIndex }"
+                                @click="close()"
+                                @mouseenter="selectedIndex = i"
+                            >
+                                <img x-show="result.img" :src="result.img" :alt="result.label" class="global-search__poster">
+                                <div x-show="!result.img" class="global-search__poster global-search__poster--empty"></div>
+                                <div class="global-search__result-info">
+                                    <div class="global-search__result-title" x-text="result.label"></div>
+                                </div>
+                            </a>
+                        </template>
+                    </div>
+
+                    <div class="global-search__page-status">
+                        <template x-if="query.length === 0">
+                            <span class="global-search__page-hint">Typ om te filteren…</span>
+                        </template>
+                        <template x-if="query.length > 0 && pageResultCount > 0">
+                            <span class="global-search__page-count" x-text="`${pageResultCount} van ${pageTotalCount} resultaten`"></span>
+                        </template>
+                        <template x-if="query.length > 0 && pageResultCount === 0">
+                            <span class="global-search__page-empty">Geen resultaten voor "<span x-text="query"></span>"</span>
+                        </template>
+                    </div>
                 </div>
             </template>
         </div>

@@ -103,6 +103,8 @@
                     data-original="{{ strtolower($show->original_name) }}"
                     data-name-en="{{ strtolower($show->name_en ?? '') }}"
                     data-searchable="{{ strtolower(($show->name_en ?? $show->name) . ' ' . $show->name . ' ' . ($show->original_name ?? '')) }}"
+                    data-label="{{ $show->name_en ?? $show->name }}"
+                    data-url="{{ route('tv.show', $show) }}"
                     x-show="matchesFilter($el)"
                     x-data="{ isFavorite: {{ $show->is_favorite ? 'true' : 'false' }} }"
                 >
