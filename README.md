@@ -1,74 +1,5 @@
 # Pulse
 
-A personal dashboard for tracking health, media, gaming, music, and people — all in one place.
-
----
-
-## Features
-
-- **Health** — log daily steps, set goals, view streaks and yearly stats
-- **Movies & TV** — track what you watch, manage cast exclusions, explore stats
-- **Music** — artists, albums, tracks, and obsession tracking
-- **Gaming** — PlayStation and Steam libraries with session logging and backlogs
-- **People** — contacts with relationships, birthdays, and notes
-- **Calendar** — events and work schedules
-- **Global search** — search across all modules with `Ctrl+F`
-
-## Tech stack
-
-| Layer | Choice |
-|---|---|
-| Backend | PHP 8.3+ / Laravel 13 |
-| Frontend bundler | Vite 8 |
-| CSS framework | Tailwind CSS v4 |
-| Custom styling | SCSS + BEM |
-| JS interactivity | Alpine.js v3 |
-| Charts | Chart.js v4 |
-| Testing | Pest v4 |
-| Code formatter | Laravel Pint |
-| Static analysis | PHPStan / Larastan (level 8) |
-
-## Setup
-
-```bash
-git clone <repo-url> pulse
-cd pulse
-composer run setup
-```
-
-The `setup` script handles everything: `composer install`, `.env` copy, key generation, migrations, `npm install`, and a production build.
-
-## Development
-
-```bash
-composer run dev
-```
-
-Starts Laravel, the queue worker, Pail log viewer, and Vite — all concurrently.
-
-## Other commands
-
-```bash
-composer run test      # Run Pest test suite
-composer run lint      # Format with Laravel Pint
-composer run analyse   # Static analysis with PHPStan
-npm run build          # Production frontend build
-```
-
-## Environment
-
-Copy `.env.example` to `.env` and adjust:
-
-- `DB_*` — MySQL connection details
-- `APP_TIMEZONE` — defaults to `Europe/Amsterdam`
-
----
-
-<details>
-<summary>🇳🇱 Nederlandse versie</summary>
-
-## Over Pulse
-
 Een persoonlijk dashboard voor het bijhouden van gezondheid, media, gaming, muziek en contacten — alles op één plek.
 
 ---
@@ -130,5 +61,74 @@ Kopieer `.env.example` naar `.env` en pas aan:
 
 - `DB_*` — MySQL-verbindingsgegevens
 - `APP_TIMEZONE` — standaard `Europe/Amsterdam`
+
+---
+
+<details>
+<summary>🇬🇧 English version</summary>
+
+## About
+
+A personal dashboard for tracking health, media, gaming, music, and people — all in one place.
+
+---
+
+## Features
+
+- **Health** — log daily steps, set goals, view streaks and yearly stats
+- **Movies & TV** — track what you watch, manage cast exclusions, explore stats
+- **Music** — artists, albums, tracks, and obsession tracking
+- **Gaming** — PlayStation and Steam libraries with session logging and backlogs
+- **People** — contacts with relationships, birthdays, and notes
+- **Calendar** — events and work schedules
+- **Global search** — search across all modules with `Ctrl+F`
+
+## Tech stack
+
+| Layer | Choice |
+|---|---|
+| Backend | PHP 8.3+ / Laravel 13 |
+| Frontend bundler | Vite 8 |
+| CSS framework | Tailwind CSS v4 |
+| Custom styling | SCSS + BEM |
+| JS interactivity | Alpine.js v3 |
+| Charts | Chart.js v4 |
+| Testing | Pest v4 |
+| Code formatter | Laravel Pint |
+| Static analysis | PHPStan / Larastan (level 8) |
+
+## Setup
+
+```bash
+git clone <repo-url> pulse
+cd pulse
+composer run setup
+```
+
+The `setup` script handles everything: `composer install`, `.env` copy, key generation, migrations, `npm install`, and a production build.
+
+## Development
+
+```bash
+composer run dev
+```
+
+Starts Laravel, the queue worker, Pail log viewer, and Vite — all concurrently.
+
+## Other commands
+
+```bash
+composer run test      # Run Pest test suite
+composer run lint      # Format with Laravel Pint
+composer run analyse   # Static analysis with PHPStan
+npm run build          # Production frontend build
+```
+
+## Environment
+
+Copy `.env.example` to `.env` and adjust:
+
+- `DB_*` — MySQL connection details
+- `APP_TIMEZONE` — defaults to `Europe/Amsterdam`
 
 </details>
