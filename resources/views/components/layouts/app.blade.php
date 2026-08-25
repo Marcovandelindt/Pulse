@@ -23,6 +23,74 @@
         </main>
     </div>
 
+    {{-- Global search overlay --}}
+    <div
+        x-data="globalSearch"
+        x-show="open"
+        x-transition:enter="gs-enter"
+        x-transition:enter-start="gs-enter-start"
+        x-transition:enter-end="gs-enter-end"
+        x-transition:leave="gs-leave"
+        x-transition:leave-start="gs-leave-start"
+        x-transition:leave-end="gs-leave-end"
+        class="global-search"
+        style="display:none;"
+    >
+        <div class="global-search__backdrop" @click="close()"></div>
+        <div class="global-search__panel">
+            <div class="global-search__input-row">
+                <svg class="global-search__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+                </svg>
+                <input
+                    x-ref="input"
+                    x-model="query"
+                    @input="onInput()"
+                    @keydown="onKeydown($event)"
+                    type="search"
+                    placeholder="Zoek films en series…"
+                    class="global-search__input"
+                    autocomplete="off"
+                >
+                <span x-show="loading" class="global-search__spinner">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="animate-spin" fill="none" viewBox="0 0 24 24" style="width:1rem;height:1rem;">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="20" stroke-linecap="round"/>
+                    </svg>
+                </span>
+                <kbd class="global-search__esc" @click="close()">Esc</kbd>
+            </div>
+
+            <div x-show="results.length > 0" class="global-search__results">
+                <template x-for="(result, i) in results" :key="result.type + result.id">
+                    <a
+                        :href="result.url"
+                        class="global-search__result"
+                        :class="{ 'global-search__result--active': i === selectedIndex }"
+                        @click="close()"
+                        @mouseenter="selectedIndex = i"
+                    >
+                        <img :src="result.poster_url" :alt="result.title" class="global-search__poster">
+                        <div class="global-search__result-info">
+                            <div class="global-search__result-title" x-text="result.title"></div>
+                            <div class="global-search__result-sub" x-text="result.subtitle"></div>
+                        </div>
+                        <span class="global-search__badge" :class="result.type === 'movie' ? 'global-search__badge--movie' : 'global-search__badge--tv'" x-text="result.type === 'movie' ? 'Film' : 'Serie'"></span>
+                    </a>
+                </template>
+            </div>
+
+            <div x-show="query.length >= 2 && !loading && results.length === 0" class="global-search__empty">
+                Geen resultaten voor "<span x-text="query" class="text-[var(--color-text-primary)]"></span>"
+            </div>
+
+            <div class="global-search__footer">
+                <span><kbd>↑</kbd><kbd>↓</kbd> navigeren</span>
+                <span><kbd>↵</kbd> openen</span>
+                <span><kbd>Ctrl F</kbd> openen</span>
+            </div>
+        </div>
+    </div>
+
     <div
         x-data="{ toasts: [] }"
         @toast.window="toasts.push({ message: $event.detail.message, type: $event.detail.type ?? 'success', id: Date.now() })"

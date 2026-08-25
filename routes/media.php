@@ -6,6 +6,7 @@ use App\Http\Controllers\Media\Movies\MovieController;
 use App\Http\Controllers\Media\Movies\MovieSearchController;
 use App\Http\Controllers\Media\Movies\MovieStatsController;
 use App\Http\Controllers\Media\Movies\MovieWatchController;
+use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\Media\Tv\TvCastExclusionController;
 use App\Http\Controllers\Media\Tv\TvRefreshController;
 use App\Http\Controllers\Media\Tv\TvSearchController;
@@ -47,6 +48,8 @@ Route::prefix('tv')->name('tv.')->group(function () {
     Route::patch('/{series}/cast/{person}/excluded', [TvCastExclusionController::class, 'toggle'])->name('cast.excluded.toggle');
     Route::patch('/{series}/exclude-cast', [TvSeriesController::class, 'toggleExcludeCast'])->name('exclude-cast');
 });
+
+Route::get('/search', [GlobalSearchController::class, 'index'])->name('search');
 
 Route::get('/actors', [PeopleController::class, 'index'])->name('actors.index');
 Route::get('/actors/{person}', [PeopleController::class, 'show'])->name('actors.show');

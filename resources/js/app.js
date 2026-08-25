@@ -7,6 +7,7 @@ import { registerRecommendationComponents } from './modules/recommendations.js';
 import { registerPlayStationComponents } from './modules/playstation.js';
 import { registerHealthComponents } from './modules/health.js';
 import { registerCalendarComponents } from './modules/calendar.js';
+import { registerGlobalSearch } from './modules/globalSearch.js';
 
 window.Alpine = Alpine;
 Alpine.plugin(Collapse);
@@ -17,6 +18,7 @@ registerRecommendationComponents();
 registerPlayStationComponents();
 registerHealthComponents();
 registerCalendarComponents();
+registerGlobalSearch();
 
 Alpine.start();
 
