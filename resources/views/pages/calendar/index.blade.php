@@ -38,6 +38,152 @@
             </button>
         </div>
 
+        {{-- Work schedule manager --}}
+        <div class="schedule-manager" x-data="scheduleManager">
+            <div class="schedule-manager__header" @click="panelOpen = !panelOpen">
+                <div class="schedule-manager__title">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" style="flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    Work schedules
+                    <span class="schedule-manager__count">{{ $workSchedules->count() }}</span>
+                </div>
+                <div class="schedule-manager__actions">
+                    <button @click.stop="openCreate()" class="btn btn--secondary btn--sm" type="button">+ Add</button>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" style="flex-shrink:0;transition:transform 150ms ease;" :class="panelOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+
+            <div x-show="panelOpen" x-transition class="schedule-manager__body">
+                @if ($workSchedules->isEmpty())
+                    <p class="schedule-manager__empty">No work schedules yet. Add one to see your shifts on the calendar.</p>
+                @else
+                    <div class="schedule-manager__list">
+                        @foreach ($workSchedules as $schedule)
+                            @php
+                                $scheduleJson = json_encode([
+                                    'id'          => $schedule->id,
+                                    'name'        => $schedule->name,
+                                    'days'        => $schedule->days,
+                                    'start_time'  => $schedule->start_time,
+                                    'end_time'    => $schedule->end_time,
+                                    'color'       => $schedule->color,
+                                    'valid_from'  => $schedule->valid_from?->format('Y-m-d'),
+                                    'valid_until' => $schedule->valid_until?->format('Y-m-d'),
+                                    'active'      => $schedule->active,
+                                ]);
+                            @endphp
+                            <div class="schedule-manager__item">
+                                <span class="schedule-manager__dot" style="background: {{ $schedule->effectiveColor() }};"></span>
+                                <span class="schedule-manager__name">{{ $schedule->name }}</span>
+                                <span class="schedule-manager__meta">
+                                    {{ $schedule->dayLabels() }} &middot; {{ $schedule->start_time }}–{{ $schedule->end_time }}
+                                    @if ($schedule->valid_from || $schedule->valid_until)
+                                        &middot; {{ $schedule->valid_from?->format('d M Y') ?? '…' }}–{{ $schedule->valid_until?->format('d M Y') ?? '…' }}
+                                    @endif
+                                </span>
+                                @if (! $schedule->active)
+                                    <span class="schedule-manager__badge">inactive</span>
+                                @endif
+                                <button
+                                    @click="openEdit({{ $scheduleJson }})"
+                                    class="btn btn--secondary btn--sm"
+                                    type="button">Edit</button>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            {{-- Schedule modal --}}
+            <div class="modal" x-show="modalOpen" x-transition @keydown.escape.window="modalOpen = false" style="display:none;">
+                <div class="modal__backdrop" @click="modalOpen = false"></div>
+                <div class="modal__panel">
+                    <div class="modal__header">
+                        <h2 class="modal__title" x-text="mode === 'edit' ? 'Edit work schedule' : 'New work schedule'"></h2>
+                        <button @click="modalOpen = false" class="btn btn--icon btn--secondary" type="button">&times;</button>
+                    </div>
+
+                    <form x-ref="scheduleForm" method="POST" :action="formAction">
+                        @csrf
+                        <input type="hidden" name="_method" :value="mode === 'edit' ? 'PATCH' : ''">
+                        <input type="hidden" name="redirect_month" value="{{ $month->format('Y-m') }}">
+
+                        <div class="modal__body">
+                            {{-- Name --}}
+                            <div class="form-group">
+                                <label class="form-label">Name</label>
+                                <input type="text" name="name" x-model="name" class="form-input" required placeholder="e.g. Early shift">
+                            </div>
+
+                            {{-- Days --}}
+                            <div class="form-group">
+                                <label class="form-label">Days</label>
+                                <div class="day-checkboxes">
+                                    @foreach (['1' => 'Mon', '2' => 'Tue', '3' => 'Wed', '4' => 'Thu', '5' => 'Fri', '6' => 'Sat', '7' => 'Sun'] as $num => $label)
+                                        <label :class="{ 'day-checkbox--active': days.includes('{{ $num }}') }" class="day-checkbox">
+                                            <input type="checkbox" name="days[]" value="{{ $num }}" x-model="days">
+                                            {{ $label }}
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            {{-- Start / end time --}}
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Start time</label>
+                                    <input type="time" name="start_time" x-model="startTime" class="form-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">End time</label>
+                                    <input type="time" name="end_time" x-model="endTime" class="form-input" required>
+                                </div>
+                            </div>
+
+                            {{-- Valid from / until --}}
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Valid from <span class="form-label__optional">optional</span></label>
+                                    <input type="date" name="valid_from" x-model="validFrom" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Valid until <span class="form-label__optional">optional</span></label>
+                                    <input type="date" name="valid_until" x-model="validUntil" class="form-input">
+                                </div>
+                            </div>
+
+                            {{-- Active --}}
+                            <div class="form-group form-group--inline">
+                                <input type="checkbox" name="active" id="schedule_active" value="1" x-model="active" class="form-checkbox">
+                                <label for="schedule_active" class="form-label form-label--inline">Active (show on calendar)</label>
+                            </div>
+                        </div>
+
+                        <div class="modal__footer">
+                            <div class="flex items-center gap-3">
+                                <button type="submit" class="btn btn--primary">
+                                    <span x-text="mode === 'edit' ? 'Save changes' : 'Add schedule'"></span>
+                                </button>
+                                <button type="button" @click="modalOpen = false" class="btn btn--secondary">Cancel</button>
+                            </div>
+                            <div x-show="mode === 'edit'">
+                                <button type="button" @click="confirmDelete()" class="btn btn--danger btn--sm">Remove</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <form x-ref="deleteScheduleForm" method="POST" :action="`/calendar/schedules/${scheduleId}`" style="display:none;">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" name="redirect_month" value="{{ $month->format('Y-m') }}">
+                    </form>
+                </div>
+            </div>
+        </div>
+
         {{-- Day-of-week header --}}
         <div class="calendar-grid">
             @foreach ($dayNames as $name)
@@ -66,7 +212,15 @@
                     @if (count($events) > 0)
                         <div class="calendar-cell__events">
                             @foreach (array_slice($events, 0, 3) as $event)
-                                @if (is_array($event) && ($event['is_relationship_date'] ?? false))
+                                @if (is_array($event) && ($event['is_work_shift'] ?? false))
+                                    @php $ws = $event['schedule']; @endphp
+                                    <span class="calendar-pill calendar-pill--work-shift"
+                                          style="background: {{ $ws->rgbaColor(0.13) }}; color: {{ $ws->effectiveColor() }};"
+                                          title="{{ $ws->name }}: {{ $ws->start_time }}–{{ $ws->end_time }}">
+                                        <span class="calendar-pill__dot"></span>
+                                        {{ $ws->name }} · {{ $ws->start_time }}–{{ $ws->end_time }}
+                                    </span>
+                                @elseif (is_array($event) && ($event['is_relationship_date'] ?? false))
                                     @php $rel = $event['relationship']; @endphp
                                     <span class="calendar-pill calendar-pill--anniversary"
                                           title="{{ $rel->typeLabel() }}: {{ $rel->contact->name }} & {{ $rel->relatedContact->name }}">
@@ -226,7 +380,6 @@
                     </div>
                 </form>
 
-                {{-- Delete form lives outside the event form to avoid nested-form issues --}}
                 <form x-ref="deleteForm" method="POST" :action="`/calendar/${eventId}`" style="display:none;">
                     @csrf
                     @method('DELETE')

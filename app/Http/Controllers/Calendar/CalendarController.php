@@ -13,6 +13,7 @@ use App\Models\CalendarEvent;
 use App\Models\Contact;
 use App\Models\ContactDate;
 use App\Models\ContactRelationship;
+use App\Models\WorkSchedule;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
@@ -47,6 +48,9 @@ final class CalendarController extends Controller
             ->get();
 
         $dayEvents = $this->buildDayEvents($events, $monthStart, $monthEnd);
+
+        $workSchedules = WorkSchedule::orderBy('name')->get();
+        $this->injectWorkShifts($workSchedules->where('active', true)->values(), $monthStart, $monthEnd, $dayEvents);
 
         Contact::whereNotNull('death_date')->get()->each(function (Contact $contact) use ($month, &$dayEvents) {
             try {
@@ -103,7 +107,7 @@ final class CalendarController extends Controller
         $recurrenceTypes = RecurrenceType::cases();
 
         return view('pages.calendar.index', compact(
-            'month', 'dayEvents', 'eventTypes', 'recurrenceTypes'
+            'month', 'dayEvents', 'eventTypes', 'recurrenceTypes', 'workSchedules'
         ));
     }
 
@@ -134,6 +138,47 @@ final class CalendarController extends Controller
 
         return redirect()->route('calendar.index', ['month' => $month])
             ->with('success', 'Event removed.');
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, WorkSchedule>  $schedules
+     * @param  array<string, list<mixed>>  $dayEvents
+     */
+    private function injectWorkShifts(
+        \Illuminate\Support\Collection $schedules,
+        Carbon $monthStart,
+        Carbon $monthEnd,
+        array &$dayEvents,
+    ): void {
+        if ($schedules->isEmpty()) {
+            return;
+        }
+
+        $cursor = $monthStart->copy();
+        while ($cursor->lte($monthEnd)) {
+            $iso     = $cursor->dayOfWeekIso; // 1=Mon, 7=Sun
+            $dateKey = $cursor->format('Y-m-d');
+
+            foreach ($schedules as $schedule) {
+                if (! in_array($iso, $schedule->days, true)) {
+                    continue;
+                }
+                if ($schedule->valid_from && $cursor->lt($schedule->valid_from)) {
+                    continue;
+                }
+                if ($schedule->valid_until && $cursor->gt($schedule->valid_until)) {
+                    continue;
+                }
+
+                // Prepend so work shifts appear before other events in the cell
+                $dayEvents[$dateKey] = array_merge(
+                    [['is_work_shift' => true, 'schedule' => $schedule]],
+                    $dayEvents[$dateKey] ?? [],
+                );
+            }
+
+            $cursor->addDay();
+        }
     }
 
     /** @return array<string, list<mixed>> */

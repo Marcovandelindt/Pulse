@@ -210,6 +210,152 @@
     filter: none;
 }
 
+.calendar-pill--work-shift {
+    cursor: default;
+
+    &:hover { filter: none; }
+}
+
+/* ── Schedule manager panel ───────────────────────── */
+
+.schedule-manager {
+    background:    var(--color-bg-secondary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow:      hidden;
+}
+
+.schedule-manager__header {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    padding:         0.75rem 1.25rem;
+    border-bottom:   1px solid var(--color-border);
+    cursor:          pointer;
+    user-select:     none;
+    transition:      background var(--transition-base);
+}
+
+.schedule-manager__header:hover {
+    background: var(--color-bg-tertiary);
+}
+
+.schedule-manager__title {
+    display:     flex;
+    align-items: center;
+    gap:         0.5rem;
+    font-size:   0.875rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+}
+
+.schedule-manager__count {
+    font-size:     0.6875rem;
+    font-weight:   500;
+    color:         var(--color-text-muted);
+    background:    var(--color-bg-tertiary);
+    border:        1px solid var(--color-border);
+    border-radius: 0.875rem;
+    padding:       0.125rem 0.5rem;
+}
+
+.schedule-manager__actions {
+    display:     flex;
+    align-items: center;
+    gap:         0.5rem;
+}
+
+.schedule-manager__body {
+    padding: 0.875rem 1.25rem;
+}
+
+.schedule-manager__empty {
+    font-size: 0.8125rem;
+    color:     var(--color-text-muted);
+}
+
+.schedule-manager__list {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.375rem;
+}
+
+.schedule-manager__item {
+    display:       flex;
+    align-items:   center;
+    gap:           0.625rem;
+    padding:       0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    background:    var(--color-bg-tertiary);
+    border:        1px solid var(--color-border);
+}
+
+.schedule-manager__dot {
+    width:         0.5rem;
+    height:        0.5rem;
+    border-radius: 50%;
+    flex-shrink:   0;
+}
+
+.schedule-manager__name {
+    font-size:   0.875rem;
+    font-weight: 500;
+    color:       var(--color-text-primary);
+    min-width:   0;
+}
+
+.schedule-manager__meta {
+    font-size: 0.8125rem;
+    color:     var(--color-text-muted);
+    flex:      1;
+    min-width: 0;
+}
+
+.schedule-manager__badge {
+    font-size:     0.6875rem;
+    font-weight:   500;
+    padding:       0.125rem 0.375rem;
+    border-radius: var(--radius-sm);
+    background:    rgba(255, 255, 255, 0.06);
+    color:         var(--color-text-muted);
+    white-space:   nowrap;
+}
+
+/* ── Day checkboxes ───────────────────────────────── */
+
+.day-checkboxes {
+    display:   flex;
+    gap:       0.375rem;
+    flex-wrap: wrap;
+}
+
+.day-checkbox {
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    width:           2.5rem;
+    height:          2.5rem;
+    border-radius:   var(--radius-sm);
+    border:          1px solid var(--color-border);
+    font-size:       0.75rem;
+    font-weight:     500;
+    color:           var(--color-text-muted);
+    cursor:          pointer;
+    transition:      all var(--transition-base);
+    user-select:     none;
+    background:      var(--color-bg-tertiary);
+}
+
+.day-checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.day-checkbox--active {
+    background:   var(--color-brand);
+    border-color: var(--color-brand);
+    color:        #fff;
+}
+
 /* ── Modal overrides for calendar ────────────────── */
 
 .modal__body {

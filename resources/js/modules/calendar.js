@@ -1,4 +1,63 @@
 export function registerCalendarComponents() {
+    Alpine.data('scheduleManager', () => ({
+        panelOpen: false,
+        modalOpen: false,
+        mode: 'create',
+        scheduleId: null,
+        name: '',
+        days: ['1', '2', '3', '4', '5'],
+        startTime: '09:00',
+        endTime: '17:00',
+        color: '#14b8a6',
+        validFrom: '',
+        validUntil: '',
+        active: true,
+
+        get formAction() {
+            return this.mode === 'edit'
+                ? `/calendar/schedules/${this.scheduleId}`
+                : '/calendar/schedules';
+        },
+
+        openCreate() {
+            this.reset();
+            this.modalOpen = true;
+        },
+
+        openEdit(data) {
+            this.scheduleId  = data.id;
+            this.name        = data.name;
+            this.days        = (data.days || []).map(String);
+            this.startTime   = data.start_time;
+            this.endTime     = data.end_time;
+            this.color       = data.color || '#14b8a6';
+            this.validFrom   = data.valid_from || '';
+            this.validUntil  = data.valid_until || '';
+            this.active      = data.active;
+            this.mode        = 'edit';
+            this.modalOpen   = true;
+        },
+
+        reset() {
+            this.scheduleId = null;
+            this.name       = '';
+            this.days       = ['1', '2', '3', '4', '5'];
+            this.startTime  = '09:00';
+            this.endTime    = '17:00';
+            this.color      = '#14b8a6';
+            this.validFrom  = '';
+            this.validUntil = '';
+            this.active     = true;
+            this.mode       = 'create';
+        },
+
+        confirmDelete() {
+            if (confirm('Remove this work schedule?')) {
+                this.$refs.deleteScheduleForm.submit();
+            }
+        },
+    }));
+
     Alpine.data('calendarModal', () => ({
         open: false,
         mode: 'create',

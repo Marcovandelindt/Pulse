@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Calendar\CalendarController;
+use App\Http\Controllers\Calendar\WorkScheduleController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Health\HealthEntryController;
 use App\Http\Controllers\Health\HealthExportController;
@@ -32,6 +33,12 @@ Route::prefix('calendar')->name('calendar.')->group(function () {
     Route::post('/', [CalendarController::class, 'store'])->name('store');
     Route::patch('/{event}', [CalendarController::class, 'update'])->name('update');
     Route::delete('/{event}', [CalendarController::class, 'destroy'])->name('destroy');
+
+    Route::prefix('schedules')->name('schedules.')->group(function () {
+        Route::post('/', [WorkScheduleController::class, 'store'])->name('store');
+        Route::patch('/{schedule}', [WorkScheduleController::class, 'update'])->name('update');
+        Route::delete('/{schedule}', [WorkScheduleController::class, 'destroy'])->name('destroy');
+    });
 });
 
 Route::prefix('people')->name('people.')->group(function () {
