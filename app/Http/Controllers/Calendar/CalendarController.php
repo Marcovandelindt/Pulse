@@ -49,7 +49,11 @@ final class CalendarController extends Controller
 
         $dayEvents = $this->buildDayEvents($events, $monthStart, $monthEnd);
 
-        $workSchedules = WorkSchedule::orderBy('name')->get();
+        $workSchedules = WorkSchedule::orderBy('name')
+            ->where(function ($q) {
+                $q->whereNull('valid_until')->orWhere('valid_until', '>=', today());
+            })
+            ->get();
         $this->injectWorkShifts($workSchedules->where('active', true)->values(), $monthStart, $monthEnd, $dayEvents);
 
         Contact::whereNotNull('death_date')->get()->each(function (Contact $contact) use ($month, &$dayEvents) {
