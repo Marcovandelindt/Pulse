@@ -50,7 +50,7 @@
                     $characters = $movieChars->merge($tvChars)->values();
                 }
             @endphp
-            <a href="{{ route('actors.show', $person) }}" class="people-index__card">
+            <a href="{{ route('actors.show', $person) }}" class="people-index__card" data-searchable="{{ strtolower(($person->name_en ?? $person->name) . ' ' . $person->name) }}">
                 @if ($search === '')
                     <span class="people-index__rank">#{{ ($people->currentPage() - 1) * $people->perPage() + $loop->iteration }}</span>
                 @endif

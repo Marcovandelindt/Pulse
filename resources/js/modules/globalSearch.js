@@ -5,12 +5,19 @@ export function registerGlobalSearch() {
         results: [],
         loading: false,
         selectedIndex: -1,
+        pageMode: false,
+        pageResultCount: 0,
+        pageTotalCount: 0,
         _timer: null,
 
         init() {
             window.addEventListener('keydown', (e) => {
                 if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
                     e.preventDefault();
+                    const items = document.querySelectorAll('[data-searchable]');
+                    this.pageMode = items.length > 0;
+                    this.pageTotalCount = items.length;
+                    this.pageResultCount = items.length;
                     this.open = true;
                     this.$nextTick(() => this.$refs.input?.focus());
                 }
@@ -22,11 +29,20 @@ export function registerGlobalSearch() {
             this.query = '';
             this.results = [];
             this.selectedIndex = -1;
+            if (this.pageMode) {
+                this.resetPage();
+            }
         },
 
         onInput() {
             this.selectedIndex = -1;
             clearTimeout(this._timer);
+
+            if (this.pageMode) {
+                this.filterPage(this.query);
+                return;
+            }
+
             if (!this.query.trim()) {
                 this.results = [];
                 this.loading = false;
@@ -45,6 +61,26 @@ export function registerGlobalSearch() {
             } finally {
                 this.loading = false;
             }
+        },
+
+        filterPage(query) {
+            const items = document.querySelectorAll('[data-searchable]');
+            const q = query.toLowerCase().trim();
+            let visible = 0;
+            items.forEach(el => {
+                const matches = !q || el.dataset.searchable.includes(q);
+                el.classList.toggle('gs-hidden', !matches);
+                if (matches) visible++;
+            });
+            this.pageResultCount = visible;
+            this.pageTotalCount = items.length;
+        },
+
+        resetPage() {
+            document.querySelectorAll('[data-searchable]').forEach(el => {
+                el.classList.remove('gs-hidden');
+            });
+            this.pageResultCount = this.pageTotalCount;
         },
 
         onKeydown(e) {

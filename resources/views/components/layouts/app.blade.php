@@ -48,7 +48,7 @@
                     @input="onInput()"
                     @keydown="onKeydown($event)"
                     type="search"
-                    placeholder="Zoek films en series…"
+                    :placeholder="pageMode ? 'Zoek op deze pagina…' : 'Zoek films en series…'"
                     class="global-search__input"
                     autocomplete="off"
                 >
@@ -60,34 +60,52 @@
                 <kbd class="global-search__esc" @click="close()">Esc</kbd>
             </div>
 
-            <div x-show="results.length > 0" class="global-search__results">
-                <template x-for="(result, i) in results" :key="result.type + result.id">
-                    <a
-                        :href="result.url"
-                        class="global-search__result"
-                        :class="{ 'global-search__result--active': i === selectedIndex }"
-                        @click="close()"
-                        @mouseenter="selectedIndex = i"
-                    >
-                        <img :src="result.poster_url" :alt="result.title" class="global-search__poster">
-                        <div class="global-search__result-info">
-                            <div class="global-search__result-title" x-text="result.title"></div>
-                            <div class="global-search__result-sub" x-text="result.subtitle"></div>
-                        </div>
-                        <span class="global-search__badge" :class="result.type === 'movie' ? 'global-search__badge--movie' : 'global-search__badge--tv'" x-text="result.type === 'movie' ? 'Film' : 'Serie'"></span>
-                    </a>
-                </template>
-            </div>
+            {{-- Global mode: results list --}}
+            <template x-if="!pageMode">
+                <div>
+                    <div x-show="results.length > 0" class="global-search__results">
+                        <template x-for="(result, i) in results" :key="result.type + result.id">
+                            <a
+                                :href="result.url"
+                                class="global-search__result"
+                                :class="{ 'global-search__result--active': i === selectedIndex }"
+                                @click="close()"
+                                @mouseenter="selectedIndex = i"
+                            >
+                                <img :src="result.poster_url" :alt="result.title" class="global-search__poster">
+                                <div class="global-search__result-info">
+                                    <div class="global-search__result-title" x-text="result.title"></div>
+                                    <div class="global-search__result-sub" x-text="result.subtitle"></div>
+                                </div>
+                                <span class="global-search__badge" :class="result.type === 'movie' ? 'global-search__badge--movie' : 'global-search__badge--tv'" x-text="result.type === 'movie' ? 'Film' : 'Serie'"></span>
+                            </a>
+                        </template>
+                    </div>
+                    <div x-show="query.length >= 2 && !loading && results.length === 0" class="global-search__empty">
+                        Geen resultaten voor "<span x-text="query" class="text-[var(--color-text-primary)]"></span>"
+                    </div>
+                    <div class="global-search__footer">
+                        <span><kbd>↑</kbd><kbd>↓</kbd> navigeren</span>
+                        <span><kbd>↵</kbd> openen</span>
+                        <span><kbd>Ctrl F</kbd> openen</span>
+                    </div>
+                </div>
+            </template>
 
-            <div x-show="query.length >= 2 && !loading && results.length === 0" class="global-search__empty">
-                Geen resultaten voor "<span x-text="query" class="text-[var(--color-text-primary)]"></span>"
-            </div>
-
-            <div class="global-search__footer">
-                <span><kbd>↑</kbd><kbd>↓</kbd> navigeren</span>
-                <span><kbd>↵</kbd> openen</span>
-                <span><kbd>Ctrl F</kbd> openen</span>
-            </div>
+            {{-- Page mode: live counter --}}
+            <template x-if="pageMode">
+                <div class="global-search__page-status">
+                    <template x-if="query.length === 0">
+                        <span class="global-search__page-hint">Typ om te filteren…</span>
+                    </template>
+                    <template x-if="query.length > 0 && pageResultCount > 0">
+                        <span class="global-search__page-count" x-text="`${pageResultCount} van ${pageTotalCount} resultaten`"></span>
+                    </template>
+                    <template x-if="query.length > 0 && pageResultCount === 0">
+                        <span class="global-search__page-empty">Geen resultaten voor "<span x-text="query"></span>"</span>
+                    </template>
+                </div>
+            </template>
         </div>
     </div>
 

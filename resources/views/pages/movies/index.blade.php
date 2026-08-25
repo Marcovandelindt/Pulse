@@ -98,6 +98,7 @@
                     class="media-card"
                     data-title="{{ strtolower($movie->title) }}"
                     data-original-title="{{ strtolower($movie->original_title) }}"
+                    data-searchable="{{ strtolower($movie->title . ' ' . $movie->original_title) }}"
                     x-show="!filter || $el.dataset.title.includes(filter.toLowerCase()) || ($el.dataset.originalTitle ?? '').includes(filter.toLowerCase())"
                 >
                     <a href="{{ route('movies.show', $movie) }}" class="media-card__poster-link">
