@@ -87,14 +87,8 @@
 }
 
 .calendar-cell--today .calendar-cell__number {
-    background:      var(--color-brand);
-    color:           #fff;
-    border-radius:   50%;
-    width:           1.625rem;
-    height:          1.625rem;
-    display:         inline-flex;
-    align-items:     center;
-    justify-content: center;
+    color:       var(--color-brand);
+    font-weight: 700;
 }
 
 .calendar-cell--weekend:not(.calendar-cell--other-month) {
