@@ -69,12 +69,12 @@
         </x-ui.card>
     @endif
 
-    {{-- All-time totals --}}
+    {{-- Year totals --}}
     <div class="stats-row mb-6">
-        <x-stats.stat-card label="Total steps" :value="number_format($allTimeSteps)" icon="heart" />
-        <x-stats.stat-card label="Total distance" :value="number_format($allTimeKm, 1) . ' km'" icon="map-pin" />
-        <x-stats.stat-card label="Distance {{ $year }}" :value="number_format($thisYearKm, 1) . ' km'" icon="calendar" />
-        <x-stats.stat-card label="Days logged" :value="number_format($totalEntries)" icon="check-circle" />
+        <x-stats.stat-card label="Steps in {{ $year }}" :value="number_format($yearSteps)" icon="heart" />
+        <x-stats.stat-card label="Distance in {{ $year }}" :value="number_format($thisYearKm, 1) . ' km'" icon="map-pin" />
+        <x-stats.stat-card label="Days logged in {{ $year }}" :value="number_format($yearDaysLogged)" icon="check-circle" />
+        <x-stats.stat-card label="All-time distance" :value="number_format($allTimeKm, 1) . ' km'" icon="calendar" />
     </div>
 
     {{-- Distance comparisons --}}

@@ -67,8 +67,12 @@ final class HealthStatsController extends Controller
         // All-time totals
         $allTimeSteps = (int) HealthEntry::withSteps()->sum('steps');
         $allTimeKm    = round($allTimeSteps * 0.00066, 1);
-        $thisYearKm   = round((int) HealthEntry::withSteps()->whereYear('date', $year)->sum('steps') * 0.00066, 1);
         $thisMonthKm  = round((int) HealthEntry::withSteps()->thisMonth()->sum('steps') * 0.00066, 1);
+
+        // Year-filtered totals for the stat cards
+        $yearSteps      = (int) HealthEntry::withSteps()->whereYear('date', $year)->sum('steps');
+        $thisYearKm     = round($yearSteps * 0.00066, 1);
+        $yearDaysLogged = HealthEntry::withSteps()->whereYear('date', $year)->count();
 
         $personalRecords   = $this->personalRecords();
         $goalPerformance   = $this->goalPerformanceExtended((int) $stepGoal, $allGoals, $year);
@@ -101,6 +105,7 @@ final class HealthStatsController extends Controller
             'monthlyHistory',
             'goalHistory',
             'allTimeSteps', 'allTimeKm', 'thisYearKm', 'thisMonthKm',
+            'yearSteps', 'yearDaysLogged',
             'distanceComparisons',
             'personalRecords',
             'goalPerformance',
