@@ -2,6 +2,16 @@
 
     <x-layout.page-header title="Health Stats">
         <x-slot:actions>
+            @if (count($availableYears) > 1)
+                <div class="flex gap-1">
+                    @foreach ($availableYears as $y)
+                        <a
+                            href="{{ route('health.stats', ['year' => $y]) }}"
+                            class="btn btn--sm {{ $y === $year ? 'btn--primary' : 'btn--secondary' }}"
+                        >{{ $y }}</a>
+                    @endforeach
+                </div>
+            @endif
             <a href="{{ route('health.index') }}" class="btn btn--secondary btn--sm">&larr; Back</a>
             <a href="{{ route('health.export') }}" class="btn btn--secondary btn--sm">Export CSV</a>
         </x-slot:actions>
@@ -63,7 +73,7 @@
     <div class="stats-row mb-6">
         <x-stats.stat-card label="Total steps" :value="number_format($allTimeSteps)" icon="heart" />
         <x-stats.stat-card label="Total distance" :value="number_format($allTimeKm, 1) . ' km'" icon="map-pin" />
-        <x-stats.stat-card label="Distance this year" :value="number_format($thisYearKm, 1) . ' km'" icon="calendar" />
+        <x-stats.stat-card label="Distance {{ $year }}" :value="number_format($thisYearKm, 1) . ' km'" icon="calendar" />
         <x-stats.stat-card label="Days logged" :value="number_format($totalEntries)" icon="check-circle" />
     </div>
 

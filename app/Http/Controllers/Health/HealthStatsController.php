@@ -9,63 +9,80 @@ use App\Models\HealthEntry;
 use App\Models\StepGoal;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\View\View;
 
 final class HealthStatsController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         /** @var Collection<int, StepGoal> $allGoals */
         $allGoals = StepGoal::orderByDesc('effective_from')->get();
         $stepGoal = StepGoal::current();
 
-        $thisWeekAvg = HealthEntry::thisWeek()->withSteps()->avg('steps') ?? 0;
-        $lastWeekAvg = HealthEntry::lastWeek()->withSteps()->avg('steps') ?? 0;
-        $weekChange = $lastWeekAvg > 0
+        $availableYears = HealthEntry::selectRaw('YEAR(date) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->map(fn ($y) => (int) $y)
+            ->all();
+
+        $year = in_array((int) $request->get('year', now()->year), $availableYears, true)
+            ? (int) $request->get('year', now()->year)
+            : now()->year;
+
+        // Always-current comparisons
+        $thisWeekAvg  = HealthEntry::thisWeek()->withSteps()->avg('steps') ?? 0;
+        $lastWeekAvg  = HealthEntry::lastWeek()->withSteps()->avg('steps') ?? 0;
+        $weekChange   = $lastWeekAvg > 0
             ? round((((float) $thisWeekAvg - (float) $lastWeekAvg) / (float) $lastWeekAvg) * 100, 1)
             : 0;
 
         $thisMonthAvg = HealthEntry::thisMonth()->withSteps()->avg('steps') ?? 0;
         $lastMonthAvg = HealthEntry::lastMonth()->withSteps()->avg('steps') ?? 0;
-        $monthChange = $lastMonthAvg > 0
+        $monthChange  = $lastMonthAvg > 0
             ? round((((float) $thisMonthAvg - (float) $lastMonthAvg) / (float) $lastMonthAvg) * 100, 1)
             : 0;
 
+        // Year-filtered goal achievement
         $weekdayEntries = HealthEntry::withSteps()
+            ->whereYear('date', $year)
             ->whereRaw('DAYOFWEEK(date) NOT IN (1, 7)')
             ->get(['date', 'steps']);
-        $totalEntries = $weekdayEntries->count();
+        $totalEntries   = $weekdayEntries->count();
         $goalMetEntries = $weekdayEntries->filter(function ($entry) use ($allGoals) {
             $goalForDay = $allGoals->first(fn (StepGoal $g) => ! $g->effective_from->isAfter($entry->date))?->steps ?? 10000;
+
             return ($entry->steps ?? 0) >= $goalForDay;
         })->count();
         $goalRate = $totalEntries > 0 ? round(($goalMetEntries / $totalEntries) * 100) : 0;
 
         [$currentStreak, $longestStreak] = $this->calculateStreaks($allGoals);
 
-        $weekdayPatterns = $this->weekdayPatterns();
-        $monthlyHistory = $this->monthlyHistory();
-        $goalHistory = StepGoal::orderByDesc('effective_from')->get();
+        $weekdayPatterns = $this->weekdayPatterns($year);
+        $monthlyHistory  = $this->monthlyHistory($year);
+        $goalHistory     = StepGoal::orderByDesc('effective_from')->get();
 
+        // All-time totals
         $allTimeSteps = (int) HealthEntry::withSteps()->sum('steps');
         $allTimeKm    = round($allTimeSteps * 0.00066, 1);
-        $thisYearKm   = round((int) HealthEntry::withSteps()->whereYear('date', now()->year)->sum('steps') * 0.00066, 1);
+        $thisYearKm   = round((int) HealthEntry::withSteps()->whereYear('date', $year)->sum('steps') * 0.00066, 1);
         $thisMonthKm  = round((int) HealthEntry::withSteps()->thisMonth()->sum('steps') * 0.00066, 1);
 
-        $personalRecords    = $this->personalRecords();
-        $goalPerformance    = $this->goalPerformanceExtended((int) $stepGoal, $allGoals);
-        $stepsDistribution  = $this->stepsDistribution((int) $stepGoal);
-        $consistency        = $this->consistencyStats();
-        $seasonalPatterns   = $this->seasonalPatterns();
-        $yearInReview       = $this->yearInReview((int) $stepGoal, $allGoals);
+        $personalRecords   = $this->personalRecords();
+        $goalPerformance   = $this->goalPerformanceExtended((int) $stepGoal, $allGoals, $year);
+        $stepsDistribution = $this->stepsDistribution((int) $stepGoal, $year);
+        $consistency       = $this->consistencyStats();
+        $seasonalPatterns  = $this->seasonalPatterns();
+        $yearInReview      = $this->yearInReview((int) $stepGoal, $allGoals, $year);
 
         $distanceComparisons = collect([
-            ['label' => 'Amsterdam → Paris',          'km' => 500],
-            ['label' => 'Around the Netherlands',     'km' => 1075],
-            ['label' => 'Amsterdam → Rome',           'km' => 1750],
-            ['label' => 'Amsterdam → Moscow',         'km' => 2500],
-            ['label' => 'Around the Earth',           'km' => 40075],
+            ['label' => 'Amsterdam → Paris',      'km' => 500],
+            ['label' => 'Around the Netherlands', 'km' => 1075],
+            ['label' => 'Amsterdam → Rome',       'km' => 1750],
+            ['label' => 'Amsterdam → Moscow',     'km' => 2500],
+            ['label' => 'Around the Earth',       'km' => 40075],
         ])->map(fn (array $ref) => [
             'label'   => $ref['label'],
             'km'      => $ref['km'],
@@ -75,6 +92,7 @@ final class HealthStatsController extends Controller
 
         return view('pages.health.stats', compact(
             'stepGoal',
+            'year', 'availableYears',
             'thisWeekAvg', 'lastWeekAvg', 'weekChange',
             'thisMonthAvg', 'lastMonthAvg', 'monthChange',
             'totalEntries', 'goalMetEntries', 'goalRate',
@@ -97,24 +115,22 @@ final class HealthStatsController extends Controller
      * @param Collection<int, StepGoal> $allGoals
      * @return array<string, mixed>
      */
-    private function yearInReview(int $currentGoal, Collection $allGoals): array
+    private function yearInReview(int $currentGoal, Collection $allGoals, int $year): array
     {
-        $year     = now()->year;
         $lastYear = $year - 1;
 
         $thisYearEntries = HealthEntry::withSteps()->whereYear('date', $year)->get(['date', 'steps']);
-        $lastYearEntries = HealthEntry::withSteps()->whereYear('date', $lastYear)
-            ->where('date', '<=', now()->subYear())
-            ->get(['date', 'steps']);
+        $lastYearEntries = HealthEntry::withSteps()->whereYear('date', $lastYear)->get(['date', 'steps']);
 
         if ($thisYearEntries->isEmpty()) {
             return ['hasData' => false, 'year' => $year];
         }
 
-        $thisYearSteps = $thisYearEntries->sum('steps');
-        $thisYearKm    = round($thisYearSteps * 0.00066, 1);
+        $thisYearSteps   = $thisYearEntries->sum('steps');
+        $thisYearKm      = round($thisYearSteps * 0.00066, 1);
         $thisYearGoalMet = $thisYearEntries->filter(function ($e) use ($allGoals) {
             $goalForDay = $allGoals->first(fn (StepGoal $g) => ! $g->effective_from->isAfter($e->date))?->steps ?? 10000;
+
             return ($e->steps ?? 0) >= $goalForDay;
         })->count();
         $thisYearGoalRate = $thisYearEntries->count() > 0
@@ -130,14 +146,14 @@ final class HealthStatsController extends Controller
         $monthNames    = [1=>'January',2=>'February',3=>'March',4=>'April',5=>'May',6=>'June',
                           7=>'July',8=>'August',9=>'September',10=>'October',11=>'November',12=>'December'];
 
-        $byWeekday = $thisYearEntries
+        $byWeekday      = $thisYearEntries
             ->groupBy(fn ($e) => $e->date->dayOfWeekIso)
             ->map(fn ($group) => (int) round($group->avg('steps')));
-        $weekdayNames = [1=>'Monday',2=>'Tuesday',3=>'Wednesday',4=>'Thursday',5=>'Friday',6=>'Saturday',7=>'Sunday'];
+        $weekdayNames   = [1=>'Monday',2=>'Tuesday',3=>'Wednesday',4=>'Thursday',5=>'Friday',6=>'Saturday',7=>'Sunday'];
         $bestWeekdayNum = $byWeekday->sortDesc()->keys()->first();
 
         $lastYearSteps = $lastYearEntries->sum('steps');
-        $vsLastYear = $lastYearSteps > 0
+        $vsLastYear    = $lastYearSteps > 0
             ? round((($thisYearSteps - $lastYearSteps) / $lastYearSteps) * 100, 1)
             : null;
 
@@ -186,11 +202,11 @@ final class HealthStatsController extends Controller
         $years = $yearByMonth->keys()->sort()->values()->all();
 
         return [
-            'quarterly'    => $quarterly,
-            'quarterLabels'=> $quarterLabels,
-            'yearByMonth'  => $yearByMonth,
-            'monthNames'   => $monthNames,
-            'years'        => $years,
+            'quarterly'     => $quarterly,
+            'quarterLabels' => $quarterLabels,
+            'yearByMonth'   => $yearByMonth,
+            'monthNames'    => $monthNames,
+            'years'         => $years,
         ];
     }
 
@@ -205,19 +221,18 @@ final class HealthStatsController extends Controller
             return ['logRate' => 0, 'loggingStreak' => 0, 'avgGap' => null, 'missedDays' => 0];
         }
 
-        $first       = $dates->first();
-        $last        = $dates->last();
-        $totalSpan   = $first->diffInDays($last) + 1;
-        $logRate     = $totalSpan > 0 ? round(($dates->count() / $totalSpan) * 100) : 100;
-        $missedDays  = $totalSpan - $dates->count();
+        $first     = $dates->first();
+        $last      = $dates->last();
+        $totalSpan = $first->diffInDays($last) + 1;
+        $logRate   = $totalSpan > 0 ? round(($dates->count() / $totalSpan) * 100) : 100;
+        $missedDays = $totalSpan - $dates->count();
 
-        // Longest logging streak (consecutive days with any entry)
         $longestLogging = 0;
         $runningLogging = 1;
         $gaps = [];
 
         for ($i = 1; $i < $dates->count(); $i++) {
-            $diff = $dates[$i - 1]->diffInDays($dates[$i]);
+            $diff   = $dates[$i - 1]->diffInDays($dates[$i]);
             $gaps[] = $diff;
 
             if ($diff === 1) {
@@ -232,15 +247,15 @@ final class HealthStatsController extends Controller
         $avgGap = count($gaps) > 0 ? round(array_sum($gaps) / count($gaps), 1) : null;
 
         return [
-            'logRate'        => $logRate,
-            'loggingStreak'  => $longestLogging,
-            'avgGap'         => $avgGap,
-            'missedDays'     => $missedDays,
+            'logRate'       => $logRate,
+            'loggingStreak' => $longestLogging,
+            'avgGap'        => $avgGap,
+            'missedDays'    => $missedDays,
         ];
     }
 
     /** @return array<int, array<string, mixed>> */
-    private function stepsDistribution(int $goal): array
+    private function stepsDistribution(int $goal, int $year): array
     {
         $buckets = [
             ['label' => '0–2.5k',   'min' => 0,     'max' => 2500],
@@ -251,17 +266,17 @@ final class HealthStatsController extends Controller
             ['label' => '12.5k+',   'min' => 12500, 'max' => PHP_INT_MAX],
         ];
 
-        $entries = HealthEntry::withSteps()->pluck('steps');
+        $entries = HealthEntry::withSteps()->whereYear('date', $year)->pluck('steps');
         $total   = $entries->count();
 
         return collect($buckets)->map(function (array $bucket) use ($entries, $total, $goal) {
             $count = $entries->filter(fn (int $s) => $s >= $bucket['min'] && $s < $bucket['max'])->count();
 
             return [
-                'label'       => $bucket['label'],
-                'count'       => $count,
-                'percent'     => $total > 0 ? round(($count / $total) * 100) : 0,
-                'isGoalZone'  => $goal >= $bucket['min'] && $goal < $bucket['max'],
+                'label'      => $bucket['label'],
+                'count'      => $count,
+                'percent'    => $total > 0 ? round(($count / $total) * 100) : 0,
+                'isGoalZone' => $goal >= $bucket['min'] && $goal < $bucket['max'],
             ];
         })->all();
     }
@@ -270,9 +285,9 @@ final class HealthStatsController extends Controller
      * @param Collection<int, StepGoal> $allGoals
      * @return array<string, mixed>
      */
-    private function goalPerformanceExtended(int $currentGoal, Collection $allGoals): array
+    private function goalPerformanceExtended(int $currentGoal, Collection $allGoals, int $year): array
     {
-        $entries = HealthEntry::withSteps()->get(['date', 'steps']);
+        $entries = HealthEntry::withSteps()->whereYear('date', $year)->get(['date', 'steps']);
 
         $above150 = 0;
         $above200 = 0;
@@ -288,9 +303,9 @@ final class HealthStatsController extends Controller
                 continue;
             }
 
-            $goal = $allGoals->first(fn (StepGoal $g) => ! $g->effective_from->isAfter($entry->date))?->steps ?? 10000;
+            $goal  = $allGoals->first(fn (StepGoal $g) => ! $g->effective_from->isAfter($entry->date))?->steps ?? 10000;
             $steps = $entry->steps ?? 0;
-            $pct = $goal > 0 ? ($steps / $goal) : 0;
+            $pct   = $goal > 0 ? ($steps / $goal) : 0;
 
             if ($pct >= 2.0) $above200++;
             if ($pct >= 1.5) $above150++;
@@ -313,7 +328,7 @@ final class HealthStatsController extends Controller
         }
 
         ksort($monthlyGoalData);
-        $goalByMonth = collect(array_slice($monthlyGoalData, -12, preserve_keys: true))
+        $goalByMonth = collect($monthlyGoalData)
             ->map(fn ($data, $month) => [
                 'month' => Carbon::createFromFormat('Y-m', $month)->format('M Y'),
                 'rate'  => $data['total'] > 0 ? round(($data['met'] / $data['total']) * 100) : 0,
@@ -366,16 +381,15 @@ final class HealthStatsController extends Controller
             ->orderByDesc('date')
             ->get(['date', 'steps']);
 
-        $current = 0;
-        $longest = 0;
-        $running = 0;
+        $current   = 0;
+        $longest   = 0;
+        $running   = 0;
         $inCurrent = true;
 
         $firstEntryDate = $entries->first()?->date->startOfDay();
-        $todayLogged = $firstEntryDate && $firstEntryDate->equalTo(now()->startOfDay());
-        $check = $todayLogged ? now()->startOfDay() : now()->subDay()->startOfDay();
+        $todayLogged    = $firstEntryDate && $firstEntryDate->equalTo(now()->startOfDay());
+        $check          = $todayLogged ? now()->startOfDay() : now()->subDay()->startOfDay();
 
-        // Start the check pointer on the last weekday
         while ($check->isWeekend()) {
             $check->subDay();
         }
@@ -383,13 +397,12 @@ final class HealthStatsController extends Controller
         foreach ($entries as $entry) {
             $entryDate = $entry->date->startOfDay();
 
-            // Weekends don't affect streaks
             if ($entryDate->isWeekend()) {
                 continue;
             }
 
             $goalForDay = $allGoals->first(fn (StepGoal $g) => ! $g->effective_from->isAfter($entry->date))?->steps ?? 10000;
-            $meetsGoal = ($entry->steps ?? 0) >= $goalForDay;
+            $meetsGoal  = ($entry->steps ?? 0) >= $goalForDay;
 
             if ($inCurrent) {
                 if ($entryDate->equalTo($check) && $meetsGoal) {
@@ -400,7 +413,7 @@ final class HealthStatsController extends Controller
                     }
                 } elseif ($entryDate->equalTo(now()->startOfDay()) && ! $meetsGoal) {
                     $inCurrent = false;
-                    $check = now()->subDay()->startOfDay();
+                    $check     = now()->subDay()->startOfDay();
                     while ($check->isWeekend()) {
                         $check->subDay();
                     }
@@ -418,36 +431,36 @@ final class HealthStatsController extends Controller
         return [$current, $longest];
     }
 
-    private function weekdayPatterns(): SupportCollection
+    private function weekdayPatterns(int $year): SupportCollection
     {
         $days = collect([1 => 'Mon', 2 => 'Tue', 3 => 'Wed', 4 => 'Thu', 5 => 'Fri', 6 => 'Sat', 7 => 'Sun']);
 
         $raw = HealthEntry::withSteps()
+            ->whereYear('date', $year)
             ->selectRaw('DAYOFWEEK(date) as dow, AVG(steps) as avg_steps, COUNT(*) as count')
             ->groupByRaw('DAYOFWEEK(date)')
             ->get()
             ->keyBy('dow');
 
-        // MySQL DAYOFWEEK: 1=Sunday … 7=Saturday — remap to 1=Monday … 7=Sunday
         return $days->map(function (string $label, int $iso) use ($raw) {
             $mysqlDow = $iso === 7 ? 1 : $iso + 1;
-            $row = $raw->get($mysqlDow);
+            $row      = $raw->get($mysqlDow);
 
             return [
-                'label' => $label,
+                'label'     => $label,
                 'avg_steps' => $row ? (int) round((float) $row->avg_steps) : 0,
-                'count' => $row ? $row->count : 0,
+                'count'     => $row ? $row->count : 0,
             ];
         })->values();
     }
 
-    private function monthlyHistory(): SupportCollection
+    private function monthlyHistory(int $year): SupportCollection
     {
         return HealthEntry::withSteps()
+            ->whereYear('date', $year)
             ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, COUNT(*) as entries, SUM(steps) as total_steps, AVG(steps) as avg_steps')
             ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
             ->orderByDesc('month')
-            ->limit(12)
             ->get()
             ->map(function ($row) {
                 $totalSteps = (int) $row->total_steps;
