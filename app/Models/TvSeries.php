@@ -26,6 +26,7 @@ final class TvSeries extends Model
         'number_of_seasons', 'number_of_episodes', 'episodes_watched',
         'watched_runtime_minutes', 'completion_percentage', 'last_watched_at', 'first_watched_at',
         'is_favorite',
+        'exclude_cast',
     ];
 
     protected function casts(): array
@@ -36,7 +37,8 @@ final class TvSeries extends Model
             'genres' => 'array',
             'last_watched_at' => 'datetime',
             'first_watched_at' => 'datetime',
-            'is_favorite' => 'boolean',
+            'is_favorite'   => 'boolean',
+            'exclude_cast'  => 'boolean',
         ];
     }
 
@@ -48,7 +50,7 @@ final class TvSeries extends Model
     public function people(): BelongsToMany
     {
         return $this->belongsToMany(Person::class, 'tv_series_person')
-            ->withPivot('character', 'department', 'job', 'cast_order', 'episode_count')
+            ->withPivot('character', 'department', 'job', 'cast_order', 'episode_count', 'excluded')
             ->withTimestamps();
     }
 

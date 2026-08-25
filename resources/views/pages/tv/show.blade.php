@@ -83,6 +83,13 @@ foreach ($series->seasons as $season) {
                             <input type="file" name="backdrop" id="tv-backdrop-input" accept="image/*" class="hidden" onchange="this.form.submit()">
                             <button type="button" onclick="document.getElementById('tv-backdrop-input').click()" class="btn btn--secondary btn--sm">🖼 Backdrop</button>
                         </form>
+                        <form method="POST" action="{{ route('tv.exclude-cast', $series) }}">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="btn btn--sm {{ $series->exclude_cast ? 'btn--exclude-cast-active' : 'btn--secondary' }}">
+                                {{ $series->exclude_cast ? '⊘ Geen acteurs' : 'Acteurs' }}
+                            </button>
+                        </form>
                         <button type="button" @click="removeSeries()" class="btn btn--danger btn--sm">Remove</button>
                         <a href="{{ route('tv.index') }}" class="btn btn--secondary btn--sm">&larr; Back</a>
                     </div>
@@ -172,8 +179,12 @@ foreach ($series->seasons as $season) {
         </div>
 
         {{-- Cast --}}
+        @php
+            $activeCast  = $series->people->filter(fn ($p) => ! $p->pivot->excluded)->values();
+            $excludedCast = $series->people->filter(fn ($p) => $p->pivot->excluded)->values();
+        @endphp
         @if ($series->people->isNotEmpty())
-            <div x-data="{ castSearch: '' }">
+            <div x-data="{ castSearch: '', excludedOpen: false }">
                 <x-ui.card title="Cast" class="mt-6">
                     <x-slot:action>
                         <input
@@ -185,42 +196,86 @@ foreach ($series->seasons as $season) {
                     </x-slot:action>
 
                     <div class="media-cast media-cast--grid">
-                        @foreach ($series->people->take(40) as $person)
-                            <a
-                                href="{{ route('actors.show', $person) }}"
-                                class="media-cast__member"
+                        @foreach ($activeCast->take(40) as $person)
+                            <div
+                                class="media-cast__item"
                                 data-name="{{ Str::lower(($person->name_en ?? $person->name) . ' ' . $person->name) }}"
                                 data-character="{{ Str::lower($person->pivot->character ?? '') }}"
                                 x-show="castSearch
                                     ? $el.dataset.name.includes(castSearch.toLowerCase()) || $el.dataset.character.includes(castSearch.toLowerCase())
                                     : {{ $loop->index }} < 20 || showAllCast"
                             >
-                                <img
-                                    src="{{ $person->profile_url ?? asset('cast-placeholder.svg') }}"
-                                    alt="{{ $person->name }}"
-                                    class="media-cast__photo"
-                                >
-                                <div class="media-cast__name">{{ $person->name_en ?? $person->name }}</div>
-                                @if($person->name_en)
-                                    <div class="media-cast__native-name">{{ $person->name }}</div>
-                                @endif
-                                @if ($person->pivot->character)
-                                    <div class="media-cast__role">{{ $person->pivot->character }}</div>
-                                @endif
-                                @if ($person->pivot->episode_count)
-                                    <div class="media-cast__episodes">{{ $person->pivot->episode_count }} ep</div>
-                                @endif
-                            </a>
+                                <a href="{{ route('actors.show', $person) }}" class="media-cast__member">
+                                    <img
+                                        src="{{ $person->profile_url ?? asset('cast-placeholder.svg') }}"
+                                        alt="{{ $person->name }}"
+                                        class="media-cast__photo"
+                                    >
+                                    <div class="media-cast__name">{{ $person->name_en ?? $person->name }}</div>
+                                    @if($person->name_en)
+                                        <div class="media-cast__native-name">{{ $person->name }}</div>
+                                    @endif
+                                    @if ($person->pivot->character)
+                                        <div class="media-cast__role">{{ $person->pivot->character }}</div>
+                                    @endif
+                                    @if ($person->pivot->episode_count)
+                                        <div class="media-cast__episodes">{{ $person->pivot->episode_count }} ep</div>
+                                    @endif
+                                </a>
+                                <form method="POST" action="{{ route('tv.cast.excluded.toggle', [$series, $person]) }}" class="media-cast__exclude-form">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="media-cast__exclude-btn" title="Exclude from cast">&times;</button>
+                                </form>
+                            </div>
                         @endforeach
                     </div>
 
-                    @if ($series->people->count() > 20)
+                    @if ($activeCast->count() > 20)
                         <button
                             x-show="!castSearch"
                             @click="showAllCast = !showAllCast"
                             class="btn btn--secondary btn--sm mt-4"
-                            x-text="showAllCast ? 'Show less' : 'Show {{ min($series->people->count(), 40) - 20 }} more'"
+                            x-text="showAllCast ? 'Show less' : 'Show {{ min($activeCast->count(), 40) - 20 }} more'"
                         ></button>
+                    @endif
+
+                    @if ($excludedCast->isNotEmpty())
+                        <div class="mt-4 pt-4" style="border-top: 1px solid var(--color-border);">
+                            <button
+                                type="button"
+                                @click="excludedOpen = !excludedOpen"
+                                class="media-cast__excluded-toggle"
+                            >
+                                <span x-text="excludedOpen ? '▼' : '▶'" class="text-xs"></span>
+                                Excluded from cast ({{ $excludedCast->count() }})
+                            </button>
+                            <div x-show="excludedOpen" x-transition class="media-cast media-cast--grid mt-3" style="display:none;">
+                                @foreach ($excludedCast as $person)
+                                    <div class="media-cast__item">
+                                        <a href="{{ route('actors.show', $person) }}" class="media-cast__member media-cast__member--excluded">
+                                            <img
+                                                src="{{ $person->profile_url ?? asset('cast-placeholder.svg') }}"
+                                                alt="{{ $person->name }}"
+                                                class="media-cast__photo"
+                                            >
+                                            <div class="media-cast__name">{{ $person->name_en ?? $person->name }}</div>
+                                            @if($person->name_en)
+                                                <div class="media-cast__native-name">{{ $person->name }}</div>
+                                            @endif
+                                            @if ($person->pivot->character)
+                                                <div class="media-cast__role">{{ $person->pivot->character }}</div>
+                                            @endif
+                                        </a>
+                                        <form method="POST" action="{{ route('tv.cast.excluded.toggle', [$series, $person]) }}" class="media-cast__exclude-form">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="media-cast__exclude-btn media-cast__exclude-btn--include" title="Re-include in cast">+</button>
+                                        </form>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
                     @endif
                 </x-ui.card>
             </div>

@@ -68,7 +68,7 @@ final class PeopleController extends Controller
                     ), 0)
                     FROM tv_series_person tsp
                     INNER JOIN tv_series ts ON ts.id = tsp.tv_series_id
-                    WHERE tsp.person_id = people.id AND tsp.department = 'Acting'
+                    WHERE tsp.person_id = people.id AND tsp.department = 'Acting' AND ts.exclude_cast = 0
                 ) as watch_minutes"))
                 ->addSelect(DB::raw("(
                     SELECT COALESCE(SUM(
@@ -91,11 +91,13 @@ final class PeopleController extends Controller
                     ), 0)
                     FROM tv_series_person tsp
                     INNER JOIN tv_series ts ON ts.id = tsp.tv_series_id
-                    WHERE tsp.person_id = people.id AND tsp.department = 'Acting'
+                    WHERE tsp.person_id = people.id AND tsp.department = 'Acting' AND ts.exclude_cast = 0
                 ) as prominence_score"))
                 ->where(function ($q) {
                     $q->whereHas('movies', fn ($q) => $q->where('movie_person.department', 'Acting'))
-                      ->orWhereHas('tvSeries', fn ($q) => $q->where('tv_series_person.department', 'Acting'));
+                      ->orWhereHas('tvSeries', fn ($q) => $q
+                          ->where('tv_series_person.department', 'Acting')
+                          ->where('exclude_cast', false));
                 })
                 ->orderByDesc('prominence_score')
                 ->paginate(25);

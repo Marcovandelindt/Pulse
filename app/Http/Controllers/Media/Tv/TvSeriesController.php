@@ -85,6 +85,13 @@ final class TvSeriesController extends Controller
         return redirect()->back()->with('success', 'Backdrop updated.');
     }
 
+    public function toggleExcludeCast(TvSeries $series): RedirectResponse
+    {
+        $series->update(['exclude_cast' => ! $series->exclude_cast]);
+
+        return redirect()->back();
+    }
+
     public function destroy(TvSeries $series, DeleteSeries $action): JsonResponse
     {
         $action->handle($series);
