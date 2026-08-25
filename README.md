@@ -1,102 +1,134 @@
 # Pulse
 
-A personal dashboard that brings daily life data together in one place. Built as a self-hosted Laravel application with a dark-mode-first design.
+A personal dashboard for tracking health, media, gaming, music, and people — all in one place.
 
 ---
 
 ## Features
 
-### Dashboard
-Central overview that surfaces the most relevant data at a glance — recent activity, key stats, and what's currently playing.
-
-### Health
-Log and track daily health metrics:
-- **Steps** — daily step count logging with streak tracking
-- **Heart rate** — average and resting heart rate per day
-- **Statistics** — weekly and monthly trend views
-- **Step goals** — set custom daily targets and track progress against them
-- **Data export** — export health entries to CSV
-
-### Calendar
-A full monthly calendar with personal scheduling:
-- **Events** — create, edit, and delete one-off events with title, type, notes, and optional time
-- **Event types** — Event, Appointment, Important Event, Holiday, Reminder (each with their own color)
-- **Recurrence** — repeat events weekly, monthly, or yearly with an optional end date
-- **Work schedules** — define recurring weekly work shifts (e.g. Mon–Fri 06:00–14:30) that appear as pills on each matching day; supports multiple shifts per day, valid from/until dates, and an active toggle
-- **Contact integration** — birthdays, anniversaries, and other important contact dates appear automatically on the calendar
-
-### Music
-Synced from Spotify:
-- **Listening history** — full play log with track, artist, album, and timestamp
-- **Track browser** — browse all listened tracks with play counts
-- **Artist & album views** — detailed pages per artist and album
-- **Statistics** — top tracks, artists, and albums over time
-- **Obsession tracking** — mark tracks as current obsessions to highlight them
-
-### Gaming
-#### PlayStation
-- **Session log** — automatic session history pulled from PlayStation Network
-- **Per-game stats** — total playtime, last played, session count
-- **Trophies** — trophy breakdown per game (bronze, silver, gold, platinum)
-- **Categories** — organise games into custom categories
-- **Backlog** — track games yet to be played
-- **Stats overview** — total playtime, most played, recent activity
-
-#### Steam
-- Browse Steam library with playtime data
-
-### Media
-Track movies and TV series via TMDB integration:
-- **Movies** — log watches with personal rating and notes
-- **TV series** — track episodes watched per season, personal ratings, favourite flag
-- **Watched runtime** — total watch time across all movies and series
-
-### People
-A personal contact book:
-- **Contacts** — store name, birthdate, notes, and a profile photo
-- **Important dates** — attach custom dates (anniversaries, milestones) that appear on the calendar
-- **Relationships** — link contacts to each other with a relationship type and optional date
-- **Death dates** — mark deceased contacts; their anniversary appears subtly on the calendar
-
-### Settings
-- **Relationship types** — manage the list of relationship labels used when linking contacts
-
----
+- **Health** — log daily steps, set goals, view streaks and yearly stats
+- **Movies & TV** — track what you watch, manage cast exclusions, explore stats
+- **Music** — artists, albums, tracks, and obsession tracking
+- **Gaming** — PlayStation and Steam libraries with session logging and backlogs
+- **People** — contacts with relationships, birthdays, and notes
+- **Calendar** — events and work schedules
+- **Global search** — search across all modules with `Ctrl+F`
 
 ## Tech stack
 
 | Layer | Choice |
 |---|---|
-| Backend | PHP 8.3 / Laravel 12 |
-| Frontend bundler | Vite 6 |
+| Backend | PHP 8.3+ / Laravel 13 |
+| Frontend bundler | Vite 8 |
 | CSS framework | Tailwind CSS v4 |
 | Custom styling | SCSS + BEM |
 | JS interactivity | Alpine.js v3 |
-| Icons | Heroicons (SVG) |
+| Charts | Chart.js v4 |
 | Testing | Pest v4 |
-| Code style | Laravel Pint |
-| Static analysis | PHPStan level 8 |
+| Code formatter | Laravel Pint |
+| Static analysis | PHPStan / Larastan (level 8) |
 
-### External integrations
+## Setup
 
-| Service | Used for |
-|---|---|
-| Spotify API | Music listening history sync |
-| PlayStation Network | Gaming session and trophy data |
-| Steam API | Game library and playtime |
-| TMDB | Movie and TV series metadata |
+```bash
+git clone <repo-url> pulse
+cd pulse
+composer run setup
+```
+
+The `setup` script handles everything: `composer install`, `.env` copy, key generation, migrations, `npm install`, and a production build.
+
+## Development
+
+```bash
+composer run dev
+```
+
+Starts Laravel, the queue worker, Pail log viewer, and Vite — all concurrently.
+
+## Other commands
+
+```bash
+composer run test      # Run Pest test suite
+composer run lint      # Format with Laravel Pint
+composer run analyse   # Static analysis with PHPStan
+npm run build          # Production frontend build
+```
+
+## Environment
+
+Copy `.env.example` to `.env` and adjust:
+
+- `DB_*` — MySQL connection details
+- `APP_TIMEZONE` — defaults to `Europe/Amsterdam`
 
 ---
 
-## Local setup
+<details>
+<summary>🇳🇱 Nederlandse versie</summary>
+
+## Over Pulse
+
+Een persoonlijk dashboard voor het bijhouden van gezondheid, media, gaming, muziek en contacten — alles op één plek.
+
+---
+
+## Functionaliteiten
+
+- **Gezondheid** — dagelijkse stappen loggen, doelen instellen, streaks en jaarstatistieken bekijken
+- **Films & series** — bijhouden wat je kijkt, castuitsluitingen beheren, statistieken verkennen
+- **Muziek** — artiesten, albums, nummers en obsession tracking
+- **Gaming** — PlayStation- en Steam-bibliotheken met sessieregistratie en backlogs
+- **Mensen** — contacten met relaties, verjaardagen en notities
+- **Agenda** — evenementen en werkroosters
+- **Globale zoekfunctie** — zoeken door alle modules met `Ctrl+F`
+
+## Tech stack
+
+| Laag | Keuze |
+|---|---|
+| Backend | PHP 8.3+ / Laravel 13 |
+| Frontend bundler | Vite 8 |
+| CSS framework | Tailwind CSS v4 |
+| Aangepaste stijlen | SCSS + BEM |
+| JS interactie | Alpine.js v3 |
+| Grafieken | Chart.js v4 |
+| Testing | Pest v4 |
+| Code formatter | Laravel Pint |
+| Statische analyse | PHPStan / Larastan (level 8) |
+
+## Installatie
 
 ```bash
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate
-npm install
-npm run dev
+git clone <repo-url> pulse
+cd pulse
+composer run setup
 ```
 
-Configure your external API credentials in `.env` to enable the integrations (Spotify, PlayStation, Steam, TMDB).
+Het `setup`-script regelt alles: `composer install`, `.env` kopiëren, sleutelgeneratie, migraties, `npm install` en een productiebuild.
+
+## Ontwikkeling
+
+```bash
+composer run dev
+```
+
+Start Laravel, de queue worker, Pail log viewer en Vite — allemaal tegelijk.
+
+## Overige commando's
+
+```bash
+composer run test      # Pest-testsuite uitvoeren
+composer run lint      # Formatteren met Laravel Pint
+composer run analyse   # Statische analyse met PHPStan
+npm run build          # Productiebuild van de frontend
+```
+
+## Omgeving
+
+Kopieer `.env.example` naar `.env` en pas aan:
+
+- `DB_*` — MySQL-verbindingsgegevens
+- `APP_TIMEZONE` — standaard `Europe/Amsterdam`
+
+</details>
