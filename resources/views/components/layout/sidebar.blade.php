@@ -36,5 +36,10 @@
             <x-layout.nav-item route="people.index" icon="users" label="People" />
             <x-layout.nav-item route="calendar.index" icon="calendar" label="Calendar" />
         </div>
+
+        <div class="sidebar__group">
+            <span class="sidebar__group-label">Mind</span>
+            <x-layout.nav-item route="insights.index" icon="light-bulb" label="Insights" />
+        </div>
     </nav>
 </aside>

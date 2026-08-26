@@ -12,6 +12,10 @@ use App\Http\Controllers\Health\StepGoalController;
 use App\Http\Controllers\People\ContactController;
 use App\Http\Controllers\People\ContactDateController;
 use App\Http\Controllers\People\ContactRelationshipController;
+use App\Http\Controllers\Insights\InsightController;
+use App\Http\Controllers\Insights\InsightPatternController;
+use App\Http\Controllers\Insights\InsightRelatedController;
+use App\Http\Controllers\Insights\PatternController;
 use App\Http\Controllers\Settings\RelationshipTypeController;
 use Illuminate\Support\Facades\Route;
 
@@ -53,6 +57,30 @@ Route::prefix('people')->name('people.')->group(function () {
     Route::delete('/{contact}/dates/{date}', [ContactDateController::class, 'destroy'])->name('dates.destroy');
     Route::post('/{contact}/relationships', [ContactRelationshipController::class, 'store'])->name('relationships.store');
     Route::delete('/{contact}/relationships/{relationship}', [ContactRelationshipController::class, 'destroy'])->name('relationships.destroy');
+});
+
+Route::prefix('insights')->name('insights.')->group(function () {
+    Route::get('/', [InsightController::class, 'index'])->name('index');
+    Route::get('/create', [InsightController::class, 'create'])->name('create');
+    Route::post('/', [InsightController::class, 'store'])->name('store');
+    Route::get('/{insight}', [InsightController::class, 'show'])->name('show');
+    Route::get('/{insight}/edit', [InsightController::class, 'edit'])->name('edit');
+    Route::patch('/{insight}', [InsightController::class, 'update'])->name('update');
+    Route::delete('/{insight}', [InsightController::class, 'destroy'])->name('destroy');
+    Route::patch('/{insight}/pin', [InsightController::class, 'togglePin'])->name('pin');
+    Route::post('/{insight}/patterns/{pattern}', [InsightPatternController::class, 'store'])->name('patterns.store');
+    Route::delete('/{insight}/patterns/{pattern}', [InsightPatternController::class, 'destroy'])->name('patterns.destroy');
+    Route::post('/{insight}/related/{related}', [InsightRelatedController::class, 'store'])->name('related.store');
+    Route::delete('/{insight}/related/{related}', [InsightRelatedController::class, 'destroy'])->name('related.destroy');
+});
+
+Route::prefix('patterns')->name('patterns.')->group(function () {
+    Route::get('/', [PatternController::class, 'index'])->name('index');
+    Route::post('/', [PatternController::class, 'store'])->name('store');
+    Route::get('/{pattern}', [PatternController::class, 'show'])->name('show');
+    Route::get('/{pattern}/edit', [PatternController::class, 'edit'])->name('edit');
+    Route::patch('/{pattern}', [PatternController::class, 'update'])->name('update');
+    Route::delete('/{pattern}', [PatternController::class, 'destroy'])->name('destroy');
 });
 
 Route::prefix('settings')->name('settings.')->group(function () {
