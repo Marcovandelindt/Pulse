@@ -8,6 +8,7 @@ import { registerPlayStationComponents } from './modules/playstation.js';
 import { registerHealthComponents } from './modules/health.js';
 import { registerCalendarComponents } from './modules/calendar.js';
 import { registerGlobalSearch } from './modules/globalSearch.js';
+import { initQuillEditors } from './modules/quill-editor.js';
 
 window.Alpine = Alpine;
 Alpine.plugin(Collapse);
@@ -24,4 +25,5 @@ Alpine.start();
 
 document.addEventListener('DOMContentLoaded', () => {
     initCharts();
+    initQuillEditors();
 });

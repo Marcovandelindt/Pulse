@@ -26,15 +26,15 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="content">Insight <span style="color: #ef4444">*</span></label>
-                <textarea
-                    id="content"
-                    name="content"
-                    class="form-textarea"
-                    rows="6"
-                    placeholder="Describe the insight in your own words..."
-                    required
-                >{{ old('content') }}</textarea>
+                <label class="form-label">Insight <span style="color: #ef4444">*</span></label>
+                <div
+                    data-quill
+                    data-target="#content-input"
+                    data-content="{{ old('content') }}"
+                    data-placeholder="Describe the insight in your own words..."
+                    class="quill-editor"
+                ></div>
+                <input type="hidden" name="content" id="content-input">
                 <x-form.error name="content" />
             </div>
 

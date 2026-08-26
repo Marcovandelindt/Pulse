@@ -29,7 +29,7 @@
                     <p class="insight-detail__summary">{{ $insight->summary }}</p>
                     <hr class="insight-detail__divider">
                 @endif
-                <div class="insight-detail__body">{{ $insight->content }}</div>
+                <div class="insight-detail__body ql-editor">{!! $insight->content !!}</div>
             </div>
 
             {{-- Patterns --}}
