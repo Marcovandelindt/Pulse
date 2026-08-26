@@ -7,11 +7,14 @@ namespace App\Http\Controllers\Insights;
 use App\Http\Controllers\Controller;
 use App\Models\Insight;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 final class InsightRelatedController extends Controller
 {
-    public function store(Insight $insight, Insight $related): RedirectResponse
+    public function store(Request $request, Insight $insight): RedirectResponse
     {
+        $related = Insight::findOrFail($request->input('related'));
+
         if ($insight->id === $related->id) {
             return back()->with('error', 'Cannot link an insight to itself.');
         }

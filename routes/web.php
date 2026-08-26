@@ -68,9 +68,9 @@ Route::prefix('insights')->name('insights.')->group(function () {
     Route::patch('/{insight}', [InsightController::class, 'update'])->name('update');
     Route::delete('/{insight}', [InsightController::class, 'destroy'])->name('destroy');
     Route::patch('/{insight}/pin', [InsightController::class, 'togglePin'])->name('pin');
-    Route::post('/{insight}/patterns/{pattern}', [InsightPatternController::class, 'store'])->name('patterns.store');
+    Route::post('/{insight}/patterns', [InsightPatternController::class, 'store'])->name('patterns.store');
     Route::delete('/{insight}/patterns/{pattern}', [InsightPatternController::class, 'destroy'])->name('patterns.destroy');
-    Route::post('/{insight}/related/{related}', [InsightRelatedController::class, 'store'])->name('related.store');
+    Route::post('/{insight}/related', [InsightRelatedController::class, 'store'])->name('related.store');
     Route::delete('/{insight}/related/{related}', [InsightRelatedController::class, 'destroy'])->name('related.destroy');
 });
 
