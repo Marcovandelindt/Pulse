@@ -30,7 +30,7 @@ final class PlayStationGame extends Model
         'np_communication_id',
         'np_service_name',
         'price',
-        'manual_minutes',
+        'psn_total_minutes',
         'exclude_from_sync',
         'backlog_status',
         'user_rating',
@@ -92,19 +92,28 @@ final class PlayStationGame extends Model
     {
         return Attribute::make(
             get: function () {
+                if ($this->psn_total_minutes) {
+                    return round($this->psn_total_minutes / 60, 1);
+                }
+
+                return round($this->trackedHours, 1);
+            }
+        );
+    }
+
+    protected function trackedHours(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
                 if ($this->relationLoaded('playSessions')) {
                     $sessions = $this->released_at
                         ? $this->playSessions->filter(fn ($s) => $s->started_at >= $this->released_at)
                         : $this->playSessions;
-                    $fromSessions = $sessions->sum('duration_minutes') / 60;
-                } else {
-                    // Pre-computed by withSum on index page — avoids N+1
-                    $fromSessions = (float) ($this->getAttributes()['filtered_minutes'] ?? 0) / 60;
+
+                    return $sessions->sum('duration_minutes') / 60;
                 }
 
-                $fromManual = ($this->manual_minutes ?? 0) / 60;
-
-                return round($fromSessions + $fromManual, 1);
+                return (float) ($this->getAttributes()['filtered_minutes'] ?? 0) / 60;
             }
         );
     }

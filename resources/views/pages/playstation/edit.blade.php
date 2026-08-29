@@ -73,18 +73,46 @@
                 <x-form.error name="price" />
             </div>
 
+            @php
+                $psnHours = $game->psn_total_minutes ? intdiv((int) $game->psn_total_minutes, 60) : null;
+                $psnMins  = $game->psn_total_minutes ? (int) $game->psn_total_minutes % 60 : null;
+            @endphp
             <div class="form-group">
-                <label class="form-label" for="manual_minutes">Manual Minutes</label>
-                <input
-                    type="number"
-                    id="manual_minutes"
-                    name="manual_minutes"
-                    min="0"
-                    value="{{ old('manual_minutes', $game->manual_minutes) }}"
-                    class="form-input"
-                    placeholder="Extra playtime in minutes"
-                >
-                <x-form.error name="manual_minutes" />
+                <label class="form-label">PlayStation Total Playtime</label>
+                <div class="flex gap-3">
+                    <div class="flex items-center gap-2">
+                        <input
+                            type="number"
+                            id="psn_hours"
+                            name="psn_hours"
+                            min="0"
+                            value="{{ old('psn_hours', $psnHours) }}"
+                            class="form-input"
+                            style="width: 6rem;"
+                            placeholder="0"
+                        >
+                        <span class="text-sm" style="color: var(--color-text-muted)">hours</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input
+                            type="number"
+                            id="psn_minutes"
+                            name="psn_minutes"
+                            min="0"
+                            max="59"
+                            value="{{ old('psn_minutes', $psnMins) }}"
+                            class="form-input"
+                            style="width: 6rem;"
+                            placeholder="0"
+                        >
+                        <span class="text-sm" style="color: var(--color-text-muted)">min</span>
+                    </div>
+                </div>
+                <p class="text-xs mt-1" style="color: var(--color-text-muted)">
+                    Total playtime as shown on your PlayStation profile. Overrides the session-tracked total when set.
+                </p>
+                <x-form.error name="psn_hours" />
+                <x-form.error name="psn_minutes" />
             </div>
 
             <div class="form-group">

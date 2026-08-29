@@ -35,11 +35,10 @@ final class PlayStationController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name'           => ['required', 'string', 'max:255'],
-            'platform'       => ['required', 'in:PS3,PS4,PS5,PSVITA'],
-            'price'          => ['nullable', 'numeric', 'min:0'],
-            'manual_minutes' => ['nullable', 'integer', 'min:0'],
-            'image'          => ['nullable', 'image', 'max:10240'],
+            'name'     => ['required', 'string', 'max:255'],
+            'platform' => ['required', 'in:PS3,PS4,PS5,PSVITA'],
+            'price'    => ['nullable', 'numeric', 'min:0'],
+            'image'    => ['nullable', 'image', 'max:10240'],
         ]);
 
         $imageUrl = null;
@@ -50,11 +49,10 @@ final class PlayStationController extends Controller
         }
 
         PlayStationGame::create([
-            'name'           => $validated['name'],
-            'platform'       => $validated['platform'],
-            'price'          => $validated['price'] ?? null,
-            'manual_minutes' => $validated['manual_minutes'] ?? 0,
-            'image_url'      => $imageUrl,
+            'name'      => $validated['name'],
+            'platform'  => $validated['platform'],
+            'price'     => $validated['price'] ?? null,
+            'image_url' => $imageUrl,
         ]);
 
         return redirect()->route('playstation.index')->with('success', 'Game added successfully.');
@@ -81,7 +79,8 @@ final class PlayStationController extends Controller
             'display_name'          => ['nullable', 'string', 'max:255'],
             'psnprofiles_slug'      => ['nullable', 'string', 'max:255'],
             'price'                 => ['nullable', 'numeric', 'min:0'],
-            'manual_minutes'        => ['nullable', 'integer', 'min:0'],
+            'psn_hours'             => ['nullable', 'integer', 'min:0'],
+            'psn_minutes'           => ['nullable', 'integer', 'between:0,59'],
             'user_rating'           => ['nullable', 'numeric', 'between:0,10'],
             'critic_rating'         => ['nullable', 'numeric', 'between:0,10'],
             'backlog_status'        => ['nullable', 'in:'.implode(',', array_column(BacklogStatus::cases(), 'value'))],
@@ -105,8 +104,13 @@ final class PlayStationController extends Controller
             $validated['image_url'] = Storage::url($path);
         }
 
+        $psnHours = (int) ($validated['psn_hours'] ?? 0);
+        $psnMins  = (int) ($validated['psn_minutes'] ?? 0);
+
         $categoryIds = $validated['categories'] ?? [];
-        unset($validated['image'], $validated['categories']);
+        unset($validated['psn_hours'], $validated['psn_minutes'], $validated['image'], $validated['categories']);
+
+        $validated['psn_total_minutes'] = ($psnHours > 0 || $psnMins > 0) ? $psnHours * 60 + $psnMins : null;
 
         $playStationGame->update($validated);
         $playStationGame->categories()->sync($categoryIds);

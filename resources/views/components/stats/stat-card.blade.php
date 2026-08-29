@@ -5,6 +5,7 @@
     'iconColor'  => 'brand',
     'trend'      => null,
     'trendLabel' => null,
+    'subtitle'   => null,
 ])
 
 <div class="stat-card">
@@ -37,6 +38,10 @@
     <div class="stat-card__content">
         <div class="stat-card__label">{{ $label }}</div>
         <div class="stat-card__value">{{ $value }}</div>
+
+        @if($subtitle !== null)
+            <div class="stat-card__subtitle">{{ $subtitle }}</div>
+        @endif
 
         @if($trend !== null)
             <div class="stat-card__trend">

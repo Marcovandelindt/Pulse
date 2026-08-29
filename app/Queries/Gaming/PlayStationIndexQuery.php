@@ -30,12 +30,17 @@ final class PlayStationIndexQuery
             });
         }
 
-        $totalMinutes = (int) (clone $baseQuery)
+        $totalFromPsn = (int) (clone $baseQuery)
+            ->whereNotNull('psn_total_minutes')
+            ->sum('psn_total_minutes');
+
+        $totalFromSessions = (int) (clone $baseQuery)
+            ->whereNull('psn_total_minutes')
             ->join('play_station_sessions', 'play_station_games.id', '=', 'play_station_sessions.play_station_game_id')
             ->whereRaw('(play_station_games.released_at IS NULL OR play_station_sessions.started_at >= play_station_games.released_at)')
             ->sum('play_station_sessions.duration_minutes');
 
-        $totalHours    = round($totalMinutes / 60, 1);
+        $totalHours = round(($totalFromPsn + $totalFromSessions) / 60, 1);
         $totalGames    = (clone $baseQuery)->count();
         $totalSessions = (clone $baseQuery)->sum('sessions');
 

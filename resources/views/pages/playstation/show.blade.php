@@ -109,6 +109,7 @@
         <x-stats.stat-card
             label="Hours Played"
             :value="number_format($game->calculated_hours, 1) . 'h'"
+            :subtitle="$game->psn_total_minutes ? number_format($game->tracked_hours, 1) . 'h tracked' : null"
             icon="clock"
         />
         <x-stats.stat-card
