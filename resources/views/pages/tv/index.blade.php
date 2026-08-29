@@ -168,7 +168,8 @@
          x-show="sleepOpen"
          style="display:none;">
         <div class="sleep-mode__backdrop"
-             :style="sleepItem ? `background-image: url('${sleepItem.backdrop_url || sleepItem.poster_url}')` : ''">
+             :style="sleepItem ? `background-image: url('${sleepItem.backdrop_url || sleepItem.poster_url}')` : ''"
+             x-effect="sleepIndex; $el.style.animation = 'none'; $el.offsetHeight; $el.style.animation = ''">
         </div>
 
         <div class="sleep-mode__fade" :class="{ 'sleep-mode__fade--active': sleepTransitioning }"></div>
