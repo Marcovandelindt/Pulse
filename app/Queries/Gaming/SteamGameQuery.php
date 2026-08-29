@@ -11,7 +11,7 @@ final class SteamGameQuery
     /** @return array<string, mixed> */
     public function handle(SteamGame $game): array
     {
-        $game->load('genres');
+        $game->load('genres', 'tracks.artists');
 
         $costPerHour = ($game->price && $game->playtime_hours > 0)
             ? round((float) $game->price / $game->playtime_hours, 2)

@@ -152,6 +152,32 @@
             @endif
         </x-ui.card>
 
+        @if($game->tracks->isNotEmpty())
+            <x-ui.card title="Soundtrack">
+                <div class="space-y-2">
+                    @foreach($game->tracks as $track)
+                        <div class="flex items-center gap-3 py-1">
+                            @if($track->album?->image_url)
+                                <img src="{{ $track->album->image_url }}" alt=""
+                                     style="width: 2.25rem; height: 2.25rem; object-fit: cover; border-radius: var(--radius-sm); flex-shrink: 0;">
+                            @endif
+                            <div class="flex-1 min-w-0">
+                                <a href="{{ route('music.tracks.show', $track) }}"
+                                   class="text-sm font-medium truncate block hover:underline"
+                                   style="color: var(--color-text-primary)">{{ $track->title }}</a>
+                                <div class="text-xs truncate" style="color: var(--color-text-muted)">
+                                    {{ $track->artists->pluck('name')->implode(', ') }}
+                                </div>
+                            </div>
+                            <span class="text-xs flex-shrink-0" style="color: var(--color-text-muted)">
+                                {{ $track->formatted_duration }}
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+            </x-ui.card>
+        @endif
+
         <x-ui.card title="Metadata">
             <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
