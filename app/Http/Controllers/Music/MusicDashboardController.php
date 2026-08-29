@@ -30,15 +30,15 @@ final class MusicDashboardController extends Controller
         $steamIds = $tracks->where('gameable_type', 'steam')->pluck('gameable_id')->filter()->unique()->values();
 
         if ($psIds->isNotEmpty()) {
-            PlayStationGame::whereIn('id', $psIds)
-                ->get(['id', 'name', 'display_name', 'platform', 'image_url'])
-                ->each(fn ($g) => $map['playstation:'.$g->id] = $g);
+            foreach (PlayStationGame::whereIn('id', $psIds)->get(['id', 'name', 'display_name', 'platform', 'image_url']) as $g) {
+                $map['playstation:'.$g->id] = $g;
+            }
         }
 
         if ($steamIds->isNotEmpty()) {
-            SteamGame::whereIn('id', $steamIds)
-                ->get(['id', 'name', 'image_url'])
-                ->each(fn ($g) => $map['steam:'.$g->id] = $g);
+            foreach (SteamGame::whereIn('id', $steamIds)->get(['id', 'name', 'image_url']) as $g) {
+                $map['steam:'.$g->id] = $g;
+            }
         }
 
         return $map;
