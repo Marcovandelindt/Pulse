@@ -162,42 +162,95 @@
                 </div>
             @else
                 <form method="POST" action="{{ route('music.tracks.game.update', $track) }}"
-                      x-data="{ type: '' }"
+                      x-data="{
+                          search: '',
+                          open: false,
+                          selectedId: null,
+                          selectedType: '',
+                          games: @js(
+                              $playstationGames->map(fn ($g) => [
+                                  'id'    => $g->id,
+                                  'type'  => 'playstation',
+                                  'label' => ($g->display_name ?? $g->name) . ' (' . $g->platform . ')',
+                                  'group' => 'PlayStation',
+                              ])->concat($steamGames->map(fn ($g) => [
+                                  'id'    => $g->id,
+                                  'type'  => 'steam',
+                                  'label' => $g->name,
+                                  'group' => 'Steam',
+                              ]))
+                          ),
+                          get filtered() {
+                              if (!this.search.trim()) return this.games;
+                              const q = this.search.toLowerCase();
+                              return this.games.filter(g => g.label.toLowerCase().includes(q));
+                          },
+                          get grouped() {
+                              const map = {};
+                              this.filtered.forEach(g => {
+                                  if (!map[g.group]) map[g.group] = [];
+                                  map[g.group].push(g);
+                              });
+                              return Object.entries(map).map(([name, items]) => ({ name, items }));
+                          },
+                          select(game) {
+                              this.selectedId = game.id;
+                              this.selectedType = game.type;
+                              this.search = game.label;
+                              this.open = false;
+                          },
+                      }"
+                      @submit.prevent="if (selectedId) $el.submit()"
                       class="flex gap-3 items-end flex-wrap">
                     @csrf
                     @method('PUT')
-                    <input type="hidden" name="gameable_type" x-model="type">
-                    <div class="flex-1" style="min-width: 16rem;">
-                        <label class="form-label" for="gameable_id">Link to a game</label>
-                        <select
-                            name="gameable_id"
-                            id="gameable_id"
+                    <input type="hidden" name="gameable_id" :value="selectedId ?? ''">
+                    <input type="hidden" name="gameable_type" :value="selectedType">
+                    <div class="flex-1" style="min-width: 18rem; position: relative;" @click.outside="open = false">
+                        <label class="form-label">Link to a game</label>
+                        <input
+                            type="text"
+                            x-model="search"
+                            @focus="open = true"
+                            @input="open = true; selectedId = null; selectedType = ''"
+                            @keydown.escape="open = false"
+                            @keydown.enter.prevent
+                            placeholder="Search games…"
                             class="form-input"
-                            required
-                            @change="type = $event.target.selectedOptions[0]?.dataset.type ?? ''"
+                            autocomplete="off"
                         >
-                            <option value="">— Select a game —</option>
-                            @if($playstationGames->isNotEmpty())
-                                <optgroup label="PlayStation">
-                                    @foreach($playstationGames as $psGame)
-                                        <option value="{{ $psGame->id }}" data-type="playstation">
-                                            {{ $psGame->display_name ?? $psGame->name }} ({{ $psGame->platform }})
-                                        </option>
-                                    @endforeach
-                                </optgroup>
-                            @endif
-                            @if($steamGames->isNotEmpty())
-                                <optgroup label="Steam">
-                                    @foreach($steamGames as $steamGame)
-                                        <option value="{{ $steamGame->id }}" data-type="steam">
-                                            {{ $steamGame->name }}
-                                        </option>
-                                    @endforeach
-                                </optgroup>
-                            @endif
-                        </select>
+                        <div x-show="open && grouped.length > 0"
+                             style="position: absolute; z-index: 50; left: 0; right: 0; top: calc(100% + 4px);
+                                    background: var(--color-bg-secondary); border: 1px solid var(--color-border);
+                                    border-radius: var(--radius-md); max-height: 260px; overflow-y: auto;
+                                    box-shadow: var(--shadow-card);">
+                            <template x-for="group in grouped" :key="group.name">
+                                <div>
+                                    <div x-text="group.name"
+                                         style="padding: 0.375rem 0.75rem; font-size: 0.6875rem; font-weight: 600;
+                                                text-transform: uppercase; letter-spacing: 0.05em;
+                                                color: var(--color-text-muted); position: sticky; top: 0;
+                                                background: var(--color-bg-secondary); border-bottom: 1px solid var(--color-border);"></div>
+                                    <template x-for="game in group.items" :key="game.id + game.type">
+                                        <div x-text="game.label"
+                                             @click="select(game)"
+                                             style="padding: 0.5rem 0.75rem; cursor: pointer; font-size: 0.875rem;
+                                                    color: var(--color-text-primary); transition: background var(--transition-base);"
+                                             @mouseenter="$el.style.background = 'var(--color-bg-tertiary)'"
+                                             @mouseleave="$el.style.background = ''"></div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                        <div x-show="open && search.trim() && grouped.length === 0"
+                             style="position: absolute; z-index: 50; left: 0; right: 0; top: calc(100% + 4px);
+                                    background: var(--color-bg-secondary); border: 1px solid var(--color-border);
+                                    border-radius: var(--radius-md); padding: 0.75rem;
+                                    font-size: 0.875rem; color: var(--color-text-muted);">
+                            No games found.
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn--primary" :disabled="!type">Link</button>
+                    <button type="submit" class="btn btn--primary" :disabled="!selectedId">Link</button>
                 </form>
             @endif
         </x-ui.card>
