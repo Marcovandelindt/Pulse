@@ -10,7 +10,10 @@ use App\Http\Controllers\Gaming\PlayStationSessionController;
 use App\Http\Controllers\Gaming\PlayStationStatsController;
 use App\Http\Controllers\Gaming\PlayStationSyncController;
 use App\Http\Controllers\Gaming\PlayStationTrophyController;
+use App\Http\Controllers\Gaming\SteamAccountController;
+use App\Http\Controllers\Gaming\SteamConnectionController;
 use App\Http\Controllers\Gaming\SteamController;
+use App\Http\Controllers\Gaming\SteamSyncController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('playstation')->name('playstation.')->group(function () {
@@ -44,16 +47,16 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
 
 Route::prefix('steam')->name('steam.')->group(function () {
     Route::get('/', [SteamController::class, 'index'])->name('index');
-    Route::get('/settings', [SteamController::class, 'settings'])->name('settings');
-    Route::post('/sync', [SteamController::class, 'sync'])->name('sync');
-    Route::post('/test-connection', [SteamController::class, 'testConnection'])->name('test-connection');
+    Route::post('/sync', [SteamSyncController::class, 'store'])->name('sync');
+    Route::post('/test-connection', [SteamConnectionController::class, 'store'])->name('test-connection');
+    Route::get('/settings', [SteamAccountController::class, 'index'])->name('settings');
     Route::get('/games/{game}', [SteamController::class, 'show'])->name('games.show');
     Route::get('/games/{game}/edit', [SteamController::class, 'edit'])->name('games.edit');
     Route::put('/games/{game}', [SteamController::class, 'update'])->name('games.update');
 
-    Route::post('/accounts', [SteamController::class, 'storeAccount'])->name('accounts.store');
-    Route::post('/accounts/{account}/activate', [SteamController::class, 'activateAccount'])->name('accounts.activate');
-    Route::delete('/accounts/{account}', [SteamController::class, 'destroyAccount'])->name('accounts.destroy');
+    Route::post('/accounts', [SteamAccountController::class, 'store'])->name('accounts.store');
+    Route::post('/accounts/{account}/activate', [SteamAccountController::class, 'activate'])->name('accounts.activate');
+    Route::delete('/accounts/{account}', [SteamAccountController::class, 'destroy'])->name('accounts.destroy');
 });
 
 Route::patch('/gaming/backlog/{type}/{id}/status', [BacklogController::class, 'update'])->name('gaming.backlog.update');
