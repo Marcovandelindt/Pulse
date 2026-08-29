@@ -44,11 +44,21 @@ final class PlayStationIndexQuery
         $totalGames    = (clone $baseQuery)->count();
         $totalSessions = (clone $baseQuery)->sum('sessions');
 
+        $calculatedMinutesSql = '
+            CASE WHEN psn_total_minutes > 0 THEN psn_total_minutes
+            ELSE (
+                SELECT COALESCE(SUM(ps.duration_minutes), 0)
+                FROM play_station_sessions ps
+                WHERE ps.play_station_game_id = play_station_games.id
+                AND (play_station_games.released_at IS NULL OR ps.started_at >= play_station_games.released_at)
+            ) END
+        ';
+
         $sorted = match ($sort) {
             'name'        => (clone $baseQuery)->orderBy('name'),
             'last_played' => (clone $baseQuery)->orderByDesc('last_played_at'),
             'completion'  => (clone $baseQuery)->orderByDesc('completion_percentage'),
-            default       => (clone $baseQuery)->orderByDesc('hours'),
+            default       => (clone $baseQuery)->orderByRaw("{$calculatedMinutesSql} DESC"),
         };
 
         $games = $sorted->withCount([
@@ -65,7 +75,7 @@ final class PlayStationIndexQuery
             ->get();
 
         $fallbacks  = ['ps1.jpg', 'ps2.webp', 'ps3.jpg', 'ps4.jpg', 'ps5.jpg'];
-        $sleepItems = PlayStationGame::orderByDesc('hours')
+        $sleepItems = PlayStationGame::orderByRaw("{$calculatedMinutesSql} DESC")
             ->get(['id', 'name', 'display_name', 'platform', 'image_url', 'hours', 'completion_percentage', 'last_played_at'])
             ->map(fn ($g) => [
                 'title'       => $g->label,
