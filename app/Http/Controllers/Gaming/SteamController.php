@@ -21,9 +21,9 @@ final class SteamController extends Controller
     public function index(Request $request, SteamIndexQuery $query): View
     {
         return view('pages.steam.index', $query->handle(
-            sort: $request->get('sort', 'playtime'),
-            search: $request->get('search', ''),
-            status: $request->get('status', ''),
+            sort: (string) $request->get('sort', 'playtime'),
+            search: (string) $request->get('search', ''),
+            status: (string) $request->get('status', ''),
         ));
     }
 
