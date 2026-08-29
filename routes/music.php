@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Music\AlbumController;
 use App\Http\Controllers\Music\ArtistController;
+use App\Http\Controllers\Music\ImportSpotifyHistoryController;
 use App\Http\Controllers\Music\MusicDashboardController;
 use App\Http\Controllers\Music\MusicStatsController;
 use App\Http\Controllers\Music\ObsessionController;
@@ -20,6 +21,9 @@ Route::prefix('music')->name('music.')->middleware('spotify.connected')->group(f
     Route::get('/', [MusicDashboardController::class, 'index'])->name('index');
     Route::post('/sync', [MusicDashboardController::class, 'sync'])->name('sync');
     Route::get('/stats', [MusicStatsController::class, 'index'])->name('stats');
+    Route::get('/import', [ImportSpotifyHistoryController::class, 'index'])->name('import.index');
+    Route::post('/import', [ImportSpotifyHistoryController::class, 'store'])->name('import.store');
+    Route::get('/import/{import}/progress', [ImportSpotifyHistoryController::class, 'progress'])->name('import.progress');
     Route::get('/tracks/{track}', [TrackController::class, 'show'])->name('tracks.show');
     Route::patch('/tracks/{track}', [TrackController::class, 'update'])->name('tracks.update');
     Route::post('/tracks/{track}/obsession', [ObsessionController::class, 'toggle'])->name('tracks.obsession');

@@ -3,6 +3,7 @@
     <x-layout.page-header title="Music">
         <x-slot:actions>
             <a href="{{ route('music.stats') }}" class="btn btn--secondary btn--sm">Stats</a>
+            <a href="{{ route('music.import.index') }}" class="btn btn--secondary btn--sm">Import</a>
             <form method="POST" action="{{ route('music.sync') }}">
                 @csrf
                 <button type="submit" class="btn btn--primary btn--sm">Sync now</button>
@@ -77,9 +78,7 @@
 
         <div class="lg:col-span-2">
             <x-ui.card title="Recent plays">
-                <x-slot:action>
-                    <span class="text-xs text-[var(--color-text-muted)]">{{ number_format($recentPlays->total()) }} total</span>
-                </x-slot:action>
+
 
                 @if($recentPlays->isEmpty())
                     <x-ui.empty-state title="No plays yet" description="Connect Spotify and sync to see your listening history." />

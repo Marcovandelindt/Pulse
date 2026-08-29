@@ -36,7 +36,7 @@ final class MusicDashboardController extends Controller
         }
 
         if ($steamIds->isNotEmpty()) {
-            foreach (SteamGame::whereIn('id', $steamIds)->get(['id', 'name', 'image_url']) as $g) {
+            foreach (SteamGame::whereIn('id', $steamIds)->get(['id', 'name', 'image_url', 'custom_image_url']) as $g) {
                 $map['steam:'.$g->id] = $g;
             }
         }
