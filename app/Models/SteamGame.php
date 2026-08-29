@@ -23,6 +23,7 @@ class SteamGame extends Model
         'steam_appid',
         'name',
         'image_url',
+        'custom_image_url',
         'playtime_minutes',
         'playtime_2weeks_minutes',
         'last_played_at',
@@ -78,6 +79,13 @@ class SteamGame extends Model
     public function scopeNeverPlayed(Builder $query): Builder
     {
         return $query->where('playtime_minutes', 0);
+    }
+
+    protected function imageUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->custom_image_url ?? $this->attributes['image_url'] ?? null,
+        );
     }
 
     protected function playtimeHours(): Attribute

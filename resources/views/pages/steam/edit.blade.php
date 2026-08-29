@@ -11,11 +11,12 @@
     <div class="lg:col-span-1">
         <x-ui.card>
             <div class="flex flex-col items-center text-center gap-3">
-                @if($game->image_url)
-                    <img src="{{ $game->image_url }}" alt="{{ $game->name }}"
-                         style="width: 7rem; border-radius: var(--radius-md);">
+                @php $displayImage = $game->custom_image_url ?? $game->getRawOriginal('image_url') @endphp
+                @if($displayImage)
+                    <img src="{{ $displayImage }}" alt="{{ $game->name }}"
+                         style="width: 7rem; border-radius: var(--radius-md);" id="cover-preview">
                 @else
-                    <div style="width: 7rem; height: 7rem; background: var(--color-bg-tertiary); border-radius: var(--radius-md);"></div>
+                    <div style="width: 7rem; height: 7rem; background: var(--color-bg-tertiary); border-radius: var(--radius-md);" id="cover-preview"></div>
                 @endif
                 <div>
                     <div class="font-semibold text-sm" style="color: var(--color-text-primary)">{{ $game->name }}</div>
@@ -27,9 +28,30 @@
 
     <div class="lg:col-span-2">
         <x-ui.card>
-            <form method="POST" action="{{ route('steam.games.update', $game) }}" class="space-y-5">
+            <form method="POST" action="{{ route('steam.games.update', $game) }}" class="space-y-5"
+                  enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
+
+                <div class="form-group">
+                    <label class="form-label" for="custom_image">Cover Image</label>
+                    <input
+                        type="file"
+                        id="custom_image"
+                        name="custom_image"
+                        accept="image/*"
+                        class="form-input"
+                        style="padding: 0.375rem 0.5rem;"
+                        onchange="previewCover(this)"
+                    >
+                    <x-form.error name="custom_image" />
+                    @if($game->custom_image_url)
+                        <label class="flex items-center gap-2 mt-2 text-sm cursor-pointer" style="color: var(--color-text-muted);">
+                            <input type="checkbox" name="remove_custom_image" value="1">
+                            Remove custom image (revert to Steam image)
+                        </label>
+                    @endif
+                </div>
 
                 <div class="form-group">
                     <label class="form-label" for="price">Price (€)</label>
@@ -152,5 +174,24 @@
     </div>
 
 </div>
+
+<script>
+function previewCover(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const el = document.getElementById('cover-preview');
+        if (el.tagName === 'IMG') {
+            el.src = e.target.result;
+        } else {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.cssText = 'width:7rem;border-radius:var(--radius-md);';
+            el.replaceWith(img);
+        }
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+</script>
 
 </x-layouts.app>

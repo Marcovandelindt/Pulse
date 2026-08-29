@@ -13,6 +13,7 @@ use App\Queries\Gaming\SteamGameQuery;
 use App\Queries\Gaming\SteamIndexQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -52,10 +53,29 @@ final class SteamController extends Controller
             'backlog_status'       => ['nullable', Rule::enum(BacklogStatus::class)],
             'genres'               => ['nullable', 'array'],
             'genres.*'             => ['integer', 'exists:genres,id'],
+            'custom_image'         => ['nullable', 'image', 'max:10240'],
+            'remove_custom_image'  => ['nullable', 'boolean'],
         ]);
 
         $genreIds = $validated['genres'] ?? [];
-        unset($validated['genres']);
+        unset($validated['genres'], $validated['custom_image'], $validated['remove_custom_image']);
+
+        if ($request->boolean('remove_custom_image')) {
+            if ($game->getRawOriginal('custom_image_url')) {
+                Storage::disk('public')->delete(
+                    str_replace('/storage/', '', $game->getRawOriginal('custom_image_url'))
+                );
+            }
+            $validated['custom_image_url'] = null;
+        } elseif ($request->hasFile('custom_image')) {
+            if ($game->getRawOriginal('custom_image_url')) {
+                Storage::disk('public')->delete(
+                    str_replace('/storage/', '', $game->getRawOriginal('custom_image_url'))
+                );
+            }
+            $path = $request->file('custom_image')->store('steam', 'public');
+            $validated['custom_image_url'] = Storage::url($path);
+        }
 
         $game->update($validated);
         $game->genres()->sync($genreIds);
