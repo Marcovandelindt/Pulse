@@ -38,6 +38,8 @@ class ProcessSpotifyImport implements ShouldQueue
                     && ($e['ms_played'] ?? 0) >= 30_000
             )->values();
 
+            $entries = $entries->sortBy('ts')->values();
+
             $this->import->update(['total_entries' => $entries->count()]);
 
             if ($entries->isEmpty()) {
@@ -80,12 +82,16 @@ class ProcessSpotifyImport implements ShouldQueue
                 usleep(200_000);
             }
 
-            $synced    = 0;
-            $skipped   = 0;
-            $processed = 0;
-            $batch     = [];
-            $now       = now()->toDateTimeString();
-            $timezone  = config('app.timezone');
+            $trackDurationMap = Track::whereIn('id', $trackIdMap->values()->toArray())
+                ->pluck('duration_ms', 'id');
+
+            $synced     = 0;
+            $skipped    = 0;
+            $processed  = 0;
+            $batch      = [];
+            $now        = now()->toDateTimeString();
+            $timezone   = config('app.timezone');
+            $lastSeenAt = [];
 
             foreach ($entries as $entry) {
                 $spotifyId = str_replace('spotify:track:', '', $entry['spotify_track_uri']);
@@ -97,9 +103,19 @@ class ProcessSpotifyImport implements ShouldQueue
                     continue;
                 }
 
+                $playedAt   = Carbon::parse($entry['ts'], 'UTC')->setTimezone($timezone);
+                $durationMs = $trackDurationMap->get($dbTrackId);
+
+                if ($this->isDuplicatePlay($playedAt, $lastSeenAt[$dbTrackId] ?? null, $durationMs)) {
+                    $skipped++;
+                    continue;
+                }
+
+                $lastSeenAt[$dbTrackId] = $playedAt;
+
                 $batch[] = [
                     'track_id'   => $dbTrackId,
-                    'played_at'  => Carbon::parse($entry['ts'], 'UTC')->setTimezone($timezone)->toDateTimeString(),
+                    'played_at'  => $playedAt->toDateTimeString(),
                     'source'     => 'import',
                     'context'    => null,
                     'created_at' => $now,
@@ -139,6 +155,18 @@ class ProcessSpotifyImport implements ShouldQueue
                 'error'  => $e->getMessage(),
             ]);
         }
+    }
+
+    private function isDuplicatePlay(Carbon $playedAt, ?Carbon $lastPlayedAt, ?int $durationMs): bool
+    {
+        if ($lastPlayedAt === null) {
+            return false;
+        }
+
+        $gapMs    = abs($playedAt->diffInMilliseconds($lastPlayedAt));
+        $minGapMs = max($durationMs ?? 0, 5_000);
+
+        return $gapMs < $minGapMs;
     }
 
     private function upsertTrack(array $trackData): ?int

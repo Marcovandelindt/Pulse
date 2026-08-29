@@ -32,32 +32,62 @@ final class SpotifyTrackService
             return ['synced' => 0, 'skipped' => 0, 'total' => 0];
         }
 
-        $items      = $response['items'];
-        $synced     = 0;
-        $skipped    = 0;
+        $timezone = config('app.timezone');
+
+        // Build play list, upsert tracks
+        $plays = [];
+        foreach ($response['items'] as $item) {
+            $track   = $this->upsertTrack($item['track'], fetchDetails: true);
+            $plays[] = [
+                'track_id'    => $track->id,
+                'duration_ms' => $track->duration_ms,
+                'played_at'   => Carbon::parse($item['played_at'], 'UTC')->setTimezone($timezone),
+                'context'     => isset($item['context']) ? json_encode($item['context']) : null,
+            ];
+        }
+
+        // Process chronologically so each play can be checked against the previous
+        usort($plays, fn ($a, $b) => $a['played_at'] <=> $b['played_at']);
+
+        // Pre-fetch the most recent existing play per track to seed the duplicate check
+        $trackIds   = array_unique(array_column($plays, 'track_id'));
+        $lastSeenAt = Play::whereIn('track_id', $trackIds)
+            ->where('played_at', '>=', $plays[0]['played_at']->clone()->subDay())
+            ->selectRaw('track_id, MAX(played_at) as last_played_at')
+            ->groupBy('track_id')
+            ->pluck('last_played_at', 'track_id')
+            ->map(fn ($d) => Carbon::parse($d))
+            ->toArray();
+
+        $synced      = 0;
+        $skipped     = 0;
         $maxPlayedAt = null;
 
-        foreach ($items as $item) {
-            $trackData = $item['track'];
-            $playedAt  = Carbon::parse($item['played_at'], 'UTC')->setTimezone(config('app.timezone'));
+        foreach ($plays as $play) {
+            $trackId  = $play['track_id'];
+            $playedAt = $play['played_at'];
 
             if ($maxPlayedAt === null || $playedAt->gt($maxPlayedAt)) {
                 $maxPlayedAt = $playedAt;
             }
 
-            $track = $this->upsertTrack($trackData, fetchDetails: true);
+            if ($this->isDuplicatePlay($playedAt, $lastSeenAt[$trackId] ?? null, $play['duration_ms'])) {
+                $skipped++;
+                continue;
+            }
 
             $inserted = Play::insertOrIgnore([
-                'track_id'   => $track->id,
+                'track_id'   => $trackId,
                 'played_at'  => $playedAt,
                 'source'     => 'spotify',
-                'context'    => isset($item['context']) ? json_encode($item['context']) : null,
+                'context'    => $play['context'],
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
 
             if ($inserted > 0) {
                 $synced++;
+                $lastSeenAt[$trackId] = $playedAt;
             } else {
                 $skipped++;
             }
@@ -67,7 +97,19 @@ final class SpotifyTrackService
             SpotifySyncCursor::record($maxPlayedAt, $synced);
         }
 
-        return ['synced' => $synced, 'skipped' => $skipped, 'total' => count($items)];
+        return ['synced' => $synced, 'skipped' => $skipped, 'total' => count($response['items'])];
+    }
+
+    private function isDuplicatePlay(Carbon $playedAt, ?Carbon $lastPlayedAt, ?int $durationMs): bool
+    {
+        if ($lastPlayedAt === null) {
+            return false;
+        }
+
+        $gapMs    = abs($playedAt->diffInMilliseconds($lastPlayedAt));
+        $minGapMs = max($durationMs ?? 0, 5_000);
+
+        return $gapMs < $minGapMs;
     }
 
     public function upsertTrack(array $trackData, bool $fetchDetails = false): Track
