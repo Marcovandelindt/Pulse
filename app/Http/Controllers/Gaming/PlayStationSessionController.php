@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Gaming;
 
+use App\Actions\PlayStation\GetDailyPlayStationActivity;
 use App\Http\Controllers\Controller;
 use App\Models\PlayStationCategory;
 use App\Models\PlayStationSession;
@@ -68,26 +69,10 @@ final class PlayStationSessionController extends Controller
         ));
     }
 
-    public function daily(Request $request): JsonResponse
+    public function daily(Request $request, GetDailyPlayStationActivity $action): JsonResponse
     {
         $date = $request->get('date', today()->toDateString());
 
-        $activity = PlayStationSession::with('game')
-            ->whereDate('started_at', $date)
-            ->get()
-            ->groupBy('play_station_game_id')
-            ->map(function ($sessions) {
-                $game = $sessions->first()->game;
-
-                return [
-                    'game'          => $game->name,
-                    'platform'      => $game->platform,
-                    'total_minutes' => $sessions->sum('duration_minutes'),
-                    'session_count' => $sessions->count(),
-                ];
-            })
-            ->values();
-
-        return response()->json($activity);
+        return response()->json($action->handle($date));
     }
 }
