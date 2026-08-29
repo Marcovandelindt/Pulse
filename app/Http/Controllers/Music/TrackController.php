@@ -16,12 +16,18 @@ final class TrackController extends Controller
 {
     public function show(Track $track): View
     {
-        $track->load(['album', 'artists', 'plays', 'game']);
+        $track->load(['album', 'artists', 'plays']);
 
         $playCount = $track->plays->count();
         $firstPlay = $track->plays->sortBy('played_at')->first();
         $lastPlay  = $track->plays->sortByDesc('played_at')->first();
         $heroImage = $track->primaryArtist?->image_url ?? $track->album?->image_url;
+
+        $linkedGame = match ($track->gameable_type) {
+            'playstation' => PlayStationGame::find($track->gameable_id),
+            'steam'       => SteamGame::find($track->gameable_id),
+            default       => null,
+        };
 
         $playstationGames = PlayStationGame::orderBy('name')
             ->get(['id', 'name', 'display_name', 'platform']);
@@ -30,7 +36,7 @@ final class TrackController extends Controller
 
         return view('pages.music.tracks.show', compact(
             'track', 'playCount', 'firstPlay', 'lastPlay', 'heroImage',
-            'playstationGames', 'steamGames',
+            'linkedGame', 'playstationGames', 'steamGames',
         ));
     }
 

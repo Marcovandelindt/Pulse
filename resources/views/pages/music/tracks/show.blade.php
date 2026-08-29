@@ -129,26 +129,26 @@
         <x-ui.card class="mt-6">
             <x-slot:title>Linked Game</x-slot:title>
 
-            @if($track->game)
+            @if($linkedGame)
                 <div class="flex items-center justify-between gap-4">
                     <div class="flex items-center gap-3">
-                        @if($track->game->image_url)
-                            <img src="{{ $track->game->image_url }}" alt=""
+                        @if($linkedGame->image_url)
+                            <img src="{{ $linkedGame->image_url }}" alt=""
                                  style="width: 2.5rem; height: 2.5rem; object-fit: cover; border-radius: var(--radius-sm); flex-shrink: 0;">
                         @endif
                         <div>
                             @if($track->gameable_type === 'playstation')
-                                <a href="{{ route('playstation.show', $track->game) }}"
+                                <a href="{{ route('playstation.show', $linkedGame) }}"
                                    class="font-medium hover:underline" style="color: var(--color-text-primary)">
-                                    {{ $track->game->label }}
+                                    {{ $linkedGame->label }}
                                 </a>
                                 <div class="text-xs mt-0.5" style="color: var(--color-text-muted)">
-                                    PlayStation · {{ $track->game->platform }}
+                                    PlayStation · {{ $linkedGame->platform }}
                                 </div>
                             @else
-                                <a href="{{ route('steam.games.show', $track->game) }}"
+                                <a href="{{ route('steam.games.show', $linkedGame) }}"
                                    class="font-medium hover:underline" style="color: var(--color-text-primary)">
-                                    {{ $track->game->name }}
+                                    {{ $linkedGame->name }}
                                 </a>
                                 <div class="text-xs mt-0.5" style="color: var(--color-text-muted)">Steam</div>
                             @endif
