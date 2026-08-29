@@ -42,6 +42,7 @@ final class PlayStationGame extends Model
         'trophy_earned',
         'trophy_defined',
         'trophies_last_synced_at',
+        'released_at',
     ];
 
     protected function casts(): array
@@ -50,6 +51,7 @@ final class PlayStationGame extends Model
             'backlog_status' => BacklogStatus::class,
             'play_mode' => AsEnumCollection::of(PlayMode::class),
             'last_played_at' => 'date',
+            'released_at' => 'date',
             'main_story_completed' => 'boolean',
             'exclude_from_sync' => 'boolean',
             'is_favorite' => 'boolean',
@@ -90,7 +92,16 @@ final class PlayStationGame extends Model
     {
         return Attribute::make(
             get: function () {
-                $fromSessions = $this->playSessions->sum('duration_minutes') / 60;
+                if ($this->relationLoaded('playSessions')) {
+                    $sessions = $this->released_at
+                        ? $this->playSessions->filter(fn ($s) => $s->started_at >= $this->released_at)
+                        : $this->playSessions;
+                    $fromSessions = $sessions->sum('duration_minutes') / 60;
+                } else {
+                    // Pre-computed by withSum on index page — avoids N+1
+                    $fromSessions = (float) ($this->getAttributes()['filtered_minutes'] ?? 0) / 60;
+                }
+
                 $fromManual = ($this->manual_minutes ?? 0) / 60;
 
                 return round($fromSessions + $fromManual, 1);
@@ -108,7 +119,11 @@ final class PlayStationGame extends Model
     protected function calculatedSessions(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->playSessions->count()
+            get: function () {
+                return $this->released_at
+                    ? $this->playSessions->filter(fn ($s) => $s->started_at >= $this->released_at)->count()
+                    : $this->playSessions->count();
+            }
         );
     }
 
@@ -116,13 +131,17 @@ final class PlayStationGame extends Model
     {
         return Attribute::make(
             get: function () {
-                $count = $this->playSessions->count();
+                $sessions = $this->released_at
+                    ? $this->playSessions->filter(fn ($s) => $s->started_at >= $this->released_at)
+                    : $this->playSessions;
+
+                $count = $sessions->count();
 
                 if ($count === 0) {
                     return '—';
                 }
 
-                $avgMinutes = (int) round($this->playSessions->avg('duration_minutes'));
+                $avgMinutes = (int) round($sessions->avg('duration_minutes'));
 
                 if ($avgMinutes >= 60) {
                     $hours = intdiv($avgMinutes, 60);

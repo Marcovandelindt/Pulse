@@ -45,6 +45,7 @@ final class PlayStationController extends Controller
 
         $totalMinutes = (int) (clone $baseQuery)
             ->join('play_station_sessions', 'play_station_games.id', '=', 'play_station_sessions.play_station_game_id')
+            ->whereRaw('(play_station_games.released_at IS NULL OR play_station_sessions.started_at >= play_station_games.released_at)')
             ->sum('play_station_sessions.duration_minutes');
         $totalHours = round($totalMinutes / 60, 1);
         $totalGames = (clone $baseQuery)->count();
@@ -60,7 +61,9 @@ final class PlayStationController extends Controller
         $games = $query->withCount([
             'trophyList',
             'trophyList as earned_trophy_count' => fn ($q) => $q->where('is_earned', true),
-        ])->paginate(24)->withQueryString();
+        ])->withSum(['playSessions as filtered_minutes' => fn ($q) => $q->whereRaw(
+            '(play_station_games.released_at IS NULL OR play_station_sessions.started_at >= play_station_games.released_at)'
+        )], 'duration_minutes')->paginate(24)->withQueryString();
 
         $recentSessions = PlayStationSession::with('game')
             ->whereHas('game')
@@ -106,9 +109,13 @@ final class PlayStationController extends Controller
     {
         $playStationGame->load('playSessions', 'categories', 'trophyList');
 
-        $recentSessions = $playStationGame->playSessions()->latest('started_at')->paginate(20);
+        $recentSessions = $playStationGame->playSessions()
+            ->when($playStationGame->released_at, fn ($q) => $q->whereDate('started_at', '>=', $playStationGame->released_at))
+            ->latest('started_at')
+            ->paginate(20);
 
         $monthlyStats = $playStationGame->playSessions()
+            ->when($playStationGame->released_at, fn ($q) => $q->whereDate('started_at', '>=', $playStationGame->released_at))
             ->selectRaw("DATE_FORMAT(started_at, '%Y-%m') as month, SUM(duration_minutes) as total_minutes")
             ->groupByRaw("DATE_FORMAT(started_at, '%Y-%m')")
             ->orderBy('month')
@@ -187,6 +194,7 @@ final class PlayStationController extends Controller
             'image' => ['nullable', 'image', 'max:10240'],
             'categories' => ['nullable', 'array'],
             'categories.*' => ['integer', 'exists:play_station_categories,id'],
+            'released_at' => ['nullable', 'date'],
         ]);
 
         if ($request->hasFile('image')) {

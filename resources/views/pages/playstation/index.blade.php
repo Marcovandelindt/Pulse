@@ -127,7 +127,7 @@
                                     @endif
                                 </div>
                                 <div class="gaming-card__stats">
-                                    <span>{{ $game->formatted_hours }}</span>
+                                    <span>{{ number_format($game->calculated_hours, 1) }}h</span>
                                     @if($game->trophy_list_count > 0)
                                         <span>·</span>
                                         <span>🏆 {{ $game->earned_trophy_count }}/{{ $game->trophy_list_count }}</span>

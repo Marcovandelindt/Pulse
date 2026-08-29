@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PlayStationGame;
 use App\Models\PlayStationSession;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
@@ -16,9 +17,9 @@ final class PlayStationStatsController extends Controller
 {
     public function index(): View
     {
-        $totalMinutes      = (int) PlayStationSession::sum('duration_minutes');
+        $totalMinutes      = (int) $this->validSessionsBase()->sum('play_station_sessions.duration_minutes');
         $totalHours        = round($totalMinutes / 60, 1);
-        $totalSessions     = PlayStationSession::count();
+        $totalSessions     = $this->validSessionsBase()->count();
         $totalGames        = PlayStationGame::count();
         $avgSessionMinutes = $totalSessions > 0 ? (int) round($totalMinutes / $totalSessions) : 0;
 
@@ -49,6 +50,7 @@ final class PlayStationStatsController extends Controller
     {
         $rows = PlayStationGame::query()
             ->join('play_station_sessions', 'play_station_games.id', '=', 'play_station_sessions.play_station_game_id')
+            ->whereRaw('(play_station_games.released_at IS NULL OR play_station_sessions.started_at >= play_station_games.released_at)')
             ->selectRaw('play_station_games.platform, SUM(play_station_sessions.duration_minutes) as total_minutes, COUNT(DISTINCT play_station_games.id) as game_count')
             ->groupBy('play_station_games.platform')
             ->orderByDesc('total_minutes')
@@ -74,26 +76,33 @@ final class PlayStationStatsController extends Controller
     /** @return array<string, mixed> */
     private function personalRecords(): array
     {
-        $longestSession = PlayStationSession::query()
+        $longestSession = $this->validSessionsBase()
             ->with('game:id,name,display_name')
-            ->orderByDesc('duration_minutes')
-            ->first(['id', 'play_station_game_id', 'started_at', 'duration_minutes']);
+            ->orderByDesc('play_station_sessions.duration_minutes')
+            ->first([
+                'play_station_sessions.id',
+                'play_station_sessions.play_station_game_id',
+                'play_station_sessions.started_at',
+                'play_station_sessions.duration_minutes',
+            ]);
 
         $mostPlayedGame = PlayStationGame::query()
-            ->has('playSessions')
-            ->withSum('playSessions', 'duration_minutes')
-            ->orderByDesc('play_sessions_sum_duration_minutes')
-            ->first(['id', 'name', 'display_name', 'image_url']);
-
-        $busiestDay = PlayStationSession::query()
-            ->selectRaw('DATE(started_at) as day, SUM(duration_minutes) as total_minutes, COUNT(*) as session_count')
-            ->groupByRaw('DATE(started_at)')
+            ->join('play_station_sessions', 'play_station_games.id', '=', 'play_station_sessions.play_station_game_id')
+            ->whereRaw('(play_station_games.released_at IS NULL OR play_station_sessions.started_at >= play_station_games.released_at)')
+            ->selectRaw('play_station_games.id, play_station_games.name, play_station_games.display_name, play_station_games.image_url, SUM(play_station_sessions.duration_minutes) as total_minutes')
+            ->groupBy('play_station_games.id', 'play_station_games.name', 'play_station_games.display_name', 'play_station_games.image_url')
             ->orderByDesc('total_minutes')
             ->first();
 
-        $mostSessionsDay = PlayStationSession::query()
-            ->selectRaw('DATE(started_at) as day, COUNT(*) as session_count, SUM(duration_minutes) as total_minutes')
-            ->groupByRaw('DATE(started_at)')
+        $busiestDay = $this->validSessionsBase()
+            ->selectRaw('DATE(play_station_sessions.started_at) as day, SUM(play_station_sessions.duration_minutes) as total_minutes, COUNT(*) as session_count')
+            ->groupByRaw('DATE(play_station_sessions.started_at)')
+            ->orderByDesc('total_minutes')
+            ->first();
+
+        $mostSessionsDay = $this->validSessionsBase()
+            ->selectRaw('DATE(play_station_sessions.started_at) as day, COUNT(*) as session_count, SUM(play_station_sessions.duration_minutes) as total_minutes')
+            ->groupByRaw('DATE(play_station_sessions.started_at)')
             ->orderByDesc('session_count')
             ->first();
 
@@ -104,7 +113,7 @@ final class PlayStationStatsController extends Controller
             'mostPlayedGameName'       => $mostPlayedGame?->label,
             'mostPlayedGameImage'      => $mostPlayedGame?->image_url,
             'mostPlayedGameId'         => $mostPlayedGame?->id,
-            'mostPlayedFormatted'      => $mostPlayedGame ? $this->formatMinutes((int) $mostPlayedGame->play_sessions_sum_duration_minutes) : null,
+            'mostPlayedFormatted'      => $mostPlayedGame ? $this->formatMinutes((int) $mostPlayedGame->total_minutes) : null,
             'busiestDayFormatted'      => $busiestDay ? $this->formatMinutes((int) $busiestDay->total_minutes) : null,
             'busiestDayDate'           => $busiestDay ? Carbon::parse($busiestDay->day)->format('d M Y') : null,
             'busiestDaySessions'       => $busiestDay ? (int) $busiestDay->session_count : null,
@@ -119,9 +128,9 @@ final class PlayStationStatsController extends Controller
     {
         $days = collect([1 => 'Mon', 2 => 'Tue', 3 => 'Wed', 4 => 'Thu', 5 => 'Fri', 6 => 'Sat', 7 => 'Sun']);
 
-        $raw = PlayStationSession::query()
-            ->selectRaw('DAYOFWEEK(started_at) as dow, AVG(duration_minutes) as avg_minutes, COUNT(*) as count')
-            ->groupByRaw('DAYOFWEEK(started_at)')
+        $raw = $this->validSessionsBase()
+            ->selectRaw('DAYOFWEEK(play_station_sessions.started_at) as dow, AVG(play_station_sessions.duration_minutes) as avg_minutes, COUNT(*) as count')
+            ->groupByRaw('DAYOFWEEK(play_station_sessions.started_at)')
             ->get()
             ->keyBy('dow');
 
@@ -141,9 +150,9 @@ final class PlayStationStatsController extends Controller
     /** @return Collection<int, array<string, mixed>> */
     private function hourlyPatterns(): Collection
     {
-        $raw = PlayStationSession::query()
-            ->selectRaw('HOUR(started_at) as hour, COUNT(*) as count')
-            ->groupByRaw('HOUR(started_at)')
+        $raw = $this->validSessionsBase()
+            ->selectRaw('HOUR(play_station_sessions.started_at) as hour, COUNT(*) as count')
+            ->groupByRaw('HOUR(play_station_sessions.started_at)')
             ->get()
             ->keyBy('hour');
 
@@ -157,9 +166,9 @@ final class PlayStationStatsController extends Controller
     /** @return Collection<int, array<string, mixed>> */
     private function monthlyTrend(): Collection
     {
-        return PlayStationSession::query()
-            ->selectRaw("DATE_FORMAT(started_at, '%Y-%m') as month, SUM(duration_minutes) as total_minutes, COUNT(*) as session_count")
-            ->groupByRaw("DATE_FORMAT(started_at, '%Y-%m')")
+        return $this->validSessionsBase()
+            ->selectRaw("DATE_FORMAT(play_station_sessions.started_at, '%Y-%m') as month, SUM(play_station_sessions.duration_minutes) as total_minutes, COUNT(*) as session_count")
+            ->groupByRaw("DATE_FORMAT(play_station_sessions.started_at, '%Y-%m')")
             ->orderByDesc('month')
             ->limit(12)
             ->get()
@@ -239,10 +248,10 @@ final class PlayStationStatsController extends Controller
     /** @return array<string, mixed> */
     private function consistencyStats(): array
     {
-        $dates = PlayStationSession::query()
-            ->selectRaw('DATE(started_at) as day')
-            ->groupByRaw('DATE(started_at)')
-            ->orderByRaw('DATE(started_at)')
+        $dates = $this->validSessionsBase()
+            ->selectRaw('DATE(play_station_sessions.started_at) as day')
+            ->groupByRaw('DATE(play_station_sessions.started_at)')
+            ->orderByRaw('DATE(play_station_sessions.started_at)')
             ->pluck('day')
             ->map(fn ($d) => Carbon::parse($d)->startOfDay());
 
@@ -289,11 +298,11 @@ final class PlayStationStatsController extends Controller
 
         $longestStreak = max($longestStreak, $currentStreak);
 
-        $totalSessionCount = PlayStationSession::count();
+        $totalSessionCount = $this->validSessionsBase()->count();
         $weeksSinceFirst   = max(1, (int) ceil($dates->first()->diffInDays(now()) / 7));
         $avgSessionsPerWeek = round($totalSessionCount / $weeksSinceFirst, 1);
 
-        $lastSessionAt = PlayStationSession::max('started_at');
+        $lastSessionAt = $this->validSessionsBase()->max('play_station_sessions.started_at');
         $daysSinceLast = $lastSessionAt
             ? (int) Carbon::parse($lastSessionAt)->startOfDay()->diffInDays(now()->startOfDay())
             : null;
@@ -313,9 +322,13 @@ final class PlayStationStatsController extends Controller
         $year     = now()->year;
         $lastYear = $year - 1;
 
-        $thisSessions = PlayStationSession::query()
-            ->whereYear('started_at', $year)
-            ->get(['play_station_game_id', 'duration_minutes', 'started_at']);
+        $thisSessions = $this->validSessionsBase()
+            ->whereYear('play_station_sessions.started_at', $year)
+            ->get([
+                'play_station_sessions.play_station_game_id',
+                'play_station_sessions.duration_minutes',
+                'play_station_sessions.started_at',
+            ]);
 
         if ($thisSessions->isEmpty()) {
             return ['hasData' => false, 'year' => $year];
@@ -338,16 +351,16 @@ final class PlayStationStatsController extends Controller
 
         $bestMonthNum = $byMonth->sortDesc()->keys()->first();
 
-        $newGamesThisYear = PlayStationSession::query()
-            ->selectRaw('play_station_game_id, MIN(started_at) as first_session')
-            ->groupBy('play_station_game_id')
-            ->havingRaw('YEAR(MIN(started_at)) = ?', [$year])
+        $newGamesThisYear = $this->validSessionsBase()
+            ->selectRaw('play_station_sessions.play_station_game_id, MIN(play_station_sessions.started_at) as first_session')
+            ->groupBy('play_station_sessions.play_station_game_id')
+            ->havingRaw('YEAR(MIN(play_station_sessions.started_at)) = ?', [$year])
             ->count();
 
-        $lastYearMinutes = (int) PlayStationSession::query()
-            ->whereYear('started_at', $lastYear)
-            ->where('started_at', '<=', now()->subYear())
-            ->sum('duration_minutes');
+        $lastYearMinutes = (int) $this->validSessionsBase()
+            ->whereYear('play_station_sessions.started_at', $lastYear)
+            ->where('play_station_sessions.started_at', '<=', now()->subYear())
+            ->sum('play_station_sessions.duration_minutes');
 
         $vsLastYear = $lastYearMinutes > 0
             ? round((($thisMinutes - $lastYearMinutes) / $lastYearMinutes) * 100, 1)
@@ -364,6 +377,16 @@ final class PlayStationStatsController extends Controller
             'newGames'       => $newGamesThisYear,
             'vsLastYear'     => $vsLastYear,
         ];
+    }
+
+    private function validSessionsBase(): Builder
+    {
+        return PlayStationSession::query()
+            ->join('play_station_games', 'play_station_sessions.play_station_game_id', '=', 'play_station_games.id')
+            ->where(function (Builder $q): void {
+                $q->whereNull('play_station_games.released_at')
+                  ->orWhereColumn('play_station_sessions.started_at', '>=', 'play_station_games.released_at');
+            });
     }
 
     private function formatMinutes(int $minutes): string

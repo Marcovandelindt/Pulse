@@ -108,7 +108,7 @@
     <div class="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
         <x-stats.stat-card
             label="Hours Played"
-            :value="$game->formatted_hours"
+            :value="number_format($game->calculated_hours, 1) . 'h'"
             icon="clock"
         />
         <x-stats.stat-card

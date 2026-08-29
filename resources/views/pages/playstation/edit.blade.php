@@ -88,6 +88,21 @@
             </div>
 
             <div class="form-group">
+                <label class="form-label" for="released_at">Release Date</label>
+                <input
+                    type="date"
+                    id="released_at"
+                    name="released_at"
+                    value="{{ old('released_at', $game->released_at?->format('Y-m-d')) }}"
+                    class="form-input"
+                >
+                <p class="text-xs mt-1" style="color: var(--color-text-muted)">
+                    Sessions before this date are excluded from all hour totals. Useful for remasters that inherit old tracker data from the original game.
+                </p>
+                <x-form.error name="released_at" />
+            </div>
+
+            <div class="form-group">
                 <label class="form-label" for="user_rating">Your Rating (0–10)</label>
                 <input
                     type="number"
