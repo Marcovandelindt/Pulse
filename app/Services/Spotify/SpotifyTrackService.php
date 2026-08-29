@@ -52,7 +52,7 @@ final class SpotifyTrackService
                     ['name' => $artistData['name']],
                 );
 
-                if ($artist->wasRecentlyCreated) {
+                if ($artist->wasRecentlyCreated || $artist->image_url === null) {
                     $artistDetails = $this->spotify->get('/artists/'.$artistData['id']);
 
                     if ($artistDetails !== null) {
