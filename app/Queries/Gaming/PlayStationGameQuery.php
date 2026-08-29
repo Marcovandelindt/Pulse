@@ -11,7 +11,7 @@ final class PlayStationGameQuery
     /** @return array<string, mixed> */
     public function handle(PlayStationGame $game): array
     {
-        $game->load('playSessions', 'categories', 'trophyList');
+        $game->load('playSessions', 'categories', 'trophyList', 'tracks.artists');
 
         $recentSessions = $game->playSessions()
             ->when($game->released_at, fn ($q) => $q->whereDate('started_at', '>=', $game->released_at))
