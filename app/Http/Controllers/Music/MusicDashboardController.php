@@ -79,6 +79,17 @@ final class MusicDashboardController extends Controller
             ->get();
 
         $currentlyPlaying = $this->trackService->getCurrentlyPlaying();
+
+        if ($currentlyPlaying !== null) {
+            $track = Track::where('spotify_track_id', $currentlyPlaying['spotify_track_id'])->first();
+
+            if ($track === null) {
+                $track = $this->trackService->upsertTrack($currentlyPlaying['raw_track'], fetchDetails: false);
+            }
+
+            $currentlyPlaying['track']         = $track->load('artists');
+            $currentlyPlaying['artist_models'] = $track->artists->keyBy('spotify_artist_id');
+        }
         $lastSync = SpotifySyncCursor::latest()->first();
 
         $obsessions = Track::where('is_obsession', true)

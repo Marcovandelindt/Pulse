@@ -46,6 +46,14 @@ final class DashboardController extends Controller
 
         try {
             $currentlyPlaying = $this->trackService->getCurrentlyPlaying();
+
+            if ($currentlyPlaying !== null) {
+                $track = \App\Models\Track::where('spotify_track_id', $currentlyPlaying['spotify_track_id'])->first()
+                    ?? $this->trackService->upsertTrack($currentlyPlaying['raw_track'], fetchDetails: false);
+
+                $currentlyPlaying['track']         = $track->load('artists');
+                $currentlyPlaying['artist_models'] = $track->artists->keyBy('spotify_artist_id');
+            }
         } catch (\Throwable) {
             $currentlyPlaying = null;
         }

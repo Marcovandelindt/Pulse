@@ -32,91 +32,26 @@ final class SpotifyTrackService
             return ['synced' => 0, 'skipped' => 0, 'total' => 0];
         }
 
-        $items = $response['items'];
-        $synced = 0;
-        $skipped = 0;
+        $items      = $response['items'];
+        $synced     = 0;
+        $skipped    = 0;
         $maxPlayedAt = null;
 
         foreach ($items as $item) {
             $trackData = $item['track'];
-            $playedAt = Carbon::parse($item['played_at'], 'UTC')->setTimezone(config('app.timezone'));
+            $playedAt  = Carbon::parse($item['played_at'], 'UTC')->setTimezone(config('app.timezone'));
 
             if ($maxPlayedAt === null || $playedAt->gt($maxPlayedAt)) {
                 $maxPlayedAt = $playedAt;
             }
 
-            $artistModels = [];
-            foreach ($trackData['artists'] as $artistData) {
-                $artist = Artist::firstOrCreate(
-                    ['spotify_artist_id' => $artistData['id']],
-                    ['name' => $artistData['name']],
-                );
-
-                if ($artist->wasRecentlyCreated || $artist->image_url === null) {
-                    $artistDetails = $this->spotify->get('/artists/'.$artistData['id']);
-
-                    if ($artistDetails !== null) {
-                        $artist->update([
-                            'image_url' => $artistDetails['images'][0]['url'] ?? null,
-                            'genres' => $artistDetails['genres'] ?? [],
-                            'popularity' => $artistDetails['popularity'] ?? null,
-                        ]);
-                    }
-                }
-
-                $artistModels[] = $artist;
-            }
-
-            $albumData = $trackData['album'];
-            $album = Album::firstOrCreate(
-                ['spotify_album_id' => $albumData['id']],
-                [
-                    'name' => $albumData['name'],
-                    'image_url' => $albumData['images'][0]['url'] ?? null,
-                    'album_type' => $albumData['album_type'] ?? null,
-                    'total_tracks' => $albumData['total_tracks'] ?? null,
-                ],
-            );
-
-            if ($album->wasRecentlyCreated) {
-                $albumDetails = $this->spotify->get('/albums/'.$albumData['id']);
-
-                if ($albumDetails !== null) {
-                    $album->update([
-                        'release_date' => $albumDetails['release_date'] ?? null,
-                    ]);
-                }
-            }
-
-            $track = Track::firstOrCreate(
-                ['spotify_track_id' => $trackData['id']],
-                [
-                    'album_id' => $album->id,
-                    'title' => $trackData['name'],
-                    'duration_ms' => $trackData['duration_ms'] ?? null,
-                    'popularity' => $trackData['popularity'] ?? null,
-                    'preview_url' => $trackData['preview_url'] ?? null,
-                    'spotify_uri' => $trackData['uri'] ?? null,
-                    'is_explicit' => $trackData['explicit'] ?? false,
-                ],
-            );
-
-            $pivotData = collect($trackData['artists'])->mapWithKeys(
-                fn ($artistData, int $index) => [
-                    $artistModels[$index]->id => [
-                        'is_primary' => $index === 0,
-                        'sort_order' => $index,
-                    ],
-                ]
-            )->toArray();
-
-            $track->artists()->syncWithoutDetaching($pivotData);
+            $track = $this->upsertTrack($trackData, fetchDetails: true);
 
             $inserted = Play::insertOrIgnore([
-                'track_id' => $track->id,
-                'played_at' => $playedAt,
-                'source' => 'spotify',
-                'context' => isset($item['context']) ? json_encode($item['context']) : null,
+                'track_id'   => $track->id,
+                'played_at'  => $playedAt,
+                'source'     => 'spotify',
+                'context'    => isset($item['context']) ? json_encode($item['context']) : null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -135,6 +70,77 @@ final class SpotifyTrackService
         return ['synced' => $synced, 'skipped' => $skipped, 'total' => count($items)];
     }
 
+    public function upsertTrack(array $trackData, bool $fetchDetails = false): Track
+    {
+        $artistModels = [];
+
+        foreach ($trackData['artists'] as $artistData) {
+            $artist = Artist::firstOrCreate(
+                ['spotify_artist_id' => $artistData['id']],
+                ['name' => $artistData['name']],
+            );
+
+            if ($fetchDetails && ($artist->wasRecentlyCreated || $artist->image_url === null)) {
+                $artistDetails = $this->spotify->get('/artists/'.$artistData['id']);
+
+                if ($artistDetails !== null) {
+                    $artist->update([
+                        'image_url'  => $artistDetails['images'][0]['url'] ?? null,
+                        'genres'     => $artistDetails['genres'] ?? [],
+                        'popularity' => $artistDetails['popularity'] ?? null,
+                    ]);
+                }
+            }
+
+            $artistModels[] = $artist;
+        }
+
+        $albumData = $trackData['album'];
+        $album     = Album::firstOrCreate(
+            ['spotify_album_id' => $albumData['id']],
+            [
+                'name'         => $albumData['name'],
+                'image_url'    => $albumData['images'][0]['url'] ?? null,
+                'album_type'   => $albumData['album_type'] ?? null,
+                'total_tracks' => $albumData['total_tracks'] ?? null,
+            ],
+        );
+
+        if ($fetchDetails && $album->wasRecentlyCreated) {
+            $albumDetails = $this->spotify->get('/albums/'.$albumData['id']);
+
+            if ($albumDetails !== null) {
+                $album->update(['release_date' => $albumDetails['release_date'] ?? null]);
+            }
+        }
+
+        $track = Track::firstOrCreate(
+            ['spotify_track_id' => $trackData['id']],
+            [
+                'album_id'    => $album->id,
+                'title'       => $trackData['name'],
+                'duration_ms' => $trackData['duration_ms'] ?? null,
+                'popularity'  => $trackData['popularity'] ?? null,
+                'preview_url' => $trackData['preview_url'] ?? null,
+                'spotify_uri' => $trackData['uri'] ?? null,
+                'is_explicit' => $trackData['explicit'] ?? false,
+            ],
+        );
+
+        $pivotData = collect($trackData['artists'])->mapWithKeys(
+            fn ($artistData, int $index) => [
+                $artistModels[$index]->id => [
+                    'is_primary' => $index === 0,
+                    'sort_order' => $index,
+                ],
+            ]
+        )->toArray();
+
+        $track->artists()->syncWithoutDetaching($pivotData);
+
+        return $track;
+    }
+
     public function getCurrentlyPlaying(): ?array
     {
         $response = $this->spotify->get('/me/player/currently-playing');
@@ -150,14 +156,20 @@ final class SpotifyTrackService
         }
 
         return [
-            'track_name' => $track['name'],
-            'artist_names' => collect($track['artists'])->pluck('name')->implode(', '),
-            'album_name' => $track['album']['name'] ?? null,
+            'track_name'       => $track['name'],
+            'spotify_track_id' => $track['id'] ?? null,
+            'raw_track'        => $track,
+            'artists'          => collect($track['artists'])->map(fn ($a) => [
+                'name'              => $a['name'],
+                'spotify_artist_id' => $a['id'],
+            ])->all(),
+            'artist_names'    => collect($track['artists'])->pluck('name')->implode(', '),
+            'album_name'      => $track['album']['name'] ?? null,
             'album_image_url' => $track['album']['images'][0]['url'] ?? null,
-            'is_playing' => $response['is_playing'],
-            'progress_ms' => $response['progress_ms'] ?? 0,
-            'duration_ms' => $track['duration_ms'] ?? 0,
-            'spotify_uri' => $track['uri'] ?? null,
+            'is_playing'      => $response['is_playing'],
+            'progress_ms'     => $response['progress_ms'] ?? 0,
+            'duration_ms'     => $track['duration_ms'] ?? 0,
+            'spotify_uri'     => $track['uri'] ?? null,
         ];
     }
 }

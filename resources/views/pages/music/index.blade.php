@@ -62,8 +62,25 @@
                 <img src="{{ $currentlyPlaying['album_image_url'] }}" alt="{{ $currentlyPlaying['album_name'] }}" class="now-playing__cover">
             @endif
             <div class="now-playing__info">
-                <div class="now-playing__track">{{ $currentlyPlaying['track_name'] }}</div>
-                <div class="now-playing__artist">{{ $currentlyPlaying['artist_names'] }} · {{ $currentlyPlaying['album_name'] }}</div>
+                <div class="now-playing__track">
+                    @if($currentlyPlaying['track'] ?? null)
+                        <a href="{{ route('music.tracks.show', $currentlyPlaying['track']) }}" class="hover:underline" style="color: inherit;">{{ $currentlyPlaying['track_name'] }}</a>
+                    @else
+                        {{ $currentlyPlaying['track_name'] }}
+                    @endif
+                </div>
+                <div class="now-playing__artist">
+                    @foreach($currentlyPlaying['artists'] as $artist)
+                        @php $artistModel = $currentlyPlaying['artist_models'][$artist['spotify_artist_id']] ?? null @endphp
+                        @if($artistModel)
+                            <a href="{{ route('music.artists.show', $artistModel) }}" class="hover:underline" style="color: inherit;">{{ $artist['name'] }}</a>
+                        @else
+                            {{ $artist['name'] }}
+                        @endif
+                        @if(!$loop->last)<span> · </span>@endif
+                    @endforeach
+                    <span> · {{ $currentlyPlaying['album_name'] }}</span>
+                </div>
                 @if($currentlyPlaying['duration_ms'] > 0)
                     <div class="now-playing__progress">
                         <div class="now-playing__progress-bar" style="width: {{ round(($currentlyPlaying['progress_ms'] / $currentlyPlaying['duration_ms']) * 100) }}%"></div>
