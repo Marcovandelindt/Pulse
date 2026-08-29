@@ -2,9 +2,14 @@
     'game',
     'playing'  => true,
     'playedAt' => null,
+    'url'      => null,
 ])
 
+@if($url)
+<a href="{{ $url }}" class="now-gaming now-gaming--link {{ $playing ? 'now-gaming--playing' : '' }}">
+@else
 <div class="now-gaming {{ $playing ? 'now-gaming--playing' : '' }}">
+@endif
     @if($game['image_url'])
         <div class="now-gaming__cover-wrap">
             <img src="{{ $game['image_url'] }}" alt="{{ $game['title'] }}">
@@ -24,4 +29,8 @@
             @endif
         </div>
     </div>
+@if($url)
+</a>
+@else
 </div>
+@endif

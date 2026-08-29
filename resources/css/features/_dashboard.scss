@@ -157,6 +157,14 @@
     border-top-color: rgba(0, 112, 209, 0.3);
 }
 
+.now-gaming--link {
+    display:         flex;
+    text-decoration: none;
+    transition:      background var(--transition-base);
+
+    &:hover { background: var(--color-bg-tertiary); }
+}
+
 .now-gaming__cover-wrap {
     width:         4rem;
     height:        4rem;

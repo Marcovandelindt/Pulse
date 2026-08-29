@@ -68,6 +68,10 @@ final class DashboardController extends Controller
             ? PlayStationSession::with('game')->latest('started_at')->first()
             : null;
 
+        $lastPlayedGameUrl = $lastPlayedSession
+            ? route('playstation.show', $lastPlayedSession->game)
+            : null;
+
         $recentPlay = $currentlyPlaying === null
             ? Play::with(['track.album', 'track.artists'])->orderByDesc('played_at')->first()
             : null;
@@ -87,6 +91,7 @@ final class DashboardController extends Controller
                 'image_url' => $lastPlayedSession->game->image_url,
             ] : null,
             'lastPlayedAt'      => $lastPlayedSession?->started_at,
+            'lastPlayedGameUrl' => $lastPlayedGameUrl,
         ]);
     }
 

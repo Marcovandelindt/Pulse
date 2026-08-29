@@ -112,7 +112,7 @@
                 </x-ui.card>
             @elseif($lastPlayedGame)
                 <x-ui.card title="Last played" class="card--flush">
-                    <x-playstation.now-gaming :game="$lastPlayedGame" :playing="false" :playedAt="$lastPlayedAt" />
+                    <x-playstation.now-gaming :game="$lastPlayedGame" :playing="false" :playedAt="$lastPlayedAt" :url="$lastPlayedGameUrl" />
                 </x-ui.card>
             @endif
         </div>
