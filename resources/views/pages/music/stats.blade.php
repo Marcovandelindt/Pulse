@@ -2,18 +2,16 @@
 
     <x-layout.page-header title="{{ $isAllYears ? 'Music Stats — All time' : 'Music Stats — ' . $selectedYear }}">
         <x-slot:actions>
-            <div class="stats-year-filter">
+            <a
+                href="{{ route('music.stats', ['year' => 'all']) }}"
+                class="btn btn--sm {{ $isAllYears ? 'btn--primary' : 'btn--secondary' }}"
+            >All</a>
+            @foreach($availableYears as $year)
                 <a
-                    href="{{ route('music.stats', ['year' => 'all']) }}"
-                    class="stats-year-filter__btn {{ $isAllYears ? 'stats-year-filter__btn--active' : '' }}"
-                >All</a>
-                @foreach($availableYears as $year)
-                    <a
-                        href="{{ route('music.stats', ['year' => $year]) }}"
-                        class="stats-year-filter__btn {{ ! $isAllYears && $selectedYear === $year ? 'stats-year-filter__btn--active' : '' }}"
-                    >{{ $year }}</a>
-                @endforeach
-            </div>
+                    href="{{ route('music.stats', ['year' => $year]) }}"
+                    class="btn btn--sm {{ ! $isAllYears && $selectedYear === $year ? 'btn--primary' : 'btn--secondary' }}"
+                >{{ $year }}</a>
+            @endforeach
             <a href="{{ route('music.index') }}" class="btn btn--secondary btn--sm">&larr; Music</a>
         </x-slot:actions>
     </x-layout.page-header>
