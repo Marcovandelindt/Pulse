@@ -5,8 +5,10 @@ declare(strict_types=1);
 use App\Http\Controllers\Gaming\BacklogController;
 use App\Http\Controllers\Gaming\PlayStationCategoryController;
 use App\Http\Controllers\Gaming\PlayStationController;
+use App\Http\Controllers\Gaming\PlayStationFavoriteController;
 use App\Http\Controllers\Gaming\PlayStationSessionController;
 use App\Http\Controllers\Gaming\PlayStationStatsController;
+use App\Http\Controllers\Gaming\PlayStationSyncController;
 use App\Http\Controllers\Gaming\PlayStationTrophyController;
 use App\Http\Controllers\Gaming\SteamController;
 use Illuminate\Support\Facades\Route;
@@ -15,7 +17,7 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
     Route::get('/', [PlayStationController::class, 'index'])->name('index');
     Route::get('/create', [PlayStationController::class, 'create'])->name('create');
     Route::post('/', [PlayStationController::class, 'store'])->name('store');
-    Route::post('/sync', [PlayStationController::class, 'sync'])->name('sync');
+    Route::post('/sync', [PlayStationSyncController::class, 'store'])->name('sync');
     Route::get('/stats', [PlayStationStatsController::class, 'index'])->name('stats');
 
     Route::prefix('sessions')->name('sessions.')->group(function () {
@@ -29,13 +31,15 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
         Route::delete('/{playStationCategory}', [PlayStationCategoryController::class, 'destroy'])->name('destroy');
     });
 
-    Route::patch('/trophies/{playStationTrophy}/toggle', [PlayStationTrophyController::class, 'toggle'])->name('trophy.toggle');
+    Route::prefix('trophies')->name('trophies.')->group(function () {
+        Route::patch('/{playStationTrophy}/toggle', [PlayStationTrophyController::class, 'toggle'])->name('toggle');
+    });
 
     Route::get('/{playStationGame}', [PlayStationController::class, 'show'])->name('show');
     Route::get('/{playStationGame}/edit', [PlayStationController::class, 'edit'])->name('edit');
     Route::patch('/{playStationGame}', [PlayStationController::class, 'update'])->name('update');
-    Route::patch('/{playStationGame}/favorite', [PlayStationController::class, 'favorite'])->name('favorite');
-    Route::post('/{playStationGame}/fetch-trophies', [PlayStationController::class, 'fetchTrophies'])->name('fetch-trophies');
+    Route::post('/{playStationGame}/fetch-trophies', [PlayStationTrophyController::class, 'fetch'])->name('fetch-trophies');
+    Route::patch('/{playStationGame}/favorite', [PlayStationFavoriteController::class, 'toggle'])->name('favorite');
 });
 
 Route::prefix('steam')->name('steam.')->group(function () {

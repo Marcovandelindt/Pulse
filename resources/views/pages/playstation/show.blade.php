@@ -191,7 +191,7 @@
                                         name: '{{ addslashes(strtolower($trophy->name)) }}',
                                         earned: {{ $trophy->is_earned ? 'true' : 'false' }},
                                         toggle() {
-                                            fetch('{{ route('playstation.trophy.toggle', $trophy) }}', {
+                                            fetch('{{ route('playstation.trophies.toggle', $trophy) }}', {
                                                 method: 'PATCH',
                                                 headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
                                             })

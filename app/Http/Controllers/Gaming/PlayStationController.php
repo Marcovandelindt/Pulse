@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Gaming;
 
-use App\Actions\PlayStation\FetchPlayStationTrophies;
-use App\Actions\PlayStation\SyncPlayStationGames;
-use App\Actions\PlayStation\TogglePlayStationFavorite;
 use App\Enums\BacklogStatus;
 use App\Enums\PlayMode;
 use App\Http\Controllers\Controller;
@@ -15,7 +12,6 @@ use App\Models\PlayStationGame;
 use App\Models\PlayStationSession;
 use App\Services\PlayStation\PsnPresenceService;
 use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -206,30 +202,4 @@ final class PlayStationController extends Controller
         return redirect()->route('playstation.show', $playStationGame)->with('success', 'Game updated.');
     }
 
-    public function favorite(PlayStationGame $playStationGame, TogglePlayStationFavorite $action): JsonResponse
-    {
-        return response()->json(['is_favorite' => $action->handle($playStationGame)]);
-    }
-
-    public function sync(SyncPlayStationGames $action): RedirectResponse
-    {
-        try {
-            $synced = $action->handle();
-
-            return redirect()->back()->with('success', "Synced {$synced} games.");
-        } catch (\Throwable $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-    }
-
-    public function fetchTrophies(PlayStationGame $playStationGame, FetchPlayStationTrophies $action): RedirectResponse
-    {
-        try {
-            $message = $action->handle($playStationGame);
-
-            return redirect()->route('playstation.show', $playStationGame)->with('success', $message);
-        } catch (\Throwable $e) {
-            return redirect()->route('playstation.show', $playStationGame)->with('error', $e->getMessage());
-        }
-    }
 }
