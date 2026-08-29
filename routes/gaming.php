@@ -5,7 +5,9 @@ declare(strict_types=1);
 use App\Http\Controllers\Gaming\BacklogController;
 use App\Http\Controllers\Gaming\PlayStationCategoryController;
 use App\Http\Controllers\Gaming\PlayStationController;
+use App\Http\Controllers\Gaming\PlayStationSessionController;
 use App\Http\Controllers\Gaming\PlayStationStatsController;
+use App\Http\Controllers\Gaming\PlayStationTrophyController;
 use App\Http\Controllers\Gaming\SteamController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,10 +15,13 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
     Route::get('/', [PlayStationController::class, 'index'])->name('index');
     Route::get('/create', [PlayStationController::class, 'create'])->name('create');
     Route::post('/', [PlayStationController::class, 'store'])->name('store');
-    Route::get('/sessions', [PlayStationController::class, 'sessions'])->name('sessions');
     Route::post('/sync', [PlayStationController::class, 'sync'])->name('sync');
-    Route::get('/daily-activity', [PlayStationController::class, 'dailyActivity'])->name('daily-activity');
     Route::get('/stats', [PlayStationStatsController::class, 'index'])->name('stats');
+
+    Route::prefix('sessions')->name('sessions.')->group(function () {
+        Route::get('/', [PlayStationSessionController::class, 'index'])->name('index');
+        Route::get('/daily', [PlayStationSessionController::class, 'daily'])->name('daily');
+    });
 
     Route::prefix('categories')->name('categories.')->group(function () {
         Route::get('/', [PlayStationCategoryController::class, 'index'])->name('index');
@@ -24,7 +29,7 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
         Route::delete('/{playStationCategory}', [PlayStationCategoryController::class, 'destroy'])->name('destroy');
     });
 
-    Route::patch('/trophies/{playStationTrophy}/toggle', [PlayStationController::class, 'toggleTrophy'])->name('trophy.toggle');
+    Route::patch('/trophies/{playStationTrophy}/toggle', [PlayStationTrophyController::class, 'toggle'])->name('trophy.toggle');
 
     Route::get('/{playStationGame}', [PlayStationController::class, 'show'])->name('show');
     Route::get('/{playStationGame}/edit', [PlayStationController::class, 'edit'])->name('edit');

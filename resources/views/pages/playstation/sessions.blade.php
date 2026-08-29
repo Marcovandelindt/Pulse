@@ -34,7 +34,7 @@
     </div>
 
     {{-- Filters --}}
-    <form method="GET" action="{{ route('playstation.sessions') }}"
+    <form method="GET" action="{{ route('playstation.sessions.index') }}"
           class="mb-4 rounded-xl border p-5"
           style="background: var(--color-bg-secondary); border-color: var(--color-border);">
         <div class="flex flex-wrap items-end gap-x-5 gap-y-4">
@@ -72,7 +72,7 @@
             <div class="flex gap-2 items-end pb-px">
                 <button type="submit" class="btn btn--primary btn--sm">Filter</button>
                 @if($search || $minDuration || $categoryId || $dateFrom || $dateTo)
-                    <a href="{{ route('playstation.sessions') }}" class="btn btn--secondary btn--sm">Clear</a>
+                    <a href="{{ route('playstation.sessions.index') }}" class="btn btn--secondary btn--sm">Clear</a>
                 @endif
             </div>
 
