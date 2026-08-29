@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 final class Track extends Model
 {
@@ -52,6 +53,11 @@ final class Track extends Model
     public function plays(): HasMany
     {
         return $this->hasMany(Play::class);
+    }
+
+    public function game(): MorphTo
+    {
+        return $this->morphTo('gameable');
     }
 
     protected function primaryArtist(): Attribute

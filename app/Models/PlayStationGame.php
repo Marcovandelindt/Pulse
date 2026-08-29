@@ -6,11 +6,12 @@ namespace App\Models;
 
 use App\Enums\BacklogStatus;
 use App\Enums\PlayMode;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 final class PlayStationGame extends Model
 {
@@ -79,6 +80,11 @@ final class PlayStationGame extends Model
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(PlayStationCategory::class, 'play_station_game_category');
+    }
+
+    public function tracks(): MorphMany
+    {
+        return $this->morphMany(Track::class, 'gameable');
     }
 
     protected function label(): Attribute

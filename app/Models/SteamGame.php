@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class SteamGame extends Model
 {
@@ -52,6 +53,11 @@ class SteamGame extends Model
     public function genres(): BelongsToMany
     {
         return $this->belongsToMany(Genre::class, 'genre_steam_game');
+    }
+
+    public function tracks(): MorphMany
+    {
+        return $this->morphMany(Track::class, 'gameable');
     }
 
     public function scopeMostPlayed(Builder $query, int $limit = 10): Builder

@@ -126,6 +126,82 @@
 
         </div>
 
+        <x-ui.card class="mt-6">
+            <x-slot:title>Linked Game</x-slot:title>
+
+            @if($track->game)
+                <div class="flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        @if($track->game->image_url)
+                            <img src="{{ $track->game->image_url }}" alt=""
+                                 style="width: 2.5rem; height: 2.5rem; object-fit: cover; border-radius: var(--radius-sm); flex-shrink: 0;">
+                        @endif
+                        <div>
+                            @if($track->gameable_type === 'playstation')
+                                <a href="{{ route('playstation.show', $track->game) }}"
+                                   class="font-medium hover:underline" style="color: var(--color-text-primary)">
+                                    {{ $track->game->label }}
+                                </a>
+                                <div class="text-xs mt-0.5" style="color: var(--color-text-muted)">
+                                    PlayStation · {{ $track->game->platform }}
+                                </div>
+                            @else
+                                <a href="{{ route('steam.games.show', $track->game) }}"
+                                   class="font-medium hover:underline" style="color: var(--color-text-primary)">
+                                    {{ $track->game->name }}
+                                </a>
+                                <div class="text-xs mt-0.5" style="color: var(--color-text-muted)">Steam</div>
+                            @endif
+                        </div>
+                    </div>
+                    <form method="POST" action="{{ route('music.tracks.game.destroy', $track) }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn--secondary btn--sm">Unlink</button>
+                    </form>
+                </div>
+            @else
+                <form method="POST" action="{{ route('music.tracks.game.update', $track) }}"
+                      x-data="{ type: '' }"
+                      class="flex gap-3 items-end flex-wrap">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" name="gameable_type" x-model="type">
+                    <div class="flex-1" style="min-width: 16rem;">
+                        <label class="form-label" for="gameable_id">Link to a game</label>
+                        <select
+                            name="gameable_id"
+                            id="gameable_id"
+                            class="form-input"
+                            required
+                            @change="type = $event.target.selectedOptions[0]?.dataset.type ?? ''"
+                        >
+                            <option value="">— Select a game —</option>
+                            @if($playstationGames->isNotEmpty())
+                                <optgroup label="PlayStation">
+                                    @foreach($playstationGames as $psGame)
+                                        <option value="{{ $psGame->id }}" data-type="playstation">
+                                            {{ $psGame->display_name ?? $psGame->name }} ({{ $psGame->platform }})
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+                            @if($steamGames->isNotEmpty())
+                                <optgroup label="Steam">
+                                    @foreach($steamGames as $steamGame)
+                                        <option value="{{ $steamGame->id }}" data-type="steam">
+                                            {{ $steamGame->name }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn--primary" :disabled="!type">Link</button>
+                </form>
+            @endif
+        </x-ui.card>
+
         <x-ui.card title="Play history" class="mt-6">
             @if($track->plays->isEmpty())
                 <x-ui.empty-state title="No plays recorded" />
