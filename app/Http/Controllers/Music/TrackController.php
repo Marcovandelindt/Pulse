@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Music;
 
 use App\Http\Controllers\Controller;
 use App\Models\PlayStationGame;
-use App\Models\SteamAccount;
 use App\Models\SteamGame;
 use App\Models\Track;
 use Illuminate\Contracts\View\View;
@@ -27,10 +26,7 @@ final class TrackController extends Controller
         $playstationGames = PlayStationGame::orderBy('name')
             ->get(['id', 'name', 'display_name', 'platform']);
 
-        $activeAccount = SteamAccount::active();
-        $steamGames    = $activeAccount
-            ? SteamGame::where('steam_account_id', $activeAccount->id)->orderBy('name')->get(['id', 'name'])
-            : collect();
+        $steamGames = SteamGame::orderBy('name')->get(['id', 'name']);
 
         return view('pages.music.tracks.show', compact(
             'track', 'playCount', 'firstPlay', 'lastPlay', 'heroImage',
