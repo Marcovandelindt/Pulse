@@ -344,6 +344,18 @@ $steps = $entry->steps; // steps ophalen
 
 Controllers doen alleen: request ontvangen → actie aanroepen → response teruggeven.
 
+Een resource-controller bevat maximaal de 7 standaard CRUD-methoden:
+
+| Methode | HTTP | Doel |
+|---|---|---|
+| `index()` | GET | Lijst van records ophalen |
+| `create()` | GET | Formulier voor nieuw record tonen |
+| `store()` | POST | Nieuw record opslaan |
+| `show()` | GET | Eén record tonen |
+| `edit()` | GET | Formulier voor bestaand record tonen |
+| `update()` | PATCH/PUT | Bestaand record aanpassen |
+| `destroy()` | DELETE | Record verwijderen |
+
 ```php
 // app/Http/Controllers/Health/HealthEntryController.php
 final class HealthEntryController extends Controller
@@ -356,6 +368,54 @@ final class HealthEntryController extends Controller
     }
 }
 ```
+
+### Non-CRUD operaties
+
+Alles wat buiten de 7 CRUD-methoden valt volgt deze beslisboom:
+
+**Business logic op hetzelfde resource → Action, dunne delegate in controller**
+
+```php
+// app/Actions/PlayStation/SyncPlayStationGames.php
+final class SyncPlayStationGames
+{
+    public function __construct(
+        private readonly PlayStationScraperService $scraper,
+    ) {}
+
+    public function handle(): int
+    {
+        // alle logica hier
+        return $this->scraper->syncGames(config('services.playstation.username'));
+    }
+}
+
+// Controller — alleen HTTP-afhandeling
+public function sync(SyncPlayStationGames $action): RedirectResponse
+{
+    try {
+        $synced = $action->handle();
+        return redirect()->back()->with('success', "Synced {$synced} games.");
+    } catch (\Throwable $e) {
+        return redirect()->back()->with('error', $e->getMessage());
+    }
+}
+```
+
+**Operatie op een ander resource → eigen dedicated controller**
+
+```php
+// ❌ vermijd: toggleTrophy() in PlayStationController
+// ✅ correct: PlayStationTrophyController met toggle()
+
+// ❌ vermijd: sessions() in PlayStationController
+// ✅ correct: PlayStationSessionController met index()
+```
+
+**Vuistregels:**
+- Zit er merkbare business logic in? → Action
+- Opereert de methode op een ander model dan de controller? → aparte controller
+- Is het puur HTTP-routing met triviale logica (3 regels)? → dunne delegate is acceptabel
 
 ### Actions — één verantwoordelijkheid per klasse
 
