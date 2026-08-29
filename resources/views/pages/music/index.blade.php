@@ -115,6 +115,15 @@
                                             @endforeach
                                         </div>
                                     @endif
+                                    @php $linkedGame = $play->track?->gameable_id ? ($gameMap[$play->track->gameable_type.':'.$play->track->gameable_id] ?? null) : null @endphp
+                                    @if($linkedGame)
+                                        <div class="play-item__game-link">
+                                            @if($linkedGame->image_url)
+                                                <img src="{{ $linkedGame->image_url }}" alt="" class="play-item__game-cover">
+                                            @endif
+                                            From {{ $linkedGame->display_name ?? $linkedGame->name }}
+                                        </div>
+                                    @endif
                                 </div>
                                 <span class="play-item__time">{{ $play->played_at->format('d M, H:i') }}</span>
                             </div>
@@ -198,6 +207,15 @@
                                         {{ $track->title }}
                                     </a>
                                     <div class="play-item__meta">{{ $track->artists_string }}</div>
+                                    @php $linkedGame = $track->gameable_id ? ($gameMap[$track->gameable_type.':'.$track->gameable_id] ?? null) : null @endphp
+                                    @if($linkedGame)
+                                        <div class="play-item__game-link">
+                                            @if($linkedGame->image_url)
+                                                <img src="{{ $linkedGame->image_url }}" alt="" class="play-item__game-cover">
+                                            @endif
+                                            From {{ $linkedGame->display_name ?? $linkedGame->name }}
+                                        </div>
+                                    @endif
                                 </div>
                                 <span class="play-item__time">{{ $track->plays_since_obsession }}×</span>
                             </div>

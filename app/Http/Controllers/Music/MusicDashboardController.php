@@ -7,7 +7,9 @@ namespace App\Http\Controllers\Music;
 use App\Http\Controllers\Controller;
 use App\Models\Artist;
 use App\Models\Play;
+use App\Models\PlayStationGame;
 use App\Models\SpotifySyncCursor;
+use App\Models\SteamGame;
 use App\Models\Track;
 use App\Services\Spotify\SpotifyTrackService;
 use Illuminate\Contracts\View\View;
@@ -18,6 +20,29 @@ final class MusicDashboardController extends Controller
     public function __construct(
         private readonly SpotifyTrackService $trackService,
     ) {}
+
+    /** @param \Illuminate\Support\Collection<int, Track> $tracks */
+    private function buildGameMap(\Illuminate\Support\Collection $tracks): array
+    {
+        $map = [];
+
+        $psIds    = $tracks->where('gameable_type', 'playstation')->pluck('gameable_id')->filter()->unique()->values();
+        $steamIds = $tracks->where('gameable_type', 'steam')->pluck('gameable_id')->filter()->unique()->values();
+
+        if ($psIds->isNotEmpty()) {
+            PlayStationGame::whereIn('id', $psIds)
+                ->get(['id', 'name', 'display_name', 'platform', 'image_url'])
+                ->each(fn ($g) => $map['playstation:'.$g->id] = $g);
+        }
+
+        if ($steamIds->isNotEmpty()) {
+            SteamGame::whereIn('id', $steamIds)
+                ->get(['id', 'name', 'image_url'])
+                ->each(fn ($g) => $map['steam:'.$g->id] = $g);
+        }
+
+        return $map;
+    }
 
     public function sync(): RedirectResponse
     {
@@ -76,6 +101,13 @@ final class MusicDashboardController extends Controller
             ])
             ->values();
 
+        $gameMap = $this->buildGameMap(
+            $recentPlays->pluck('track')
+                ->merge($topTracksThisWeek->pluck('track'))
+                ->merge($obsessions)
+                ->filter()
+        );
+
         return view('pages.music.index', compact(
             'recentPlays',
             'topTracksThisWeek',
@@ -84,6 +116,7 @@ final class MusicDashboardController extends Controller
             'lastSync',
             'obsessions',
             'obsessionSlides',
+            'gameMap',
         ));
     }
 }

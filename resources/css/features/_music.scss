@@ -155,6 +155,24 @@
     flex-shrink: 0;
 }
 
+.play-item__game-link {
+    display:     inline-flex;
+    align-items: center;
+    gap:         0.25rem;
+    margin-top:  0.2rem;
+    font-size:   0.6875rem;
+    color:       var(--color-text-muted);
+    opacity:     0.75;
+}
+
+.play-item__game-cover {
+    width:         0.9375rem;
+    height:        0.9375rem;
+    object-fit:    cover;
+    border-radius: 2px;
+    flex-shrink:   0;
+}
+
 .music-artist-photo {
     width: 2rem;
     height: 2rem;
