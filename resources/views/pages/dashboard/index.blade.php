@@ -108,7 +108,7 @@
 
             @if($currentGame)
                 <x-ui.card title="Now gaming" class="card--flush">
-                    <x-playstation.now-gaming :game="$currentGame" />
+                    <x-playstation.now-gaming :game="$currentGame" :startedAt="$gamingStartedAt" />
                 </x-ui.card>
             @elseif($lastPlayedGame)
                 <x-ui.card title="Last played" class="card--flush">

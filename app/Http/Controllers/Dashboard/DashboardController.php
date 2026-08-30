@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Data\ActivityItem;
 use App\Http\Controllers\Controller;
 use App\Models\EpisodeWatch;
+use App\Models\GamingPresence;
 use App\Models\HealthEntry;
 use App\Models\MovieWatch;
 use App\Models\Play;
@@ -64,6 +65,10 @@ final class DashboardController extends Controller
             $currentGame = null;
         }
 
+        $gamingStartedAt = $currentGame !== null
+            ? GamingPresence::where('platform', 'playstation')->active()->value('started_at')
+            : null;
+
         $lastPlayedSession = $currentGame === null
             ? PlayStationSession::with('game')->latest('started_at')->first()
             : null;
@@ -85,6 +90,7 @@ final class DashboardController extends Controller
             'currentlyPlaying'  => $currentlyPlaying,
             'recentPlay'        => $recentPlay,
             'currentGame'       => $currentGame,
+            'gamingStartedAt'   => $gamingStartedAt,
             'lastPlayedGame'    => $lastPlayedSession ? [
                 'title'     => $lastPlayedSession->game->label,
                 'platform'  => $lastPlayedSession->game->platform,

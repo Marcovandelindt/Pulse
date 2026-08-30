@@ -11,3 +11,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('spotify:sync-tracks')->everyFifteenMinutes();
+Schedule::command('gaming:sync-presence')->everyMinute();

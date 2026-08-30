@@ -224,6 +224,20 @@
     line-height: 1;
 }
 
+.now-gaming__timer-sep {
+    font-size: 0.7rem;
+    color:     var(--color-text-muted);
+    opacity:   0.4;
+}
+
+.now-gaming__timer {
+    font-size:            0.7rem;
+    font-weight:          600;
+    color:                rgba(100, 160, 230, 0.85);
+    font-variant-numeric: tabular-nums;
+    line-height:          1;
+}
+
 @keyframes psn-pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50%       { opacity: 0.4; transform: scale(0.85); }
