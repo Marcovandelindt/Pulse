@@ -24,6 +24,11 @@ trait HasBacklogStatus
         return $query->where('backlog_status', BacklogStatus::InProgress->value);
     }
 
+    public function scopeContinuouslyPlaying(Builder $query): Builder
+    {
+        return $query->where('backlog_status', BacklogStatus::ContinuouslyPlaying->value);
+    }
+
     public function scopeCompleted(Builder $query): Builder
     {
         return $query->where('backlog_status', BacklogStatus::Completed->value);

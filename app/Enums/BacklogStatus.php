@@ -8,6 +8,7 @@ enum BacklogStatus: string
 {
     case NotStarted = 'not_started';
     case InProgress = 'in_progress';
+    case ContinuouslyPlaying = 'continuously_playing';
     case Completed = 'completed';
     case OnHold = 'on_hold';
     case Dropped = 'dropped';
@@ -15,33 +16,36 @@ enum BacklogStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::NotStarted => 'Not Started',
-            self::InProgress => 'In Progress',
-            self::Completed => 'Completed',
-            self::OnHold => 'On Hold',
-            self::Dropped => 'Dropped',
+            self::NotStarted         => 'Not Started',
+            self::InProgress         => 'In Progress',
+            self::ContinuouslyPlaying => 'Continuously Playing',
+            self::Completed          => 'Completed',
+            self::OnHold             => 'On Hold',
+            self::Dropped            => 'Dropped',
         };
     }
 
     public function color(): string
     {
         return match ($this) {
-            self::NotStarted => 'gray',
-            self::InProgress => 'blue',
-            self::Completed => 'green',
-            self::OnHold => 'yellow',
-            self::Dropped => 'red',
+            self::NotStarted          => 'gray',
+            self::InProgress          => 'blue',
+            self::ContinuouslyPlaying => 'purple',
+            self::Completed           => 'green',
+            self::OnHold              => 'yellow',
+            self::Dropped             => 'red',
         };
     }
 
     public function icon(): string
     {
         return match ($this) {
-            self::NotStarted => '⏳',
-            self::InProgress => '🎮',
-            self::Completed  => '✅',
-            self::OnHold     => '⏸️',
-            self::Dropped    => '❌',
+            self::NotStarted          => '⏳',
+            self::InProgress          => '🎮',
+            self::ContinuouslyPlaying => '🔁',
+            self::Completed           => '✅',
+            self::OnHold              => '⏸️',
+            self::Dropped             => '❌',
         };
     }
 }
