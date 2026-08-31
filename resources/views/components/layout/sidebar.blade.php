@@ -41,5 +41,10 @@
             <span class="sidebar__group-label">Mind</span>
             <x-layout.nav-item route="insights.index" icon="light-bulb" label="Insights" />
         </div>
+
+        <div class="sidebar__group">
+            <span class="sidebar__group-label">System</span>
+            <x-layout.nav-item route="changelog.index" icon="clock" label="Changelog" />
+        </div>
     </nav>
 </aside>

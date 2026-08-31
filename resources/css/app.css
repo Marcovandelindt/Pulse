@@ -30,6 +30,7 @@
 @import './features/_people.scss';
 @import './features/_calendar.scss';
 @import './features/_insights.scss';
+@import './features/_changelog.scss';
 
 @theme {
     --color-brand:        oklch(0.60 0.18 260);

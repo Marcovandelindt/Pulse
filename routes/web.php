@@ -16,6 +16,7 @@ use App\Http\Controllers\Insights\InsightController;
 use App\Http\Controllers\Insights\InsightPatternController;
 use App\Http\Controllers\Insights\InsightRelatedController;
 use App\Http\Controllers\Insights\PatternController;
+use App\Http\Controllers\Changelog\ChangelogController;
 use App\Http\Controllers\Settings\RelationshipTypeController;
 use Illuminate\Support\Facades\Route;
 
@@ -82,6 +83,8 @@ Route::prefix('patterns')->name('patterns.')->group(function () {
     Route::patch('/{pattern}', [PatternController::class, 'update'])->name('update');
     Route::delete('/{pattern}', [PatternController::class, 'destroy'])->name('destroy');
 });
+
+Route::get('/changelog', [ChangelogController::class, 'index'])->name('changelog.index');
 
 Route::prefix('settings')->name('settings.')->group(function () {
     Route::prefix('relationships')->name('relationships.')->group(function () {
