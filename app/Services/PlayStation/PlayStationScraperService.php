@@ -141,6 +141,19 @@ final class PlayStationScraperService
                 $gameId = $gameMap[$key] ?? null;
 
                 if (! $gameId) {
+                    // If the session name has no colon it may be a shortened title
+                    // (e.g. "Call of Duty®" while the DB holds "Call of Duty®: Modern Warfare® II").
+                    // Skip rather than create a ghost entry when a colon-suffixed variant exists.
+                    if (! str_contains($data['game_name'], ':')) {
+                        $hasFullVariant = PlayStationGame::where('platform', $data['platform'])
+                            ->where('name', 'like', $data['game_name'].':%')
+                            ->exists();
+
+                        if ($hasFullVariant) {
+                            continue;
+                        }
+                    }
+
                     $game = PlayStationGame::create([
                         'name' => $data['game_name'],
                         'platform' => $data['platform'],
