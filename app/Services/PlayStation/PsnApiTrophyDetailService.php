@@ -71,7 +71,7 @@ final class PsnApiTrophyDetailService
                 'User-Agent'      => self::USER_AGENT,
             ])
             ->get(
-                self::TROPHY_BASE."/npCommunicationId/{$game->np_communication_id}/trophyGroups/all/trophies",
+                self::TROPHY_BASE."/npCommunicationIds/{$game->np_communication_id}/trophyGroups/all/trophies",
                 $this->serviceNameParam($game),
             );
 
@@ -94,7 +94,7 @@ final class PsnApiTrophyDetailService
                 'User-Agent'      => self::USER_AGENT,
             ])
             ->get(
-                self::TROPHY_BASE."/users/me/npCommunicationId/{$game->np_communication_id}/trophyGroups/all/trophies",
+                self::TROPHY_BASE."/users/me/npCommunicationIds/{$game->np_communication_id}/trophyGroups/all/trophies",
                 $this->serviceNameParam($game),
             );
 
