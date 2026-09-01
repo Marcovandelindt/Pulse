@@ -19,13 +19,16 @@ class PlayStationTrophy extends Model
         'type',
         'is_earned',
         'earned_at',
+        'rarity',
+        'earned_rate',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_earned' => 'boolean',
-            'earned_at' => 'datetime',
+            'is_earned'   => 'boolean',
+            'earned_at'   => 'datetime',
+            'earned_rate' => 'decimal:2',
         ];
     }
 

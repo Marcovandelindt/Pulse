@@ -43,6 +43,7 @@ final class PlayStationGame extends Model
         'trophy_earned',
         'trophy_defined',
         'trophies_last_synced_at',
+        'completed_at',
         'released_at',
     ];
 
@@ -61,6 +62,7 @@ final class PlayStationGame extends Model
             'trophy_earned' => 'array',
             'trophy_defined' => 'array',
             'trophies_last_synced_at' => 'datetime',
+            'completed_at'            => 'datetime',
             'price' => 'decimal:2',
             'user_rating' => 'decimal:1',
             'critic_rating' => 'decimal:1',

@@ -35,10 +35,15 @@ final class PsnApiTrophyDetailService
 
         $definitions = $this->fetchDefinitions($game);
         $earnedMap   = collect($this->fetchEarned($game))->keyBy('trophyId');
+        $completedAt = null;
 
         foreach ($definitions as $def) {
             $trophyId    = $def['trophyId'];
             $earnedEntry = $earnedMap->get($trophyId);
+            $isEarned    = (bool) ($earnedEntry['earned'] ?? false);
+            $earnedAt    = isset($earnedEntry['earnedDateTime'])
+                ? Carbon::parse($earnedEntry['earnedDateTime'])
+                : null;
 
             $game->trophyList()->updateOrCreate(
                 [
@@ -46,17 +51,26 @@ final class PsnApiTrophyDetailService
                     'trophy_group_id' => $def['trophyGroupId'] ?? 'default',
                 ],
                 [
-                    'name'      => $def['trophyName'] ?? '',
-                    'detail'    => $def['trophyDetail'] ?? null,
-                    'icon_url'  => $def['trophyIconUrl'] ?? null,
-                    'type'      => strtolower($def['trophyType'] ?? 'bronze'),
-                    'is_earned' => (bool) ($earnedEntry['earned'] ?? false),
-                    'earned_at' => isset($earnedEntry['earnedDateTime'])
-                        ? Carbon::parse($earnedEntry['earnedDateTime'])
+                    'name'        => $def['trophyName'] ?? '',
+                    'detail'      => $def['trophyDetail'] ?? null,
+                    'icon_url'    => $def['trophyIconUrl'] ?? null,
+                    'type'        => strtolower($def['trophyType'] ?? 'bronze'),
+                    'is_earned'   => $isEarned,
+                    'earned_at'   => $earnedAt,
+                    'rarity'      => $earnedEntry['trophyRare'] ?? null,
+                    'earned_rate' => isset($earnedEntry['trophyEarnedRate'])
+                        ? (float) $earnedEntry['trophyEarnedRate']
                         : null,
                 ]
             );
+
+            if ($isEarned && strtolower($def['trophyType'] ?? '') === 'platinum') {
+                $completedAt = $earnedAt;
+            }
         }
+
+        $game->completed_at = $completedAt;
+        $game->save();
 
         return count($definitions);
     }
