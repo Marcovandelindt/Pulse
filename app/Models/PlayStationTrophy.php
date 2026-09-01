@@ -47,4 +47,28 @@ class PlayStationTrophy extends Model
             default    => '#6b7280',
         };
     }
+
+    public function rarityLabel(): ?string
+    {
+        return match ($this->rarity) {
+            0 => 'Ultra Rare',
+            1 => 'Very Rare',
+            2 => 'Rare',
+            3 => 'Uncommon',
+            4 => 'Common',
+            default => null,
+        };
+    }
+
+    public function rarityColor(): string
+    {
+        return match ($this->rarity) {
+            0 => '#e2b842',
+            1 => '#a78bfa',
+            2 => '#60a5fa',
+            3 => '#94a3b8',
+            4 => '#64748b',
+            default => '#64748b',
+        };
+    }
 }

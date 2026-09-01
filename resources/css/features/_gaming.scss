@@ -494,6 +494,28 @@
     opacity:     0.7;
 }
 
+.trophy-item__rarity {
+    display:     flex;
+    align-items: center;
+    gap:         0.3rem;
+    font-size:   0.6875rem;
+    font-weight: 500;
+    margin-top:  0.25rem;
+
+    &-dot {
+        width:         0.375rem;
+        height:        0.375rem;
+        border-radius: 50%;
+        background:    currentColor;
+        flex-shrink:   0;
+    }
+
+    &-rate {
+        color:   var(--color-text-muted);
+        opacity: 0.8;
+    }
+}
+
 .trophy-item__badge {
     font-size:  1rem;
     flex-shrink: 0;
