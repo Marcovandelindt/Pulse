@@ -692,10 +692,10 @@
     display:               grid;
     grid-template-columns: repeat(4, 1fr);
     gap:                   1.5rem;
+}
 
-    &--two {
-        grid-template-columns: repeat(2, 1fr);
-    }
+.psn-records--two {
+    grid-template-columns: repeat(2, 1fr);
 }
 
 @media (max-width: 768px) {
