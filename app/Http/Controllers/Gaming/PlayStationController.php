@@ -77,6 +77,7 @@ final class PlayStationController extends Controller
     {
         $validated = $request->validate([
             'display_name'          => ['nullable', 'string', 'max:255'],
+            'np_communication_id'   => ['nullable', 'string', 'max:50'],
             'price'                 => ['nullable', 'numeric', 'min:0'],
             'psn_hours'             => ['nullable', 'integer', 'min:0'],
             'psn_minutes'           => ['nullable', 'integer', 'between:0,59'],

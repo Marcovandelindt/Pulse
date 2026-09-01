@@ -41,6 +41,22 @@
             </div>
 
             <div class="form-group">
+                <label class="form-label" for="np_communication_id">PSN Communication ID</label>
+                <input
+                    type="text"
+                    id="np_communication_id"
+                    name="np_communication_id"
+                    value="{{ old('np_communication_id', $game->np_communication_id) }}"
+                    class="form-input"
+                    placeholder="e.g. NPWR12345_00"
+                >
+                <p class="text-xs mt-1" style="color: var(--color-text-muted)">
+                    Leeg maken en opslaan forceert een nieuwe trophy-match bij de volgende fetch.
+                </p>
+                <x-form.error name="np_communication_id" />
+            </div>
+
+            <div class="form-group">
                 <label class="form-label" for="price">Price (€)</label>
                 <input
                     type="number"

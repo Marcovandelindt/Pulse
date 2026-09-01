@@ -62,7 +62,8 @@ final class PsnTrophyService
 
     private function findTrophyTitle(array $titles, string $name, string $normalizedName): ?array
     {
-        $collection = collect($titles);
+        // Sort longest titles first so more specific matches win in all steps
+        $collection = collect($titles)->sortByDesc(fn ($t) => strlen($t['trophyTitleName'] ?? ''));
 
         // 1. Exact match
         $match = $collection->first(fn ($t) => strcasecmp($t['trophyTitleName'] ?? '', $name) === 0);
@@ -74,15 +75,24 @@ final class PsnTrophyService
             );
         }
 
-        // 3. PSN title is contained in local name (handles "(PlayStation®5)" suffixes)
+        // 3. Word-coverage: every word in the PSN title appears in the local name AND covers ≥70%
+        //    of the local name's words. Prevents "Dying Light" from matching "Dying Light 2".
         if (! $match) {
-            $match = $collection->first(
-                fn ($t) => str_contains(strtolower($name), strtolower($t['trophyTitleName'] ?? ''))
-                    && strlen($t['trophyTitleName'] ?? '') > 3
-            );
+            $localWords = array_filter(preg_split('/\s+/', strtolower($name)));
+            $match = $collection->first(function ($t) use ($localWords) {
+                $psnWords = array_filter(preg_split('/\s+/', strtolower($t['trophyTitleName'] ?? '')));
+                if (count($psnWords) === 0) {
+                    return false;
+                }
+
+                $allPresent = count(array_diff($psnWords, $localWords)) === 0;
+                $coverage   = count($psnWords) / max(1, count($localWords));
+
+                return $allPresent && $coverage >= 0.70;
+            });
         }
 
-        // 4. Local name contained in PSN title
+        // 4. Local name contained in PSN title (e.g. "God of War" inside "God of War™ Remastered")
         if (! $match) {
             $match = $collection->first(
                 fn ($t) => str_contains(strtolower($t['trophyTitleName'] ?? ''), strtolower($name))
