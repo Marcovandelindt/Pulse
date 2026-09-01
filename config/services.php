@@ -38,8 +38,9 @@ return [
     ],
 
     'playstation' => [
-        'username' => env('PLAYSTATION_USERNAME', ''),
-        'npsso'    => env('PSN_NPSSO'),
+        'username'      => env('PLAYSTATION_USERNAME', ''),
+        'npsso'         => env('PSN_NPSSO'),
+        'trophy_source' => env('PLAYSTATION_TROPHY_SOURCE', 'api'),
     ],
 
     'psnprofiles' => [
