@@ -18,6 +18,7 @@ final class PlayStationGame extends Model
     protected $fillable = [
         'name',
         'display_name',
+        'trophy_search_name',
         'platform',
         'image_url',
         'hours',

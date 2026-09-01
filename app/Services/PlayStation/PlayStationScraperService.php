@@ -85,16 +85,8 @@ final class PlayStationScraperService
         $synced = 0;
 
         foreach ($games as $game) {
-            $existing = PlayStationGame::where('name', $game['name'])
-                ->where('platform', $game['platform'])
-                ->first();
-
-            if ($existing?->exclude_from_sync) {
-                continue;
-            }
-
             PlayStationGame::updateOrCreate(
-                ['name' => $game['name'], 'platform' => $game['platform']],
+                ['name' => $game['name'], 'platform' => $game['platform'], 'exclude_from_sync' => false],
                 [
                     'image_url' => $game['imageUrl'],
                     'hours' => $game['hours'],
@@ -115,7 +107,10 @@ final class PlayStationScraperService
 
     public function syncSessions(string $username, bool $allPages = false): int
     {
+        // Sort manual entries first (exclude_from_sync=1) so synced entries (0) overwrite them
+        // in keyBy — sessions always link to the synced game when both exist.
         $gameMap = PlayStationGame::all()
+            ->sortByDesc('exclude_from_sync')
             ->keyBy(fn (PlayStationGame $g) => $g->name.'|'.$g->platform)
             ->map(fn (PlayStationGame $g) => $g->id)
             ->toArray();

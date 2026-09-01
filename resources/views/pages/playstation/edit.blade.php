@@ -41,6 +41,24 @@
             </div>
 
             <div class="form-group">
+                <label class="form-label" for="trophy_search_name">Trophy Search Name</label>
+                <input
+                    type="text"
+                    id="trophy_search_name"
+                    name="trophy_search_name"
+                    value="{{ old('trophy_search_name', $game->trophy_search_name) }}"
+                    class="form-input"
+                    placeholder="{{ $game->name }}"
+                >
+                <p class="text-xs mt-1" style="color: var(--color-text-muted)">
+                    Override the name used to find this game in your PSN trophy list.
+                    Useful when the game name in the tracker differs from how PSN lists it (e.g. remasters).
+                    Leave empty to use <code>{{ $game->name }}</code>.
+                </p>
+                <x-form.error name="trophy_search_name" />
+            </div>
+
+            <div class="form-group">
                 <label class="form-label" for="np_communication_id">PSN Communication ID</label>
                 <input
                     type="text"

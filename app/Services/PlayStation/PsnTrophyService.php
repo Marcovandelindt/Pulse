@@ -20,15 +20,17 @@ final class PsnTrophyService
 
     public function fetchAndStoreTrophies(PlayStationGame $game): array
     {
-        $titles = $this->fetchAllTrophyTitles();
-        $localNorm = $this->normalizeTitle($game->name);
+        $titles    = $this->fetchAllTrophyTitles();
+        $searchName = $game->trophy_search_name ?? $game->name;
+        $localNorm  = $this->normalizeTitle($searchName);
 
         // Find this game's entry in the user's trophy titles list
-        $entry = $this->findTrophyTitle($titles, $game->name, $localNorm);
+        $entry = $this->findTrophyTitle($titles, $searchName, $localNorm);
 
         if (! $entry) {
+            $hint = $game->trophy_search_name ? " (searched as \"{$game->trophy_search_name}\")" : '';
             throw new RuntimeException(
-                "Could not find \"{$game->name}\" in your PSN trophy list. ".
+                "Could not find \"{$game->name}\"{$hint} in your PSN trophy list. ".
                 'The game may not have trophies or may not be played on this account.'
             );
         }
@@ -68,7 +70,7 @@ final class PsnTrophyService
         // 1. Exact match
         $match = $collection->first(fn ($t) => strcasecmp($t['trophyTitleName'] ?? '', $name) === 0);
 
-        // 2. Normalized match (strips punctuation and platform suffixes)
+        // 2. Normalized match (strips punctuation, platform suffixes, and NBSP)
         if (! $match) {
             $match = $collection->first(
                 fn ($t) => $this->normalizeTitle($t['trophyTitleName'] ?? '') === $normalizedName
@@ -78,9 +80,10 @@ final class PsnTrophyService
         // 3. Word-coverage: every word in the PSN title appears in the local name AND covers ≥70%
         //    of the local name's words. Prevents "Dying Light" from matching "Dying Light 2".
         if (! $match) {
-            $localWords = array_filter(preg_split('/\s+/', strtolower($name)));
+            $localWords = array_filter(preg_split('/[\s\x{00A0}]+/u', strtolower($name)));
             $match = $collection->first(function ($t) use ($localWords) {
-                $psnWords = array_filter(preg_split('/\s+/', strtolower($t['trophyTitleName'] ?? '')));
+                $raw      = str_replace("\u{00A0}", ' ', $t['trophyTitleName'] ?? '');
+                $psnWords = array_filter(preg_split('/\s+/', strtolower($raw)));
                 if (count($psnWords) === 0) {
                     return false;
                 }
@@ -94,9 +97,21 @@ final class PsnTrophyService
 
         // 4. Local name contained in PSN title (e.g. "God of War" inside "God of War™ Remastered")
         if (! $match) {
-            $match = $collection->first(
-                fn ($t) => str_contains(strtolower($t['trophyTitleName'] ?? ''), strtolower($name))
-            );
+            $match = $collection->first(function ($t) use ($name) {
+                $raw = str_replace("\u{00A0}", ' ', $t['trophyTitleName'] ?? '');
+                return str_contains(strtolower($raw), strtolower($name));
+            });
+        }
+
+        // 5. Normalized PSN title is a suffix of local name (handles brand prefixes PSN sometimes
+        //    omits, e.g. PSN returns "FIFA 23" while the local name is "EA SPORTS™ FIFA 23").
+        //    A suffix check avoids re-introducing the Dying Light / Dying Light 2 false positive
+        //    that a plain str_contains would cause.
+        if (! $match) {
+            $match = $collection->first(function ($t) use ($normalizedName) {
+                $psnNorm = $this->normalizeTitle($t['trophyTitleName'] ?? '');
+                return strlen($psnNorm) >= 4 && str_ends_with($normalizedName, $psnNorm);
+            });
         }
 
         return $match;
@@ -106,6 +121,11 @@ final class PsnTrophyService
     {
         $title = preg_replace('/\s*\(PlayStation[®™]?\d?\)/i', '', $title);
         $title = preg_replace('/\s*\(PS[345]\)/i', '', $title);
+        // PSN appends " Trophies" to some trophy-set names instead of using the bare game title.
+        $title = preg_replace('/\s+Trophies\s*$/i', '', $title);
+        // PSN API uses U+00A0 (non-breaking space) in some titles; PHP \s doesn't match it,
+        // so it gets deleted rather than treated as a word boundary — convert it first.
+        $title = str_replace("\u{00A0}", ' ', $title);
         $title = preg_replace('/[^\p{L}\p{N}\s]/u', '', $title);
 
         return strtolower(trim(preg_replace('/\s+/', ' ', $title)));
