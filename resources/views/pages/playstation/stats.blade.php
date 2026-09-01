@@ -331,7 +331,7 @@
 
             <div class="card__body" x-show="open" x-cloak>
 
-                {{-- Records row --}}
+                {{-- Row 1: 4 records --}}
                 <div class="psn-records mb-6">
 
                     @if($trophyDeepDive['bestDay'])
@@ -402,40 +402,6 @@
                         </div>
                     @endif
 
-                    @if($trophyDeepDive['firstTrophy'])
-                        @php $ft = $trophyDeepDive['firstTrophy']; @endphp
-                        <div class="psn-record">
-                            <div class="psn-record__icon">🌅</div>
-                            <div class="psn-record__body">
-                                <div class="psn-record__value psn-record__value--sm">{{ $ft['earnedAt'] }}</div>
-                                <div class="psn-record__label">First trophy ever</div>
-                                <div class="psn-record__sub">{{ $ft['name'] }}</div>
-                                @if($ft['gameId'])
-                                    <div class="psn-record__sub">
-                                        <a href="{{ route('playstation.show', $ft['gameId']) }}" class="psn-record__link">{{ $ft['gameName'] }}</a>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    @endif
-
-                    @if($trophyDeepDive['lastTrophy'])
-                        @php $lt = $trophyDeepDive['lastTrophy']; @endphp
-                        <div class="psn-record">
-                            <div class="psn-record__icon">🌙</div>
-                            <div class="psn-record__body">
-                                <div class="psn-record__value psn-record__value--sm">{{ $lt['earnedAt'] }}</div>
-                                <div class="psn-record__label">Last trophy earned</div>
-                                <div class="psn-record__sub">{{ $lt['name'] }}</div>
-                                @if($lt['gameId'])
-                                    <div class="psn-record__sub">
-                                        <a href="{{ route('playstation.show', $lt['gameId']) }}" class="psn-record__link">{{ $lt['gameName'] }}</a>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    @endif
-
                     @if($trophyDeepDive['rarestTrophy'])
                         @php $rt = $trophyDeepDive['rarestTrophy']; @endphp
                         <div class="psn-record">
@@ -455,6 +421,47 @@
                     @endif
 
                 </div>
+
+                {{-- Row 2: first / last trophy at 50% each --}}
+                @if($trophyDeepDive['firstTrophy'] || $trophyDeepDive['lastTrophy'])
+                    <div class="psn-records psn-records--two mb-6">
+
+                        @if($trophyDeepDive['firstTrophy'])
+                            @php $ft = $trophyDeepDive['firstTrophy']; @endphp
+                            <div class="psn-record">
+                                <div class="psn-record__icon">🌅</div>
+                                <div class="psn-record__body">
+                                    <div class="psn-record__value psn-record__value--sm">{{ $ft['earnedAt'] }}</div>
+                                    <div class="psn-record__label">First trophy ever</div>
+                                    <div class="psn-record__sub">{{ $ft['name'] }}</div>
+                                    @if($ft['gameId'])
+                                        <div class="psn-record__sub">
+                                            <a href="{{ route('playstation.show', $ft['gameId']) }}" class="psn-record__link">{{ $ft['gameName'] }}</a>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
+                        @if($trophyDeepDive['lastTrophy'])
+                            @php $lt = $trophyDeepDive['lastTrophy']; @endphp
+                            <div class="psn-record">
+                                <div class="psn-record__icon">🌙</div>
+                                <div class="psn-record__body">
+                                    <div class="psn-record__value psn-record__value--sm">{{ $lt['earnedAt'] }}</div>
+                                    <div class="psn-record__label">Last trophy earned</div>
+                                    <div class="psn-record__sub">{{ $lt['name'] }}</div>
+                                    @if($lt['gameId'])
+                                        <div class="psn-record__sub">
+                                            <a href="{{ route('playstation.show', $lt['gameId']) }}" class="psn-record__link">{{ $lt['gameName'] }}</a>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
+                    </div>
+                @endif
 
                 {{-- Rarity distribution bar --}}
                 @if($trophyDeepDive['rarityData']->isNotEmpty())
