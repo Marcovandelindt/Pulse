@@ -350,6 +350,21 @@ final class PlayStationStatsController extends Controller
             'pct'   => $rarityTotal > 0 ? round($r->count / $rarityTotal * 100) : 0,
         ]);
 
+        // First and last trophy ever earned
+        $firstTrophy = PlayStationTrophy::query()
+            ->where('is_earned', true)
+            ->whereNotNull('earned_at')
+            ->with('game:id,name,display_name')
+            ->orderBy('earned_at')
+            ->first();
+
+        $lastTrophy = PlayStationTrophy::query()
+            ->where('is_earned', true)
+            ->whereNotNull('earned_at')
+            ->with('game:id,name,display_name')
+            ->orderByDesc('earned_at')
+            ->first();
+
         // Most recent platinum earned
         $recentPlatinum = PlayStationTrophy::query()
             ->where('type', 'platinum')
@@ -382,6 +397,18 @@ final class PlayStationStatsController extends Controller
                 'gameName' => $recentPlatinum->game?->label,
                 'gameId'   => $recentPlatinum->game?->id,
                 'earnedAt' => $recentPlatinum->earned_at?->format('l, d M Y'),
+            ] : null,
+            'firstTrophy'           => $firstTrophy ? [
+                'name'     => $firstTrophy->name,
+                'gameName' => $firstTrophy->game?->label,
+                'gameId'   => $firstTrophy->game?->id,
+                'earnedAt' => $firstTrophy->earned_at?->format('l d-m-Y H:i'),
+            ] : null,
+            'lastTrophy'            => $lastTrophy ? [
+                'name'     => $lastTrophy->name,
+                'gameName' => $lastTrophy->game?->label,
+                'gameId'   => $lastTrophy->game?->id,
+                'earnedAt' => $lastTrophy->earned_at?->format('l d-m-Y H:i'),
             ] : null,
         ];
     }
