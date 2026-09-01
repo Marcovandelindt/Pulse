@@ -41,24 +41,6 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="psnprofiles_slug">PSNProfiles Slug</label>
-                <input
-                    type="text"
-                    id="psnprofiles_slug"
-                    name="psnprofiles_slug"
-                    value="{{ old('psnprofiles_slug', $game->psnprofiles_slug) }}"
-                    class="form-input"
-                    placeholder="e.g. dying-light-2-stay-human"
-                >
-                <p class="text-xs mt-1" style="color: var(--color-text-muted)">
-                    Alleen nodig als trophies niet automatisch gevonden worden. Zoek het spel op op
-                    <a href="https://psnprofiles.com" target="_blank" rel="noopener" style="color: var(--color-brand)">psnprofiles.com</a>
-                    en kopieer het stuk na <code>/trophies/</code> uit de URL.
-                </p>
-                <x-form.error name="psnprofiles_slug" />
-            </div>
-
-            <div class="form-group">
                 <label class="form-label" for="price">Price (€)</label>
                 <input
                     type="number"
