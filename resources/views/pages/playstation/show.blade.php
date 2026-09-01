@@ -191,6 +191,7 @@
                                     x-data="{
                                         name: '{{ addslashes(strtolower($trophy->name)) }}',
                                         earned: {{ $trophy->is_earned ? 'true' : 'false' }},
+                                        showDetail: false,
                                         toggle() {
                                             fetch('{{ route('playstation.trophies.toggle', $trophy) }}', {
                                                 method: 'PATCH',
@@ -206,6 +207,8 @@
                                     x-show="!search || name.includes(search.toLowerCase())"
                                     :class="earned ? 'trophy-item--earned' : 'trophy-item--locked'"
                                     @click="toggle()"
+                                    @mouseenter="showDetail = true"
+                                    @mouseleave="showDetail = false"
                                 >
                                     @if($trophy->icon_url)
                                         <img src="{{ $trophy->icon_url }}" alt="" class="trophy-item__icon">
@@ -232,6 +235,9 @@
                                         @endif
                                     </div>
                                     <div class="trophy-item__badge" style="color: {{ $trophy->typeColor() }}" x-show="earned">✓</div>
+                                    @if($trophy->detail)
+                                        <div class="trophy-item__tooltip" x-show="showDetail" x-cloak>{{ $trophy->detail }}</div>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>
