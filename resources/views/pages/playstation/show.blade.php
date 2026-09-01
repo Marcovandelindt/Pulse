@@ -221,7 +221,6 @@
                                         @endif
                                         @if($trophy->rarityLabel())
                                             <div class="trophy-item__rarity" style="color: {{ $trophy->rarityColor() }}">
-                                                <span class="trophy-item__rarity-dot"></span>
                                                 {{ $trophy->rarityLabel() }}
                                                 @if($trophy->earned_rate !== null)
                                                     <span class="trophy-item__rarity-rate">· {{ number_format((float) $trophy->earned_rate, 1) }}%</span>
@@ -229,7 +228,7 @@
                                             </div>
                                         @endif
                                         @if($trophy->earned_at)
-                                            <div class="trophy-item__earned-at">{{ $trophy->earned_at->format('d M Y, H:i') }}</div>
+                                            <div class="trophy-item__earned-at">{{ $trophy->earned_at->format('l, d M Y, H:i') }}</div>
                                         @endif
                                     </div>
                                     <div class="trophy-item__badge" style="color: {{ $trophy->typeColor() }}" x-show="earned">✓</div>
