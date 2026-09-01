@@ -8,6 +8,7 @@ use App\Enums\BacklogStatus;
 use App\Http\Controllers\Controller;
 use App\Models\PlayStationGame;
 use App\Models\PlayStationSession;
+use App\Models\PlayStationTrophy;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -30,6 +31,7 @@ final class PlayStationStatsController extends Controller
         $monthlyTrend    = $this->monthlyTrend();
         $libraryStats    = $this->libraryStats();
         $trophyStats     = $this->trophyStats();
+        $trophyDeepDive  = $this->trophyDeepDive();
         $consistency     = $this->consistencyStats();
         $yearInReview    = $this->yearInReview();
 
@@ -39,7 +41,7 @@ final class PlayStationStatsController extends Controller
             'personalRecords',
             'weekdayPatterns', 'hourlyPatterns', 'monthlyTrend',
             'libraryStats',
-            'trophyStats',
+            'trophyStats', 'trophyDeepDive',
             'consistency',
             'yearInReview',
         ));
@@ -242,6 +244,145 @@ final class PlayStationStatsController extends Controller
             'gold'        => (int) ($byType->get('gold') ?? 0),
             'silver'      => (int) ($byType->get('silver') ?? 0),
             'bronze'      => (int) ($byType->get('bronze') ?? 0),
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private function trophyDeepDive(): array
+    {
+        // Best single day for trophy hunting
+        $bestDay = PlayStationTrophy::query()
+            ->where('is_earned', true)
+            ->whereNotNull('earned_at')
+            ->selectRaw('DATE(earned_at) as day, COUNT(*) as count')
+            ->groupByRaw('DATE(earned_at)')
+            ->orderByDesc('count')
+            ->first();
+
+        // Best day of week in aggregate
+        $dowRow = PlayStationTrophy::query()
+            ->where('is_earned', true)
+            ->whereNotNull('earned_at')
+            ->selectRaw('DAYOFWEEK(earned_at) as dow, COUNT(*) as count')
+            ->groupByRaw('DAYOFWEEK(earned_at)')
+            ->orderByDesc('count')
+            ->first();
+
+        $dowMap = [1 => 'Sunday', 2 => 'Monday', 3 => 'Tuesday', 4 => 'Wednesday', 5 => 'Thursday', 6 => 'Friday', 7 => 'Saturday'];
+
+        // Rarest trophy earned (lowest earned_rate = fewest players have it)
+        $rarestTrophy = PlayStationTrophy::query()
+            ->where('is_earned', true)
+            ->whereNotNull('earned_rate')
+            ->with('game:id,name,display_name')
+            ->orderBy('earned_rate')
+            ->first();
+
+        // Game with highest trophy completion %
+        $highestCompletionGame = PlayStationGame::query()
+            ->withCount([
+                'trophyList as total_count',
+                'trophyList as earned_count' => fn ($q) => $q->where('is_earned', true),
+            ])
+            ->having('total_count', '>', 0)
+            ->having('earned_count', '>', 0)
+            ->get()
+            ->map(fn ($g) => [
+                'id'     => $g->id,
+                'label'  => $g->label,
+                'pct'    => round($g->earned_count / $g->total_count * 100, 1),
+                'earned' => (int) $g->earned_count,
+                'total'  => (int) $g->total_count,
+            ])
+            ->sortByDesc('pct')
+            ->first();
+
+        // Fastest platinum (days from first session to platinum)
+        $fastestPlatinum = PlayStationTrophy::query()
+            ->where('type', 'platinum')
+            ->where('is_earned', true)
+            ->whereNotNull('earned_at')
+            ->with('game:id,name,display_name')
+            ->get()
+            ->map(function (PlayStationTrophy $trophy): ?array {
+                $firstSession = PlayStationSession::query()
+                    ->where('play_station_game_id', $trophy->play_station_game_id)
+                    ->orderBy('started_at')
+                    ->value('started_at');
+
+                if (! $firstSession) {
+                    return null;
+                }
+
+                return [
+                    'days'     => (int) Carbon::parse($firstSession)->diffInDays($trophy->earned_at),
+                    'label'    => $trophy->game->label,
+                    'gameId'   => $trophy->game->id,
+                    'earnedAt' => $trophy->earned_at->format('d M Y'),
+                ];
+            })
+            ->filter()
+            ->sortBy('days')
+            ->first();
+
+        // Rarity distribution of all earned trophies
+        $rarityMeta = [
+            0 => ['label' => 'Ultra Rare', 'color' => '#e2b842'],
+            1 => ['label' => 'Very Rare',  'color' => '#a78bfa'],
+            2 => ['label' => 'Rare',       'color' => '#60a5fa'],
+            3 => ['label' => 'Uncommon',   'color' => '#94a3b8'],
+            4 => ['label' => 'Common',     'color' => '#64748b'],
+        ];
+
+        $rarityRows  = PlayStationTrophy::query()
+            ->where('is_earned', true)
+            ->whereNotNull('rarity')
+            ->selectRaw('rarity, COUNT(*) as count')
+            ->groupBy('rarity')
+            ->orderBy('rarity')
+            ->get();
+
+        $rarityTotal = (int) $rarityRows->sum('count');
+        $rarityData  = $rarityRows->map(fn ($r) => [
+            'label' => $rarityMeta[$r->rarity]['label'] ?? 'Unknown',
+            'color' => $rarityMeta[$r->rarity]['color'] ?? '#64748b',
+            'count' => (int) $r->count,
+            'pct'   => $rarityTotal > 0 ? round($r->count / $rarityTotal * 100) : 0,
+        ]);
+
+        // Most recent platinum earned
+        $recentPlatinum = PlayStationTrophy::query()
+            ->where('type', 'platinum')
+            ->where('is_earned', true)
+            ->whereNotNull('earned_at')
+            ->with('game:id,name,display_name')
+            ->orderByDesc('earned_at')
+            ->first();
+
+        return [
+            'bestDay'               => $bestDay ? [
+                'date'  => Carbon::parse($bestDay->day)->format('l, d M Y'),
+                'count' => (int) $bestDay->count,
+            ] : null,
+            'bestDow'               => $dowRow ? $dowMap[$dowRow->dow] : null,
+            'bestDowCount'          => $dowRow ? (int) $dowRow->count : null,
+            'rarestTrophy'          => $rarestTrophy ? [
+                'name'        => $rarestTrophy->name,
+                'earnedRate'  => (float) $rarestTrophy->earned_rate,
+                'rarityLabel' => $rarestTrophy->rarityLabel(),
+                'rarityColor' => $rarestTrophy->rarityColor(),
+                'gameName'    => $rarestTrophy->game?->label,
+                'gameId'      => $rarestTrophy->game?->id,
+            ] : null,
+            'highestCompletionGame' => $highestCompletionGame,
+            'fastestPlatinum'       => $fastestPlatinum,
+            'rarityData'            => $rarityData,
+            'rarityTotal'           => $rarityTotal,
+            'recentPlatinum'        => $recentPlatinum ? [
+                'gameName' => $recentPlatinum->game?->label,
+                'gameId'   => $recentPlatinum->game?->id,
+                'earnedAt' => $recentPlatinum->earned_at?->format('l, d M Y'),
+            ] : null,
         ];
     }
 

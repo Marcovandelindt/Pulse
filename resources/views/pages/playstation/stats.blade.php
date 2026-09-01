@@ -321,4 +321,134 @@
 
     </div>
 
+    {{-- Trophy Deep Dive --}}
+    @if($trophyDeepDive['bestDay'] || $trophyDeepDive['rarestTrophy'])
+        <div x-data="{ open: false }" class="card mt-6">
+            <div class="card__header" style="cursor: pointer;" @click="open = !open">
+                <span class="card__header-title">💎 Trophy Deep Dive</span>
+                <button class="btn btn--secondary btn--sm" x-text="open ? 'Collapse ▲' : 'Expand ▼'" @click.stop="open = !open"></button>
+            </div>
+
+            <div class="card__body" x-show="open" x-cloak>
+
+                {{-- Records row --}}
+                <div class="psn-records mb-6">
+
+                    @if($trophyDeepDive['bestDay'])
+                        <div class="psn-record">
+                            <div class="psn-record__icon">🗓️</div>
+                            <div class="psn-record__body">
+                                <div class="psn-record__value">{{ $trophyDeepDive['bestDay']['count'] }}</div>
+                                <div class="psn-record__label">Trophies in one day</div>
+                                <div class="psn-record__sub">{{ $trophyDeepDive['bestDay']['date'] }}</div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($trophyDeepDive['bestDow'])
+                        <div class="psn-record">
+                            <div class="psn-record__icon">📆</div>
+                            <div class="psn-record__body">
+                                <div class="psn-record__value">{{ $trophyDeepDive['bestDow'] }}</div>
+                                <div class="psn-record__label">Best trophy day of the week</div>
+                                <div class="psn-record__sub">{{ $trophyDeepDive['bestDowCount'] }} trophies total</div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($trophyDeepDive['highestCompletionGame'])
+                        @php $hc = $trophyDeepDive['highestCompletionGame']; @endphp
+                        <div class="psn-record">
+                            <div class="psn-record__icon">🏅</div>
+                            <div class="psn-record__body">
+                                <div class="psn-record__value">{{ $hc['pct'] }}%</div>
+                                <div class="psn-record__label">Highest trophy completion</div>
+                                <div class="psn-record__sub">
+                                    <a href="{{ route('playstation.show', $hc['id']) }}" class="psn-record__link">{{ $hc['label'] }}</a>
+                                </div>
+                                <div class="psn-record__sub">{{ $hc['earned'] }} / {{ $hc['total'] }} trophies</div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($trophyDeepDive['fastestPlatinum'])
+                        @php $fp = $trophyDeepDive['fastestPlatinum']; @endphp
+                        <div class="psn-record">
+                            <div class="psn-record__icon">⚡</div>
+                            <div class="psn-record__body">
+                                <div class="psn-record__value">{{ $fp['days'] }}d</div>
+                                <div class="psn-record__label">Fastest platinum</div>
+                                <div class="psn-record__sub">
+                                    <a href="{{ route('playstation.show', $fp['gameId']) }}" class="psn-record__link">{{ $fp['label'] }}</a>
+                                </div>
+                                <div class="psn-record__sub">Earned {{ $fp['earnedAt'] }}</div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($trophyDeepDive['recentPlatinum'])
+                        @php $rp = $trophyDeepDive['recentPlatinum']; @endphp
+                        <div class="psn-record">
+                            <div class="psn-record__icon">💎</div>
+                            <div class="psn-record__body">
+                                <div class="psn-record__value psn-record__value--sm">{{ $rp['earnedAt'] }}</div>
+                                <div class="psn-record__label">Most recent platinum</div>
+                                @if($rp['gameId'])
+                                    <div class="psn-record__sub">
+                                        <a href="{{ route('playstation.show', $rp['gameId']) }}" class="psn-record__link">{{ $rp['gameName'] }}</a>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($trophyDeepDive['rarestTrophy'])
+                        @php $rt = $trophyDeepDive['rarestTrophy']; @endphp
+                        <div class="psn-record">
+                            <div class="psn-record__icon">✨</div>
+                            <div class="psn-record__body">
+                                <div class="psn-record__value psn-record__value--sm" style="color: {{ $rt['rarityColor'] }}">{{ $rt['rarityLabel'] }}</div>
+                                <div class="psn-record__label">Rarest trophy earned</div>
+                                <div class="psn-record__sub">{{ $rt['name'] }}</div>
+                                @if($rt['gameId'])
+                                    <div class="psn-record__sub">
+                                        <a href="{{ route('playstation.show', $rt['gameId']) }}" class="psn-record__link">{{ $rt['gameName'] }}</a>
+                                    </div>
+                                @endif
+                                <div class="psn-record__sub" style="color: {{ $rt['rarityColor'] }}">{{ number_format($rt['earnedRate'], 1) }}% of players</div>
+                            </div>
+                        </div>
+                    @endif
+
+                </div>
+
+                {{-- Rarity distribution bar --}}
+                @if($trophyDeepDive['rarityData']->isNotEmpty())
+                    <div>
+                        <div class="psn-trophy-chart__label">Rarity distribution — {{ number_format($trophyDeepDive['rarityTotal']) }} trophies with rarity data</div>
+                        <div class="psn-rarity-bar">
+                            @foreach($trophyDeepDive['rarityData'] as $r)
+                                @if($r['pct'] > 0)
+                                    <div class="psn-rarity-bar__segment"
+                                         style="flex: {{ $r['pct'] }}; background: {{ $r['color'] }};"
+                                         title="{{ $r['label'] }}: {{ $r['count'] }} ({{ $r['pct'] }}%)"></div>
+                                @endif
+                            @endforeach
+                        </div>
+                        <div class="psn-rarity-legend">
+                            @foreach($trophyDeepDive['rarityData'] as $r)
+                                <div class="psn-rarity-legend__item">
+                                    <span class="psn-rarity-legend__dot" style="background: {{ $r['color'] }};"></span>
+                                    <span class="psn-rarity-legend__label">{{ $r['label'] }}</span>
+                                    <span class="psn-rarity-legend__count">{{ $r['count'] }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+            </div>
+        </div>
+    @endif
+
 </x-layouts.app>
