@@ -35,7 +35,9 @@ final class SyncGamingPresenceAction
             return;
         }
 
-        if ($activePresence->game_name !== $currentGame['title']) {
+        $isStale = $activePresence->last_seen_at->diffInMinutes(now()) > 10;
+
+        if ($activePresence->game_name !== $currentGame['title'] || $isStale) {
             $activePresence->update(['ended_at' => now(), 'last_seen_at' => now()]);
             $this->openSession($currentGame);
 

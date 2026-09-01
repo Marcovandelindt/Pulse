@@ -66,7 +66,7 @@ final class DashboardController extends Controller
         }
 
         $gamingStartedAt = $currentGame !== null
-            ? GamingPresence::where('platform', 'playstation')->active()->value('started_at')
+            ? GamingPresence::where('platform', 'playstation')->active()->latest('started_at')->value('started_at')
             : null;
 
         $lastPlayedSession = $currentGame === null
