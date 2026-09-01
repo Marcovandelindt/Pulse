@@ -228,6 +228,9 @@
                                                 @endif
                                             </div>
                                         @endif
+                                        @if($trophy->earned_at)
+                                            <div class="trophy-item__earned-at">{{ $trophy->earned_at->format('d M Y, H:i') }}</div>
+                                        @endif
                                     </div>
                                     <div class="trophy-item__badge" style="color: {{ $trophy->typeColor() }}" x-show="earned">✓</div>
                                 </div>
