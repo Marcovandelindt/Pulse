@@ -37,6 +37,9 @@ final class PsnApiTrophyDetailService
         $earnedMap   = collect($this->fetchEarned($game))->keyBy('trophyId');
         $completedAt = null;
 
+        // Wipe existing trophies so stale rows from a previous wrong match cannot linger
+        $game->trophyList()->delete();
+
         foreach ($definitions as $def) {
             $trophyId    = $def['trophyId'];
             $earnedEntry = $earnedMap->get($trophyId);
@@ -45,24 +48,20 @@ final class PsnApiTrophyDetailService
                 ? Carbon::parse($earnedEntry['earnedDateTime'])
                 : null;
 
-            $game->trophyList()->updateOrCreate(
-                [
-                    'trophy_id'       => $trophyId,
-                    'trophy_group_id' => $def['trophyGroupId'] ?? 'default',
-                ],
-                [
-                    'name'        => $def['trophyName'] ?? '',
-                    'detail'      => $def['trophyDetail'] ?? null,
-                    'icon_url'    => $def['trophyIconUrl'] ?? null,
-                    'type'        => strtolower($def['trophyType'] ?? 'bronze'),
-                    'is_earned'   => $isEarned,
-                    'earned_at'   => $earnedAt,
-                    'rarity'      => $earnedEntry['trophyRare'] ?? null,
-                    'earned_rate' => isset($earnedEntry['trophyEarnedRate'])
-                        ? (float) $earnedEntry['trophyEarnedRate']
-                        : null,
-                ]
-            );
+            $game->trophyList()->create([
+                'trophy_id'       => $trophyId,
+                'trophy_group_id' => $def['trophyGroupId'] ?? 'default',
+                'name'            => $def['trophyName'] ?? '',
+                'detail'          => $def['trophyDetail'] ?? null,
+                'icon_url'        => $def['trophyIconUrl'] ?? null,
+                'type'            => strtolower($def['trophyType'] ?? 'bronze'),
+                'is_earned'       => $isEarned,
+                'earned_at'       => $earnedAt,
+                'rarity'          => $earnedEntry['trophyRare'] ?? null,
+                'earned_rate'     => isset($earnedEntry['trophyEarnedRate'])
+                    ? (float) $earnedEntry['trophyEarnedRate']
+                    : null,
+            ]);
 
             if ($isEarned && strtolower($def['trophyType'] ?? '') === 'platinum') {
                 $completedAt = $earnedAt;
