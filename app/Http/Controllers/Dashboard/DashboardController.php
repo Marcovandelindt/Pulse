@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Actions\PlayStation\SyncGamingPresenceAction;
 use App\Data\ActivityItem;
 use App\Http\Controllers\Controller;
 use App\Models\EpisodeWatch;
-use App\Models\GamingPresence;
 use App\Models\HealthEntry;
 use App\Models\MovieWatch;
 use App\Models\Play;
@@ -25,6 +25,7 @@ final class DashboardController extends Controller
     public function __construct(
         private readonly SpotifyTrackService $trackService,
         private readonly PsnPresenceService $psnPresence,
+        private readonly SyncGamingPresenceAction $syncPresence,
     ) {}
 
     public function index(): View
@@ -61,13 +62,14 @@ final class DashboardController extends Controller
 
         try {
             $currentGame = $this->psnPresence->getCurrentGame();
+            // Sync presence inline so stale records are closed before reading started_at.
+            // Passes the already-fetched game to avoid a second PSN API call.
+            $activePresence  = $this->syncPresence->handle($currentGame);
+            $gamingStartedAt = $activePresence?->started_at;
         } catch (\Throwable) {
-            $currentGame = null;
+            $currentGame     = null;
+            $gamingStartedAt = null;
         }
-
-        $gamingStartedAt = $currentGame !== null
-            ? GamingPresence::where('platform', 'playstation')->active()->latest('started_at')->value('started_at')
-            : null;
 
         $lastPlayedSession = $currentGame === null
             ? PlayStationSession::with('game')->latest('started_at')->first()
