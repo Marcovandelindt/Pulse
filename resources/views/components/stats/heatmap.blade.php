@@ -65,7 +65,10 @@
     foreach ($weeks as $week) {
         $monthKey = $current->format('Y-m');
         if ($monthKey !== $prevMonth) {
-            $monthBlocks[] = ['label' => $current->format('M'), 'count' => 1];
+            $monthBlocks[] = [
+                'label' => $current->gte($rangeStart) ? $current->format('M') : '',
+                'count' => 1,
+            ];
             $prevMonth = $monthKey;
         } else {
             $monthBlocks[count($monthBlocks) - 1]['count']++;
