@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Calendar\CalendarController;
+use App\Http\Controllers\Stats\StatsController;
 use App\Http\Controllers\Calendar\WorkScheduleController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Health\HealthEntryController;
@@ -93,6 +94,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('/{pattern}', [PatternController::class, 'update'])->name('update');
         Route::delete('/{pattern}', [PatternController::class, 'destroy'])->name('destroy');
     });
+
+    Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
 
     Route::get('/changelog', [ChangelogController::class, 'index'])->name('changelog.index');
 

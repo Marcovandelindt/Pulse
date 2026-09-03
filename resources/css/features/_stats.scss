@@ -1,0 +1,141 @@
+/* ── Stats page ──────────────────────────────────── */
+
+.stats-heatmaps {
+    display:        flex;
+    flex-direction: column;
+    gap:            1.5rem;
+}
+
+/* ── Heatmap component ───────────────────────────── */
+
+.heatmap {
+    background:    var(--color-bg-secondary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding:       1.25rem;
+
+    &__header {
+        display:         flex;
+        align-items:     baseline;
+        justify-content: space-between;
+        gap:             1rem;
+        margin-bottom:   0.875rem;
+    }
+
+    &__label {
+        font-size:   0.9375rem;
+        font-weight: 600;
+        color:       var(--color-text-primary);
+    }
+
+    &__summary {
+        font-size: 0.8125rem;
+        color:     var(--color-text-muted);
+        min-width: 0;
+        text-align: right;
+    }
+
+    &__grid {
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+    }
+
+    &__months {
+        display: flex;
+        gap:     3px;
+        margin-bottom: 4px;
+        padding-left: 0;
+    }
+
+    &__month-cell {
+        width:  13px;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    &__month-label {
+        position:    absolute;
+        left:        0;
+        font-size:   0.6875rem;
+        color:       var(--color-text-muted);
+        white-space: nowrap;
+        line-height: 1;
+    }
+
+    &__weeks {
+        display: flex;
+        gap:     3px;
+    }
+
+    &__week {
+        display:        flex;
+        flex-direction: column;
+        gap:            3px;
+        flex-shrink:    0;
+    }
+
+    &__cell {
+        width:         13px;
+        height:        13px;
+        border-radius: 2px;
+        cursor:        default;
+        transition:    opacity 100ms ease;
+
+        &--empty {
+            background: transparent;
+        }
+
+        &:hover {
+            opacity: 0.8;
+            outline: 1px solid rgba(255,255,255,0.2);
+        }
+    }
+
+    &__legend {
+        display:     flex;
+        align-items: center;
+        gap:         4px;
+        margin-top:  0.75rem;
+        justify-content: flex-end;
+    }
+
+    &__legend-label {
+        font-size: 0.6875rem;
+        color:     var(--color-text-muted);
+        margin:    0 2px;
+    }
+}
+
+/* ── Color schemes ───────────────────────────────── */
+
+.heatmap--green {
+    .heatmap__cell--level-0 { background: rgba(255, 255, 255, 0.06); }
+    .heatmap__cell--level-1 { background: #166534; }
+    .heatmap__cell--level-2 { background: #16a34a; }
+    .heatmap__cell--level-3 { background: #4ade80; }
+    .heatmap__cell--level-4 { background: #86efac; }
+}
+
+.heatmap--purple {
+    .heatmap__cell--level-0 { background: rgba(255, 255, 255, 0.06); }
+    .heatmap__cell--level-1 { background: #3b0764; }
+    .heatmap__cell--level-2 { background: #7e22ce; }
+    .heatmap__cell--level-3 { background: #a855f7; }
+    .heatmap__cell--level-4 { background: #d8b4fe; }
+}
+
+.heatmap--pink {
+    .heatmap__cell--level-0 { background: rgba(255, 255, 255, 0.06); }
+    .heatmap__cell--level-1 { background: #881337; }
+    .heatmap__cell--level-2 { background: #e11d48; }
+    .heatmap__cell--level-3 { background: #fb7185; }
+    .heatmap__cell--level-4 { background: #fda4af; }
+}
+
+.heatmap--amber {
+    .heatmap__cell--level-0 { background: rgba(255, 255, 255, 0.06); }
+    .heatmap__cell--level-1 { background: #78350f; }
+    .heatmap__cell--level-2 { background: #d97706; }
+    .heatmap__cell--level-3 { background: #fbbf24; }
+    .heatmap__cell--level-4 { background: #fde68a; }
+}
