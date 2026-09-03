@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Stats\StatsController;
+use App\Http\Controllers\Stats\WeekReportController;
 use App\Http\Controllers\Calendar\WorkScheduleController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Health\HealthEntryController;
@@ -96,6 +97,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
+    Route::get('/stats/week', [WeekReportController::class, 'index'])->name('stats.week');
 
     Route::get('/changelog', [ChangelogController::class, 'index'])->name('changelog.index');
 

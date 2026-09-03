@@ -26,6 +26,36 @@
     gap:            1.5rem;
 }
 
+/* ── Weekly report ───────────────────────────────── */
+
+.week-report {
+    display:        flex;
+    flex-direction: column;
+    gap:            2rem;
+}
+
+.week-report__section-title {
+    font-size:      0.6875rem;
+    font-weight:    600;
+    color:          var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity:        0.6;
+    margin-bottom:  0.75rem;
+}
+
+.week-report__grid {
+    display:               grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap:                   1rem;
+}
+
+.week-report__empty {
+    color:     var(--color-text-muted);
+    font-size: 0.9375rem;
+    padding:   2rem 0;
+}
+
 /* ── Heatmap component ───────────────────────────── */
 
 .heatmap {
