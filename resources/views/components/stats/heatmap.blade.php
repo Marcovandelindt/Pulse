@@ -1,17 +1,20 @@
 @props([
     'label'   => '',
-    'entries' => [],   // ['Y-m-d' => int]
+    'entries' => [],
     'unit'    => '',
-    'scheme'  => 'green',  // green | purple | pink | amber
-    'format'  => null,     // callable|null for custom value formatting
+    'scheme'  => 'green',
+    'format'  => null,
+    'start',        // Carbon — first day of the range
+    'end',          // Carbon — last day of the range
 ])
 
 @php
     use Illuminate\Support\Carbon;
 
-    $today      = now()->startOfDay();
-    $rangeStart = $today->copy()->subDays(364);
+    $rangeStart = $start->copy()->startOfDay();
+    $rangeEnd   = $end->copy()->startOfDay();
     $gridStart  = $rangeStart->copy()->startOfWeek(Carbon::MONDAY);
+    $gridEnd    = $rangeEnd->copy()->endOfWeek(Carbon::SUNDAY);
 
     $maxValue = !empty($entries) ? max(array_values($entries)) : 0;
 
@@ -36,12 +39,12 @@
     $weeks   = [];
     $current = $gridStart->copy();
 
-    while ($current->lte($today)) {
+    while ($current->lte($gridEnd)) {
         $week = [];
         for ($d = 0; $d < 7; $d++) {
             $day     = $current->copy()->addDays($d);
             $dateStr = $day->format('Y-m-d');
-            $inRange = $day->gte($rangeStart) && $day->lte($today);
+            $inRange = $day->gte($rangeStart) && $day->lte($rangeEnd);
             $value   = $inRange ? ($entries[$dateStr] ?? 0) : 0;
 
             $week[] = [
@@ -54,8 +57,7 @@
         $current->addWeek();
     }
 
-    // Build month blocks: group consecutive weeks by their Monday's month.
-    // Each block gets a pixel-width = weeks * 16px - 3px (cell=13px, gap=3px).
+    // Build month blocks
     $monthBlocks = [];
     $prevMonth   = null;
     $current     = $gridStart->copy();
@@ -75,7 +77,7 @@
     $totalValue   = array_sum($entries);
     $summary      = $totalEntries > 0
         ? number_format($totalValue) . ' ' . $unit . ' across ' . $totalEntries . ' days'
-        : 'No data in the past year';
+        : 'No data';
 @endphp
 
 <div class="heatmap heatmap--{{ $scheme }}" x-data="{ tip: '' }">
@@ -85,7 +87,6 @@
     </div>
 
     <div class="heatmap__grid">
-        {{-- Month label row: each block is exactly as wide as its weeks --}}
         <div class="heatmap__months">
             @foreach ($monthBlocks as $block)
                 <div class="heatmap__month-block" style="width: calc({{ $block['count'] }} * 16px - 3px);">
@@ -94,7 +95,6 @@
             @endforeach
         </div>
 
-        {{-- Cell grid --}}
         <div class="heatmap__weeks">
             @foreach ($weeks as $week)
                 <div class="heatmap__week">
