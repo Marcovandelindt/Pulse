@@ -31,26 +31,30 @@ final class CalendarController extends Controller
         $monthStart = $month->copy()->startOfMonth();
         $monthEnd = $month->copy()->endOfMonth();
 
+        // Extend to the full grid (Mon–Sun weeks) so overflow days from prev/next month get their events too
+        $gridStart = $monthStart->copy()->startOfWeek(Carbon::MONDAY);
+        $gridEnd = $monthEnd->copy()->endOfWeek(Carbon::SUNDAY);
+
         $events = CalendarEvent::query()
-            ->where('starts_at', '<=', $monthEnd)
-            ->where(function ($q) use ($monthStart) {
+            ->where('starts_at', '<=', $gridEnd)
+            ->where(function ($q) use ($gridStart) {
                 $q->where('recurrence', '!=', RecurrenceType::None->value)
-                    ->orWhere('starts_at', '>=', $monthStart)
-                    ->orWhere(function ($q2) use ($monthStart) {
-                        $q2->whereNotNull('ends_at')->where('ends_at', '>=', $monthStart);
+                    ->orWhere('starts_at', '>=', $gridStart)
+                    ->orWhere(function ($q2) use ($gridStart) {
+                        $q2->whereNotNull('ends_at')->where('ends_at', '>=', $gridStart);
                     });
             })
-            ->where(function ($q) use ($monthStart) {
+            ->where(function ($q) use ($gridStart) {
                 $q->whereNull('recurrence_ends_at')
-                    ->orWhere('recurrence_ends_at', '>=', $monthStart);
+                    ->orWhere('recurrence_ends_at', '>=', $gridStart);
             })
             ->with('contact')
             ->get();
 
-        $dayEvents = $this->buildDayEvents($events, $monthStart, $monthEnd);
+        $dayEvents = $this->buildDayEvents($events, $gridStart, $gridEnd);
 
         $allSchedules = WorkSchedule::orderBy('name')->get();
-        $this->injectWorkShifts($allSchedules->where('active', true)->values(), $monthStart, $monthEnd, $dayEvents);
+        $this->injectWorkShifts($allSchedules->where('active', true)->values(), $gridStart, $gridEnd, $dayEvents);
 
         $workSchedules = $allSchedules->filter(
             fn (WorkSchedule $s) => $s->valid_until === null || $s->valid_until->gte(today())

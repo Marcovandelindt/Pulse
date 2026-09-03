@@ -39,7 +39,7 @@
         </div>
 
         {{-- Work schedule manager --}}
-        <div class="schedule-manager" x-data="scheduleManager">
+        <div class="schedule-manager" x-data="scheduleManager" @open-schedule-edit.window="openEdit($event.detail)">
             <div class="schedule-manager__header" @click="panelOpen = !panelOpen">
                 <div class="schedule-manager__title">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" style="flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -215,8 +215,9 @@
                                 @if (is_array($event) && ($event['is_work_shift'] ?? false))
                                     @php $ws = $event['schedule']; @endphp
                                     <span class="calendar-pill calendar-pill--work-shift"
-                                          style="background: {{ $ws->rgbaColor(0.13) }}; color: {{ $ws->effectiveColor() }};"
-                                          title="{{ $ws->name }}: {{ $ws->start_time }}–{{ $ws->end_time }}">
+                                          style="background: {{ $ws->rgbaColor(0.13) }}; color: {{ $ws->effectiveColor() }}; cursor: pointer;"
+                                          title="{{ $ws->name }}: {{ $ws->start_time }}–{{ $ws->end_time }}"
+                                          @click.stop="$dispatch('open-schedule-edit', {{ json_encode(['id' => $ws->id, 'name' => $ws->name, 'days' => $ws->days, 'start_time' => $ws->start_time, 'end_time' => $ws->end_time, 'color' => $ws->color, 'valid_from' => $ws->valid_from?->format('Y-m-d'), 'valid_until' => $ws->valid_until?->format('Y-m-d'), 'active' => $ws->active]) }})">
                                         <span class="calendar-pill__dot"></span>
                                         {{ $ws->name }} · {{ $ws->start_time }}–{{ $ws->end_time }}
                                     </span>
