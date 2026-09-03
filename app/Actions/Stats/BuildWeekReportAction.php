@@ -47,11 +47,12 @@ final class BuildWeekReportAction
             ->sum('steps');
 
         return [
-            'total'    => $total,
-            'avg'      => $days > 0 ? (int) round($total / $days) : 0,
-            'days'     => $days,
-            'best'     => $best ? ['value' => (int) $best->steps, 'date' => Carbon::parse($best->date)] : null,
-            'vs_prev'  => $this->pctChange($prevTotal, $total),
+            'total'      => $total,
+            'prev_total' => $prevTotal,
+            'avg'        => $days > 0 ? (int) round($total / $days) : 0,
+            'days'       => $days,
+            'best'       => $best ? ['value' => (int) $best->steps, 'date' => Carbon::parse($best->date)] : null,
+            'vs_prev'    => $this->pctChange($prevTotal, $total),
         ];
     }
 
@@ -75,10 +76,11 @@ final class BuildWeekReportAction
             ->sum('duration_minutes');
 
         return [
-            'total_minutes' => (int) $total,
-            'sessions'      => $count,
-            'top_game'      => $topGame ? $topGame['name'] : null,
-            'vs_prev'       => $this->pctChange($prevTotal, (int) $total),
+            'total_minutes'     => (int) $total,
+            'sessions'          => $count,
+            'top_game'          => $topGame ? $topGame['name'] : null,
+            'top_game_minutes'  => $topGame ? (int) $topGame['minutes'] : null,
+            'vs_prev'           => $this->pctChange($prevTotal, (int) $total),
         ];
     }
 

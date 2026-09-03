@@ -28,6 +28,7 @@
                     <x-stats.stat-card
                         label="Total steps"
                         :value="number_format($report['steps']['total'])"
+                        :subtitle="$report['steps']['prev_total'] > 0 ? 'Last week: ' . number_format($report['steps']['prev_total']) : null"
                         icon="heart"
                         :trend="$report['steps']['vs_prev']"
                         trend-label="vs last week"
@@ -67,9 +68,16 @@
                         :value="$report['gaming']['sessions']"
                     />
                     @if ($report['gaming']['top_game'])
+                        @php
+                            $gm = $report['gaming']['top_game_minutes'];
+                            $gameTime = $gm >= 60
+                                ? intdiv($gm, 60) . 'h ' . ($gm % 60) . 'm'
+                                : $gm . 'm';
+                        @endphp
                         <x-stats.stat-card
                             label="Most played"
                             :value="$report['gaming']['top_game']"
+                            :subtitle="$gameTime"
                         />
                     @endif
                 </div>
