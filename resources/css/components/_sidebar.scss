@@ -67,6 +67,28 @@
     border-top: 1px solid var(--color-border);
 }
 
+.sidebar__logout {
+    display:       flex;
+    align-items:   center;
+    gap:           0.5rem;
+    width:         100%;
+    padding:       0.5rem 0.625rem;
+    border-radius: var(--radius-md);
+    font-size:     0.875rem;
+    font-weight:   500;
+    color:         var(--color-text-muted);
+    background:    transparent;
+    border:        none;
+    cursor:        pointer;
+    transition:    background var(--transition-base), color var(--transition-base);
+    text-align:    left;
+
+    &:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color:      #ef4444;
+    }
+}
+
 /* ── Layout ──────────────────────────────────────── */
 
 .layout {
