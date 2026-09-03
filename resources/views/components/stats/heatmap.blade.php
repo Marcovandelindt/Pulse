@@ -9,7 +9,7 @@
 @php
     use Illuminate\Support\Carbon;
 
-    $today     = now()->startOfDay();
+    $today      = now()->startOfDay();
     $rangeStart = $today->copy()->subDays(364);
     $gridStart  = $rangeStart->copy()->startOfWeek(Carbon::MONDAY);
 
@@ -32,11 +32,9 @@
         return number_format($value) . ($unit ? ' ' . $unit : '');
     };
 
-    $weeks       = [];
-    $monthLabels = [];
-    $current     = $gridStart->copy();
-    $weekIndex   = 0;
-    $lastMonth   = null;
+    // Build weeks grid
+    $weeks   = [];
+    $current = $gridStart->copy();
 
     while ($current->lte($today)) {
         $week = [];
@@ -47,29 +45,35 @@
             $value   = $inRange ? ($entries[$dateStr] ?? 0) : 0;
 
             $week[] = [
-                'date'    => $day,
-                'value'   => $value,
                 'level'   => $inRange ? $level($value) : -1,
                 'inRange' => $inRange,
                 'label'   => $day->format('M j, Y') . ': ' . $formatValue($value),
             ];
         }
         $weeks[] = $week;
-
-        // Month label on the Monday of the week where the month changes
-        $monday = $current;
-        if ($monday->gte($rangeStart) && $monday->format('Y-m') !== $lastMonth) {
-            $monthLabels[$weekIndex] = $monday->format('M');
-            $lastMonth = $monday->format('Y-m');
-        }
-
         $current->addWeek();
-        $weekIndex++;
     }
 
-    $totalEntries  = count(array_filter($entries));
-    $totalValue    = array_sum($entries);
-    $summary       = $totalEntries > 0
+    // Build month blocks: group consecutive weeks by their Monday's month.
+    // Each block gets a pixel-width = weeks * 16px - 3px (cell=13px, gap=3px).
+    $monthBlocks = [];
+    $prevMonth   = null;
+    $current     = $gridStart->copy();
+
+    foreach ($weeks as $week) {
+        $monthKey = $current->format('Y-m');
+        if ($monthKey !== $prevMonth) {
+            $monthBlocks[] = ['label' => $current->format('M'), 'count' => 1];
+            $prevMonth = $monthKey;
+        } else {
+            $monthBlocks[count($monthBlocks) - 1]['count']++;
+        }
+        $current->addWeek();
+    }
+
+    $totalEntries = count(array_filter($entries));
+    $totalValue   = array_sum($entries);
+    $summary      = $totalEntries > 0
         ? number_format($totalValue) . ' ' . $unit . ' across ' . $totalEntries . ' days'
         : 'No data in the past year';
 @endphp
@@ -81,18 +85,16 @@
     </div>
 
     <div class="heatmap__grid">
-        {{-- Month labels row --}}
+        {{-- Month label row: each block is exactly as wide as its weeks --}}
         <div class="heatmap__months">
-            @foreach ($weeks as $wi => $week)
-                <div class="heatmap__month-cell">
-                    @if (isset($monthLabels[$wi]))
-                        <span class="heatmap__month-label">{{ $monthLabels[$wi] }}</span>
-                    @endif
+            @foreach ($monthBlocks as $block)
+                <div class="heatmap__month-block" style="width: calc({{ $block['count'] }} * 16px - 3px);">
+                    {{ $block['label'] }}
                 </div>
             @endforeach
         </div>
 
-        {{-- Cells --}}
+        {{-- Cell grid --}}
         <div class="heatmap__weeks">
             @foreach ($weeks as $week)
                 <div class="heatmap__week">

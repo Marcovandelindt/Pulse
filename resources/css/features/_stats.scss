@@ -44,23 +44,16 @@
 
 .heatmap__months {
     display:       flex;
-    gap:           3px;
     margin-bottom: 4px;
 }
 
-.heatmap__month-cell {
-    width:       13px;
-    flex-shrink: 0;
-    position:    relative;
-}
-
-.heatmap__month-label {
-    position:    absolute;
-    left:        0;
-    font-size:   0.6875rem;
-    color:       var(--color-text-muted);
-    white-space: nowrap;
-    line-height: 1;
+.heatmap__month-block {
+    flex-shrink:  0;
+    font-size:    0.6875rem;
+    color:        var(--color-text-muted);
+    white-space:  nowrap;
+    overflow:     hidden;
+    line-height:  1;
 }
 
 .heatmap__weeks {
