@@ -10,7 +10,7 @@
     @endphp
 
     <x-layout.page-header
-        title="{{ $greeting }}, Marco"
+        title="{{ $greeting }}, {{ auth()->user()->name }}"
         subtitle="Here's what's happening today."
     />
 
