@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\PlayStation;
 
+use App\Models\Setting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -34,7 +35,7 @@ final class PsnAuthService
     public function getAccessToken(): string
     {
         return Cache::remember('psn_access_token', 3000, function () {
-            $refreshToken = Cache::get('psn_refresh_token');
+            $refreshToken = Setting::getPsnRefreshToken();
 
             if ($refreshToken) {
                 return $this->refreshAccessToken($refreshToken);
@@ -105,7 +106,7 @@ final class PsnAuthService
 
         $data = $tokenResponse->json();
 
-        Cache::put('psn_refresh_token', $data['refresh_token'], now()->addDays(58));
+        Setting::storePsnRefreshToken($data['refresh_token']);
 
         return $data['access_token'];
     }
@@ -124,7 +125,7 @@ final class PsnAuthService
 
         if (! $response->successful()) {
             // Refresh token expired — clear it and re-exchange NPSSO
-            Cache::forget('psn_refresh_token');
+            Setting::clearPsnRefreshToken();
             Cache::forget('psn_access_token');
 
             return $this->exchangeNpsso();
@@ -132,7 +133,7 @@ final class PsnAuthService
 
         $data = $response->json();
 
-        Cache::put('psn_refresh_token', $data['refresh_token'], now()->addDays(58));
+        Setting::storePsnRefreshToken($data['refresh_token']);
 
         return $data['access_token'];
     }

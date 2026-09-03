@@ -35,6 +35,21 @@ final class Setting extends Model
         Cache::forget('setting.'.$key);
     }
 
+    public static function getPsnRefreshToken(): ?string
+    {
+        return self::get('psn_refresh_token');
+    }
+
+    public static function storePsnRefreshToken(string $token): void
+    {
+        self::set('psn_refresh_token', $token);
+    }
+
+    public static function clearPsnRefreshToken(): void
+    {
+        self::remove('psn_refresh_token');
+    }
+
     public static function getSpotifyCredentials(): array
     {
         return [
