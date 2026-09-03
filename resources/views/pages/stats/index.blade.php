@@ -29,6 +29,53 @@
         </x-slot:actions>
     </x-layout.page-header>
 
+    {{-- All-time personal records --}}
+    <div class="stats-records">
+        <h2 class="stats-records__title">Personal records</h2>
+        <div class="stats-records__grid">
+            @if ($recordSteps)
+                <x-stats.stat-card
+                    label="Most steps in a day"
+                    :value="$recordSteps['value']"
+                    :subtitle="$recordSteps['subtitle']"
+                    icon="heart"
+                />
+            @endif
+            @if ($recordGamingSession)
+                <x-stats.stat-card
+                    label="Longest gaming session"
+                    :value="$recordGamingSession['value']"
+                    :subtitle="$recordGamingSession['subtitle']"
+                    icon="gamepad"
+                />
+            @endif
+            @if ($recordGamingDay)
+                <x-stats.stat-card
+                    label="Most gaming in a day"
+                    :value="$recordGamingDay['value']"
+                    :subtitle="$recordGamingDay['subtitle']"
+                    icon="clock"
+                />
+            @endif
+            @if ($recordMusicDay)
+                <x-stats.stat-card
+                    label="Most tracks in a day"
+                    :value="$recordMusicDay['value']"
+                    :subtitle="$recordMusicDay['subtitle']"
+                    icon="musical-note"
+                />
+            @endif
+            @if ($recordMediaDay)
+                <x-stats.stat-card
+                    label="Most media in a day"
+                    :value="$recordMediaDay['value']"
+                    :subtitle="$recordMediaDay['subtitle']"
+                    icon="film"
+                />
+            @endif
+        </div>
+    </div>
+
     <div class="stats-heatmaps">
 
         <x-stats.heatmap

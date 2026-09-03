@@ -1,5 +1,25 @@
 /* ── Stats page ──────────────────────────────────── */
 
+.stats-records {
+    margin-bottom: 2rem;
+}
+
+.stats-records__title {
+    font-size:     0.6875rem;
+    font-weight:   600;
+    color:         var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.75rem;
+    opacity: 0.6;
+}
+
+.stats-records__grid {
+    display:               grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap:                   1rem;
+}
+
 .stats-heatmaps {
     display:        flex;
     flex-direction: column;
