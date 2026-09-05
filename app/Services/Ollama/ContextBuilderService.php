@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Ollama;
 
+use App\Models\AiMemory;
 use App\Models\EpisodeWatch;
 use App\Models\HealthEntry;
 use App\Models\MovieWatch;
@@ -19,6 +20,7 @@ final class ContextBuilderService
     {
         $sections = [
             $this->introduction(),
+            $this->memorySummary(),
             $this->healthSummary(),
             $this->gamingSummary(),
             $this->musicSummary(),
@@ -52,6 +54,19 @@ final class ContextBuilderService
         }
 
         return implode("\n", $lines);
+    }
+
+    private function memorySummary(): ?string
+    {
+        $memories = AiMemory::orderBy('created_at')->pluck('content');
+
+        if ($memories->isEmpty()) {
+            return null;
+        }
+
+        $lines = $memories->map(fn ($m) => "- {$m}")->join("\n");
+
+        return "## What I know about Marco (learned from past conversations)\n{$lines}";
     }
 
     private function healthSummary(): ?string
