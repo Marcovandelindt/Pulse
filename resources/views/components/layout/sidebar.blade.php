@@ -46,6 +46,7 @@
             <span class="sidebar__group-label">System</span>
             <x-layout.nav-item route="stats.index" icon="chart-bar" label="Stats" />
             <x-layout.nav-item route="stats.week" icon="calendar" label="Weekly report" />
+            <x-layout.nav-item route="stats.wrapped" icon="trophy" label="Wrapped" />
             <x-layout.nav-item route="changelog.index" icon="clock" label="Changelog" />
         </div>
     </nav>
