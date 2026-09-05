@@ -21,6 +21,7 @@ use App\Http\Controllers\Insights\InsightRelatedController;
 use App\Http\Controllers\Insights\PatternController;
 use App\Http\Controllers\Changelog\ChangelogController;
 use App\Http\Controllers\Settings\RelationshipTypeController;
+use App\Http\Controllers\Stats\CrossStatsController;
 use App\Http\Controllers\Stats\WrappedController;
 use Illuminate\Support\Facades\Route;
 
@@ -100,6 +101,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
     Route::get('/stats/week', [WeekReportController::class, 'index'])->name('stats.week');
     Route::get('/stats/wrapped', [WrappedController::class, 'index'])->name('stats.wrapped');
+    Route::get('/stats/patterns', [CrossStatsController::class, 'index'])->name('stats.patterns');
 
     Route::get('/changelog', [ChangelogController::class, 'index'])->name('changelog.index');
 

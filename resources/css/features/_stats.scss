@@ -666,3 +666,181 @@
 .heatmap--amber .heatmap__cell--level-2 { background: #d97706; }
 .heatmap--amber .heatmap__cell--level-3 { background: #fbbf24; }
 .heatmap--amber .heatmap__cell--level-4 { background: #fde68a; }
+
+/* ── Cross-domain patterns page ──────────────────── */
+
+.patterns {
+    display:        flex;
+    flex-direction: column;
+    gap:            1.5rem;
+}
+
+/* Day-of-week chart */
+
+.patterns__dow-legend {
+    display:     flex;
+    align-items: center;
+    gap:         1.25rem;
+    font-size:   0.75rem;
+    color:       var(--color-text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.patterns__dow-legend-dot {
+    display:       inline-block;
+    width:         0.5rem;
+    height:        0.5rem;
+    border-radius: 50%;
+    margin-right:  0.25rem;
+
+    &--steps  { background: #4ade80; }
+    &--plays  { background: #c084fc; }
+    &--gaming { background: #60a5fa; }
+}
+
+.patterns__dow-chart {
+    display:     flex;
+    gap:         0.5rem;
+    align-items: flex-end;
+    height:      9rem;
+}
+
+.patterns__dow-day {
+    flex:           1;
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    gap:            0.375rem;
+    height:         100%;
+}
+
+.patterns__dow-bars {
+    flex:        1;
+    display:     flex;
+    align-items: flex-end;
+    gap:         3px;
+    width:       100%;
+}
+
+.patterns__dow-bar {
+    flex:          1;
+    border-radius: 3px 3px 0 0;
+    min-height:    3px;
+    transition:    height 0.3s ease;
+
+    &--steps  { background: #4ade80; }
+    &--plays  { background: #c084fc; }
+    &--gaming { background: #60a5fa; }
+}
+
+.patterns__dow-label {
+    font-size:  0.6875rem;
+    color:      var(--color-text-muted);
+    text-align: center;
+}
+
+.patterns__dow-values {
+    display:       flex;
+    gap:           0.5rem;
+    margin-top:    0.75rem;
+    border-top:    1px solid var(--color-border);
+    padding-top:   0.75rem;
+}
+
+.patterns__dow-value-group {
+    flex:           1;
+    display:        flex;
+    flex-direction: column;
+    gap:            2px;
+    align-items:    center;
+}
+
+.patterns__dow-val {
+    font-size: 0.6875rem;
+    line-height: 1.2;
+
+    &--steps  { color: #4ade80; }
+    &--plays  { color: #c084fc; }
+    &--gaming { color: #60a5fa; }
+}
+
+/* Comparison cards */
+
+.patterns__comparisons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+}
+
+.patterns__compare-card .card__body {
+    display:        flex;
+    flex-direction: column;
+    gap:            1rem;
+}
+
+.patterns__compare-title {
+    font-size:   0.8125rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+}
+
+.patterns__compare-row {
+    display:     flex;
+    align-items: center;
+    gap:         0.75rem;
+}
+
+.patterns__compare-half {
+    flex:           1;
+    display:        flex;
+    flex-direction: column;
+    gap:            2px;
+}
+
+.patterns__compare-label {
+    font-size:      0.6875rem;
+    font-weight:    600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color:          var(--color-text-muted);
+
+    &--gaming { color: #60a5fa; }
+    &--music  { color: #c084fc; }
+}
+
+.patterns__compare-value {
+    font-size:   2rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+    line-height: 1;
+}
+
+.patterns__compare-sub {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+}
+
+.patterns__compare-divider {
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
+    justify-content: center;
+    width:           3rem;
+    flex-shrink:     0;
+}
+
+.patterns__compare-diff {
+    font-size:   0.875rem;
+    font-weight: 700;
+    padding:     0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+
+    &--up   { color: #4ade80; background: rgba(74, 222, 128, 0.12); }
+    &--down { color: #f87171; background: rgba(248, 113, 113, 0.12); }
+}
+
+.patterns__compare-footnote {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+    margin-top: -0.25rem;
+}
