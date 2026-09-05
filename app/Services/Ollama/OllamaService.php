@@ -20,6 +20,9 @@ final class OllamaService
                 'model'    => $model,
                 'messages' => $messages,
                 'stream'   => false,
+                'options'  => [
+                    'temperature' => 0,
+                ],
             ]);
 
         if ($response->failed()) {
