@@ -103,11 +103,13 @@
                     <textarea
                         class="ai-chat__input"
                         x-model="input"
+                        x-ref="input"
                         placeholder="Ask something about your data…"
                         rows="1"
                         :disabled="loading"
                         @keydown.enter.prevent="!$event.shiftKey && send()"
                         @input="autoResize($el)"
+                        autofocus
                     ></textarea>
                     <button type="submit" class="ai-chat__send btn btn--primary" :disabled="loading || !input.trim()">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:1rem;height:1rem;">
@@ -116,7 +118,6 @@
                     </button>
                 </form>
 
-                <p class="ai-chat__hint">Enter to send · Shift+Enter for new line</p>
 
             </div>
         </div>
@@ -169,6 +170,7 @@
                         this.loading = false;
                         await this.$nextTick();
                         this.scrollToBottom();
+                        this.$refs.input.focus();
                     }
                 },
 

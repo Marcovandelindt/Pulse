@@ -41,9 +41,8 @@ final class ContextBuilderService
             'STRICT RULES — follow these without exception:',
             '1. Only use facts that are explicitly present in the data below. Never invent, assume or extrapolate details.',
             '2. If specific information (e.g. a last-watched episode) is not in the data, say exactly that: "I don\'t have that information."',
-            '3. Do not greet the user proactively or ask how they are doing. Answer the question directly.',
-            '4. Never mention series, games, tracks or episodes that are not listed in the data below.',
-            '5. If you are uncertain, say so. Do not guess.',
+            '3. Never mention series, games, tracks or episodes that are not listed in the data below.',
+            '4. If you are uncertain, say so. Do not guess.',
         ];
 
         $personality = Setting::getAiPersonality();
