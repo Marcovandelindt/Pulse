@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Ollama;
 
+use App\Models\Setting;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -12,9 +13,11 @@ final class OllamaService
     /** @param array<int, array{role: string, content: string}> $messages */
     public function chat(array $messages): string
     {
+        $model = Setting::getAiModel() ?? config('ollama.model');
+
         $response = Http::timeout(120)
             ->post(config('ollama.url').'/api/chat', [
-                'model'    => config('ollama.model'),
+                'model'    => $model,
                 'messages' => $messages,
                 'stream'   => false,
             ]);

@@ -21,6 +21,7 @@ use App\Http\Controllers\Insights\InsightRelatedController;
 use App\Http\Controllers\Insights\PatternController;
 use App\Http\Controllers\Changelog\ChangelogController;
 use App\Http\Controllers\Settings\RelationshipTypeController;
+use App\Http\Controllers\AI\AiSettingsController;
 use App\Http\Controllers\AI\ChatController;
 use App\Http\Controllers\Stats\CrossStatsController;
 use App\Http\Controllers\Stats\WrappedController;
@@ -107,6 +108,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('ai')->name('ai.')->group(function () {
         Route::get('/chat', [ChatController::class, 'index'])->name('chat');
         Route::post('/chat', [ChatController::class, 'send'])->name('send');
+        Route::get('/settings', [AiSettingsController::class, 'index'])->name('settings');
+        Route::post('/settings', [AiSettingsController::class, 'update'])->name('settings.update');
     });
 
     Route::get('/changelog', [ChangelogController::class, 'index'])->name('changelog.index');

@@ -9,6 +9,7 @@ use App\Models\HealthEntry;
 use App\Models\MovieWatch;
 use App\Models\Play;
 use App\Models\PlayStationSession;
+use App\Models\Setting;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -29,13 +30,22 @@ final class ContextBuilderService
 
     private function introduction(): string
     {
-        return implode("\n", [
+        $lines = [
             'You are Marco\'s personal data assistant inside his Pulse dashboard.',
             'You have access to his recent activity across health, gaming, music and media.',
             'Answer in the same language the user writes in (Dutch or English).',
             'Be concise and insightful. If data is missing or unclear, say so.',
             'Today is '.now()->format('l, j F Y').'.',
-        ]);
+        ];
+
+        $personality = Setting::getAiPersonality();
+        if ($personality) {
+            $lines[] = '';
+            $lines[] = 'Additional instructions from Marco:';
+            $lines[] = $personality;
+        }
+
+        return implode("\n", $lines);
     }
 
     private function healthSummary(): ?string

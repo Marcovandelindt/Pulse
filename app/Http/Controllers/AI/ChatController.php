@@ -27,9 +27,9 @@ final class ChatController extends Controller
     public function send(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'messages'             => ['required', 'array', 'min:1', 'max:50'],
-            'messages.*.role'      => ['required', 'string', 'in:user,assistant'],
-            'messages.*.content'   => ['required', 'string', 'max:4000'],
+            'messages'           => ['required', 'array', 'min:1', 'max:50'],
+            'messages.*.role'    => ['required', 'string', 'in:user,assistant'],
+            'messages.*.content' => ['required', 'string', 'max:4000'],
         ]);
 
         $messages = array_merge(
