@@ -40,6 +40,7 @@
         <div class="sidebar__group">
             <span class="sidebar__group-label">Mind</span>
             <x-layout.nav-item route="insights.index" icon="light-bulb" label="Insights" />
+            <x-layout.nav-item route="ai.chat" icon="chat-bubble" label="AI Assistant" />
         </div>
 
         <div class="sidebar__group">
