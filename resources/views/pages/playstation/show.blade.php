@@ -90,6 +90,18 @@
                         <div class="text-lg font-bold" style="color: var(--color-text-primary)">{{ $game->critic_rating }}/10</div>
                     </div>
                 @endif
+                @if($game->completion_minutes)
+                    @php
+                        $compH = intdiv((int) $game->completion_minutes, 60);
+                        $compM = (int) $game->completion_minutes % 60;
+                    @endphp
+                    <div>
+                        <div class="text-xs font-medium uppercase tracking-wide" style="color: var(--color-text-muted)">Time to Complete</div>
+                        <div class="text-lg font-bold" style="color: var(--color-text-primary)">
+                            {{ $compH }}h{{ $compM > 0 ? ' ' . $compM . 'm' : '' }}
+                        </div>
+                    </div>
+                @endif
                 @if($game->price)
                     <div>
                         <div class="text-xs font-medium uppercase tracking-wide" style="color: var(--color-text-muted)">Price</div>

@@ -54,6 +54,8 @@ final class PlayStationController extends Controller
             'main_story_completed'  => ['nullable', 'boolean'],
             'exclude_from_sync'     => ['nullable', 'boolean'],
             'completion_percentage' => ['nullable', 'numeric', 'between:0,100'],
+            'completion_hours'      => ['nullable', 'integer', 'min:0'],
+            'completion_mins'       => ['nullable', 'integer', 'between:0,59'],
             'image'                 => ['nullable', 'image', 'max:10240'],
             'categories'            => ['nullable', 'array'],
             'categories.*'          => ['integer', 'exists:play_station_categories,id'],
@@ -65,14 +67,17 @@ final class PlayStationController extends Controller
             $imageUrl = Storage::url($path);
         }
 
-        $psnHours    = (int) ($validated['psn_hours'] ?? 0);
-        $psnMins     = (int) ($validated['psn_minutes'] ?? 0);
-        $categoryIds = $validated['categories'] ?? [];
+        $psnHours        = (int) ($validated['psn_hours'] ?? 0);
+        $psnMins         = (int) ($validated['psn_minutes'] ?? 0);
+        $completionHours = (int) ($validated['completion_hours'] ?? 0);
+        $completionMins  = (int) ($validated['completion_mins'] ?? 0);
+        $categoryIds     = $validated['categories'] ?? [];
 
-        unset($validated['psn_hours'], $validated['psn_minutes'], $validated['image'], $validated['categories']);
+        unset($validated['psn_hours'], $validated['psn_minutes'], $validated['completion_hours'], $validated['completion_mins'], $validated['image'], $validated['categories']);
 
-        $validated['image_url']         = $imageUrl;
-        $validated['psn_total_minutes'] = ($psnHours > 0 || $psnMins > 0) ? $psnHours * 60 + $psnMins : null;
+        $validated['image_url']           = $imageUrl;
+        $validated['psn_total_minutes']   = ($psnHours > 0 || $psnMins > 0) ? $psnHours * 60 + $psnMins : null;
+        $validated['completion_minutes']  = ($completionHours > 0 || $completionMins > 0) ? $completionHours * 60 + $completionMins : null;
         // Manually created games are excluded from sync by default so the scraper never overwrites them.
         $validated['exclude_from_sync'] = (bool) ($validated['exclude_from_sync'] ?? true);
 
@@ -114,6 +119,8 @@ final class PlayStationController extends Controller
             'main_story_completed'  => ['nullable', 'boolean'],
             'exclude_from_sync'     => ['nullable', 'boolean'],
             'completion_percentage' => ['nullable', 'numeric', 'between:0,100'],
+            'completion_hours'      => ['nullable', 'integer', 'min:0'],
+            'completion_mins'       => ['nullable', 'integer', 'between:0,59'],
             'image'                 => ['nullable', 'image', 'max:10240'],
             'categories'            => ['nullable', 'array'],
             'categories.*'          => ['integer', 'exists:play_station_categories,id'],
@@ -129,13 +136,16 @@ final class PlayStationController extends Controller
             $validated['image_url'] = Storage::url($path);
         }
 
-        $psnHours = (int) ($validated['psn_hours'] ?? 0);
-        $psnMins  = (int) ($validated['psn_minutes'] ?? 0);
+        $psnHours        = (int) ($validated['psn_hours'] ?? 0);
+        $psnMins         = (int) ($validated['psn_minutes'] ?? 0);
+        $completionHours = (int) ($validated['completion_hours'] ?? 0);
+        $completionMins  = (int) ($validated['completion_mins'] ?? 0);
 
         $categoryIds = $validated['categories'] ?? [];
-        unset($validated['psn_hours'], $validated['psn_minutes'], $validated['image'], $validated['categories']);
+        unset($validated['psn_hours'], $validated['psn_minutes'], $validated['completion_hours'], $validated['completion_mins'], $validated['image'], $validated['categories']);
 
-        $validated['psn_total_minutes'] = ($psnHours > 0 || $psnMins > 0) ? $psnHours * 60 + $psnMins : null;
+        $validated['psn_total_minutes']  = ($psnHours > 0 || $psnMins > 0) ? $psnHours * 60 + $psnMins : null;
+        $validated['completion_minutes'] = ($completionHours > 0 || $completionMins > 0) ? $completionHours * 60 + $completionMins : null;
 
         // When trophy_search_name changes and the user hasn't manually set a new np_communication_id,
         // wipe the cached match so the next trophy fetch re-runs title matching.

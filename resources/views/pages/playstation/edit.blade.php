@@ -178,9 +178,9 @@
                 <x-form.error name="critic_rating" />
             </div>
 
-            <div class="form-group">
+            <div class="form-group" x-data="{ backlogStatus: '{{ old('backlog_status', $game->backlog_status?->value) }}' }">
                 <label class="form-label" for="backlog_status">Backlog Status</label>
-                <select id="backlog_status" name="backlog_status" class="form-input">
+                <select id="backlog_status" name="backlog_status" class="form-input" x-model="backlogStatus">
                     <option value="">— None —</option>
                     @foreach(\App\Enums\BacklogStatus::cases() as $status)
                         <option value="{{ $status->value }}"
@@ -190,6 +190,48 @@
                     @endforeach
                 </select>
                 <x-form.error name="backlog_status" />
+
+                @php
+                    $completionH = $game->completion_minutes ? intdiv((int) $game->completion_minutes, 60) : null;
+                    $completionM = $game->completion_minutes ? (int) $game->completion_minutes % 60 : null;
+                @endphp
+                <div x-show="backlogStatus === 'completed'" x-cloak class="mt-4">
+                    <label class="form-label">Time to Complete</label>
+                    <div class="flex gap-3">
+                        <div class="flex items-center gap-2">
+                            <input
+                                type="number"
+                                id="completion_hours"
+                                name="completion_hours"
+                                min="0"
+                                value="{{ old('completion_hours', $completionH) }}"
+                                class="form-input"
+                                style="width: 6rem;"
+                                placeholder="0"
+                            >
+                            <span class="text-sm" style="color: var(--color-text-muted)">hours</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input
+                                type="number"
+                                id="completion_mins"
+                                name="completion_mins"
+                                min="0"
+                                max="59"
+                                value="{{ old('completion_mins', $completionM) }}"
+                                class="form-input"
+                                style="width: 6rem;"
+                                placeholder="0"
+                            >
+                            <span class="text-sm" style="color: var(--color-text-muted)">min</span>
+                        </div>
+                    </div>
+                    <p class="text-xs mt-1" style="color: var(--color-text-muted)">
+                        How long it took you to complete this game (main story or platinum, depending on your definition).
+                    </p>
+                    <x-form.error name="completion_hours" />
+                    <x-form.error name="completion_mins" />
+                </div>
             </div>
 
             <div class="form-group">
