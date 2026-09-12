@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Health;
 
 use App\Http\Controllers\Controller;
 use App\Models\HealthEntry;
+use App\Models\HealthSleep;
 use App\Models\StepGoal;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -81,6 +82,52 @@ final class HealthStatsController extends Controller
         $seasonalPatterns  = $this->seasonalPatterns();
         $yearInReview      = $this->yearInReview((int) $stepGoal, $allGoals, $year);
 
+        // Health metrics (year-filtered)
+        $avgRestingHr = HealthEntry::whereNotNull('resting_heart_rate')
+            ->when($year, fn ($q) => $q->whereYear('date', $year))
+            ->avg('resting_heart_rate');
+
+        $avgHrv = HealthEntry::whereNotNull('hrv')
+            ->when($year, fn ($q) => $q->whereYear('date', $year))
+            ->avg('hrv');
+
+        $avgActiveCalories = HealthEntry::whereNotNull('active_calories')
+            ->when($year, fn ($q) => $q->whereYear('date', $year))
+            ->avg('active_calories');
+
+        // Sleep (year-filtered)
+        $avgSleepMinutes = HealthSleep::when($year, fn ($q) => $q->whereYear('date', $year))
+            ->avg('total_sleep_minutes');
+        $avgDeepMinutes  = HealthSleep::whereNotNull('deep_minutes')
+            ->when($year, fn ($q) => $q->whereYear('date', $year))
+            ->avg('deep_minutes');
+        $avgRemMinutes   = HealthSleep::whereNotNull('rem_minutes')
+            ->when($year, fn ($q) => $q->whereYear('date', $year))
+            ->avg('rem_minutes');
+
+        // Exercise goal rate (≥30 min/day counts as meeting the goal)
+        $exerciseDaysTotal = HealthEntry::whereNotNull('exercise_minutes')
+            ->when($year, fn ($q) => $q->whereYear('date', $year))
+            ->count();
+        $exerciseDaysMet = HealthEntry::whereNotNull('exercise_minutes')
+            ->where('exercise_minutes', '>=', 30)
+            ->when($year, fn ($q) => $q->whereYear('date', $year))
+            ->count();
+        $exerciseGoalRate = $exerciseDaysTotal > 0 ? round(($exerciseDaysMet / $exerciseDaysTotal) * 100) : null;
+
+        // Stand goal rate (≥12h/day)
+        $standDaysTotal = HealthEntry::whereNotNull('stand_hours')
+            ->when($year, fn ($q) => $q->whereYear('date', $year))
+            ->count();
+        $standDaysMet = HealthEntry::whereNotNull('stand_hours')
+            ->where('stand_hours', '>=', 12)
+            ->when($year, fn ($q) => $q->whereYear('date', $year))
+            ->count();
+        $standGoalRate = $standDaysTotal > 0 ? round(($standDaysMet / $standDaysTotal) * 100) : null;
+
+        // Monthly active calories history
+        $calorieMonthlyHistory = $this->calorieMonthlyHistory($year);
+
         $distanceComparisons = collect([
             ['label' => 'Amsterdam → Paris',      'km' => 500],
             ['label' => 'Around the Netherlands', 'km' => 1075],
@@ -113,6 +160,12 @@ final class HealthStatsController extends Controller
             'consistency',
             'seasonalPatterns',
             'yearInReview',
+            'avgRestingHr', 'avgHrv', 'avgActiveCalories',
+            'avgSleepMinutes', 'avgDeepMinutes', 'avgRemMinutes',
+            'exerciseGoalRate', 'standGoalRate',
+            'exerciseDaysMet', 'exerciseDaysTotal',
+            'standDaysMet', 'standDaysTotal',
+            'calorieMonthlyHistory',
         ));
     }
 
@@ -373,13 +426,23 @@ final class HealthStatsController extends Controller
             ->orderByDesc('total')
             ->first();
 
+        $bestHrvEntry = HealthEntry::whereNotNull('hrv')->orderByDesc('hrv')->first(['date', 'hrv']);
+        $bestCalEntry = HealthEntry::whereNotNull('active_calories')->orderByDesc('active_calories')->first(['date', 'active_calories']);
+        $bestSleep    = HealthSleep::orderByDesc('total_sleep_minutes')->first(['date', 'total_sleep_minutes', 'deep_minutes']);
+
         return [
-            'bestDaySteps'   => $bestDay?->steps,
-            'bestDayDate'    => $bestDay?->date->format('d M Y'),
-            'bestWeekSteps'  => $bestWeekRow ? (int) $bestWeekRow->total : null,
-            'bestWeekStart'  => $bestWeekRow ? Carbon::parse($bestWeekRow->week_start)->format('d M Y') : null,
-            'bestMonthSteps' => $bestMonthRow ? (int) $bestMonthRow->total : null,
-            'bestMonthLabel' => $bestMonthRow ? Carbon::createFromFormat('Y-m', $bestMonthRow->month)->format('F Y') : null,
+            'bestDaySteps'      => $bestDay?->steps,
+            'bestDayDate'       => $bestDay?->date->format('d M Y'),
+            'bestWeekSteps'     => $bestWeekRow ? (int) $bestWeekRow->total : null,
+            'bestWeekStart'     => $bestWeekRow ? Carbon::parse($bestWeekRow->week_start)->format('d M Y') : null,
+            'bestMonthSteps'    => $bestMonthRow ? (int) $bestMonthRow->total : null,
+            'bestMonthLabel'    => $bestMonthRow ? Carbon::createFromFormat('Y-m', $bestMonthRow->month)->format('F Y') : null,
+            'bestHrv'           => $bestHrvEntry ? round((float) $bestHrvEntry->hrv, 1) : null,
+            'bestHrvDate'       => $bestHrvEntry?->date->format('d M Y'),
+            'bestActiveCalories'=> $bestCalEntry ? (int) $bestCalEntry->active_calories : null,
+            'bestCalDate'       => $bestCalEntry?->date->format('d M Y'),
+            'bestSleepMinutes'  => $bestSleep?->total_sleep_minutes,
+            'bestSleepDate'     => $bestSleep?->date->format('d M Y'),
         ];
     }
 
@@ -482,5 +545,22 @@ final class HealthStatsController extends Controller
                     'km'          => number_format(round($totalSteps * 0.00066, 1), 1),
                 ];
             });
+    }
+
+    private function calorieMonthlyHistory(?int $year): SupportCollection
+    {
+        return HealthEntry::whereNotNull('active_calories')
+            ->when($year, fn ($q) => $q->whereYear('date', $year))
+            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, COUNT(*) as entries, SUM(active_calories) as total_cal, AVG(active_calories) as avg_cal, SUM(basal_calories) as total_basal')
+            ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
+            ->orderByDesc('month')
+            ->get()
+            ->map(fn ($row) => [
+                'month'       => Carbon::createFromFormat('Y-m', $row->month)->format('F Y'),
+                'entries'     => (int) $row->entries,
+                'total_cal'   => number_format((int) $row->total_cal),
+                'avg_cal'     => number_format((int) round((float) $row->avg_cal)),
+                'total_basal' => $row->total_basal ? number_format((int) $row->total_basal) : null,
+            ]);
     }
 }

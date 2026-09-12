@@ -80,10 +80,30 @@
 
     {{-- Year totals --}}
     <div class="stats-row mb-6">
-        <x-stats.stat-card :label="$year ? 'Steps in ' . $year : 'Total steps'" :value="number_format($yearSteps)" icon="heart" />
-        <x-stats.stat-card :label="$year ? 'Distance in ' . $year : 'Total distance'" :value="number_format($thisYearKm, 1) . ' km'" icon="map-pin" />
-        <x-stats.stat-card :label="$year ? 'Days logged in ' . $year : 'Total days logged'" :value="number_format($yearDaysLogged)" icon="check-circle" />
-        <x-stats.stat-card label="All-time distance" :value="number_format($allTimeKm, 1) . ' km'" icon="calendar" />
+        <x-stats.stat-card :label="$year ? 'Steps in ' . $year : 'Total steps'" :value="number_format($yearSteps)" />
+        <x-stats.stat-card :label="$year ? 'Distance in ' . $year : 'Total distance'" :value="number_format($thisYearKm, 1) . ' km'" />
+        <x-stats.stat-card :label="$year ? 'Days logged in ' . $year : 'Total days logged'" :value="number_format($yearDaysLogged)" />
+        <x-stats.stat-card label="All-time distance" :value="number_format($allTimeKm, 1) . ' km'" />
+    </div>
+
+    {{-- Health snapshot --}}
+    <div class="stats-row mb-6">
+        <x-stats.stat-card
+            label="Avg resting HR"
+            :value="$avgRestingHr ? (int) round($avgRestingHr) . ' bpm' : '—'"
+        />
+        <x-stats.stat-card
+            label="Avg HRV"
+            :value="$avgHrv ? round((float) $avgHrv, 1) . ' ms' : '—'"
+        />
+        <x-stats.stat-card
+            label="Avg active calories"
+            :value="$avgActiveCalories ? number_format((int) round($avgActiveCalories)) . ' kcal' : '—'"
+        />
+        <x-stats.stat-card
+            label="Avg sleep"
+            :value="$avgSleepMinutes ? (new App\Models\HealthSleep)->formattedMinutes((int) round($avgSleepMinutes)) : '—'"
+        />
     </div>
 
     {{-- Distance comparisons --}}
@@ -151,6 +171,47 @@
                     @endif
                 </div>
             </div>
+
+            @if ($personalRecords['bestHrv'])
+                <div class="health-record">
+                    <div class="health-record__icon">💓</div>
+                    <div class="health-record__body">
+                        <div class="health-record__value">{{ $personalRecords['bestHrv'] }} ms</div>
+                        <div class="health-record__label">Best HRV</div>
+                        @if ($personalRecords['bestHrvDate'])
+                            <div class="health-record__sub">{{ $personalRecords['bestHrvDate'] }}</div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
+            @if ($personalRecords['bestActiveCalories'])
+                <div class="health-record">
+                    <div class="health-record__icon">🔥</div>
+                    <div class="health-record__body">
+                        <div class="health-record__value">{{ number_format($personalRecords['bestActiveCalories']) }} kcal</div>
+                        <div class="health-record__label">Most active calories</div>
+                        @if ($personalRecords['bestCalDate'])
+                            <div class="health-record__sub">{{ $personalRecords['bestCalDate'] }}</div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
+            @if ($personalRecords['bestSleepMinutes'])
+                <div class="health-record">
+                    <div class="health-record__icon">😴</div>
+                    <div class="health-record__body">
+                        <div class="health-record__value health-record__value--sm">
+                            {{ (new App\Models\HealthSleep)->formattedMinutes($personalRecords['bestSleepMinutes']) }}
+                        </div>
+                        <div class="health-record__label">Longest sleep</div>
+                        @if ($personalRecords['bestSleepDate'])
+                            <div class="health-record__sub">{{ $personalRecords['bestSleepDate'] }}</div>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
     </x-ui.card>
 
@@ -440,6 +501,112 @@
                 <x-ui.empty-state title="No goal history yet" />
             @endif
         </x-ui.card>
+
+        {{-- Sleep & recovery --}}
+        <x-ui.card title="Sleep & recovery" class="health-stats-grid__wide">
+            @if ($avgSleepMinutes)
+                <div class="health-consistency">
+                    <div class="health-consistency__block">
+                        <div class="health-consistency__value">
+                            {{ (new App\Models\HealthSleep)->formattedMinutes((int) round($avgSleepMinutes)) }}
+                        </div>
+                        <div class="health-consistency__label">Avg total sleep</div>
+                        <div class="health-consistency__sub">All recorded nights</div>
+                    </div>
+                    @if ($avgDeepMinutes)
+                        <div class="health-consistency__block">
+                            <div class="health-consistency__value">
+                                {{ (new App\Models\HealthSleep)->formattedMinutes((int) round($avgDeepMinutes)) }}
+                            </div>
+                            <div class="health-consistency__label">Avg deep sleep</div>
+                            <div class="health-consistency__sub">Physically restorative</div>
+                        </div>
+                    @endif
+                    @if ($avgRemMinutes)
+                        <div class="health-consistency__block">
+                            <div class="health-consistency__value">
+                                {{ (new App\Models\HealthSleep)->formattedMinutes((int) round($avgRemMinutes)) }}
+                            </div>
+                            <div class="health-consistency__label">Avg REM sleep</div>
+                            <div class="health-consistency__sub">Memory & mood</div>
+                        </div>
+                    @endif
+                    @if ($avgRestingHr)
+                        <div class="health-consistency__block">
+                            <div class="health-consistency__value">{{ (int) round($avgRestingHr) }} bpm</div>
+                            <div class="health-consistency__label">Avg resting HR</div>
+                            <div class="health-consistency__sub">Measured during sleep</div>
+                        </div>
+                    @endif
+                    @if ($avgHrv)
+                        <div class="health-consistency__block">
+                            <div class="health-consistency__value">{{ round((float) $avgHrv, 1) }} ms</div>
+                            <div class="health-consistency__label">Avg HRV</div>
+                            <div class="health-consistency__sub">Higher = better recovered</div>
+                        </div>
+                    @endif
+                </div>
+            @else
+                <x-ui.empty-state message="No sleep data yet — sync your Apple Watch to see recovery stats." />
+            @endif
+        </x-ui.card>
+
+        {{-- Activity rings summary --}}
+        @if ($exerciseGoalRate !== null || $standGoalRate !== null)
+            <x-ui.card title="Activity rings" class="health-stats-grid__wide">
+                <div class="health-consistency">
+                    @if ($exerciseGoalRate !== null)
+                        <div class="health-consistency__block">
+                            <div class="health-consistency__value">{{ $exerciseGoalRate }}%</div>
+                            <div class="health-consistency__label">Exercise goal rate</div>
+                            <div class="health-consistency__sub">{{ $exerciseDaysMet }}/{{ $exerciseDaysTotal }} days ≥ 30 min</div>
+                        </div>
+                    @endif
+                    @if ($standGoalRate !== null)
+                        <div class="health-consistency__block">
+                            <div class="health-consistency__value">{{ $standGoalRate }}%</div>
+                            <div class="health-consistency__label">Stand goal rate</div>
+                            <div class="health-consistency__sub">{{ $standDaysMet }}/{{ $standDaysTotal }} days ≥ 12h</div>
+                        </div>
+                    @endif
+                    @if ($avgActiveCalories)
+                        <div class="health-consistency__block">
+                            <div class="health-consistency__value">{{ number_format((int) round($avgActiveCalories)) }}</div>
+                            <div class="health-consistency__label">Avg active kcal/day</div>
+                            <div class="health-consistency__sub">Move ring</div>
+                        </div>
+                    @endif
+                </div>
+            </x-ui.card>
+        @endif
+
+        {{-- Active calories monthly history --}}
+        @if ($calorieMonthlyHistory->isNotEmpty())
+            <x-ui.card title="Active calories — monthly history" class="health-stats-grid__wide">
+                <x-ui.table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Days logged</th>
+                            <th>Total active kcal</th>
+                            <th>Avg active kcal/day</th>
+                            <th>Total basal kcal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($calorieMonthlyHistory as $row)
+                            <tr>
+                                <td>{{ $row['month'] }}</td>
+                                <td>{{ $row['entries'] }}</td>
+                                <td>{{ $row['total_cal'] }}</td>
+                                <td>{{ $row['avg_cal'] }}</td>
+                                <td>{{ $row['total_basal'] ?? '—' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </x-ui.table>
+            </x-ui.card>
+        @endif
 
         {{-- Monthly history --}}
         <x-ui.card title="Monthly history" class="health-stats-grid__wide">
