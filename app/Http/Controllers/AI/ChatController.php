@@ -82,7 +82,7 @@ final class ChatController extends Controller
         );
 
         try {
-            $reply = $this->ollama->chat($prompt);
+            $reply = $this->ollama->chatWithTools($prompt);
         } catch (RuntimeException $e) {
             return response()->json(['error' => $e->getMessage()], 503);
         }
