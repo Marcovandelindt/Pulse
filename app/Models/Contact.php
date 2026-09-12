@@ -57,6 +57,11 @@ final class Contact extends Model
         return $this->hasMany(ContactRelationship::class, 'related_contact_id');
     }
 
+    public function giftIdeas(): HasMany
+    {
+        return $this->hasMany(ContactGiftIdea::class)->orderBy('created_at');
+    }
+
     public function age(): ?int
     {
         if ($this->birthdate === null || $this->birth_year_unknown) {

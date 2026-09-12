@@ -191,6 +191,46 @@
             </form>
         </div>
 
+        {{-- Gift ideas --}}
+        <div class="contact-detail__dates">
+            <div class="contact-detail__dates-label">Gift ideas</div>
+
+            @if ($contact->giftIdeas->isNotEmpty())
+                <div class="contact-dates-list">
+                    @foreach ($contact->giftIdeas as $giftIdea)
+                        <div class="contact-dates-row">
+                            <div class="contact-dates-row__info">
+                                <span class="contact-dates-row__label">{{ $giftIdea->idea }}</span>
+                                @if ($giftIdea->notes)
+                                    <span class="contact-dates-row__date">{{ $giftIdea->notes }}</span>
+                                @endif
+                            </div>
+                            <form method="POST" action="{{ route('people.gift-ideas.destroy', [$contact, $giftIdea]) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn--danger btn--sm">Remove</button>
+                            </form>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('people.gift-ideas.store', $contact) }}" class="contact-dates-add">
+                @csrf
+                <div class="form-group" style="flex: 2; min-width: 10rem;">
+                    <label class="form-label">Idea</label>
+                    <input type="text" name="idea" class="form-input" placeholder="e.g. Bordeaux wijn, Lego set" required maxlength="255">
+                </div>
+                <div class="form-group" style="flex: 2; min-width: 10rem;">
+                    <label class="form-label">Notes <span class="form-label__optional">optional</span></label>
+                    <input type="text" name="notes" class="form-input" placeholder="e.g. merk, kleur, budget" maxlength="1000">
+                </div>
+                <div class="form-group" style="padding-bottom: 0;">
+                    <button type="submit" class="btn btn--primary btn--sm">Add</button>
+                </div>
+            </form>
+        </div>
+
         {{-- Notes --}}
         @if ($contact->notes)
             <div class="contact-detail__notes">

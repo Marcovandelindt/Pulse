@@ -14,6 +14,7 @@ use App\Http\Controllers\Health\HealthStatsController;
 use App\Http\Controllers\Health\StepGoalController;
 use App\Http\Controllers\People\ContactController;
 use App\Http\Controllers\People\ContactDateController;
+use App\Http\Controllers\People\ContactGiftIdeaController;
 use App\Http\Controllers\People\ContactRelationshipController;
 use App\Http\Controllers\Insights\InsightController;
 use App\Http\Controllers\Insights\InsightPatternController;
@@ -74,6 +75,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{contact}/dates/{date}', [ContactDateController::class, 'destroy'])->name('dates.destroy');
         Route::post('/{contact}/relationships', [ContactRelationshipController::class, 'store'])->name('relationships.store');
         Route::delete('/{contact}/relationships/{relationship}', [ContactRelationshipController::class, 'destroy'])->name('relationships.destroy');
+        Route::post('/{contact}/gift-ideas', [ContactGiftIdeaController::class, 'store'])->name('gift-ideas.store');
+        Route::delete('/{contact}/gift-ideas/{giftIdea}', [ContactGiftIdeaController::class, 'destroy'])->name('gift-ideas.destroy');
     });
 
     Route::prefix('insights')->name('insights.')->group(function () {
