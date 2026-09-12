@@ -12,3 +12,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('spotify:sync-tracks')->everyFifteenMinutes();
 Schedule::command('gaming:sync-presence')->everyMinute();
+Schedule::command('health:import-icloud')->dailyAt('04:00');

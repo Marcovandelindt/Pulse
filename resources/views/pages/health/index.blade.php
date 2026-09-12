@@ -22,6 +22,7 @@
                 Goal: {{ number_format($monthGoal) }}
             </button>
             <a href="{{ route('health.stats') }}" class="btn btn--secondary btn--sm">Stats</a>
+            <a href="{{ route('health.sleep') }}" class="btn btn--secondary btn--sm">Sleep</a>
             <a href="{{ route('health.export') }}" class="btn btn--secondary btn--sm">Export CSV</a>
         </x-slot:actions>
     </x-layout.page-header>
@@ -44,6 +45,26 @@
         <x-stats.stat-card
             label="Km this month"
             :value="number_format($thisMonthKm, 1, '.', '') . ' km'"
+        />
+    </div>
+
+    {{-- Apple Watch stat cards --}}
+    <div class="stats-row" style="margin-top: 0.75rem;">
+        <x-stats.stat-card
+            label="Last night sleep"
+            :value="$lastSleep ? $lastSleep->formattedMinutes($lastSleep->total_sleep_minutes) : '—'"
+        />
+        <x-stats.stat-card
+            label="Resting HR"
+            :value="$recentAppleWatch?->resting_heart_rate ? $recentAppleWatch->resting_heart_rate . ' bpm' : '—'"
+        />
+        <x-stats.stat-card
+            label="Active calories"
+            :value="$recentAppleWatch?->active_calories ? number_format($recentAppleWatch->active_calories) . ' kcal' : '—'"
+        />
+        <x-stats.stat-card
+            label="HRV"
+            :value="$recentAppleWatch?->hrv ? $recentAppleWatch->hrv . ' ms' : '—'"
         />
     </div>
 

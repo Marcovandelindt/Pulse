@@ -1,0 +1,133 @@
+<x-layouts.app title="Sleep">
+
+    <x-layout.page-header title="Sleep">
+        <x-slot:actions>
+            <a href="{{ route('health.index') }}" class="btn btn--secondary btn--sm">&larr; Health</a>
+        </x-slot:actions>
+    </x-layout.page-header>
+
+    {{-- Stat cards --}}
+    <div class="stats-row">
+        <x-stats.stat-card
+            label="Last night"
+            :value="$lastSleep ? $lastSleep->formattedMinutes($lastSleep->total_sleep_minutes) : '—'"
+        />
+        <x-stats.stat-card
+            label="Avg total sleep"
+            :value="$avgTotal ? (new App\Models\HealthSleep)->formattedMinutes((int) round($avgTotal)) : '—'"
+        />
+        <x-stats.stat-card
+            label="Avg deep sleep"
+            :value="$avgDeep ? (new App\Models\HealthSleep)->formattedMinutes((int) round($avgDeep)) : '—'"
+        />
+        <x-stats.stat-card
+            label="Avg REM"
+            :value="$avgRem ? (new App\Models\HealthSleep)->formattedMinutes((int) round($avgRem)) : '—'"
+        />
+    </div>
+
+    {{-- Sleep legend --}}
+    <div class="sleep-legend">
+        <div class="sleep-legend__item">
+            <span class="sleep-legend__dot sleep-legend__dot--deep"></span> Deep
+        </div>
+        <div class="sleep-legend__item">
+            <span class="sleep-legend__dot sleep-legend__dot--rem"></span> REM
+        </div>
+        <div class="sleep-legend__item">
+            <span class="sleep-legend__dot sleep-legend__dot--core"></span> Core
+        </div>
+        <div class="sleep-legend__item">
+            <span class="sleep-legend__dot sleep-legend__dot--awake"></span> Awake
+        </div>
+    </div>
+
+    {{-- Sleep history --}}
+    <x-ui.card title="Sleep history">
+        @if ($records->isEmpty())
+            <x-ui.empty-state message="No sleep data yet." />
+        @else
+            @foreach ($records as $record)
+                @php
+                    $base = ($record->deep_minutes ?? 0)
+                          + ($record->rem_minutes  ?? 0)
+                          + ($record->core_minutes ?? 0)
+                          + ($record->awake_minutes ?? 0);
+                @endphp
+                <div class="sleep-record">
+                    <div class="sleep-record__header">
+                        <div class="sleep-record__date">
+                            {{ $record->date->format('D d M Y') }}
+                        </div>
+                        <div class="sleep-record__times">
+                            {{ $record->sleep_start->format('H:i') }}
+                            &rarr;
+                            {{ $record->sleep_end->format('H:i') }}
+                        </div>
+                        <div class="sleep-record__total">
+                            {{ $record->formattedMinutes($record->total_sleep_minutes) }}
+                        </div>
+                    </div>
+
+                    @if ($base > 0)
+                        <div class="sleep-record__bar">
+                            @if ($record->deep_minutes)
+                                <div class="sleep-record__bar-segment sleep-record__bar-segment--deep"
+                                     style="width: {{ $record->phasePercent('deep_minutes', $base) }}%"
+                                     title="Deep: {{ $record->formattedMinutes($record->deep_minutes) }}"></div>
+                            @endif
+                            @if ($record->rem_minutes)
+                                <div class="sleep-record__bar-segment sleep-record__bar-segment--rem"
+                                     style="width: {{ $record->phasePercent('rem_minutes', $base) }}%"
+                                     title="REM: {{ $record->formattedMinutes($record->rem_minutes) }}"></div>
+                            @endif
+                            @if ($record->core_minutes)
+                                <div class="sleep-record__bar-segment sleep-record__bar-segment--core"
+                                     style="width: {{ $record->phasePercent('core_minutes', $base) }}%"
+                                     title="Core: {{ $record->formattedMinutes($record->core_minutes) }}"></div>
+                            @endif
+                            @if ($record->awake_minutes)
+                                <div class="sleep-record__bar-segment sleep-record__bar-segment--awake"
+                                     style="width: {{ $record->phasePercent('awake_minutes', $base) }}%"
+                                     title="Awake: {{ $record->formattedMinutes($record->awake_minutes) }}"></div>
+                            @endif
+                        </div>
+
+                        <div class="sleep-record__phases">
+                            @if ($record->deep_minutes)
+                                <span class="sleep-record__phase">
+                                    <span class="sleep-record__phase-dot sleep-record__phase-dot--deep"></span>
+                                    {{ $record->formattedMinutes($record->deep_minutes) }} deep
+                                </span>
+                            @endif
+                            @if ($record->rem_minutes)
+                                <span class="sleep-record__phase">
+                                    <span class="sleep-record__phase-dot sleep-record__phase-dot--rem"></span>
+                                    {{ $record->formattedMinutes($record->rem_minutes) }} REM
+                                </span>
+                            @endif
+                            @if ($record->core_minutes)
+                                <span class="sleep-record__phase">
+                                    <span class="sleep-record__phase-dot sleep-record__phase-dot--core"></span>
+                                    {{ $record->formattedMinutes($record->core_minutes) }} core
+                                </span>
+                            @endif
+                            @if ($record->awake_minutes)
+                                <span class="sleep-record__phase">
+                                    <span class="sleep-record__phase-dot sleep-record__phase-dot--awake"></span>
+                                    {{ $record->formattedMinutes($record->awake_minutes) }} awake
+                                </span>
+                            @endif
+                            @if ($record->source)
+                                <span class="sleep-record__source">{{ $record->source }}</span>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            @endforeach
+        @endif
+    </x-ui.card>
+
+    <x-layout.notification />
+
+</x-layouts.app>

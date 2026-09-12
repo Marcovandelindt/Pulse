@@ -725,3 +725,123 @@
     letter-spacing:   0.05em;
     font-weight:      600;
 }
+
+/* ── Sleep page ───────────────────────────────────── */
+
+.sleep-legend {
+    display:       flex;
+    align-items:   center;
+    gap:           1.25rem;
+    margin-bottom: 1rem;
+}
+
+.sleep-legend__item {
+    display:     flex;
+    align-items: center;
+    gap:         0.375rem;
+    font-size:   0.8125rem;
+    color:       var(--color-text-muted);
+}
+
+.sleep-legend__dot {
+    width:         0.5rem;
+    height:        0.5rem;
+    border-radius: 50%;
+    flex-shrink:   0;
+}
+
+.sleep-legend__dot--deep  { background: #6366f1; }
+.sleep-legend__dot--rem   { background: #a78bfa; }
+.sleep-legend__dot--core  { background: #60a5fa; }
+.sleep-legend__dot--awake { background: rgba(248, 113, 113, 0.5); }
+
+.sleep-record {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.5rem;
+    padding:        1rem 0;
+    border-bottom:  1px solid var(--color-border);
+}
+
+.sleep-record:last-child {
+    border-bottom: none;
+}
+
+.sleep-record__header {
+    display:     flex;
+    align-items: center;
+    gap:         1rem;
+}
+
+.sleep-record__date {
+    font-size:   0.9375rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+    min-width:   10rem;
+}
+
+.sleep-record__times {
+    font-size: 0.8125rem;
+    color:     var(--color-text-muted);
+    flex:      1;
+}
+
+.sleep-record__total {
+    font-size:   1rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+    min-width:   4rem;
+    text-align:  right;
+}
+
+.sleep-record__bar {
+    height:        0.5rem;
+    border-radius: 999px;
+    overflow:      hidden;
+    display:       flex;
+    background:    var(--color-bg-tertiary);
+}
+
+.sleep-record__bar-segment {
+    height: 100%;
+}
+
+.sleep-record__bar-segment--deep  { background: #6366f1; }
+.sleep-record__bar-segment--rem   { background: #a78bfa; }
+.sleep-record__bar-segment--core  { background: #60a5fa; }
+.sleep-record__bar-segment--awake { background: rgba(248, 113, 113, 0.45); }
+
+.sleep-record__phases {
+    display:     flex;
+    flex-wrap:   wrap;
+    gap:         0.625rem 1.25rem;
+    align-items: center;
+}
+
+.sleep-record__phase {
+    display:     flex;
+    align-items: center;
+    gap:         0.3rem;
+    font-size:   0.75rem;
+    color:       var(--color-text-muted);
+}
+
+.sleep-record__phase-dot {
+    width:         0.4375rem;
+    height:        0.4375rem;
+    border-radius: 50%;
+    flex-shrink:   0;
+}
+
+.sleep-record__phase-dot--deep  { background: #6366f1; }
+.sleep-record__phase-dot--rem   { background: #a78bfa; }
+.sleep-record__phase-dot--core  { background: #60a5fa; }
+.sleep-record__phase-dot--awake { background: rgba(248, 113, 113, 0.5); }
+
+.sleep-record__source {
+    margin-left: auto;
+    font-size:   0.6875rem;
+    color:       var(--color-text-muted);
+    opacity:     0.6;
+    font-style:  italic;
+}

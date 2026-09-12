@@ -11,6 +11,7 @@ use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Health\HealthEntryController;
 use App\Http\Controllers\Health\HealthExportController;
 use App\Http\Controllers\Health\HealthStatsController;
+use App\Http\Controllers\Health\HealthSleepController;
 use App\Http\Controllers\Health\StepGoalController;
 use App\Http\Controllers\People\ContactController;
 use App\Http\Controllers\People\ContactDateController;
@@ -45,6 +46,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('/{entry}', [HealthEntryController::class,  'update'])->name('update');
         Route::delete('/{entry}', [HealthEntryController::class,  'destroy'])->name('destroy');
         Route::get('/stats', [HealthStatsController::class,   'index'])->name('stats');
+        Route::get('/sleep', [HealthSleepController::class,   'index'])->name('sleep');
         Route::get('/export', [HealthExportController::class, 'index'])->name('export');
         Route::post('/goal', [StepGoalController::class,      'store'])->name('goal.store');
         Route::delete('/goal/{goal}', [StepGoalController::class, 'destroy'])->name('goal.destroy');

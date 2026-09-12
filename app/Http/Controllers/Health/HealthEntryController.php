@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Health\StoreHealthEntryRequest;
 use App\Http\Requests\Health\UpdateHealthEntryRequest;
 use App\Models\HealthEntry;
+use App\Models\HealthSleep;
 use App\Models\StepGoal;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -58,9 +59,13 @@ final class HealthEntryController extends Controller
         $weekdayEntryCount = $weekdayEntries->count();
         $thisMonthKm = round((int) $entries->whereNotNull('steps')->sum('steps') * 0.00066, 1);
 
+        $lastSleep      = HealthSleep::orderByDesc('date')->first();
+        $recentAppleWatch = HealthEntry::whereNotNull('resting_heart_rate')->orderByDesc('date')->first();
+
         return view('pages.health.index', compact(
             'month', 'entries', 'stepGoal', 'monthGoal', 'allGoals', 'calendarGoals', 'daysInMonth',
             'entryCount', 'avgSteps', 'goalMetCount', 'weekdayEntryCount', 'thisMonthKm',
+            'lastSleep', 'recentAppleWatch',
         ));
     }
 

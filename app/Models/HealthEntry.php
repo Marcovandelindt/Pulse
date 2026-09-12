@@ -15,12 +15,29 @@ final class HealthEntry extends Model
     /** @use HasFactory<HealthEntryFactory> */
     use HasFactory;
 
-    protected $fillable = ['date', 'steps', 'notes'];
+    protected $fillable = [
+        'date',
+        'steps',
+        'heart_rate_avg',
+        'heart_rate_min',
+        'heart_rate_max',
+        'resting_heart_rate',
+        'hrv',
+        'respiratory_rate',
+        'active_calories',
+        'basal_calories',
+        'exercise_minutes',
+        'stand_hours',
+        'flights_climbed',
+        'distance_km',
+        'weight_kg',
+        'notes',
+    ];
 
     protected function casts(): array
     {
         return [
-            'date' => 'date',
+            'date'  => 'date',
             'steps' => 'integer',
         ];
     }
