@@ -21,11 +21,11 @@
             <button @click="goalOpen = true" class="btn btn--secondary btn--sm" type="button">
                 Goal: {{ number_format($monthGoal) }}
             </button>
-            <a href="{{ route('health.stats') }}" class="btn btn--secondary btn--sm">Stats</a>
-            <a href="{{ route('health.sleep') }}" class="btn btn--secondary btn--sm">Sleep</a>
             <a href="{{ route('health.export') }}" class="btn btn--secondary btn--sm">Export CSV</a>
         </x-slot:actions>
     </x-layout.page-header>
+
+    <x-health.nav />
 
     {{-- Stat cards --}}
     <div class="stats-row">

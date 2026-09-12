@@ -1,10 +1,8 @@
 <x-layouts.app title="Sleep">
 
-    <x-layout.page-header title="Sleep">
-        <x-slot:actions>
-            <a href="{{ route('health.index') }}" class="btn btn--secondary btn--sm">&larr; Health</a>
-        </x-slot:actions>
-    </x-layout.page-header>
+    <x-layout.page-header title="Sleep" />
+
+    <x-health.nav />
 
     {{-- Stat cards --}}
     <div class="stats-row">

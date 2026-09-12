@@ -1,3 +1,35 @@
+/* ── Health sub-navigation ────────────────────────── */
+
+.health-subnav {
+    display:       flex;
+    gap:           0.125rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 0;
+}
+
+.health-subnav__item {
+    padding:        0.5rem 0.875rem;
+    font-size:      0.875rem;
+    font-weight:    500;
+    color:          var(--color-text-muted);
+    text-decoration: none;
+    border-bottom:  2px solid transparent;
+    margin-bottom:  -1px;
+    transition:     color var(--transition-base), border-color var(--transition-base);
+    white-space:    nowrap;
+}
+
+.health-subnav__item:hover {
+    color: var(--color-text-primary);
+}
+
+.health-subnav__item--active {
+    color:        var(--color-text-primary);
+    border-bottom-color: var(--color-brand);
+    font-weight:  600;
+}
+
 /* ── Step goal modal ──────────────────────────────── */
 
 .step-goal-row {

@@ -16,10 +16,10 @@
                     @endforeach
                 </div>
             @endif
-            <a href="{{ route('health.index') }}" class="btn btn--secondary btn--sm">&larr; Back</a>
-            <a href="{{ route('health.export') }}" class="btn btn--secondary btn--sm">Export CSV</a>
         </x-slot:actions>
     </x-layout.page-header>
+
+    <x-health.nav />
 
     {{-- Year in review --}}
     @if ($yearInReview['hasData'])
