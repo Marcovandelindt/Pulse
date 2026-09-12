@@ -60,6 +60,7 @@ final class ContactController extends Controller
             'relationshipType',
             'calendarEvents',
             'dates',
+            'giftIdeas',
             'relationships.relatedContact',
             'relatedRelationships.contact',
         );
