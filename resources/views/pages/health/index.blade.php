@@ -27,6 +27,11 @@
 
     <x-health.nav />
 
+    <p class="health-page-intro">
+        Your daily health snapshot. The calendar shows step counts and goal progress per day;
+        the second row of cards reflects the most recent Apple Watch metrics synced via iCloud.
+    </p>
+
     {{-- Stat cards --}}
     <div class="stats-row">
         <x-stats.stat-card

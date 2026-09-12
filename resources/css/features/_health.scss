@@ -30,6 +30,24 @@
     font-weight:  600;
 }
 
+/* ── Page & section descriptions ─────────────────── */
+
+.health-page-intro {
+    font-size:     0.875rem;
+    color:         var(--color-text-muted);
+    line-height:   1.6;
+    max-width:     52rem;
+    margin-bottom: 1.25rem;
+}
+
+.health-section-desc {
+    font-size:     0.8125rem;
+    color:         var(--color-text-muted);
+    line-height:   1.5;
+    margin-bottom: 1rem;
+    max-width:     48rem;
+}
+
 /* ── Step goal modal ──────────────────────────────── */
 
 .step-goal-row {

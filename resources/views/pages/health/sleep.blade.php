@@ -4,6 +4,13 @@
 
     <x-health.nav />
 
+    <p class="health-page-intro">
+        Nightly sleep sessions recorded by Apple Watch and Sleep Cycle.
+        <strong style="color: var(--color-text-primary);">Deep</strong> sleep is the most physically restorative phase and supports tissue repair and immune function.
+        <strong style="color: var(--color-text-primary);">REM</strong> sleep is where dreaming occurs and is critical for memory consolidation and mood regulation.
+        <strong style="color: var(--color-text-primary);">Core</strong> (light) sleep fills the remainder of the night and acts as a transition between phases.
+    </p>
+
     {{-- Stat cards --}}
     <div class="stats-row">
         <x-stats.stat-card
@@ -42,6 +49,10 @@
 
     {{-- Sleep history --}}
     <x-ui.card title="Sleep history">
+        <p class="health-section-desc">
+            Each row is one sleep session. The coloured bar shows how your night was divided across phases —
+            hover a segment to see the exact duration. The source indicates which app or device recorded the session.
+        </p>
         @if ($records->isEmpty())
             <x-ui.empty-state message="No sleep data yet." />
         @else

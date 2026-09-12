@@ -21,6 +21,11 @@
 
     <x-health.nav />
 
+    <p class="health-page-intro">
+        Step statistics and goal performance over time. Use the year filter above to focus on a specific period,
+        or view all-time data at once. Goal days count weekdays only — weekends are intentionally excluded.
+    </p>
+
     {{-- Year in review --}}
     @if ($yearInReview['hasData'])
         <x-ui.card class="health-year-review mb-6">
