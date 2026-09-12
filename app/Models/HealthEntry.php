@@ -31,6 +31,16 @@ final class HealthEntry extends Model
         'flights_climbed',
         'distance_km',
         'weight_kg',
+        'walking_speed_kmh',
+        'walking_step_length_cm',
+        'walking_asymmetry_pct',
+        'walking_double_support_pct',
+        'stair_speed_up',
+        'stair_speed_down',
+        'time_in_daylight_minutes',
+        'walking_heart_rate_avg',
+        'headphone_audio_exposure_db',
+        'environmental_audio_exposure_db',
         'notes',
     ];
 

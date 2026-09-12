@@ -114,9 +114,21 @@ final class ImportAppleHealth extends Command
                 'respiratory_rate'    => $this->qty($index, 'respiratory_rate', $date, fn ($v) => round($v, 1)),
                 'exercise_minutes'    => $this->qty($index, 'apple_exercise_time', $date, fn ($v) => (int) round($v)),
                 'stand_hours'         => $this->qty($index, 'apple_stand_hour', $date, fn ($v) => (int) $v),
-                'flights_climbed'     => $this->qty($index, 'flights_climbed', $date, fn ($v) => (int) $v),
-                'distance_km'         => $this->qty($index, 'walking_running_distance', $date, fn ($v) => round($v, 2)),
-                'weight_kg'           => $this->qty($index, 'weight_body_mass', $date, fn ($v) => round($v, 1)),
+                'flights_climbed'              => $this->qty($index, 'flights_climbed', $date, fn ($v) => (int) $v),
+                'distance_km'                 => $this->qty($index, 'walking_running_distance', $date, fn ($v) => round($v, 2)),
+                'weight_kg'                   => $this->qty($index, 'weight_body_mass', $date, fn ($v) => round($v, 1)),
+                // Mobility
+                'walking_speed_kmh'           => $this->qty($index, 'walking_speed', $date, fn ($v) => round($v, 2)),
+                'walking_step_length_cm'      => $this->qty($index, 'walking_step_length', $date, fn ($v) => round($v, 2)),
+                'walking_asymmetry_pct'       => $this->qty($index, 'walking_asymmetry_percentage', $date, fn ($v) => round($v, 2)),
+                'walking_double_support_pct'  => $this->qty($index, 'walking_double_support_percentage', $date, fn ($v) => round($v, 2)),
+                'stair_speed_up'              => $this->qty($index, 'stair_speed_up', $date, fn ($v) => round($v, 3)),
+                'stair_speed_down'            => $this->qty($index, 'stair_speed_down', $date, fn ($v) => round($v, 3)),
+                'time_in_daylight_minutes'    => $this->qty($index, 'time_in_daylight', $date, fn ($v) => (int) round($v)),
+                'walking_heart_rate_avg'      => $this->qty($index, 'walking_heart_rate_average', $date, fn ($v) => round($v, 1)),
+                // Hearing
+                'headphone_audio_exposure_db'     => $this->qty($index, 'headphone_audio_exposure', $date, fn ($v) => round($v, 2)),
+                'environmental_audio_exposure_db' => $this->qty($index, 'environmental_audio_exposure', $date, fn ($v) => round($v, 2)),
             ], fn ($v) => $v !== null);
 
             if (empty($data)) {
