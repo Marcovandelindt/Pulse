@@ -50,6 +50,34 @@ final class Setting extends Model
         self::remove('psn_refresh_token');
     }
 
+    public static function getAiPersonality(): ?string
+    {
+        return self::get('ai_personality');
+    }
+
+    public static function setAiPersonality(?string $value): void
+    {
+        if ($value) {
+            self::set('ai_personality', $value);
+        } else {
+            self::remove('ai_personality');
+        }
+    }
+
+    public static function getAiModel(): ?string
+    {
+        return self::get('ai_model');
+    }
+
+    public static function setAiModel(?string $value): void
+    {
+        if ($value) {
+            self::set('ai_model', $value);
+        } else {
+            self::remove('ai_model');
+        }
+    }
+
     public static function getSpotifyCredentials(): array
     {
         return [

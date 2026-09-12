@@ -21,6 +21,8 @@ use App\Http\Controllers\Insights\InsightRelatedController;
 use App\Http\Controllers\Insights\PatternController;
 use App\Http\Controllers\Changelog\ChangelogController;
 use App\Http\Controllers\Settings\RelationshipTypeController;
+use App\Http\Controllers\AI\AiSettingsController;
+use App\Http\Controllers\AI\ChatController;
 use App\Http\Controllers\Stats\CrossStatsController;
 use App\Http\Controllers\Stats\WrappedController;
 use Illuminate\Support\Facades\Route;
@@ -102,6 +104,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/stats/week', [WeekReportController::class, 'index'])->name('stats.week');
     Route::get('/stats/wrapped', [WrappedController::class, 'index'])->name('stats.wrapped');
     Route::get('/stats/patterns', [CrossStatsController::class, 'index'])->name('stats.patterns');
+
+    Route::prefix('ai')->name('ai.')->group(function () {
+        Route::get('/chat', [ChatController::class, 'index'])->name('chat');
+        Route::post('/chat', [ChatController::class, 'store'])->name('chat.store');
+        Route::get('/chat/{conversation}', [ChatController::class, 'show'])->name('chat.show');
+        Route::post('/chat/{conversation}/send', [ChatController::class, 'send'])->name('chat.send');
+        Route::delete('/chat/{conversation}', [ChatController::class, 'destroy'])->name('chat.destroy');
+        Route::get('/settings', [AiSettingsController::class, 'index'])->name('settings');
+        Route::post('/settings', [AiSettingsController::class, 'update'])->name('settings.update');
+    });
 
     Route::get('/changelog', [ChangelogController::class, 'index'])->name('changelog.index');
 
