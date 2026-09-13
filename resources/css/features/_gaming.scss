@@ -1100,3 +1100,981 @@
     strong { color: var(--color-text-primary); }
 }
 
+/* ── PlayStation Wrapped ───────────────────────────── */
+
+.psn-wrapped {
+    max-width: 960px;
+}
+
+.psn-wrapped__header {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    gap:             1rem;
+    margin-bottom:   2rem;
+    flex-wrap:       wrap;
+}
+
+.psn-wrapped__header-left {
+    display:     flex;
+    align-items: center;
+    gap:         1rem;
+}
+
+.psn-wrapped__title {
+    font-size:   1.25rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+    display:     flex;
+    align-items: baseline;
+    gap:         0.5rem;
+}
+
+.psn-wrapped__title-year {
+    color:     var(--color-brand-light);
+    font-size: 1.5rem;
+}
+
+.psn-wrapped__year-picker {
+    display: flex;
+    gap:     0.25rem;
+}
+
+.psn-wrapped__year-btn {
+    padding:       0.375rem 0.75rem;
+    border-radius: var(--radius-md);
+    font-size:     0.8125rem;
+    font-weight:   500;
+    color:         var(--color-text-muted);
+    transition:    background var(--transition-base), color var(--transition-base);
+}
+
+.psn-wrapped__year-btn:hover {
+    background: var(--color-bg-tertiary);
+    color:      var(--color-text-primary);
+}
+
+.psn-wrapped__year-btn--active {
+    background: var(--color-bg-tertiary);
+    color:      var(--color-text-primary);
+}
+
+.psn-wrapped__empty {
+    text-align: center;
+    padding:    4rem 2rem;
+    color:      var(--color-text-muted);
+}
+
+/* Hero */
+
+.psn-wrapped__hero {
+    display:       flex;
+    align-items:   center;
+    gap:           0;
+    background:    linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(59,130,246,0.08) 100%);
+    border:        1px solid rgba(99,102,241,0.2);
+    border-radius: var(--radius-xl);
+    padding:       2rem;
+    margin-bottom: 1.5rem;
+    flex-wrap:     wrap;
+}
+
+.psn-wrapped__hero-stat {
+    flex:       1;
+    min-width:  120px;
+    text-align: center;
+    padding:    0.5rem 1rem;
+}
+
+.psn-wrapped__hero-value {
+    font-size:   2.5rem;
+    font-weight: 800;
+    color:       var(--color-text-primary);
+    line-height: 1;
+    margin-bottom: 0.375rem;
+}
+
+.psn-wrapped__hero-unit {
+    font-size:   1.5rem;
+    font-weight: 600;
+    color:       var(--color-text-muted);
+}
+
+.psn-wrapped__hero-value--up   { color: #4ade80; }
+.psn-wrapped__hero-value--down { color: #f87171; }
+
+.psn-wrapped__hero-label {
+    font-size:      0.8125rem;
+    font-weight:    500;
+    color:          var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.psn-wrapped__hero-divider {
+    width:      1px;
+    height:     3rem;
+    background: var(--color-border);
+    flex-shrink: 0;
+}
+
+/* Grid */
+
+.psn-wrapped__grid {
+    display:               grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:                   1.25rem;
+}
+
+.psn-wrapped__section {
+    background:    var(--color-bg-secondary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding:       1.5rem;
+}
+
+.psn-wrapped__section--full {
+    grid-column: 1 / -1;
+}
+
+.psn-wrapped__section-title {
+    font-size:     0.75rem;
+    font-weight:   600;
+    color:         var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 1.25rem;
+}
+
+/* Top games */
+
+.psn-wrapped__top-games {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.625rem;
+}
+
+.psn-wrapped__game {
+    display:       flex;
+    align-items:   center;
+    gap:           0.875rem;
+    padding:       0.625rem 0.75rem;
+    border-radius: var(--radius-md);
+    border:        1px solid transparent;
+    transition:    background var(--transition-base), border-color var(--transition-base);
+}
+
+.psn-wrapped__game:hover {
+    background:   var(--color-bg-tertiary);
+    border-color: var(--color-border);
+}
+
+.psn-wrapped__game--first {
+    background:   rgba(99, 102, 241, 0.08);
+    border-color: rgba(99, 102, 241, 0.2);
+    padding:      0.875rem 0.75rem;
+}
+
+.psn-wrapped__game--first:hover {
+    background:   rgba(99, 102, 241, 0.12);
+    border-color: rgba(99, 102, 241, 0.35);
+}
+
+.psn-wrapped__game-rank {
+    font-size:   0.875rem;
+    font-weight: 700;
+    color:       var(--color-text-muted);
+    width:       1.5rem;
+    flex-shrink: 0;
+}
+
+.psn-wrapped__game--first .psn-wrapped__game-rank {
+    color:     var(--color-brand-light);
+    font-size: 1rem;
+}
+
+.psn-wrapped__game-art {
+    width:         3rem;
+    height:        3rem;
+    border-radius: var(--radius-sm);
+    object-fit:    cover;
+    flex-shrink:   0;
+    background:    var(--color-bg-tertiary);
+}
+
+.psn-wrapped__game--first .psn-wrapped__game-art {
+    width:  3.5rem;
+    height: 3.5rem;
+}
+
+.psn-wrapped__game-art--placeholder {
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    color:           var(--color-text-muted);
+}
+
+.psn-wrapped__game-art--placeholder svg {
+    width:  1.5rem;
+    height: 1.5rem;
+}
+
+.psn-wrapped__game-info {
+    flex:      1;
+    min-width: 0;
+}
+
+.psn-wrapped__game-name {
+    font-size:     0.9375rem;
+    font-weight:   600;
+    color:         var(--color-text-primary);
+    margin-bottom: 0.25rem;
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
+.psn-wrapped__game--first .psn-wrapped__game-name {
+    font-size: 1.0625rem;
+}
+
+.psn-wrapped__game-meta {
+    display:     flex;
+    align-items: center;
+    gap:         0.375rem;
+    font-size:   0.8125rem;
+    color:       var(--color-text-muted);
+}
+
+/* Monthly chart */
+
+.psn-wrapped__month-chart {
+    display:     flex;
+    align-items: flex-end;
+    gap:         0.375rem;
+    height:      8rem;
+    margin-bottom: 0.75rem;
+}
+
+.psn-wrapped__month-col {
+    flex:        1;
+    display:     flex;
+    flex-direction: column;
+    align-items: center;
+    height:      100%;
+    gap:         0.25rem;
+}
+
+.psn-wrapped__month-bar-wrap {
+    flex:    1;
+    width:   100%;
+    display: flex;
+    align-items: flex-end;
+}
+
+.psn-wrapped__month-bar {
+    width:         100%;
+    background:    var(--color-brand);
+    border-radius: 2px 2px 0 0;
+    min-height:    0;
+    transition:    height 0.3s ease;
+    opacity:       0.8;
+}
+
+.psn-wrapped__month-label {
+    font-size: 0.625rem;
+    color:     var(--color-text-muted);
+}
+
+.psn-wrapped__month-hours {
+    font-size: 0.6rem;
+    color:     var(--color-text-muted);
+}
+
+.psn-wrapped__best-month {
+    font-size:   0.8125rem;
+    color:       var(--color-text-muted);
+    padding-top: 0.75rem;
+    border-top:  1px solid var(--color-border);
+}
+
+.psn-wrapped__best-month strong {
+    color: var(--color-text-primary);
+}
+
+/* Trophies */
+
+.psn-wrapped__trophies {
+    text-align: center;
+}
+
+.psn-wrapped__trophy-total {
+    font-size:   3rem;
+    font-weight: 800;
+    color:       var(--color-text-primary);
+    line-height: 1;
+}
+
+.psn-wrapped__trophy-label {
+    font-size:     0.8125rem;
+    color:         var(--color-text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.psn-wrapped__trophy-types {
+    display:         flex;
+    justify-content: center;
+    gap:             1.5rem;
+}
+
+.psn-wrapped__trophy-type {
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    gap:            0.25rem;
+}
+
+.psn-wrapped__trophy-icon {
+    font-size: 1.5rem;
+}
+
+.psn-wrapped__trophy-count {
+    font-size:   1.25rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+}
+
+.psn-wrapped__trophy-name {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+}
+
+/* Highlights */
+
+.psn-wrapped__highlights {
+    display:               grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap:                   1rem;
+}
+
+.psn-wrapped__highlight {
+    background:    var(--color-bg-tertiary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding:       1.25rem;
+    text-align:    center;
+}
+
+.psn-wrapped__highlight-icon {
+    font-size:     1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.psn-wrapped__highlight-value {
+    font-size:     1.125rem;
+    font-weight:   700;
+    color:         var(--color-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.psn-wrapped__highlight-label {
+    font-size: 0.8125rem;
+    color:     var(--color-text-muted);
+}
+
+.psn-wrapped__highlight-link {
+    color:      var(--color-brand-light);
+    text-decoration: none;
+}
+
+.psn-wrapped__highlight-link:hover {
+    text-decoration: underline;
+}
+
+/* ── By the numbers strip ────────────────────────── */
+
+.psn-wrapped__numbers {
+    display:       flex;
+    gap:           1px;
+    background:    var(--color-border);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow:      hidden;
+    margin-bottom: 1.25rem;
+}
+
+.psn-wrapped__number {
+    flex:           1;
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    text-align:     center;
+    padding:        1rem 0.75rem;
+    background:     var(--color-bg-secondary);
+    gap:            0.25rem;
+}
+
+.psn-wrapped__number-value {
+    font-size:   1.375rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+    line-height: 1;
+}
+
+.psn-wrapped__number-label {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+}
+
+/* ── Game crown ───────────────────────────────────── */
+
+.psn-wrapped__game-crown {
+    font-size:   1.25rem;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.psn-wrapped__game-hours {
+    font-weight: 600;
+    color:       var(--color-text-primary);
+}
+
+/* ── Time of day ──────────────────────────────────── */
+
+.psn-wrapped__tod {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.875rem;
+}
+
+.psn-wrapped__tod-row {
+    display:     flex;
+    align-items: center;
+    gap:         0.75rem;
+}
+
+.psn-wrapped__tod-icon {
+    font-size:   1.25rem;
+    flex-shrink: 0;
+    width:       1.75rem;
+    text-align:  center;
+}
+
+.psn-wrapped__tod-info {
+    flex:      1;
+    min-width: 0;
+}
+
+.psn-wrapped__tod-label {
+    font-size:     0.8125rem;
+    font-weight:   500;
+    color:         var(--color-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.psn-wrapped__tod-range {
+    font-weight: 400;
+    color:       var(--color-text-muted);
+    font-size:   0.75rem;
+}
+
+.psn-wrapped__tod-bar-wrap {
+    height:        6px;
+    background:    var(--color-bg-tertiary);
+    border-radius: 3px;
+    overflow:      hidden;
+}
+
+.psn-wrapped__tod-bar {
+    height:        100%;
+    background:    var(--color-brand);
+    border-radius: 3px;
+    opacity:       0.7;
+    transition:    width 0.3s ease;
+}
+
+.psn-wrapped__tod-row--best .psn-wrapped__tod-bar {
+    opacity:    1;
+    background: var(--color-brand-light);
+}
+
+.psn-wrapped__tod-value {
+    font-size:   0.875rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+    flex-shrink: 0;
+    min-width:   4rem;
+    text-align:  right;
+}
+
+.psn-wrapped__tod-pct {
+    font-size:   0.75rem;
+    font-weight: 400;
+    color:       var(--color-text-muted);
+}
+
+/* ── Weekday chart ────────────────────────────────── */
+
+.psn-wrapped__weekdays {
+    display:     flex;
+    align-items: flex-end;
+    gap:         0.375rem;
+    height:      6rem;
+    margin-bottom: 1rem;
+}
+
+.psn-wrapped__weekday-col {
+    flex:           1;
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    height:         100%;
+    gap:            0.25rem;
+}
+
+.psn-wrapped__weekday-bar-wrap {
+    flex:    1;
+    width:   100%;
+    display: flex;
+    align-items: flex-end;
+}
+
+.psn-wrapped__weekday-bar {
+    width:         100%;
+    background:    var(--color-brand);
+    border-radius: 2px 2px 0 0;
+    opacity:       0.6;
+}
+
+.psn-wrapped__weekday-bar--best {
+    opacity:    1;
+    background: var(--color-brand-light);
+}
+
+.psn-wrapped__weekday-label {
+    font-size: 0.6875rem;
+    color:     var(--color-text-muted);
+}
+
+.psn-wrapped__weekday-hours {
+    font-size: 0.6rem;
+    color:     var(--color-text-muted);
+}
+
+/* Weekday vs weekend split */
+
+.psn-wrapped__split {
+    display:       flex;
+    align-items:   center;
+    gap:           1rem;
+    padding-top:   0.875rem;
+    border-top:    1px solid var(--color-border);
+}
+
+.psn-wrapped__split-item {
+    flex:       1;
+    text-align: center;
+}
+
+.psn-wrapped__split-value {
+    font-size:   1.125rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+}
+
+.psn-wrapped__split-label {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+}
+
+.psn-wrapped__split-divider {
+    width:      1px;
+    height:     2rem;
+    background: var(--color-border);
+}
+
+/* ── Monthly chart additions ──────────────────────── */
+
+.psn-wrapped__month-bar--best {
+    opacity:    1;
+    background: var(--color-brand-light);
+}
+
+.psn-wrapped__month-footer {
+    display:       flex;
+    gap:           2rem;
+    padding-top:   0.75rem;
+    border-top:    1px solid var(--color-border);
+    font-size:     0.8125rem;
+    color:         var(--color-text-muted);
+    flex-wrap:     wrap;
+}
+
+.psn-wrapped__month-footer strong {
+    color: var(--color-text-primary);
+}
+
+/* ── Records ──────────────────────────────────────── */
+
+.psn-wrapped__records {
+    display:               grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap:                   1rem;
+}
+
+.psn-wrapped__record {
+    display:       flex;
+    gap:           0.875rem;
+    background:    var(--color-bg-tertiary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding:       1rem;
+}
+
+.psn-wrapped__record-icon {
+    font-size:   1.5rem;
+    flex-shrink: 0;
+}
+
+.psn-wrapped__record-body {
+    min-width: 0;
+}
+
+.psn-wrapped__record-value {
+    font-size:   1.25rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+    margin-bottom: 0.125rem;
+}
+
+.psn-wrapped__record-label {
+    font-size:     0.8125rem;
+    font-weight:   500;
+    color:         var(--color-text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.psn-wrapped__record-sub {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+}
+
+.psn-wrapped__record--wide {
+    grid-column: span 2;
+}
+
+.psn-wrapped__day-breakdown {
+    margin-top:     0.625rem;
+    padding-top:    0.625rem;
+    border-top:     1px solid var(--color-border);
+    display:        flex;
+    flex-direction: column;
+    gap:            0.375rem;
+}
+
+.psn-wrapped__day-session {
+    display:     flex;
+    align-items: center;
+    gap:         0.625rem;
+    font-size:   0.75rem;
+}
+
+.psn-wrapped__day-session-time {
+    color:       var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+    min-width:   2.75rem;
+}
+
+.psn-wrapped__day-session-duration {
+    color:       var(--color-brand-light);
+    font-weight: 600;
+    flex-shrink: 0;
+    min-width:   3rem;
+}
+
+.psn-wrapped__day-session-game {
+    color:           var(--color-text-primary);
+    text-decoration: none;
+    white-space:     nowrap;
+    overflow:        hidden;
+    text-overflow:   ellipsis;
+}
+
+.psn-wrapped__day-session-game:hover {
+    color:           var(--color-brand-light);
+    text-decoration: underline;
+}
+
+.psn-wrapped__link {
+    color:           var(--color-brand-light);
+    text-decoration: none;
+}
+
+.psn-wrapped__link:hover {
+    text-decoration: underline;
+}
+
+/* ── Trophy additions ─────────────────────────────── */
+
+.psn-wrapped__trophy-fact {
+    margin-top:  1rem;
+    padding-top: 0.875rem;
+    border-top:  1px solid var(--color-border);
+    font-size:   0.8125rem;
+    color:       var(--color-text-muted);
+}
+
+.psn-wrapped__trophy-fact strong {
+    color: var(--color-text-primary);
+}
+
+.psn-wrapped__trophy-game {
+    display:       flex;
+    align-items:   center;
+    gap:           1rem;
+    padding:       1rem;
+    border-radius: var(--radius-md);
+    background:    var(--color-bg-tertiary);
+    border:        1px solid var(--color-border);
+    transition:    border-color var(--transition-base);
+}
+
+.psn-wrapped__trophy-game:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.psn-wrapped__trophy-game-art {
+    width:         4rem;
+    height:        4rem;
+    border-radius: var(--radius-sm);
+    object-fit:    cover;
+    flex-shrink:   0;
+}
+
+.psn-wrapped__trophy-game-name {
+    font-size:   1rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.psn-wrapped__trophy-game-count {
+    font-size: 0.875rem;
+    color:     var(--color-text-muted);
+}
+
+/* ── Platform breakdown ───────────────────────────── */
+
+.psn-wrapped__platforms {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.875rem;
+}
+
+.psn-wrapped__platform-header {
+    display:         flex;
+    justify-content: space-between;
+    align-items:     center;
+    margin-bottom:   0.375rem;
+}
+
+.psn-wrapped__platform-name {
+    font-size:   0.875rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+}
+
+.psn-wrapped__platform-meta {
+    font-size: 0.8125rem;
+    color:     var(--color-text-muted);
+}
+
+.psn-wrapped__platform-track {
+    height:        8px;
+    background:    var(--color-bg-tertiary);
+    border-radius: 4px;
+    overflow:      hidden;
+}
+
+.psn-wrapped__platform-fill {
+    height:        100%;
+    background:    linear-gradient(90deg, #003087, #0070d1);
+    border-radius: 4px;
+}
+
+/* ── First & last session (bookends) ─────────────── */
+
+.psn-wrapped__bookends {
+    display:     flex;
+    align-items: center;
+    gap:         1.5rem;
+}
+
+.psn-wrapped__bookend {
+    flex:          1;
+    background:    var(--color-bg-tertiary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding:       1.25rem 1.5rem;
+}
+
+.psn-wrapped__bookend-badge {
+    display:        inline-flex;
+    align-items:    center;
+    padding:        0.25rem 0.625rem;
+    border-radius:  999px;
+    font-size:      0.75rem;
+    font-weight:    600;
+    background:     rgba(99, 102, 241, 0.15);
+    color:          var(--color-brand-light);
+    margin-bottom:  0.75rem;
+}
+
+.psn-wrapped__bookend-badge--last {
+    background: rgba(34, 197, 94, 0.12);
+    color:      #4ade80;
+}
+
+.psn-wrapped__bookend-datetime {
+    font-size:     1.125rem;
+    font-weight:   700;
+    color:         var(--color-text-primary);
+    margin-bottom: 0.375rem;
+}
+
+.psn-wrapped__bookend-time {
+    font-size:   0.9375rem;
+    font-weight: 400;
+    color:       var(--color-text-muted);
+}
+
+.psn-wrapped__bookend-game {
+    display:         block;
+    font-size:       0.9375rem;
+    color:           var(--color-brand-light);
+    text-decoration: none;
+    margin-bottom:   0.25rem;
+}
+
+.psn-wrapped__bookend-game:hover {
+    text-decoration: underline;
+}
+
+.psn-wrapped__bookend-duration {
+    font-size: 0.8125rem;
+    color:     var(--color-text-muted);
+}
+
+.psn-wrapped__bookend-arrow {
+    font-size:  1.5rem;
+    color:      var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+/* ── New discoveries ──────────────────────────────── */
+
+.psn-wrapped__new-games {
+    display:        flex;
+    flex-direction: column;
+    gap:            1.25rem;
+}
+
+.psn-wrapped__new-summary {
+    display:       flex;
+    gap:           1px;
+    background:    var(--color-border);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow:      hidden;
+}
+
+.psn-wrapped__new-stat {
+    flex:           1;
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    text-align:     center;
+    padding:        1rem 0.75rem;
+    background:     var(--color-bg-tertiary);
+    gap:            0.25rem;
+}
+
+.psn-wrapped__new-stat-value {
+    font-size:   1.75rem;
+    font-weight: 800;
+    color:       var(--color-brand-light);
+    line-height: 1;
+}
+
+.psn-wrapped__new-stat-label {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+}
+
+.psn-wrapped__new-list {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.5rem;
+}
+
+.psn-wrapped__new-game {
+    display:       flex;
+    align-items:   center;
+    gap:           0.875rem;
+    padding:       0.625rem 0.75rem;
+    border-radius: var(--radius-md);
+    border:        1px solid transparent;
+    transition:    background var(--transition-base), border-color var(--transition-base);
+}
+
+.psn-wrapped__new-game:hover {
+    background:   var(--color-bg-tertiary);
+    border-color: var(--color-border);
+}
+
+.psn-wrapped__new-game-rank {
+    font-size:   0.875rem;
+    font-weight: 700;
+    color:       var(--color-text-muted);
+    width:       1.5rem;
+    flex-shrink: 0;
+}
+
+.psn-wrapped__new-game-art {
+    width:         2.75rem;
+    height:        2.75rem;
+    border-radius: var(--radius-sm);
+    object-fit:    cover;
+    flex-shrink:   0;
+    background:    var(--color-bg-tertiary);
+}
+
+.psn-wrapped__new-game-art--placeholder {
+    background: var(--color-bg-tertiary);
+    border:     1px solid var(--color-border);
+}
+
+.psn-wrapped__new-game-info {
+    flex:      1;
+    min-width: 0;
+}
+
+.psn-wrapped__new-game-name {
+    font-size:     0.9375rem;
+    font-weight:   600;
+    color:         var(--color-text-primary);
+    margin-bottom: 0.2rem;
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
+.psn-wrapped__new-game-meta {
+    display:     flex;
+    align-items: center;
+    gap:         0.375rem;
+    font-size:   0.8125rem;
+    color:       var(--color-text-muted);
+}
+

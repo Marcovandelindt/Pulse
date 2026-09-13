@@ -2,6 +2,7 @@
 
     <x-layout.page-header title="PlayStation Stats">
         <x-slot:actions>
+            <a href="{{ route('playstation.wrapped') }}" class="btn btn--secondary btn--sm">Wrapped</a>
             <a href="{{ route('playstation.index') }}" class="btn btn--secondary btn--sm">&larr; Back</a>
         </x-slot:actions>
     </x-layout.page-header>
