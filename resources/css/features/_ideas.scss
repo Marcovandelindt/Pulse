@@ -1,0 +1,188 @@
+/* ── Filters ────────────────────────────────────────── */
+
+.ideas-filters {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    gap:             1rem;
+    margin-bottom:   1.5rem;
+    flex-wrap:       wrap;
+}
+
+.ideas-filters__tabs {
+    display: flex;
+    gap:     0.25rem;
+}
+
+.ideas-filters__tab {
+    padding:       0.375rem 0.75rem;
+    border-radius: var(--radius-md);
+    font-size:     0.8125rem;
+    font-weight:   500;
+    color:         var(--color-text-muted);
+    transition:    background var(--transition-base), color var(--transition-base);
+}
+
+.ideas-filters__tab:hover {
+    color:      var(--color-text-primary);
+    background: var(--color-bg-tertiary);
+}
+
+.ideas-filters__tab--active {
+    background: var(--color-bg-tertiary);
+    color:      var(--color-text-primary);
+}
+
+.ideas-filters__select {
+    padding:       0.375rem 0.75rem;
+    background:    var(--color-bg-secondary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color:         var(--color-text-primary);
+    font-size:     0.8125rem;
+    outline:       none;
+    cursor:        pointer;
+}
+
+/* ── List ───────────────────────────────────────────── */
+
+.ideas-list {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.75rem;
+}
+
+/* ── Card ───────────────────────────────────────────── */
+
+.idea-card {
+    display:       flex;
+    background:    var(--color-bg-secondary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow:      hidden;
+    transition:    border-color var(--transition-base);
+}
+
+.idea-card:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.idea-card--done {
+    opacity: 0.6;
+}
+
+.idea-card__status-bar {
+    width:       3px;
+    flex-shrink: 0;
+}
+
+.idea-card--idea .idea-card__status-bar    { background: #64748b; }
+.idea-card--planned .idea-card__status-bar { background: #3b82f6; }
+.idea-card--in_progress .idea-card__status-bar { background: #eab308; }
+.idea-card--done .idea-card__status-bar    { background: #22c55e; }
+
+.idea-card__body {
+    flex:      1;
+    padding:   1rem 1.25rem;
+    min-width: 0;
+}
+
+.idea-card__header {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    gap:             0.75rem;
+    margin-bottom:   0.5rem;
+}
+
+.idea-card__meta {
+    display:     flex;
+    align-items: center;
+    gap:         0.375rem;
+    flex-wrap:   wrap;
+}
+
+.idea-card__actions {
+    display:     flex;
+    align-items: center;
+    gap:         0.375rem;
+    flex-shrink: 0;
+}
+
+.idea-card__advance {
+    padding:       0.25rem 0.625rem;
+    border-radius: var(--radius-sm);
+    font-size:     0.75rem;
+    font-weight:   500;
+    color:         var(--color-text-muted);
+    border:        1px solid var(--color-border);
+    background:    transparent;
+    cursor:        pointer;
+    transition:    color var(--transition-base), border-color var(--transition-base);
+    white-space:   nowrap;
+}
+
+.idea-card__advance:hover {
+    color:        var(--color-text-primary);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.idea-card__btn {
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    width:           1.75rem;
+    height:          1.75rem;
+    border-radius:   var(--radius-sm);
+    background:      transparent;
+    border:          none;
+    color:           var(--color-text-muted);
+    cursor:          pointer;
+    transition:      background var(--transition-base), color var(--transition-base);
+}
+
+.idea-card__btn:hover {
+    background: var(--color-bg-tertiary);
+    color:      var(--color-text-primary);
+}
+
+.idea-card__btn--danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color:      #f87171;
+}
+
+.idea-card__title {
+    font-size:     0.9375rem;
+    font-weight:   600;
+    color:         var(--color-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.idea-card__title--done {
+    text-decoration: line-through;
+    color:           var(--color-text-muted);
+}
+
+.idea-card__description {
+    font-size:     0.8125rem;
+    color:         var(--color-text-muted);
+    line-height:   1.5;
+    margin-bottom: 0.5rem;
+}
+
+.idea-card__date {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+}
+
+/* ── Empty state ────────────────────────────────────── */
+
+.ideas-empty {
+    text-align: center;
+    padding:    4rem 2rem;
+}
+
+.ideas-empty__text {
+    color:     var(--color-text-muted);
+    font-size: 0.9375rem;
+}

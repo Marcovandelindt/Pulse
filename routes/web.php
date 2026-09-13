@@ -26,6 +26,8 @@ use App\Http\Controllers\Insights\InsightPatternController;
 use App\Http\Controllers\Insights\InsightRelatedController;
 use App\Http\Controllers\Insights\PatternController;
 use App\Http\Controllers\Changelog\ChangelogController;
+use App\Http\Controllers\Ideas\IdeaController;
+use App\Http\Controllers\Ideas\IdeaStatusController;
 use App\Http\Controllers\Settings\RelationshipTypeController;
 use App\Http\Controllers\AI\AiSettingsController;
 use App\Http\Controllers\AI\ChatController;
@@ -129,6 +131,14 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('/changelog', [ChangelogController::class, 'index'])->name('changelog.index');
+
+    Route::prefix('ideas')->name('ideas.')->group(function () {
+        Route::get('/', [IdeaController::class, 'index'])->name('index');
+        Route::post('/', [IdeaController::class, 'store'])->name('store');
+        Route::patch('/{idea}', [IdeaController::class, 'update'])->name('update');
+        Route::delete('/{idea}', [IdeaController::class, 'destroy'])->name('destroy');
+        Route::patch('/{idea}/status', [IdeaStatusController::class, 'update'])->name('status.update');
+    });
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::prefix('relationships')->name('relationships.')->group(function () {

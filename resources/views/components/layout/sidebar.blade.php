@@ -44,6 +44,11 @@
         </div>
 
         <div class="sidebar__group">
+            <span class="sidebar__group-label">Project</span>
+            <x-layout.nav-item route="ideas.index" icon="light-bulb" label="Ideas" />
+        </div>
+
+        <div class="sidebar__group">
             <span class="sidebar__group-label">System</span>
             <x-layout.nav-item route="stats.index" icon="chart-bar" label="Stats" />
             <x-layout.nav-item route="stats.week" icon="calendar" label="Weekly report" />
