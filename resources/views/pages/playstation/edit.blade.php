@@ -231,6 +231,19 @@
                     </p>
                     <x-form.error name="completion_hours" />
                     <x-form.error name="completion_mins" />
+
+                    <div class="mt-4">
+                        <label for="completed_at" class="form-label">Completion Date</label>
+                        <input
+                            type="date"
+                            id="completed_at"
+                            name="completed_at"
+                            value="{{ old('completed_at', $game->completed_at?->format('Y-m-d')) }}"
+                            class="form-input"
+                            style="width: 14rem;"
+                        >
+                        <x-form.error name="completed_at" />
+                    </div>
                 </div>
             </div>
 

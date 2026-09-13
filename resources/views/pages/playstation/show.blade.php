@@ -102,6 +102,14 @@
                         </div>
                     </div>
                 @endif
+                @if($game->completed_at)
+                    <div>
+                        <div class="text-xs font-medium uppercase tracking-wide" style="color: var(--color-text-muted)">Completed</div>
+                        <div class="text-lg font-bold" style="color: var(--color-text-primary)">
+                            {{ $game->completed_at->format('d M Y') }}
+                        </div>
+                    </div>
+                @endif
                 @if($game->price)
                     <div>
                         <div class="text-xs font-medium uppercase tracking-wide" style="color: var(--color-text-muted)">Price</div>

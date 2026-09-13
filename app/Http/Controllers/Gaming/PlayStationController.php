@@ -24,6 +24,7 @@ final class PlayStationController extends Controller
             sort: $request->get('sort', 'hours'),
             platform: $request->get('platform'),
             search: $request->get('search', ''),
+            completed: $request->boolean('completed'),
         ));
     }
 
@@ -56,6 +57,7 @@ final class PlayStationController extends Controller
             'completion_percentage' => ['nullable', 'numeric', 'between:0,100'],
             'completion_hours'      => ['nullable', 'integer', 'min:0'],
             'completion_mins'       => ['nullable', 'integer', 'between:0,59'],
+            'completed_at'          => ['nullable', 'date', 'before_or_equal:today'],
             'image'                 => ['nullable', 'image', 'max:10240'],
             'categories'            => ['nullable', 'array'],
             'categories.*'          => ['integer', 'exists:play_station_categories,id'],
@@ -121,6 +123,7 @@ final class PlayStationController extends Controller
             'completion_percentage' => ['nullable', 'numeric', 'between:0,100'],
             'completion_hours'      => ['nullable', 'integer', 'min:0'],
             'completion_mins'       => ['nullable', 'integer', 'between:0,59'],
+            'completed_at'          => ['nullable', 'date', 'before_or_equal:today'],
             'image'                 => ['nullable', 'image', 'max:10240'],
             'categories'            => ['nullable', 'array'],
             'categories.*'          => ['integer', 'exists:play_station_categories,id'],

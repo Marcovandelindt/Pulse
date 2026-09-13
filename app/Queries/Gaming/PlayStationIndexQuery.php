@@ -15,12 +15,16 @@ final class PlayStationIndexQuery
     ) {}
 
     /** @return array<string, mixed> */
-    public function handle(string $sort, ?string $platform, string $search): array
+    public function handle(string $sort, ?string $platform, string $search, bool $completed = false): array
     {
         $baseQuery = PlayStationGame::query();
 
         if ($platform) {
             $baseQuery->where('platform', $platform);
+        }
+
+        if ($completed) {
+            $baseQuery->where('backlog_status', 'completed');
         }
 
         if ($search !== '') {
@@ -94,7 +98,7 @@ final class PlayStationIndexQuery
         }
 
         return compact(
-            'games', 'sort', 'platform', 'search',
+            'games', 'sort', 'platform', 'search', 'completed',
             'totalHours', 'totalGames', 'totalSessions',
             'recentSessions', 'sleepItems', 'currentGame',
         );
