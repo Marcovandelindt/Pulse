@@ -294,15 +294,82 @@
         </x-ui.card>
     @endif
 
-    <x-ui.card title="Sessions">
+    <x-ui.card>
+        <x-slot:title>
+            Sessions
+            @if($from || $to)
+                <span style="color: var(--color-text-muted); font-weight: 400; font-size: 0.875rem;">
+                    {{ $from ? \Carbon\Carbon::parse($from)->format('d M Y, H:i') : '…' }}
+                    –
+                    {{ $to ? \Carbon\Carbon::parse($to)->format('d M Y, H:i') : '…' }}
+                </span>
+            @endif
+        </x-slot:title>
+
+        <div class="mb-4">
+            <form method="GET" action="{{ route('playstation.show', $game) }}" class="flex items-center gap-2 flex-wrap">
+                <input
+                    type="datetime-local"
+                    name="from"
+                    value="{{ $from }}"
+                    class="form-input"
+                    style="width: 14rem;"
+                >
+                <span class="text-sm" style="color: var(--color-text-muted)">–</span>
+                <input
+                    type="datetime-local"
+                    name="to"
+                    value="{{ $to }}"
+                    class="form-input"
+                    style="width: 14rem;"
+                >
+                <button type="submit" class="btn btn--secondary btn--sm">Filter</button>
+                @if($from || $to)
+                    <a href="{{ route('playstation.show', $game) }}" class="btn btn--secondary btn--sm">Clear</a>
+                @endif
+            </form>
+
+            @if($periodMinutes !== null)
+                @php
+                    $periodH = intdiv($periodMinutes, 60);
+                    $periodM = $periodMinutes % 60;
+                    $periodSessions = $recentSessions->total();
+                @endphp
+                <div class="mt-3 flex items-center gap-3 px-4 py-3 rounded-lg text-sm"
+                     style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2);">
+                    <span style="color: var(--color-text-muted)">Total in period:</span>
+                    <strong style="color: var(--color-text-primary); font-size: 1rem;">
+                        {{ $periodH }}h{{ $periodM > 0 ? ' '.$periodM.'m' : '' }}
+                    </strong>
+                    <span style="color: var(--color-text-muted)">·</span>
+                    <span style="color: var(--color-text-muted)">{{ $periodSessions }} {{ Str::plural('session', $periodSessions) }}</span>
+                </div>
+            @endif
+        </div>
+
         @if($recentSessions->isEmpty())
-            <p class="text-sm" style="color: var(--color-text-muted)">No sessions recorded yet.</p>
+            <p class="text-sm" style="color: var(--color-text-muted)">
+                {{ ($from || $to) ? 'No sessions in this period.' : 'No sessions recorded yet.' }}
+            </p>
         @else
             <div class="gaming-session-list">
                 @foreach($recentSessions as $session)
                     <div class="gaming-session-item">
                         <span class="gaming-session-item__date">{{ $session->started_at->format('d M Y, H:i') }} – {{ $session->end_time->format('H:i') }}</span>
-                        <span class="gaming-session-item__duration">{{ $session->formatted_duration }}</span>
+                        <span class="gaming-session-item__duration">
+                            {{ $session->formatted_duration }}
+                            @isset($sessionCaps[$session->id])
+                                @php
+                                    $cm  = $sessionCaps[$session->id];
+                                    $ch  = intdiv($cm, 60);
+                                    $cm2 = $cm % 60;
+                                    $cappedStr = $ch > 0
+                                        ? $ch.'h'.($cm2 > 0 ? ' '.$cm2.'m' : '')
+                                        : $cm2.'m';
+                                @endphp
+                                <span style="color: var(--color-text-muted); font-size: 0.75rem;">({{ $cappedStr }} counted)</span>
+                            @endisset
+                        </span>
                     </div>
                 @endforeach
             </div>

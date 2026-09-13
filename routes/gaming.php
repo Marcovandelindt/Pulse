@@ -7,6 +7,7 @@ use App\Http\Controllers\Gaming\PlayStationCategoryController;
 use App\Http\Controllers\Gaming\PlayStationController;
 use App\Http\Controllers\Gaming\PlayStationFavoriteController;
 use App\Http\Controllers\Gaming\PlayStationSessionController;
+use App\Http\Controllers\Gaming\PlayStationRecommendationsController;
 use App\Http\Controllers\Gaming\PlayStationStatsController;
 use App\Http\Controllers\Gaming\PlayStationSyncController;
 use App\Http\Controllers\Gaming\PlayStationTrophyController;
@@ -22,6 +23,7 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
     Route::post('/', [PlayStationController::class, 'store'])->name('store');
     Route::post('/sync', [PlayStationSyncController::class, 'store'])->name('sync');
     Route::get('/stats', [PlayStationStatsController::class, 'index'])->name('stats');
+    Route::get('/play-next', [PlayStationRecommendationsController::class, 'index'])->name('play-next');
 
     Route::prefix('sessions')->name('sessions.')->group(function () {
         Route::get('/', [PlayStationSessionController::class, 'index'])->name('index');

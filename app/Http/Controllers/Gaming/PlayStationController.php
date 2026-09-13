@@ -89,9 +89,13 @@ final class PlayStationController extends Controller
         return redirect()->route('playstation.show', $game)->with('success', 'Game added successfully.');
     }
 
-    public function show(PlayStationGame $playStationGame, PlayStationGameQuery $query): View
+    public function show(Request $request, PlayStationGame $playStationGame, PlayStationGameQuery $query): View
     {
-        return view('pages.playstation.show', $query->handle($playStationGame));
+        return view('pages.playstation.show', $query->handle(
+            game: $playStationGame,
+            from: $request->get('from'),
+            to: $request->get('to'),
+        ));
     }
 
     public function edit(PlayStationGame $playStationGame): View
