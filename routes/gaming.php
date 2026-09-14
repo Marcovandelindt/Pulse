@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Gaming\BacklogController;
+use App\Http\Controllers\Gaming\NintendoController;
+use App\Http\Controllers\Gaming\NintendoRecordController;
+use App\Http\Controllers\Gaming\NintendoSyncController;
 use App\Http\Controllers\Gaming\PlayStationCategoryController;
 use App\Http\Controllers\Gaming\PlayStationController;
 use App\Http\Controllers\Gaming\PlayStationFavoriteController;
@@ -61,6 +64,20 @@ Route::prefix('steam')->name('steam.')->group(function () {
     Route::post('/accounts', [SteamAccountController::class, 'store'])->name('accounts.store');
     Route::post('/accounts/{account}/activate', [SteamAccountController::class, 'activate'])->name('accounts.activate');
     Route::delete('/accounts/{account}', [SteamAccountController::class, 'destroy'])->name('accounts.destroy');
+});
+
+Route::prefix('nintendo')->name('nintendo.')->group(function () {
+    Route::get('/',        [NintendoController::class, 'index'])->name('index');
+    Route::get('/create',  [NintendoController::class, 'create'])->name('create');
+    Route::post('/',       [NintendoController::class, 'store'])->name('store');
+    Route::get('/search',   [NintendoController::class, 'search'])->name('search');
+    Route::get('/sessions', [NintendoRecordController::class, 'index'])->name('sessions');
+
+    Route::get('/{game}',          [NintendoController::class, 'show'])->name('show');
+    Route::delete('/{game}',       [NintendoController::class, 'destroy'])->name('destroy');
+
+    Route::post('/{game}/records',          [NintendoRecordController::class, 'store'])->name('records.store');
+    Route::delete('/{game}/records/{record}', [NintendoRecordController::class, 'destroy'])->name('records.destroy');
 });
 
 Route::patch('/gaming/backlog/{type}/{id}/status', [BacklogController::class, 'update'])->name('gaming.backlog.update');
