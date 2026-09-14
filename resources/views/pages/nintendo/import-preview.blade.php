@@ -122,7 +122,7 @@
             </div>
 
             <div style="display:flex;gap:.75rem;">
-                <a href="{{ route('nintendo.import') }}" class="btn btn--secondary">Upload another</a>
+                <a href="{{ route('nintendo.import') }}" class="btn btn--secondary">Upload more</a>
                 <button type="submit" class="btn btn--primary">Import selected</button>
             </div>
         </form>

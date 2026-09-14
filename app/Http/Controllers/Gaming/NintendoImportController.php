@@ -24,24 +24,37 @@ final class NintendoImportController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse|View
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'screenshot' => ['required', 'image', 'max:10240'],
+            'screenshots'   => ['required', 'array', 'min:1', 'max:10'],
+            'screenshots.*' => ['image', 'max:10240'],
         ]);
 
-        $path = $request->file('screenshot')->store('ocr-temp', 'local');
-        $fullPath = storage_path('app/private/' . $path);
+        $sessions = [];
+        $rawParts = [];
 
-        try {
-            $rawText  = $this->ocr->extractText($fullPath);
-            $sessions = $this->ocr->parsePlayActivity($rawText);
-        } finally {
-            @unlink($fullPath);
+        foreach ($request->file('screenshots') as $index => $file) {
+            $path     = $file->store('ocr-temp', 'local');
+            $fullPath = storage_path('app/private/' . $path);
+
+            try {
+                $rawText    = $this->ocr->extractText($fullPath);
+                $rawParts[] = '--- Image ' . ($index + 1) . " ---\n" . $rawText;
+
+                foreach ($this->ocr->parsePlayActivity($rawText) as $session) {
+                    $key            = $session['game'] . '|' . $session['date'];
+                    $sessions[$key] = $session;
+                }
+            } finally {
+                @unlink($fullPath);
+            }
         }
 
-        // Store parsed sessions in session for the preview step
-        session(['nintendo_ocr_sessions' => $sessions, 'nintendo_ocr_raw' => $rawText]);
+        session([
+            'nintendo_ocr_sessions' => array_values($sessions),
+            'nintendo_ocr_raw'      => implode("\n\n", $rawParts),
+        ]);
 
         return redirect()->route('nintendo.import.preview');
     }
@@ -74,6 +87,6 @@ final class NintendoImportController extends Controller
         session()->forget(['nintendo_ocr_sessions', 'nintendo_ocr_raw']);
 
         return redirect()->route('nintendo.sessions')
-            ->with('success', "Imported {$count} sessions from screenshot.");
+            ->with('success', "Imported {$count} sessions.");
     }
 }
