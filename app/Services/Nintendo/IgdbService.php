@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Http;
 
 final class IgdbService
 {
-    private const PLATFORM_SWITCH = 130;
-    private const TOKEN_URL       = 'https://id.twitch.tv/oauth2/token';
+    private const TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
     private const API_URL         = 'https://api.igdb.com/v4';
 
     public function search(string $query): array
@@ -23,7 +22,6 @@ final class IgdbService
             ->withBody(
                 'search "' . addslashes($query) . '";'
                 . ' fields name,cover.image_id,genres.name,first_release_date;'
-                . ' where platforms = (' . self::PLATFORM_SWITCH . ');'
                 . ' limit 8;',
                 'text/plain'
             )
