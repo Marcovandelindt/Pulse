@@ -21,10 +21,7 @@ final class ImportOcrSessions
                 continue;
             }
 
-            $game = NintendoGame::firstOrCreate(
-                ['name' => $session['game']],
-                ['application_id' => 'manual-' . Str::uuid()],
-            );
+            $game = $this->resolveGame($session['game']);
 
             $game->dailyRecords()->updateOrCreate(
                 ['date' => $session['date']],
@@ -41,5 +38,21 @@ final class ImportOcrSessions
         }
 
         return $imported;
+    }
+
+    private function resolveGame(string $name): NintendoGame
+    {
+        // Exact match
+        $game = NintendoGame::where('name', $name)->first();
+
+        if (! $game && strlen($name) >= 10) {
+            // Prefix match — handles names truncated by the Nintendo Store app
+            $game = NintendoGame::where('name', 'like', $name . '%')->first();
+        }
+
+        return $game ?? NintendoGame::create([
+            'name'           => $name,
+            'application_id' => 'manual-' . Str::uuid(),
+        ]);
     }
 }

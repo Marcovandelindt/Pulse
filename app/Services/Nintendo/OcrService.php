@@ -85,8 +85,8 @@ final class OcrService
                 continue;
             }
 
-            // Anything else is treated as a game name
-            $currentGame = $line;
+            // Anything else is treated as a game name; strip Nintendo's truncation ellipsis
+            $currentGame = trim((string) preg_replace('/\.{3}$|…$/', '', $line));
         }
 
         return $sessions;
