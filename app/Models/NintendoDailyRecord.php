@@ -25,6 +25,6 @@ class NintendoDailyRecord extends Model
 
     public function game(): BelongsTo
     {
-        return $this->belongsTo(NintendoGame::class);
+        return $this->belongsTo(NintendoGame::class, 'nintendo_game_id');
     }
 }

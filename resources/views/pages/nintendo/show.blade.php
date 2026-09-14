@@ -37,7 +37,7 @@
                 <div>
                     <div class="stat-card__label">Sessions logged</div>
                     <div style="font-size:1.75rem;font-weight:700;color:var(--color-text-primary);line-height:1.1;">
-                        {{ $records->count() }}
+                        {{ $totalRecords }}
                     </div>
                 </div>
                 @if($game->first_played_at)
@@ -68,7 +68,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 items-start">
 
         {{-- Log session --}}
         <x-ui.card title="Log session">
@@ -163,6 +163,12 @@
                             </div>
                         @endforeach
                     </div>
+
+                    @if($records->hasPages())
+                        <div class="mt-4">
+                            {{ $records->links() }}
+                        </div>
+                    @endif
                 @endif
             </x-ui.card>
         </div>

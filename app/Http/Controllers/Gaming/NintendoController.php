@@ -63,11 +63,13 @@ final class NintendoController extends Controller
 
     public function show(NintendoGame $game): View
     {
+        $totalRecords = $game->dailyRecords()->count();
+
         $records = $game->dailyRecords()
             ->orderByDesc('date')
-            ->get();
+            ->paginate(20);
 
-        return view('pages.nintendo.show', compact('game', 'records'));
+        return view('pages.nintendo.show', compact('game', 'records', 'totalRecords'));
     }
 
     public function destroy(NintendoGame $game): RedirectResponse

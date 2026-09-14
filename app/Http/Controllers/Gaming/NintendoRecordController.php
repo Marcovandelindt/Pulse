@@ -17,6 +17,7 @@ final class NintendoRecordController extends Controller
     {
         $records = NintendoDailyRecord::query()
             ->with('game')
+            ->whereHas('game')
             ->orderByDesc('date')
             ->paginate(50);
 

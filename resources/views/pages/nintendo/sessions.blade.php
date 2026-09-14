@@ -23,7 +23,7 @@
                     @endphp
                     <div class="gaming-session-item">
                         <div class="gaming-session-item__game">
-                            @if($record->game->image_url)
+                            @if($record->game?->image_url)
                                 <img
                                     src="{{ $record->game->image_url }}"
                                     alt="{{ $record->game->name }}"
@@ -33,9 +33,13 @@
                                 <div class="gaming-session-item__image" style="background:var(--color-bg-tertiary);border-radius:var(--radius-sm);"></div>
                             @endif
                             <div>
-                                <a href="{{ route('nintendo.show', $record->game) }}" class="gaming-session-item__title">
-                                    {{ $record->game->name }}
-                                </a>
+                                @if($record->game)
+                                    <a href="{{ route('nintendo.show', $record->game) }}" class="gaming-session-item__title">
+                                        {{ $record->game->name }}
+                                    </a>
+                                @else
+                                    <span class="gaming-session-item__title">Unknown game</span>
+                                @endif
                                 <div style="font-size:.75rem;color:var(--color-text-muted);margin-top:.125rem;">
                                     {{ $record->date->format('D, M j Y') }}
                                 </div>

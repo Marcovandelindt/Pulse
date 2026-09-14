@@ -5,6 +5,7 @@
         </div>
         <div class="page-header__actions">
             <a href="{{ route('nintendo.sessions') }}" class="btn btn--secondary btn--sm">Sessions</a>
+            <a href="{{ route('nintendo.import') }}" class="btn btn--secondary btn--sm">Import screenshot</a>
             <a href="{{ route('nintendo.create') }}" class="btn btn--primary btn--sm">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:1rem;height:1rem;">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />

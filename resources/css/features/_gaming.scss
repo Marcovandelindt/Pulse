@@ -298,12 +298,11 @@
 }
 
 .gaming-session-item__meta {
-    display:        flex;
-    flex-direction: column;
-    align-items:    flex-end;
-    gap:            0.15rem;
-    flex-shrink:    0;
-    padding-left:   1rem;
+    display:     flex;
+    align-items: center;
+    gap:         0.5rem;
+    flex-shrink: 0;
+    padding-left: 1rem;
 }
 
 .gaming-session-item__duration {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Gaming\BacklogController;
 use App\Http\Controllers\Gaming\NintendoController;
+use App\Http\Controllers\Gaming\NintendoImportController;
 use App\Http\Controllers\Gaming\NintendoRecordController;
 use App\Http\Controllers\Gaming\NintendoSyncController;
 use App\Http\Controllers\Gaming\PlayStationCategoryController;
@@ -72,6 +73,11 @@ Route::prefix('nintendo')->name('nintendo.')->group(function () {
     Route::post('/',       [NintendoController::class, 'store'])->name('store');
     Route::get('/search',   [NintendoController::class, 'search'])->name('search');
     Route::get('/sessions', [NintendoRecordController::class, 'index'])->name('sessions');
+
+    Route::get('/import',          [NintendoImportController::class, 'create'])->name('import');
+    Route::post('/import',         [NintendoImportController::class, 'store'])->name('import.store');
+    Route::get('/import/preview',  [NintendoImportController::class, 'preview'])->name('import.preview');
+    Route::post('/import/confirm', [NintendoImportController::class, 'confirm'])->name('import.confirm');
 
     Route::get('/{game}',          [NintendoController::class, 'show'])->name('show');
     Route::delete('/{game}',       [NintendoController::class, 'destroy'])->name('destroy');
