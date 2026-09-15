@@ -155,13 +155,23 @@
 }
 
 .gaming-list-item__right {
-    flex-shrink: 0;
-    text-align:  right;
+    flex-shrink:    0;
+    display:        flex;
+    flex-direction: column;
+    align-items:    flex-end;
+    gap:            0.1rem;
 }
 
 .gaming-list-item__date {
     font-size:   0.75rem;
     color:       var(--color-text-muted);
+    white-space: nowrap;
+}
+
+.gaming-list-item__time {
+    font-size:   0.6875rem;
+    color:       var(--color-text-muted);
+    opacity:     0.65;
     white-space: nowrap;
 }
 

@@ -72,7 +72,18 @@ final class PlayStationIndexQuery
             'trophyList as earned_trophy_count' => fn ($q) => $q->where('is_earned', true),
         ])->withSum(['playSessions as filtered_minutes' => fn ($q) => $q->whereRaw(
             '(play_station_games.released_at IS NULL OR play_station_sessions.started_at >= play_station_games.released_at)'
-        )], 'duration_minutes')->paginate(24)->withQueryString();
+        )], 'duration_minutes')
+        ->addSelect([
+            'latest_session_started_at' => PlayStationSession::select('started_at')
+                ->whereColumn('play_station_game_id', 'play_station_games.id')
+                ->latest('started_at')
+                ->limit(1),
+            'latest_session_ended_at' => PlayStationSession::select('ended_at')
+                ->whereColumn('play_station_game_id', 'play_station_games.id')
+                ->latest('started_at')
+                ->limit(1),
+        ])
+        ->paginate(24)->withQueryString();
 
         $recentSessions = PlayStationSession::with('game')
             ->whereHas('game')

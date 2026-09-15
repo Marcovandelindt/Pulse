@@ -196,7 +196,18 @@
                                 </div>
                             @endif
                             <div class="gaming-list-item__right">
-                                @if($game->last_played_at)
+                                @if($game->latest_session_started_at)
+                                    @php
+                                        $sessionStart = \Carbon\Carbon::parse($game->latest_session_started_at);
+                                        $sessionEnd   = $game->latest_session_ended_at
+                                            ? \Carbon\Carbon::parse($game->latest_session_ended_at)
+                                            : null;
+                                    @endphp
+                                    <span class="gaming-list-item__date">{{ $sessionStart->format('d M Y') }}</span>
+                                    <span class="gaming-list-item__time">
+                                        {{ $sessionStart->format('H:i') }}{{ $sessionEnd ? ' – ' . $sessionEnd->format('H:i') : '' }}
+                                    </span>
+                                @elseif($game->last_played_at)
                                     <span class="gaming-list-item__date">{{ $game->last_played_at->format('d M Y') }}</span>
                                 @endif
                             </div>
