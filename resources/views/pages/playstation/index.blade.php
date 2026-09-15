@@ -47,7 +47,7 @@
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-6">
 
-        <div class="lg:col-span-2">
+        <div class="lg:col-span-2" x-data="{ view: localStorage.getItem('ps_view') ?? 'grid' }" x-init="$watch('view', v => localStorage.setItem('ps_view', v))">
 
             @php $completedParam = $completed ? '1' : null; @endphp
             <div class="media-toolbar mb-4">
@@ -80,7 +80,7 @@
                         class="btn btn--sm {{ $completed ? 'btn--primary' : 'btn--secondary' }}"
                     >✓ Completed</a>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                     <span class="text-sm" style="color: var(--color-text-muted)">Sort:</span>
                     @foreach(['hours' => 'Most Played', 'name' => 'Name', 'last_played' => 'Last Played', 'completion' => 'Completion'] as $key => $label)
                         <a
@@ -88,6 +88,19 @@
                             class="btn btn--sm {{ $sort === $key ? 'btn--primary' : 'btn--secondary' }}"
                         >{{ $label }}</a>
                     @endforeach
+                    <div style="width:1px; height:1rem; background:var(--color-border);"></div>
+                    <button @click="view = 'grid'" :class="view === 'grid' ? 'btn--primary' : 'btn--secondary'" class="btn btn--sm btn--icon" title="Grid view">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
+                            <rect x="0" y="0" width="5.5" height="5.5" rx="1"/><rect x="7.5" y="0" width="5.5" height="5.5" rx="1"/>
+                            <rect x="0" y="7.5" width="5.5" height="5.5" rx="1"/><rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1"/>
+                        </svg>
+                    </button>
+                    <button @click="view = 'list'" :class="view === 'list' ? 'btn--primary' : 'btn--secondary'" class="btn btn--sm btn--icon" title="List view">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
+                            <rect x="0" y="1" width="13" height="2" rx="1"/><rect x="0" y="5.5" width="13" height="2" rx="1"/>
+                            <rect x="0" y="10" width="13" height="2" rx="1"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
@@ -98,14 +111,15 @@
                     </x-slot:action>
                 </x-ui.empty-state>
             @else
-                <div class="gaming-grid">
+                {{-- Grid view --}}
+                <div class="gaming-grid" x-show="view === 'grid'">
                     @foreach($games as $game)
+                        @php
+                            $fallbacks = ['ps1.jpg','ps2.webp','ps3.jpg','ps4.jpg','ps5.jpg'];
+                            $coverUrl  = $game->image_url ?? '/images/playstation/' . $fallbacks[$game->id % 5];
+                        @endphp
                         <div class="gaming-card" x-data="{ isFavorite: {{ $game->is_favorite ? 'true' : 'false' }} }">
                             <div class="gaming-card__cover-wrap">
-                                @php
-                                    $fallbacks = ['ps1.jpg','ps2.webp','ps3.jpg','ps4.jpg','ps5.jpg'];
-                                    $coverUrl  = $game->image_url ?? '/images/playstation/' . $fallbacks[$game->id % 5];
-                                @endphp
                                 <a href="{{ route('playstation.show', $game) }}" class="gaming-card__cover-link">
                                     <img src="{{ $coverUrl }}" alt="{{ $game->label }}" class="gaming-card__cover">
                                 </a>
@@ -144,6 +158,46 @@
                                     <div class="gaming-card__progress">
                                         <div class="gaming-card__progress-bar" style="width: {{ min(100, $game->completion_percentage) }}%"></div>
                                     </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                {{-- List view --}}
+                <div class="gaming-list" x-show="view === 'list'" style="display:none;">
+                    @foreach($games as $game)
+                        @php
+                            $fallbacks = ['ps1.jpg','ps2.webp','ps3.jpg','ps4.jpg','ps5.jpg'];
+                            $coverUrl  = $game->image_url ?? '/images/playstation/' . $fallbacks[$game->id % 5];
+                        @endphp
+                        <div class="gaming-list-item">
+                            <a href="{{ route('playstation.show', $game) }}" class="gaming-list-item__cover-link">
+                                <img src="{{ $coverUrl }}" alt="{{ $game->label }}" class="gaming-list-item__cover">
+                            </a>
+                            <div class="gaming-list-item__info">
+                                <a href="{{ route('playstation.show', $game) }}" class="gaming-list-item__title">{{ $game->label }}</a>
+                                <div class="gaming-list-item__badges">
+                                    <span class="gaming-platform-badge" style="background: {{ $game->platformColor() }}">{{ $game->platform }}</span>
+                                    @if($game->backlog_status)
+                                        <x-ui.badge :color="$game->backlog_status->color()">{{ $game->backlog_status->label() }}</x-ui.badge>
+                                    @endif
+                                </div>
+                                <div class="gaming-list-item__stats">
+                                    {{ number_format($game->calculated_hours, 1) }}h
+                                    @if($game->trophy_list_count > 0)
+                                        · 🏆 {{ $game->earned_trophy_count }}/{{ $game->trophy_list_count }}
+                                    @endif
+                                </div>
+                            </div>
+                            @if($game->completion_percentage > 0)
+                                <div class="gaming-list-item__completion">
+                                    {{ number_format($game->completion_percentage, 0) }}%
+                                </div>
+                            @endif
+                            <div class="gaming-list-item__right">
+                                @if($game->last_played_at)
+                                    <span class="gaming-list-item__date">{{ $game->last_played_at->format('d M Y') }}</span>
                                 @endif
                             </div>
                         </div>
