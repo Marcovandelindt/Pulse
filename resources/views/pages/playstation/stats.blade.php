@@ -140,6 +140,7 @@
 
         {{-- Trophy stats --}}
         <x-ui.card title="Trophies">
+
             <div class="psn-trophy-platinum">
                 <span class="psn-trophy-platinum__icon">🏆</span>
                 <div>
@@ -170,6 +171,25 @@
                 {{ number_format($trophyStats['totalEarned']) }} trophies earned in total
             </div>
         </x-ui.card>
+
+        {{-- Genre breakdown --}}
+        @if ($genreBreakdown->isNotEmpty())
+            <x-ui.card title="Hours by genre" class="psn-stats-grid__wide">
+                <div class="psn-platform-bars">
+                    @foreach ($genreBreakdown as $row)
+                        <div class="psn-platform-bar">
+                            <div class="psn-platform-bar__header">
+                                <span class="psn-platform-bar__label">{{ $row['name'] }}</span>
+                                <span class="psn-platform-bar__meta">{{ $row['hours'] }}h · {{ $row['game_count'] }} {{ $row['game_count'] === 1 ? 'game' : 'games' }}</span>
+                            </div>
+                            <div class="psn-platform-bar__track">
+                                <div class="psn-platform-bar__fill" style="width: {{ $row['pct'] }}%; background: var(--color-brand);"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </x-ui.card>
+        @endif
 
         {{-- Weekday patterns --}}
         <x-ui.card title="Active day of week" class="psn-stats-grid__wide">
@@ -235,6 +255,83 @@
                 </div>
             @else
                 <x-ui.empty-state title="Not enough data yet" />
+            @endif
+        </x-ui.card>
+
+        {{-- Gaming velocity (all-time) --}}
+        @if ($gamingVelocity->isNotEmpty())
+            <x-ui.card title="Gaming velocity — all time" class="psn-stats-grid__wide">
+                @php
+                    $maxVelocityHours = $gamingVelocity->max('hours') ?: 1;
+                    $avgVelocityHours = round($gamingVelocity->avg('hours'), 1);
+                    $aboveAvgCount    = $gamingVelocity->where('above_avg', true)->count();
+                    $prevYear         = null;
+                @endphp
+                <div class="psn-velocity-chart">
+                    @foreach ($gamingVelocity as $row)
+                        @if ($row['year'] !== $prevYear)
+                            @php $prevYear = $row['year']; @endphp
+                            <div class="psn-velocity-chart__col psn-velocity-chart__col--year">
+                                <div class="psn-velocity-chart__bar-wrap"></div>
+                                <div class="psn-velocity-chart__label psn-velocity-chart__label--year">{{ $row['year'] }}</div>
+                            </div>
+                        @endif
+                        <div class="psn-velocity-chart__col">
+                            <div class="psn-velocity-chart__bar-wrap">
+                                <div class="psn-velocity-chart__bar {{ $row['above_avg'] ? 'psn-velocity-chart__bar--above' : '' }}"
+                                     style="height: {{ round(($row['hours'] / $maxVelocityHours) * 100) }}%"
+                                     title="{{ $row['hours'] }}h — {{ $row['month'] }}"></div>
+                            </div>
+                            <div class="psn-velocity-chart__label">{{ substr($row['month'], 0, 1) }}</div>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="psn-velocity-footer">
+                    Avg {{ $avgVelocityHours }}h/month · <strong>{{ $aboveAvgCount }}</strong> of {{ $gamingVelocity->count() }} months above average
+                </div>
+            </x-ui.card>
+        @endif
+
+        {{-- Session length distribution + Completion funnel --}}
+        <x-ui.card title="Session length distribution">
+            @if ($sessionLengthDist['total'] > 0)
+                <div class="psn-histogram">
+                    @foreach ($sessionLengthDist['buckets'] as $bucket)
+                        <div class="psn-histogram__row">
+                            <div class="psn-histogram__label">{{ $bucket['label'] }}</div>
+                            <div class="psn-histogram__bar-wrap">
+                                <div class="psn-histogram__bar" style="width: {{ $bucket['bar_pct'] }}%; background: {{ $bucket['color'] }};"></div>
+                            </div>
+                            <div class="psn-histogram__count">{{ $bucket['count'] }} <span class="psn-histogram__pct">({{ $bucket['pct'] }}%)</span></div>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="psn-histogram__total">{{ number_format($sessionLengthDist['total']) }} sessions total</div>
+            @else
+                <x-ui.empty-state title="No sessions yet" />
+            @endif
+        </x-ui.card>
+
+        <x-ui.card title="Completion funnel">
+            @if ($completionFunnel['total'] > 0)
+                <div class="psn-funnel">
+                    @foreach ($completionFunnel['tiers'] as $tier)
+                        <div class="psn-funnel__tier">
+                            <div class="psn-funnel__header">
+                                <span class="psn-funnel__icon">{{ $tier['icon'] }}</span>
+                                <span class="psn-funnel__label">{{ $tier['label'] }}</span>
+                                <span class="psn-funnel__count">{{ $tier['count'] }}</span>
+                                <span class="psn-funnel__pct">{{ $tier['pct'] }}%</span>
+                            </div>
+                            <div class="psn-funnel__bar-wrap">
+                                <div class="psn-funnel__bar" style="width: {{ $tier['pct'] }}%; background: {{ $tier['color'] }};"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="psn-funnel__footer">{{ number_format($completionFunnel['total']) }} games in library</div>
+            @else
+                <x-ui.empty-state title="No games yet" />
             @endif
         </x-ui.card>
 
@@ -319,6 +416,82 @@
                 </div>
             @endif
         </x-ui.card>
+
+        {{-- Backlog graveyard --}}
+        @if ($backlogGraveyard->isNotEmpty())
+            <x-ui.card title="Backlog graveyard 🪦" class="psn-stats-grid__wide">
+                <p class="psn-graveyard__intro">Games not touched in 6+ months, sorted by hours invested — the silent debt in your library.</p>
+                <div class="psn-graveyard">
+                    @foreach ($backlogGraveyard as $game)
+                        <a href="{{ route('playstation.show', $game['id']) }}" class="psn-graveyard__item">
+                            @if ($game['image_url'])
+                                <img src="{{ $game['image_url'] }}" class="psn-graveyard__cover" alt="">
+                            @else
+                                <div class="psn-graveyard__cover psn-graveyard__cover--empty"></div>
+                            @endif
+                            <div class="psn-graveyard__info">
+                                <div class="psn-graveyard__title">{{ $game['label'] }}</div>
+                                <div class="psn-graveyard__meta">
+                                    <span class="gaming-platform-badge" style="background: #003087;">{{ $game['platform'] }}</span>
+                                    {{ $game['hours'] }}h played
+                                    @if ($game['completion'] > 0)
+                                        · {{ $game['completion'] }}% complete
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="psn-graveyard__right">
+                                <div class="psn-graveyard__since">{{ $game['months_ago'] }} months ago</div>
+                                <div class="psn-graveyard__date">{{ $game['last_played'] }}</div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </x-ui.card>
+        @endif
+
+        {{-- Comeback games + Trophy velocity --}}
+        @if ($comebackGames->isNotEmpty())
+            <x-ui.card title="Comeback games">
+                <div class="psn-comebacks">
+                    @foreach ($comebackGames as $game)
+                        <div class="psn-comeback">
+                            @if ($game['image_url'])
+                                <a href="{{ route('playstation.show', $game['game_id']) }}">
+                                    <img src="{{ $game['image_url'] }}" class="psn-comeback__cover" alt="">
+                                </a>
+                            @endif
+                            <div class="psn-comeback__info">
+                                <a href="{{ route('playstation.show', $game['game_id']) }}" class="psn-comeback__title">{{ $game['label'] }}</a>
+                                <div class="psn-comeback__gap">Returned after <strong>{{ $game['gap_days'] }} days</strong></div>
+                                <div class="psn-comeback__dates">{{ $game['gap_start'] }} → {{ $game['gap_end'] }}</div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </x-ui.card>
+        @endif
+
+        @if ($trophyVelocity->isNotEmpty())
+            <x-ui.card title="Trophy velocity">
+                <p class="psn-trophy-velocity__intro">Trophies earned per hour — which games give the most per session.</p>
+                <div class="psn-trophy-velocity">
+                    @foreach ($trophyVelocity as $game)
+                        <div class="psn-trophy-velocity__item">
+                            @if ($game['image_url'])
+                                <a href="{{ route('playstation.show', $game['game_id']) }}">
+                                    <img src="{{ $game['image_url'] }}" class="psn-trophy-velocity__cover" alt="">
+                                </a>
+                            @endif
+                            <div class="psn-trophy-velocity__info">
+                                <a href="{{ route('playstation.show', $game['game_id']) }}" class="psn-trophy-velocity__title">{{ $game['label'] }}</a>
+                                <div class="psn-trophy-velocity__meta">{{ $game['earned'] }} 🏆 · {{ $game['hours'] }}h</div>
+                            </div>
+                            <div class="psn-trophy-velocity__rate">{{ $game['per_hour'] }}/h</div>
+                        </div>
+                    @endforeach
+                </div>
+            </x-ui.card>
+        @endif
 
     </div>
 

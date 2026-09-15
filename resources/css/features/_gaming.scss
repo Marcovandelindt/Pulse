@@ -1196,6 +1196,412 @@
     strong { color: var(--color-text-primary); }
 }
 
+/* ── Gaming velocity chart ────────────────────────── */
+
+.psn-velocity-chart {
+    display:     flex;
+    align-items: flex-end;
+    gap:         0.1rem;
+    height:      9rem;
+    padding-top: 0.5rem;
+    overflow-x:  auto;
+    padding-bottom: 0.25rem;
+}
+
+.psn-velocity-chart__col {
+    flex:           0 0 0.875rem;
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    height:         100%;
+
+    &--year {
+        flex: 0 0 0.25rem;
+        border-left: 1px solid var(--color-border);
+        margin-left: 0.25rem;
+    }
+}
+
+.psn-velocity-chart__bar-wrap {
+    flex:        1;
+    width:       100%;
+    display:     flex;
+    align-items: flex-end;
+}
+
+.psn-velocity-chart__bar {
+    width:         100%;
+    background:    var(--color-bg-tertiary);
+    border-radius: 2px 2px 0 0;
+    min-height:    0.125rem;
+    opacity:       0.6;
+    transition:    height 0.3s ease;
+
+    &--above {
+        background: var(--color-brand);
+        opacity:    0.9;
+    }
+}
+
+.psn-velocity-chart__label {
+    font-size:   0.5rem;
+    color:       var(--color-text-muted);
+    margin-top:  0.2rem;
+    height:      0.875rem;
+    line-height: 1;
+    opacity:     0.7;
+
+    &--year {
+        font-size:   0.5625rem;
+        font-weight: 700;
+        color:       var(--color-text-muted);
+        writing-mode: vertical-rl;
+        transform:   rotate(180deg);
+        height:      auto;
+        opacity:     1;
+    }
+}
+
+.psn-velocity-footer {
+    font-size:   0.8125rem;
+    color:       var(--color-text-muted);
+    padding-top: 0.75rem;
+    border-top:  1px solid var(--color-border);
+    margin-top:  0.375rem;
+
+    strong { color: var(--color-text-primary); }
+}
+
+/* ── Session histogram ────────────────────────────── */
+
+.psn-histogram {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.75rem;
+    margin-bottom:  0.875rem;
+}
+
+.psn-histogram__row {
+    display:     flex;
+    align-items: center;
+    gap:         0.625rem;
+}
+
+.psn-histogram__label {
+    font-size:   0.8125rem;
+    font-weight: 500;
+    color:       var(--color-text-primary);
+    width:       3.5rem;
+    flex-shrink: 0;
+}
+
+.psn-histogram__bar-wrap {
+    flex:          1;
+    background:    var(--color-bg-tertiary);
+    border-radius: 999px;
+    height:        0.5rem;
+    overflow:      hidden;
+}
+
+.psn-histogram__bar {
+    height:        100%;
+    border-radius: 999px;
+    opacity:       0.8;
+    min-width:     0.125rem;
+    transition:    width 0.4s ease;
+}
+
+.psn-histogram__count {
+    font-size:   0.8125rem;
+    color:       var(--color-text-primary);
+    min-width:   3.5rem;
+    text-align:  right;
+    flex-shrink: 0;
+}
+
+.psn-histogram__pct {
+    color:     var(--color-text-muted);
+    font-size: 0.75rem;
+}
+
+.psn-histogram__total {
+    font-size:   0.8125rem;
+    color:       var(--color-text-muted);
+    padding-top: 0.75rem;
+    border-top:  1px solid var(--color-border);
+}
+
+/* ── Completion funnel ────────────────────────────── */
+
+.psn-funnel {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.75rem;
+    margin-bottom:  0.875rem;
+}
+
+.psn-funnel__tier {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.25rem;
+}
+
+.psn-funnel__header {
+    display:     flex;
+    align-items: center;
+    gap:         0.5rem;
+}
+
+.psn-funnel__icon { font-size: 0.875rem; line-height: 1; flex-shrink: 0; }
+
+.psn-funnel__label {
+    font-size: 0.8125rem;
+    color:     var(--color-text-primary);
+    flex:      1;
+}
+
+.psn-funnel__count {
+    font-size:   0.8125rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+}
+
+.psn-funnel__pct {
+    font-size:  0.75rem;
+    color:      var(--color-text-muted);
+    min-width:  2.5rem;
+    text-align: right;
+}
+
+.psn-funnel__bar-wrap {
+    background:    var(--color-bg-tertiary);
+    border-radius: 999px;
+    height:        0.375rem;
+    overflow:      hidden;
+}
+
+.psn-funnel__bar {
+    height:        100%;
+    border-radius: 999px;
+    opacity:       0.75;
+    min-width:     0.125rem;
+    transition:    width 0.4s ease;
+}
+
+.psn-funnel__footer {
+    font-size:   0.8125rem;
+    color:       var(--color-text-muted);
+    padding-top: 0.75rem;
+    border-top:  1px solid var(--color-border);
+}
+
+/* ── Backlog graveyard ────────────────────────────── */
+
+.psn-graveyard__intro {
+    font-size:     0.8125rem;
+    color:         var(--color-text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.psn-graveyard {
+    display:        flex;
+    flex-direction: column;
+}
+
+.psn-graveyard__item {
+    display:         flex;
+    align-items:     center;
+    gap:             0.75rem;
+    padding:         0.625rem 0;
+    border-bottom:   1px solid var(--color-border);
+    text-decoration: none;
+
+    &:last-child { border-bottom: none; }
+    &:hover .psn-graveyard__title { color: var(--color-brand-light); }
+}
+
+.psn-graveyard__cover {
+    width:         2.5rem;
+    height:        3.25rem;
+    border-radius: var(--radius-sm);
+    object-fit:    cover;
+    flex-shrink:   0;
+    background:    var(--color-bg-tertiary);
+    display:       block;
+
+    &--empty {
+        border: 1px solid var(--color-border);
+    }
+}
+
+.psn-graveyard__info {
+    flex:      1;
+    min-width: 0;
+}
+
+.psn-graveyard__title {
+    font-size:     0.875rem;
+    font-weight:   500;
+    color:         var(--color-text-primary);
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.25rem;
+    transition:    color var(--transition-base);
+}
+
+.psn-graveyard__meta {
+    display:     flex;
+    align-items: center;
+    gap:         0.375rem;
+    font-size:   0.75rem;
+    color:       var(--color-text-muted);
+    flex-wrap:   wrap;
+}
+
+.psn-graveyard__right {
+    flex-shrink:    0;
+    display:        flex;
+    flex-direction: column;
+    align-items:    flex-end;
+    gap:            0.125rem;
+}
+
+.psn-graveyard__since {
+    font-size:   0.8125rem;
+    font-weight: 600;
+    color:       #f87171;
+}
+
+.psn-graveyard__date {
+    font-size: 0.6875rem;
+    color:     var(--color-text-muted);
+}
+
+/* ── Comeback games ───────────────────────────────── */
+
+.psn-comebacks {
+    display:        flex;
+    flex-direction: column;
+}
+
+.psn-comeback {
+    display:       flex;
+    align-items:   flex-start;
+    gap:           0.75rem;
+    padding:       0.625rem 0;
+    border-bottom: 1px solid var(--color-border);
+
+    &:last-child { border-bottom: none; }
+}
+
+.psn-comeback__cover {
+    width:         2.25rem;
+    height:        3rem;
+    border-radius: var(--radius-sm);
+    object-fit:    cover;
+    flex-shrink:   0;
+    display:       block;
+}
+
+.psn-comeback__info {
+    flex:      1;
+    min-width: 0;
+}
+
+.psn-comeback__title {
+    display:         block;
+    font-size:       0.875rem;
+    font-weight:     500;
+    color:           var(--color-text-primary);
+    text-decoration: none;
+    white-space:     nowrap;
+    overflow:        hidden;
+    text-overflow:   ellipsis;
+    margin-bottom:   0.25rem;
+
+    &:hover { color: var(--color-brand-light); }
+}
+
+.psn-comeback__gap {
+    font-size:     0.8125rem;
+    color:         var(--color-text-muted);
+    margin-bottom: 0.125rem;
+
+    strong { color: #f59e0b; }
+}
+
+.psn-comeback__dates {
+    font-size: 0.6875rem;
+    color:     var(--color-text-muted);
+    opacity:   0.7;
+}
+
+/* ── Trophy velocity ──────────────────────────────── */
+
+.psn-trophy-velocity__intro {
+    font-size:     0.8125rem;
+    color:         var(--color-text-muted);
+    margin-bottom: 0.875rem;
+}
+
+.psn-trophy-velocity {
+    display:        flex;
+    flex-direction: column;
+}
+
+.psn-trophy-velocity__item {
+    display:       flex;
+    align-items:   center;
+    gap:           0.625rem;
+    padding:       0.5rem 0;
+    border-bottom: 1px solid var(--color-border);
+
+    &:last-child { border-bottom: none; }
+}
+
+.psn-trophy-velocity__cover {
+    width:         2.25rem;
+    height:        3rem;
+    border-radius: var(--radius-sm);
+    object-fit:    cover;
+    flex-shrink:   0;
+    display:       block;
+}
+
+.psn-trophy-velocity__info {
+    flex:      1;
+    min-width: 0;
+}
+
+.psn-trophy-velocity__title {
+    display:         block;
+    font-size:       0.8125rem;
+    font-weight:     500;
+    color:           var(--color-text-primary);
+    text-decoration: none;
+    white-space:     nowrap;
+    overflow:        hidden;
+    text-overflow:   ellipsis;
+    margin-bottom:   0.15rem;
+
+    &:hover { color: var(--color-brand-light); }
+}
+
+.psn-trophy-velocity__meta {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+}
+
+.psn-trophy-velocity__rate {
+    font-size:   0.9375rem;
+    font-weight: 700;
+    color:       #c9a227;
+    flex-shrink: 0;
+    min-width:   3.5rem;
+    text-align:  right;
+}
+
 /* ── PlayStation Wrapped ───────────────────────────── */
 
 .psn-wrapped {
