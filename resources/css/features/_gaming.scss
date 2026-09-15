@@ -1602,6 +1602,384 @@
     text-align:  right;
 }
 
+/* ── Wrapped — Personality archetype ──────────────── */
+
+.psn-archetype {
+    margin-bottom: 1.5rem;
+}
+
+.psn-archetype__label {
+    font-size:      0.75rem;
+    font-weight:    600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color:          var(--color-text-muted);
+    margin-bottom:  0.75rem;
+}
+
+.psn-archetype__badges {
+    display:   flex;
+    flex-wrap: wrap;
+    gap:       0.75rem;
+}
+
+.psn-archetype__badge {
+    display:       flex;
+    align-items:   center;
+    gap:           0.75rem;
+    padding:       0.875rem 1.25rem;
+    background:    var(--color-bg-secondary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    flex:          1;
+    min-width:     200px;
+}
+
+.psn-archetype__badge--night_owl    { border-color: rgba(99, 102, 241, 0.4); }
+.psn-archetype__badge--marathon     { border-color: rgba(59, 130, 246, 0.4); }
+.psn-archetype__badge--trophy_hunter { border-color: rgba(201, 162, 39, 0.4); }
+.psn-archetype__badge--variety      { border-color: rgba(16, 185, 129, 0.4); }
+
+.psn-archetype__badge-icon {
+    font-size:   1.75rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.psn-archetype__badge-name {
+    font-size:   0.9375rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+}
+
+.psn-archetype__badge-desc {
+    font-size:  0.8125rem;
+    color:      var(--color-text-muted);
+    margin-top: 0.125rem;
+}
+
+/* ── Wrapped — Completed this year ────────────────── */
+
+.psn-completed-list {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.5rem;
+}
+
+.psn-completed-item {
+    display:         flex;
+    align-items:     center;
+    gap:             1rem;
+    padding:         0.75rem 1rem;
+    background:      var(--color-bg-tertiary);
+    border:          1px solid var(--color-border);
+    border-radius:   var(--radius-md);
+    text-decoration: none;
+    color:           inherit;
+    transition:      border-color var(--transition-base);
+}
+
+.psn-completed-item:hover { border-color: rgba(255, 255, 255, 0.15); }
+
+.psn-completed-item__art {
+    width:         3rem;
+    height:        3rem;
+    object-fit:    cover;
+    border-radius: var(--radius-sm);
+    flex-shrink:   0;
+}
+
+.psn-completed-item__art--placeholder {
+    background: var(--color-bg-secondary);
+    border:     1px solid var(--color-border);
+}
+
+.psn-completed-item__info {
+    flex:      1;
+    min-width: 0;
+}
+
+.psn-completed-item__name {
+    font-size:     0.9375rem;
+    font-weight:   600;
+    color:         var(--color-text-primary);
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
+.psn-completed-item__meta {
+    display:    flex;
+    gap:        0.375rem;
+    font-size:  0.8125rem;
+    color:      var(--color-text-muted);
+    margin-top: 0.125rem;
+}
+
+.psn-completed-item__hours {
+    text-align:  right;
+    flex-shrink: 0;
+}
+
+.psn-completed-item__hours-value {
+    font-size:   1rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+}
+
+.psn-completed-item__hours-label {
+    font-size: 0.7rem;
+    color:     var(--color-text-muted);
+}
+
+.psn-completed-item__check {
+    font-size:   1rem;
+    font-weight: 700;
+    color:       #10b981;
+    flex-shrink: 0;
+    width:       1.5rem;
+    text-align:  center;
+}
+
+/* ── Wrapped — Most improved ───────────────────────── */
+
+.psn-improved {
+    display:         flex;
+    gap:             1rem;
+    text-decoration: none;
+    color:           inherit;
+}
+
+.psn-improved__art {
+    width:         5rem;
+    height:        5rem;
+    object-fit:    cover;
+    border-radius: var(--radius-md);
+    flex-shrink:   0;
+}
+
+.psn-improved__art--placeholder {
+    background: var(--color-bg-tertiary);
+    border:     1px solid var(--color-border);
+}
+
+.psn-improved__info { flex: 1; }
+
+.psn-improved__name {
+    font-size:     0.9375rem;
+    font-weight:   600;
+    color:         var(--color-text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.psn-improved__bar-wrap {
+    height:        0.5rem;
+    background:    var(--color-bg-tertiary);
+    border-radius: 999px;
+    overflow:      hidden;
+    display:       flex;
+    margin-bottom: 0.5rem;
+}
+
+.psn-improved__bar-before {
+    height:     100%;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.psn-improved__bar-gain {
+    height:     100%;
+    background: #10b981;
+}
+
+.psn-improved__pct {
+    display:       flex;
+    gap:           0.5rem;
+    font-size:     0.875rem;
+    color:         var(--color-text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.psn-improved__pct-before { color: var(--color-text-muted); }
+
+.psn-improved__pct-after {
+    color:       #10b981;
+    font-weight: 600;
+}
+
+.psn-improved__trophies {
+    font-size: 0.8125rem;
+    color:     var(--color-text-muted);
+}
+
+/* ── Wrapped — One that got away ──────────────────── */
+
+.psn-got-away {
+    display:         flex;
+    gap:             1rem;
+    text-decoration: none;
+    color:           inherit;
+}
+
+.psn-got-away__art {
+    width:         5rem;
+    height:        5rem;
+    object-fit:    cover;
+    border-radius: var(--radius-md);
+    flex-shrink:   0;
+}
+
+.psn-got-away__art--placeholder {
+    background: var(--color-bg-tertiary);
+    border:     1px solid var(--color-border);
+}
+
+.psn-got-away__info { flex: 1; }
+
+.psn-got-away__name {
+    font-size:     0.9375rem;
+    font-weight:   600;
+    color:         var(--color-text-primary);
+    margin-bottom: 0.375rem;
+}
+
+.psn-got-away__hours {
+    font-size:     0.875rem;
+    color:         var(--color-text-muted);
+    margin-bottom: 0.625rem;
+}
+
+.psn-got-away__bar-wrap {
+    height:        0.375rem;
+    background:    var(--color-bg-tertiary);
+    border-radius: 999px;
+    overflow:      hidden;
+    margin-bottom: 0.375rem;
+}
+
+.psn-got-away__bar {
+    height:        100%;
+    background:    #f59e0b;
+    border-radius: 999px;
+}
+
+.psn-got-away__pct {
+    font-size:   0.8125rem;
+    color:       #f59e0b;
+    font-weight: 600;
+}
+
+.psn-got-away__sessions {
+    font-size:  0.8125rem;
+    color:      var(--color-text-muted);
+    margin-top: 0.375rem;
+}
+
+/* ── Wrapped — Trophy haul by month ───────────────── */
+
+.psn-trophy-month {
+    display:     flex;
+    align-items: flex-end;
+    gap:         0.5rem;
+    height:      8rem;
+}
+
+.psn-trophy-month__col {
+    flex:           1;
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    height:         100%;
+}
+
+.psn-trophy-month__bar-wrap {
+    flex:        1;
+    width:       100%;
+    display:     flex;
+    align-items: flex-end;
+    padding:     0 0.125rem;
+}
+
+.psn-trophy-month__bar {
+    width:         100%;
+    background:    rgba(201, 162, 39, 0.35);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    min-height:    0;
+    transition:    height 0.3s ease;
+}
+
+.psn-trophy-month__bar--best {
+    background: #c9a227;
+}
+
+.psn-trophy-month__label {
+    font-size:  0.6875rem;
+    color:      var(--color-text-muted);
+    margin-top: 0.375rem;
+}
+
+.psn-trophy-month__count {
+    font-size:   0.6875rem;
+    color:       var(--color-text-primary);
+    font-weight: 600;
+}
+
+/* ── Wrapped — Calendar heatmap ───────────────────── */
+
+.psn-heatmap {
+    overflow-x: auto;
+}
+
+.psn-heatmap__months {
+    display:       grid;
+    font-size:     0.6875rem;
+    color:         var(--color-text-muted);
+    margin-bottom: 0.375rem;
+    padding-left:  0;
+}
+
+.psn-heatmap__month-label {
+    grid-row: 1;
+}
+
+.psn-heatmap__grid {
+    display:   flex;
+    gap:       0.1875rem;
+    min-width: max-content;
+}
+
+.psn-heatmap__week {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.1875rem;
+}
+
+.psn-heatmap__day {
+    width:         0.8125rem;
+    height:        0.8125rem;
+    border-radius: 0.1875rem;
+}
+
+.psn-heatmap__day--out { background: transparent; }
+.psn-heatmap__day--0   { background: rgba(255, 255, 255, 0.05); }
+.psn-heatmap__day--1   { background: oklch(0.45 0.14 260 / 0.5); }
+.psn-heatmap__day--2   { background: oklch(0.52 0.16 260 / 0.65); }
+.psn-heatmap__day--3   { background: oklch(0.60 0.18 260 / 0.8); }
+.psn-heatmap__day--4   { background: oklch(0.68 0.18 260); }
+
+.psn-heatmap__legend {
+    display:         flex;
+    align-items:     center;
+    gap:             0.25rem;
+    margin-top:      0.75rem;
+    justify-content: flex-end;
+}
+
+.psn-heatmap__legend-label {
+    font-size: 0.6875rem;
+    color:     var(--color-text-muted);
+    margin:    0 0.25rem;
+}
+
 /* ── PlayStation Wrapped ───────────────────────────── */
 
 .psn-wrapped {

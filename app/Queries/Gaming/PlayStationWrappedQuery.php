@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Queries\Gaming;
 
+use App\Models\PlayStationGame;
 use App\Models\PlayStationSession;
 use App\Models\PlayStationTrophy;
 use Carbon\Carbon;
@@ -46,6 +47,8 @@ final class PlayStationWrappedQuery
             ? round((($totalMinutes - $lastYearMinutes) / $lastYearMinutes) * 100, 1)
             : null;
 
+        $trophies = $this->trophiesForYear($year);
+
         return [
             'hasData'           => true,
             'year'              => $year,
@@ -71,12 +74,18 @@ final class PlayStationWrappedQuery
             'longestSession'    => $this->longestSession($year),
             'longestStreak'     => $this->longestStreak($sessions),
             'platformBreakdown' => $this->platformBreakdown($year),
-            'trophies'          => $this->trophiesForYear($year),
+            'trophies'          => $trophies,
             'bestTrophyDay'     => $this->bestTrophyDay($year),
             'topTrophyGame'     => $this->topTrophyGame($year),
             'nightOwl'          => $this->nightOwlSessions($sessions),
             'firstSession'      => $this->firstSession($year),
             'lastSession'       => $this->lastSession($year),
+            'personalityArchetype' => $this->personalityArchetype($sessions, $trophies['total'], $totalHours),
+            'completedThisYear'    => $this->completedThisYear($year),
+            'mostImproved'         => $this->mostImproved($year),
+            'trophyHaulByMonth'    => $this->trophyHaulByMonth($year),
+            'oneThatGotAway'       => $this->oneThatGotAway($year),
+            'calendarHeatmap'      => $this->calendarHeatmap($sessions, $year),
         ];
     }
 
@@ -626,6 +635,253 @@ final class PlayStationWrappedQuery
         $m = $minutes % 60;
 
         return $m > 0 ? "{$h}h {$m}m" : "{$h}h";
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function personalityArchetype(Collection $sessions, int $trophyTotal, float $totalHours): array
+    {
+        $archetypes = [];
+
+        $afterTen = $sessions->filter(fn ($s) => (int) Carbon::parse($s->started_at)->format('H') >= 22);
+        if ($sessions->count() > 0 && ($afterTen->count() / $sessions->count()) >= 0.6) {
+            $archetypes[] = [
+                'id'   => 'night_owl',
+                'label' => 'Night Owl',
+                'icon'  => '🌙',
+                'desc'  => round(($afterTen->count() / $sessions->count()) * 100) . '% of sessions after 22:00',
+            ];
+        }
+
+        $avgMins = $sessions->count() > 0 ? $sessions->sum('duration_minutes') / $sessions->count() : 0;
+        if ($avgMins >= 180) {
+            $archetypes[] = [
+                'id'    => 'marathon',
+                'label' => 'Marathon Gamer',
+                'icon'  => '🎮',
+                'desc'  => $this->formatMinutes((int) round($avgMins)) . ' avg session',
+            ];
+        }
+
+        if ($totalHours > 0 && ($trophyTotal / $totalHours) >= 2) {
+            $archetypes[] = [
+                'id'    => 'trophy_hunter',
+                'label' => 'Trophy Hunter',
+                'icon'  => '🏆',
+                'desc'  => round($trophyTotal / $totalHours, 1) . ' trophies / hour',
+            ];
+        }
+
+        $uniqueGames = $sessions->pluck('play_station_game_id')->unique();
+        $totalMins   = (int) $sessions->sum('duration_minutes');
+        if ($uniqueGames->count() >= 5 && $totalMins > 0) {
+            $maxGameMins = (int) $sessions
+                ->groupBy('play_station_game_id')
+                ->map(fn ($g) => (int) $g->sum('duration_minutes'))
+                ->max();
+            if ($maxGameMins / $totalMins < 0.6) {
+                $archetypes[] = [
+                    'id'    => 'variety',
+                    'label' => 'Variety Seeker',
+                    'icon'  => '🎲',
+                    'desc'  => $uniqueGames->count() . ' different games',
+                ];
+            }
+        }
+
+        if (empty($archetypes)) {
+            $archetypes[] = [
+                'id'    => 'casual',
+                'label' => 'Casual Gamer',
+                'icon'  => '🕹️',
+                'desc'  => 'Playing at your own pace',
+            ];
+        }
+
+        return $archetypes;
+    }
+
+    /** @return Collection<int, array<string, mixed>> */
+    private function completedThisYear(int $year): Collection
+    {
+        $games = PlayStationGame::query()
+            ->whereYear('completed_at', $year)
+            ->orderBy('completed_at')
+            ->get(['id', 'name', 'display_name', 'image_url', 'completed_at']);
+
+        if ($games->isEmpty()) {
+            return collect();
+        }
+
+        $gameIds = $games->pluck('id');
+
+        $yearStats = $this->sessionsForYear($year)
+            ->whereIn('play_station_sessions.play_station_game_id', $gameIds)
+            ->selectRaw('play_station_games.id, SUM(play_station_sessions.duration_minutes) as year_minutes, MIN(play_station_sessions.started_at) as first_session')
+            ->groupBy('play_station_games.id')
+            ->get()
+            ->keyBy('id');
+
+        $allTime = PlayStationSession::query()
+            ->whereIn('play_station_game_id', $gameIds)
+            ->selectRaw('play_station_game_id, SUM(duration_minutes) as total_minutes')
+            ->groupBy('play_station_game_id')
+            ->get()
+            ->keyBy('play_station_game_id');
+
+        return $games->map(function ($game) use ($yearStats, $allTime) {
+            $s            = $yearStats->get($game->id);
+            $a            = $allTime->get($game->id);
+            $completedAt  = Carbon::parse($game->completed_at);
+            $firstSession = $s ? Carbon::parse($s->first_session) : null;
+
+            return [
+                'id'               => $game->id,
+                'label'            => $game->display_name ?? $game->name,
+                'image_url'        => $game->image_url,
+                'completed_at'     => $completedAt->format('d M Y'),
+                'year_hours'       => $s ? round((float) $s->year_minutes / 60, 1) : 0,
+                'total_hours'      => $a ? round((float) $a->total_minutes / 60, 1) : 0,
+                'first_session'    => $firstSession?->format('d M Y'),
+                'days_to_complete' => $firstSession ? (int) $firstSession->diffInDays($completedAt) + 1 : null,
+            ];
+        });
+    }
+
+    /** @return array<string, mixed>|null */
+    private function mostImproved(int $year): ?array
+    {
+        $row = PlayStationTrophy::query()
+            ->where('is_earned', true)
+            ->whereYear('earned_at', $year)
+            ->whereNotNull('earned_at')
+            ->join('play_station_games', 'play_station_trophies.play_station_game_id', '=', 'play_station_games.id')
+            ->where('play_station_games.completion_percentage', '<', 100)
+            ->selectRaw('play_station_games.id, play_station_games.name, play_station_games.display_name, play_station_games.image_url, play_station_games.completion_percentage, COUNT(*) as trophies_this_year')
+            ->groupBy('play_station_games.id', 'play_station_games.name', 'play_station_games.display_name', 'play_station_games.image_url', 'play_station_games.completion_percentage')
+            ->orderByDesc('trophies_this_year')
+            ->first();
+
+        if (! $row) {
+            return null;
+        }
+
+        $gameId    = $row->id;
+        $total     = PlayStationTrophy::where('play_station_game_id', $gameId)->count();
+        $before    = PlayStationTrophy::where('play_station_game_id', $gameId)
+            ->where('is_earned', true)
+            ->where(fn ($q) => $q->whereNull('earned_at')->orWhereYear('earned_at', '<', $year))
+            ->count();
+
+        $pctBefore = $total > 0 ? (int) round(($before / $total) * 100) : 0;
+
+        return [
+            'id'                 => $row->id,
+            'label'              => $row->display_name ?? $row->name,
+            'image_url'          => $row->image_url,
+            'trophies_this_year' => (int) $row->trophies_this_year,
+            'pct_before'         => $pctBefore,
+            'pct_after'          => (int) round((float) $row->completion_percentage),
+            'gain'               => max(0, (int) round((float) $row->completion_percentage) - $pctBefore),
+        ];
+    }
+
+    /** @return Collection<int, array<string, mixed>> */
+    private function trophyHaulByMonth(int $year): Collection
+    {
+        $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        $raw = PlayStationTrophy::query()
+            ->where('is_earned', true)
+            ->whereYear('earned_at', $year)
+            ->whereNotNull('earned_at')
+            ->selectRaw('MONTH(earned_at) as m, COUNT(*) as count')
+            ->groupByRaw('MONTH(earned_at)')
+            ->get()
+            ->keyBy('m');
+
+        $max = (int) ($raw->max('count') ?: 1);
+
+        return collect(range(1, 12))->map(fn (int $m) => [
+            'label'   => $monthNames[$m - 1],
+            'count'   => (int) ($raw->get($m)?->count ?? 0),
+            'percent' => (int) round(((int) ($raw->get($m)?->count ?? 0) / $max) * 100),
+        ]);
+    }
+
+    /** @return array<string, mixed>|null */
+    private function oneThatGotAway(int $year): ?array
+    {
+        $row = $this->sessionsForYear($year)
+            ->where('play_station_games.completion_percentage', '<', 100)
+            ->selectRaw('play_station_games.id, play_station_games.name, play_station_games.display_name, play_station_games.image_url, play_station_games.completion_percentage, SUM(play_station_sessions.duration_minutes) as year_minutes, COUNT(*) as session_count')
+            ->groupBy('play_station_games.id', 'play_station_games.name', 'play_station_games.display_name', 'play_station_games.image_url', 'play_station_games.completion_percentage')
+            ->orderByDesc('year_minutes')
+            ->first();
+
+        if (! $row) {
+            return null;
+        }
+
+        return [
+            'id'            => $row->id,
+            'label'         => $row->display_name ?? $row->name,
+            'image_url'     => $row->image_url,
+            'year_hours'    => round((float) $row->year_minutes / 60, 1),
+            'session_count' => (int) $row->session_count,
+            'completion'    => (int) round((float) $row->completion_percentage),
+        ];
+    }
+
+    /**
+     * @param  Collection<int, object>  $sessions
+     * @return array<int, array<int, array<string, mixed>>>
+     */
+    private function calendarHeatmap(Collection $sessions, int $year): array
+    {
+        $byDay = $sessions
+            ->groupBy(fn ($s) => Carbon::parse($s->started_at)->format('Y-m-d'))
+            ->map(fn ($g) => (int) $g->sum('duration_minutes'));
+
+        $maxMinutes  = (int) ($byDay->max() ?: 1);
+        $startOfYear = Carbon::create($year, 1, 1)->startOfWeek(Carbon::MONDAY);
+        $endOfYear   = Carbon::create($year, 12, 31)->endOfWeek(Carbon::SUNDAY);
+
+        $weeks   = [];
+        $current = $startOfYear->copy();
+
+        while ($current <= $endOfYear) {
+            $week = [];
+            for ($d = 0; $d < 7; $d++) {
+                $dateKey = $current->format('Y-m-d');
+                $mins    = $byDay->get($dateKey, 0);
+                $inYear  = (int) $current->format('Y') === $year;
+                $week[]  = [
+                    'date'    => $dateKey,
+                    'minutes' => $mins,
+                    'level'   => $inYear ? $this->heatmapLevel($mins, $maxMinutes) : -1,
+                    'in_year' => $inYear,
+                ];
+                $current->addDay();
+            }
+            $weeks[] = $week;
+        }
+
+        return $weeks;
+    }
+
+    private function heatmapLevel(int $minutes, int $max): int
+    {
+        if ($minutes === 0) {
+            return 0;
+        }
+        $ratio = $minutes / $max;
+
+        return match (true) {
+            $ratio <= 0.25 => 1,
+            $ratio <= 0.5  => 2,
+            $ratio <= 0.75 => 3,
+            default        => 4,
+        };
     }
 
     private function sessionsForYear(int $year): Builder

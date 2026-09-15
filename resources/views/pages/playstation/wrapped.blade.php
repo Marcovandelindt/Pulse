@@ -84,6 +84,24 @@
         @endif
     </div>
 
+    {{-- ② ½  Personality archetypes --}}
+    @if(!empty($wrapped['personalityArchetype']))
+    <div class="psn-archetype">
+        <div class="psn-archetype__label">Your {{ $wrapped['year'] }} gaming style</div>
+        <div class="psn-archetype__badges">
+            @foreach($wrapped['personalityArchetype'] as $a)
+                <div class="psn-archetype__badge psn-archetype__badge--{{ $a['id'] }}">
+                    <span class="psn-archetype__badge-icon">{{ $a['icon'] }}</span>
+                    <div class="psn-archetype__badge-text">
+                        <div class="psn-archetype__badge-name">{{ $a['label'] }}</div>
+                        <div class="psn-archetype__badge-desc">{{ $a['desc'] }}</div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     <div class="psn-wrapped__grid">
 
         {{-- ③ Top 5 games --}}
@@ -162,6 +180,104 @@
                 </div>
             </div>
         </div>
+        @endif
+
+        {{-- ④½ Completed this year --}}
+        @if($wrapped['completedThisYear']->isNotEmpty())
+        <div class="psn-wrapped__section psn-wrapped__section--full">
+            <h2 class="psn-wrapped__section-title">0% → 100% this year</h2>
+            <div class="psn-completed-list">
+                @foreach($wrapped['completedThisYear'] as $game)
+                    <a href="{{ route('playstation.show', $game['id']) }}" class="psn-completed-item">
+                        @if($game['image_url'])
+                            <img src="{{ $game['image_url'] }}" alt="{{ $game['label'] }}" class="psn-completed-item__art">
+                        @else
+                            <div class="psn-completed-item__art psn-completed-item__art--placeholder"></div>
+                        @endif
+                        <div class="psn-completed-item__info">
+                            <div class="psn-completed-item__name">{{ $game['label'] }}</div>
+                            <div class="psn-completed-item__meta">
+                                @if($game['first_session'])
+                                    <span>Started {{ $game['first_session'] }}</span>
+                                    <span>·</span>
+                                @endif
+                                <span>Completed {{ $game['completed_at'] }}</span>
+                                @if($game['days_to_complete'])
+                                    <span>·</span>
+                                    <span>{{ $game['days_to_complete'] }} days</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="psn-completed-item__hours">
+                            <div class="psn-completed-item__hours-value">{{ $game['total_hours'] }}h</div>
+                            <div class="psn-completed-item__hours-label">total</div>
+                        </div>
+                        <div class="psn-completed-item__check">✓</div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        {{-- ④¾ Most improved + One that got away --}}
+        @if($wrapped['mostImproved'] || $wrapped['oneThatGotAway'])
+
+        @if($wrapped['mostImproved'])
+        <div class="psn-wrapped__section">
+            <h2 class="psn-wrapped__section-title">Most improved</h2>
+            <a href="{{ route('playstation.show', $wrapped['mostImproved']['id']) }}" class="psn-improved">
+                @if($wrapped['mostImproved']['image_url'])
+                    <img src="{{ $wrapped['mostImproved']['image_url'] }}" alt="{{ $wrapped['mostImproved']['label'] }}" class="psn-improved__art">
+                @else
+                    <div class="psn-improved__art psn-improved__art--placeholder"></div>
+                @endif
+                <div class="psn-improved__info">
+                    <div class="psn-improved__name">{{ $wrapped['mostImproved']['label'] }}</div>
+                    <div class="psn-improved__progress">
+                        <div class="psn-improved__bar-wrap">
+                            <div class="psn-improved__bar-before" style="width: {{ $wrapped['mostImproved']['pct_before'] }}%;"></div>
+                            <div class="psn-improved__bar-gain" style="width: {{ $wrapped['mostImproved']['gain'] }}%;"></div>
+                        </div>
+                        <div class="psn-improved__pct">
+                            <span class="psn-improved__pct-before">{{ $wrapped['mostImproved']['pct_before'] }}%</span>
+                            <span class="psn-improved__pct-arrow">→</span>
+                            <span class="psn-improved__pct-after">{{ $wrapped['mostImproved']['pct_after'] }}%</span>
+                        </div>
+                    </div>
+                    <div class="psn-improved__trophies">+{{ $wrapped['mostImproved']['trophies_this_year'] }} trophies earned in {{ $wrapped['year'] }}</div>
+                </div>
+            </a>
+        </div>
+        @else
+        <div class="psn-wrapped__section"></div>
+        @endif
+
+        @if($wrapped['oneThatGotAway'])
+        <div class="psn-wrapped__section">
+            <h2 class="psn-wrapped__section-title">The one that got away</h2>
+            <a href="{{ route('playstation.show', $wrapped['oneThatGotAway']['id']) }}" class="psn-got-away">
+                @if($wrapped['oneThatGotAway']['image_url'])
+                    <img src="{{ $wrapped['oneThatGotAway']['image_url'] }}" alt="{{ $wrapped['oneThatGotAway']['label'] }}" class="psn-got-away__art">
+                @else
+                    <div class="psn-got-away__art psn-got-away__art--placeholder"></div>
+                @endif
+                <div class="psn-got-away__info">
+                    <div class="psn-got-away__name">{{ $wrapped['oneThatGotAway']['label'] }}</div>
+                    <div class="psn-got-away__hours">{{ $wrapped['oneThatGotAway']['year_hours'] }}h played this year</div>
+                    <div class="psn-got-away__completion">
+                        <div class="psn-got-away__bar-wrap">
+                            <div class="psn-got-away__bar" style="width: {{ $wrapped['oneThatGotAway']['completion'] }}%;"></div>
+                        </div>
+                        <span class="psn-got-away__pct">{{ $wrapped['oneThatGotAway']['completion'] }}% completion</span>
+                    </div>
+                    <div class="psn-got-away__sessions">{{ $wrapped['oneThatGotAway']['session_count'] }} {{ Str::plural('session', $wrapped['oneThatGotAway']['session_count']) }} · never finished</div>
+                </div>
+            </a>
+        </div>
+        @else
+        <div class="psn-wrapped__section"></div>
+        @endif
+
         @endif
 
         {{-- ⑤ When you played —  time of day + weekday vs weekend --}}
@@ -315,6 +431,27 @@
             </div>
         </div>
 
+        {{-- ⑦½ Trophy haul by month --}}
+        @if($wrapped['trophies']['total'] > 0)
+        <div class="psn-wrapped__section psn-wrapped__section--full">
+            <h2 class="psn-wrapped__section-title">Trophy haul by month</h2>
+            <div class="psn-trophy-month">
+                @foreach($wrapped['trophyHaulByMonth'] as $month)
+                    <div class="psn-trophy-month__col">
+                        <div class="psn-trophy-month__bar-wrap">
+                            <div class="psn-trophy-month__bar {{ $month['percent'] === 100 ? 'psn-trophy-month__bar--best' : '' }}"
+                                 style="height: {{ max($month['percent'], $month['count'] > 0 ? 4 : 0) }}%;"></div>
+                        </div>
+                        <div class="psn-trophy-month__label">{{ $month['label'] }}</div>
+                        @if($month['count'] > 0)
+                            <div class="psn-trophy-month__count">{{ $month['count'] }}</div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
         {{-- ⑧ Trophies --}}
         @if($wrapped['trophies']['total'] > 0)
             <div class="psn-wrapped__section">
@@ -431,6 +568,51 @@
                     </div>
                 @endif
 
+            </div>
+        </div>
+
+        {{-- ⑪ Calendar heatmap --}}
+        <div class="psn-wrapped__section psn-wrapped__section--full">
+            <h2 class="psn-wrapped__section-title">Every day you played</h2>
+            <div class="psn-heatmap">
+                <div class="psn-heatmap__months">
+                    @php
+                        $monthLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                        $monthPositions = [];
+                        foreach($wrapped['calendarHeatmap'] as $wi => $week) {
+                            foreach($week as $di => $day) {
+                                if($day['in_year'] && $di === 0) {
+                                    $month = (int)\Carbon\Carbon::parse($day['date'])->format('n');
+                                    if(!isset($monthPositions[$month])) {
+                                        $monthPositions[$month] = $wi;
+                                    }
+                                }
+                            }
+                        }
+                    @endphp
+                    @foreach($monthPositions as $m => $wi)
+                        <span class="psn-heatmap__month-label" style="grid-column: {{ $wi + 1 }};">{{ $monthLabels[$m - 1] }}</span>
+                    @endforeach
+                </div>
+                <div class="psn-heatmap__grid" style="grid-template-columns: repeat({{ count($wrapped['calendarHeatmap']) }}, 1fr);">
+                    @foreach($wrapped['calendarHeatmap'] as $week)
+                        <div class="psn-heatmap__week">
+                            @foreach($week as $day)
+                                <div class="psn-heatmap__day psn-heatmap__day--{{ $day['level'] < 0 ? 'out' : $day['level'] }}"
+                                     title="{{ $day['in_year'] ? \Carbon\Carbon::parse($day['date'])->format('d M Y') . ($day['minutes'] > 0 ? ' · ' . $day['minutes'] . 'm' : '') : '' }}"></div>
+                            @endforeach
+                        </div>
+                    @endforeach
+                </div>
+                <div class="psn-heatmap__legend">
+                    <span class="psn-heatmap__legend-label">Less</span>
+                    <div class="psn-heatmap__day psn-heatmap__day--0"></div>
+                    <div class="psn-heatmap__day psn-heatmap__day--1"></div>
+                    <div class="psn-heatmap__day psn-heatmap__day--2"></div>
+                    <div class="psn-heatmap__day psn-heatmap__day--3"></div>
+                    <div class="psn-heatmap__day psn-heatmap__day--4"></div>
+                    <span class="psn-heatmap__legend-label">More</span>
+                </div>
             </div>
         </div>
 
