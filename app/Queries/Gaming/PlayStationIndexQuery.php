@@ -58,9 +58,11 @@ final class PlayStationIndexQuery
             ) END
         ';
 
+        $latestSessionSql = '(SELECT MAX(ps.started_at) FROM play_station_sessions ps WHERE ps.play_station_game_id = play_station_games.id)';
+
         $sorted = match ($sort) {
             'name'        => (clone $baseQuery)->orderBy('name'),
-            'last_played' => (clone $baseQuery)->orderByDesc('last_played_at'),
+            'last_played' => (clone $baseQuery)->orderByRaw("{$latestSessionSql} DESC")->orderByDesc('last_played_at'),
             'completion'  => (clone $baseQuery)->orderByDesc('completion_percentage'),
             default       => (clone $baseQuery)->orderByRaw("{$calculatedMinutesSql} DESC"),
         };
