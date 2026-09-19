@@ -5,6 +5,18 @@
         :subtitle="$adaptiveSubtitle"
     />
 
+    {{-- Milestone banner --}}
+    @if($recentMilestone)
+        <div class="milestone-banner">
+            <span class="milestone-banner__icon">{{ $recentMilestone['icon'] }}</span>
+            <div class="milestone-banner__text">
+                <span class="milestone-banner__title">{{ $recentMilestone['title'] }}</span>
+                <span class="milestone-banner__sub">{{ $recentMilestone['sub'] }}</span>
+            </div>
+            <span class="milestone-banner__sparkle">✨</span>
+        </div>
+    @endif
+
     {{-- Streak pills --}}
     @if($stepStreak > 0 || $sleepStreak > 0)
         <div class="dashboard-streaks">

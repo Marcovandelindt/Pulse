@@ -31,6 +31,51 @@
     }
 }
 
+/* ── Milestone banner ────────────────────────────── */
+
+.milestone-banner {
+    display:       flex;
+    align-items:   center;
+    gap:           0.875rem;
+    padding:       0.875rem 1.25rem;
+    background:    linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 146, 60, 0.06) 100%);
+    border:        1px solid rgba(251, 191, 36, 0.25);
+    border-radius: var(--radius-lg);
+    margin-bottom: 1rem;
+}
+
+.milestone-banner__icon {
+    font-size:   1.5rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.milestone-banner__text {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.125rem;
+    flex:           1;
+}
+
+.milestone-banner__title {
+    font-size:   0.9375rem;
+    font-weight: 700;
+    color:       #fbbf24;
+    line-height: 1.2;
+}
+
+.milestone-banner__sub {
+    font-size: 0.8125rem;
+    color:     var(--color-text-muted);
+}
+
+.milestone-banner__sparkle {
+    font-size:   1.25rem;
+    line-height: 1;
+    flex-shrink: 0;
+    opacity:     0.7;
+}
+
 /* ── Streak pills ─────────────────────────────────── */
 
 .dashboard-streaks {
