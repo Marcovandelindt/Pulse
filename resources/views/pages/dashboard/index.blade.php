@@ -238,7 +238,10 @@
             @endif
 
             @if($lastYear)
-                <x-ui.card>
+                <x-ui.card
+                    x-data="{ panel: null }"
+                    @keydown.escape.window="panel = null"
+                >
                     <div class="last-year">
                         <div class="last-year__heading">
                             <span class="last-year__icon">📅</span>
@@ -261,35 +264,114 @@
                                 </div>
                             @endif
                             @if($lastYear['tracks'])
-                                <div class="last-year__item">
+                                <button class="last-year__item last-year__item--clickable" @click="panel = 'tracks'">
                                     <span class="last-year__item-icon">🎵</span>
                                     <span class="last-year__item-value">{{ $lastYear['tracks'] }}</span>
                                     <span class="last-year__item-label">track{{ $lastYear['tracks'] !== 1 ? 's' : '' }}</span>
-                                </div>
+                                    <span class="last-year__item-hint">tap</span>
+                                </button>
                             @endif
                             @if($lastYear['gaming'])
-                                <div class="last-year__item">
+                                <button class="last-year__item last-year__item--clickable" @click="panel = 'gaming'">
                                     <span class="last-year__item-icon">🎮</span>
                                     <span class="last-year__item-value">{{ $lastYear['gaming'] }}</span>
                                     <span class="last-year__item-label">gaming</span>
-                                </div>
+                                    <span class="last-year__item-hint">tap</span>
+                                </button>
                             @endif
                             @if($lastYear['episodes'])
-                                <div class="last-year__item">
+                                <button class="last-year__item last-year__item--clickable" @click="panel = 'episodes'">
                                     <span class="last-year__item-icon">📺</span>
                                     <span class="last-year__item-value">{{ $lastYear['episodes'] }}</span>
                                     <span class="last-year__item-label">episode{{ $lastYear['episodes'] !== 1 ? 's' : '' }}</span>
-                                </div>
+                                    <span class="last-year__item-hint">tap</span>
+                                </button>
                             @endif
                             @if($lastYear['movieWatched'])
                                 <div class="last-year__item">
                                     <span class="last-year__item-icon">🎬</span>
-                                    <span class="last-year__item-value">1</span>
+                                    <span class="last-year__item-value last-year__item-value--sm">{{ Str::limit($lastYear['movieTitle'] ?? 'Movie', 12) }}</span>
                                     <span class="last-year__item-label">movie</span>
                                 </div>
                             @endif
                         </div>
                     </div>
+
+                    {{-- Detail panels --}}
+                    <template x-if="panel !== null">
+                        <div class="last-year-panel" @click.self="panel = null">
+                            <div class="last-year-panel__inner">
+
+                                {{-- Tracks panel --}}
+                                <template x-if="panel === 'tracks'">
+                                    <div>
+                                        <div class="last-year-panel__header">
+                                            <span>🎵 Tracks — {{ $lastYear['date']->format('M j, Y') }}</span>
+                                            <button class="last-year-panel__close" @click="panel = null">✕</button>
+                                        </div>
+                                        <div class="last-year-panel__list">
+                                            @foreach($lastYear['trackList'] as $t)
+                                                <div class="last-year-panel__row">
+                                                    <span class="last-year-panel__time">{{ $t['time'] }}</span>
+                                                    <div class="last-year-panel__row-body">
+                                                        <span class="last-year-panel__primary">{{ $t['title'] }}</span>
+                                                        <span class="last-year-panel__secondary">{{ $t['artist'] }}</span>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </template>
+
+                                {{-- Gaming panel --}}
+                                <template x-if="panel === 'gaming'">
+                                    <div>
+                                        <div class="last-year-panel__header">
+                                            <span>🎮 Gaming — {{ $lastYear['date']->format('M j, Y') }}</span>
+                                            <button class="last-year-panel__close" @click="panel = null">✕</button>
+                                        </div>
+                                        <div class="last-year-panel__list">
+                                            @foreach($lastYear['sessions'] as $s)
+                                                <div class="last-year-panel__row last-year-panel__row--game">
+                                                    @if($s['imageUrl'])
+                                                        <img src="{{ $s['imageUrl'] }}" alt="" class="last-year-panel__game-cover">
+                                                    @else
+                                                        <div class="last-year-panel__game-cover last-year-panel__game-cover--placeholder">🎮</div>
+                                                    @endif
+                                                    <div class="last-year-panel__row-body">
+                                                        <span class="last-year-panel__primary">{{ $s['game'] }}</span>
+                                                        <span class="last-year-panel__secondary">{{ $s['start'] }} – {{ $s['end'] }} · {{ $s['duration'] }}</span>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </template>
+
+                                {{-- Episodes panel --}}
+                                <template x-if="panel === 'episodes'">
+                                    <div>
+                                        <div class="last-year-panel__header">
+                                            <span>📺 Episodes — {{ $lastYear['date']->format('M j, Y') }}</span>
+                                            <button class="last-year-panel__close" @click="panel = null">✕</button>
+                                        </div>
+                                        <div class="last-year-panel__list">
+                                            @foreach($lastYear['episodeList'] as $e)
+                                                <div class="last-year-panel__row">
+                                                    <span class="last-year-panel__time">{{ $e['time'] }}</span>
+                                                    <div class="last-year-panel__row-body">
+                                                        <span class="last-year-panel__primary">{{ $e['series'] }}</span>
+                                                        <span class="last-year-panel__secondary">{{ $e['episode'] }}</span>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </template>
+
+                            </div>
+                        </div>
+                    </template>
                 </x-ui.card>
             @endif
         </div>
