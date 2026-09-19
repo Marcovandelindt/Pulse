@@ -35,6 +35,28 @@
         />
     </div>
 
+    {{-- Consistency stats --}}
+    @if ($consistency['avgBedtime'])
+        <div class="stats-row">
+            <x-stats.stat-card
+                label="Avg bedtime"
+                :value="$consistency['avgBedtime']"
+            />
+            <x-stats.stat-card
+                label="Avg wake time"
+                :value="$consistency['avgWakeTime']"
+            />
+            <x-stats.stat-card
+                label="Bedtime variability"
+                :value="$consistency['bedVariability'] . ' min'"
+            />
+            <x-stats.stat-card
+                label="Wake time variability"
+                :value="$consistency['wakeVariability'] . ' min'"
+            />
+        </div>
+    @endif
+
     {{-- Sleep legend --}}
     <div class="sleep-legend">
         <div class="sleep-legend__item">
