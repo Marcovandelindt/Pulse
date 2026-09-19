@@ -73,6 +73,16 @@
         </div>
     </div>
 
+    {{-- 90-day trend chart --}}
+    @if (count($trendData['labels']) > 1)
+        <x-ui.card title="90-day sleep trend" class="mb-6">
+            <p class="health-section-desc">Total sleep duration per night over the last 90 days, in hours.</p>
+            <div class="sleep-trend-chart">
+                <canvas data-chart="line" data-chart-data="{{ json_encode($trendData) }}"></canvas>
+            </div>
+        </x-ui.card>
+    @endif
+
     {{-- Sleep debt tracker --}}
     @if ($debtData['weekNights'] > 0)
         @php

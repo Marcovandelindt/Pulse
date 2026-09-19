@@ -916,6 +916,13 @@
     &--poor      { background: rgba(248, 113, 113, 0.12); color: #f87171; }
 }
 
+/* ── Sleep trend chart ────────────────────────────── */
+
+.sleep-trend-chart {
+    position:   relative;
+    height:     14rem;
+}
+
 /* ── Sleep debt tracker ───────────────────────────── */
 
 .sleep-debt {

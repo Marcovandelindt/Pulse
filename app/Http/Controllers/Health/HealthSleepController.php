@@ -25,11 +25,25 @@ final class HealthSleepController extends Controller
         $avgScore    = $records->isEmpty() ? null : (int) round($records->avg(fn ($r) => $r->sleepScore()));
         $consistency = $this->sleepConsistency($records);
         $debtData    = $this->sleepDebt($records);
+        $trendData   = $this->trendChartData();
 
         return view('pages.health.sleep', compact(
             'records', 'lastSleep', 'avgTotal', 'avgDeep', 'avgRem', 'avgCore', 'avgScore',
-            'consistency', 'debtData',
+            'consistency', 'debtData', 'trendData',
         ));
+    }
+
+    /** @return array<string, mixed> */
+    private function trendChartData(): array
+    {
+        $records = HealthSleep::where('date', '>=', now()->subDays(89)->toDateString())
+            ->orderBy('date')
+            ->get(['date', 'total_sleep_minutes']);
+
+        return [
+            'labels' => $records->map(fn ($r) => $r->date->format('d M'))->values()->all(),
+            'values' => $records->map(fn ($r) => round($r->total_sleep_minutes / 60, 2))->values()->all(),
+        ];
     }
 
     /**
