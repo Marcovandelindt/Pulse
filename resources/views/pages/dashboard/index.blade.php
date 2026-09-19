@@ -288,11 +288,11 @@
                                 </button>
                             @endif
                             @if($lastYear['movieWatched'])
-                                <div class="last-year__item">
+                                <a href="{{ $lastYear['movieUrl'] }}" class="last-year__item last-year__item--clickable">
                                     <span class="last-year__item-icon">🎬</span>
                                     <span class="last-year__item-value last-year__item-value--sm">{{ Str::limit($lastYear['movieTitle'] ?? 'Movie', 12) }}</span>
                                     <span class="last-year__item-label">movie</span>
-                                </div>
+                                </a>
                             @endif
                         </div>
                     </div>
@@ -311,13 +311,13 @@
                                         </div>
                                         <div class="last-year-panel__list">
                                             @foreach($lastYear['trackList'] as $t)
-                                                <div class="last-year-panel__row">
+                                                <a href="{{ $t['url'] }}" class="last-year-panel__row">
                                                     <span class="last-year-panel__time">{{ $t['time'] }}</span>
                                                     <div class="last-year-panel__row-body">
                                                         <span class="last-year-panel__primary">{{ $t['title'] }}</span>
                                                         <span class="last-year-panel__secondary">{{ $t['artist'] }}</span>
                                                     </div>
-                                                </div>
+                                                </a>
                                             @endforeach
                                         </div>
                                     </div>
@@ -332,7 +332,7 @@
                                         </div>
                                         <div class="last-year-panel__list">
                                             @foreach($lastYear['sessions'] as $s)
-                                                <div class="last-year-panel__row last-year-panel__row--game">
+                                                <a href="{{ $s['url'] }}" class="last-year-panel__row last-year-panel__row--game">
                                                     @if($s['imageUrl'])
                                                         <img src="{{ $s['imageUrl'] }}" alt="" class="last-year-panel__game-cover">
                                                     @else
@@ -342,7 +342,7 @@
                                                         <span class="last-year-panel__primary">{{ $s['game'] }}</span>
                                                         <span class="last-year-panel__secondary">{{ $s['start'] }} – {{ $s['end'] }} · {{ $s['duration'] }}</span>
                                                     </div>
-                                                </div>
+                                                </a>
                                             @endforeach
                                         </div>
                                     </div>
@@ -357,13 +357,13 @@
                                         </div>
                                         <div class="last-year-panel__list">
                                             @foreach($lastYear['episodeList'] as $e)
-                                                <div class="last-year-panel__row">
+                                                <a href="{{ $e['url'] }}" class="last-year-panel__row">
                                                     <span class="last-year-panel__time">{{ $e['time'] }}</span>
                                                     <div class="last-year-panel__row-body">
                                                         <span class="last-year-panel__primary">{{ $e['series'] }}</span>
                                                         <span class="last-year-panel__secondary">{{ $e['episode'] }}</span>
                                                     </div>
-                                                </div>
+                                                </a>
                                             @endforeach
                                         </div>
                                     </div>

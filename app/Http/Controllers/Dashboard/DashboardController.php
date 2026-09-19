@@ -546,6 +546,7 @@ final class DashboardController extends Controller
                 'time'   => $p->played_at->format('H:i'),
                 'title'  => $p->track->title,
                 'artist' => $p->track->artists->first()?->name ?? '',
+                'url'    => route('music.tracks.show', $p->track),
             ])->all(),
             'gaming'       => $gamingMinutes > 0 ? $this->formatMinutes($gamingMinutes) : null,
             'sessions'     => $sessions->map(fn ($s) => [
@@ -554,15 +555,18 @@ final class DashboardController extends Controller
                 'start'     => $s->started_at->format('H:i'),
                 'end'       => $s->end_time->format('H:i'),
                 'duration'  => $s->formatted_duration,
+                'url'       => route('playstation.show', $s->game),
             ])->all(),
             'episodes'     => $episodeCount > 0 ? $episodeCount : null,
             'episodeList'  => $episodes->map(fn ($w) => [
                 'time'    => $w->watched_at->format('H:i'),
                 'series'  => $w->episode->season->series->name,
                 'episode' => 'S'.$w->episode->season->season_number.'E'.$w->episode->episode_number.' — '.$w->episode->name,
+                'url'     => route('tv.show', $w->episode->season->series),
             ])->all(),
             'movieWatched' => $movieWatched !== null,
             'movieTitle'   => $movieWatched?->movie->title,
+            'movieUrl'     => $movieWatched !== null ? route('movies.show', $movieWatched->movie) : null,
         ];
     }
 
