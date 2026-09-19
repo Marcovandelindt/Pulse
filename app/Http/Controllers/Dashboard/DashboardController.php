@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Actions\PlayStation\SyncGamingPresenceAction;
 use App\Data\ActivityItem;
 use App\Http\Controllers\Controller;
+use App\Models\Artist;
 use App\Models\EpisodeWatch;
 use App\Models\HealthEntry;
 use App\Models\HealthSleep;
@@ -92,7 +93,8 @@ final class DashboardController extends Controller
             ? PlayStationSession::with('game')->latest('started_at')->first()
             : null;
 
-        $lastYear = $this->thisTimeLastYear();
+        $lastYear       = $this->thisTimeLastYear();
+        $weekTopArtist  = $this->weekTopArtist();
 
         $lastPlayedGameUrl = $lastPlayedSession
             ? route('playstation.show', $lastPlayedSession->game)
@@ -125,6 +127,7 @@ final class DashboardController extends Controller
             'lastPlayedGameUrl' => $lastPlayedGameUrl,
             'lastYear'          => $lastYear,
             'dailyBrief'        => $dailyBrief,
+            'weekTopArtist'     => $weekTopArtist,
         ]);
     }
 
@@ -410,6 +413,37 @@ final class DashboardController extends Controller
             'remaining'    => $remaining !== null && $remaining > 0 ? number_format($remaining) : null,
             'sevenDayAvg'  => $sevenDayAvg > 0 ? number_format($sevenDayAvg) : null,
             'stepVsAvg'    => $stepVsAvg,
+        ];
+    }
+
+    /** @return array<string, mixed>|null */
+    private function weekTopArtist(): ?array
+    {
+        $artist = Artist::query()
+            ->selectRaw('artists.*, COUNT(plays.id) as play_count')
+            ->join('track_artists', 'artists.id', '=', 'track_artists.artist_id')
+            ->join('tracks', 'track_artists.track_id', '=', 'tracks.id')
+            ->join('plays', 'tracks.id', '=', 'plays.track_id')
+            ->where('track_artists.is_primary', true)
+            ->whereBetween('plays.played_at', [now()->startOfWeek(), now()->endOfWeek()])
+            ->groupBy('artists.id')
+            ->orderByDesc('play_count')
+            ->first();
+
+        if ($artist === null) {
+            return null;
+        }
+
+        $totalTracks = Play::whereBetween('played_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
+        $topGenre    = is_array($artist->genres) && count($artist->genres) > 0
+            ? ucfirst($artist->genres[0])
+            : null;
+
+        return [
+            'artist'      => $artist,
+            'playCount'   => (int) $artist->play_count,
+            'totalTracks' => $totalTracks,
+            'topGenre'    => $topGenre,
         ];
     }
 

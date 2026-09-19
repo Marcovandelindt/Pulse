@@ -190,6 +190,39 @@
                 </x-ui.card>
             @endif
 
+            @if($weekTopArtist)
+                <x-ui.card title="Top artist this week" class="card--flush">
+                    <div class="top-artist">
+                        @if($weekTopArtist['artist']->image_url)
+                            <div class="top-artist__avatar">
+                                <img src="{{ $weekTopArtist['artist']->image_url }}" alt="{{ $weekTopArtist['artist']->name }}">
+                            </div>
+                        @else
+                            <div class="top-artist__avatar top-artist__avatar--placeholder">
+                                <x-icon name="musical-note" class="w-5 h-5 text-[var(--color-text-muted)]" />
+                            </div>
+                        @endif
+                        <div class="top-artist__info">
+                            <a href="{{ route('music.artists.show', $weekTopArtist['artist']) }}"
+                               class="top-artist__name hover:underline">{{ $weekTopArtist['artist']->name }}</a>
+                            <div class="top-artist__meta">
+                                <span class="top-artist__plays">{{ $weekTopArtist['playCount'] }} plays</span>
+                                @if($weekTopArtist['topGenre'])
+                                    <span class="top-artist__sep">·</span>
+                                    <span class="top-artist__genre">{{ $weekTopArtist['topGenre'] }}</span>
+                                @endif
+                            </div>
+                            <div class="top-artist__bar-wrap">
+                                <div class="top-artist__bar" style="width: {{ $weekTopArtist['totalTracks'] > 0 ? min(100, round($weekTopArtist['playCount'] / $weekTopArtist['totalTracks'] * 100)) : 0 }}%"></div>
+                            </div>
+                            <span class="top-artist__share">
+                                {{ $weekTopArtist['totalTracks'] > 0 ? round($weekTopArtist['playCount'] / $weekTopArtist['totalTracks'] * 100) : 0 }}% of this week's plays
+                            </span>
+                        </div>
+                    </div>
+                </x-ui.card>
+            @endif
+
             @if($lastYear)
                 <x-ui.card>
                     <div class="last-year">
