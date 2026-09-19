@@ -25,6 +25,69 @@
         </div>
     @endif
 
+    {{-- Daily brief --}}
+    @if($dailyBrief['sleep'] || $dailyBrief['steps'])
+        <div class="daily-brief">
+            @if($dailyBrief['sleep'])
+                <div class="daily-brief__section">
+                    <span class="daily-brief__icon">😴</span>
+                    <div class="daily-brief__content">
+                        <span class="daily-brief__value">{{ $dailyBrief['sleep']['duration'] }}</span>
+                        <span class="daily-brief__label">
+                            last night
+                            <span class="daily-brief__badge daily-brief__badge--{{ strtolower($dailyBrief['sleep']['label']) }}">{{ $dailyBrief['sleep']['label'] }}</span>
+                        </span>
+                    </div>
+                </div>
+            @endif
+
+            @if($dailyBrief['sleep'] && $dailyBrief['steps'])
+                <div class="daily-brief__divider"></div>
+            @endif
+
+            @if($dailyBrief['steps'])
+                <div class="daily-brief__section">
+                    <span class="daily-brief__icon">🚶</span>
+                    <div class="daily-brief__content">
+                        <span class="daily-brief__value">{{ $dailyBrief['steps'] }}</span>
+                        <span class="daily-brief__label">
+                            steps today
+                            @if($dailyBrief['sevenDayAvg'])
+                                · avg {{ $dailyBrief['sevenDayAvg'] }}
+                                @if($dailyBrief['stepVsAvg'] !== null)
+                                    <span class="daily-brief__delta {{ $dailyBrief['stepVsAvg'] >= 0 ? 'daily-brief__delta--up' : 'daily-brief__delta--down' }}">
+                                        {{ $dailyBrief['stepVsAvg'] >= 0 ? '+' : '' }}{{ $dailyBrief['stepVsAvg'] }}%
+                                    </span>
+                                @endif
+                            @endif
+                        </span>
+                    </div>
+                </div>
+            @endif
+
+            @if($dailyBrief['goalPct'] !== null && $dailyBrief['goalPct'] < 100)
+                <div class="daily-brief__divider"></div>
+                <div class="daily-brief__section daily-brief__section--goal">
+                    <div class="daily-brief__goal-bar-wrap">
+                        <div class="daily-brief__goal-bar" style="width: {{ $dailyBrief['goalPct'] }}%"></div>
+                    </div>
+                    <span class="daily-brief__label">
+                        {{ $dailyBrief['goalPct'] }}% of goal
+                        @if($dailyBrief['remaining'])
+                            · {{ $dailyBrief['remaining'] }} to go
+                        @endif
+                    </span>
+                </div>
+            @elseif($dailyBrief['goalPct'] === 100)
+                <div class="daily-brief__divider"></div>
+                <div class="daily-brief__section">
+                    <span class="daily-brief__icon">✅</span>
+                    <span class="daily-brief__label daily-brief__label--success">Step goal reached!</span>
+                </div>
+            @endif
+        </div>
+    @endif
+
     {{-- Stats row --}}
     <div class="stats-row">
         <x-stats.stat-card

@@ -45,6 +45,7 @@ final class DashboardController extends Controller
         $adaptiveSubtitle = $this->buildAdaptiveSubtitle($todaySteps, $currentGoal, $lastSleep);
         $stepStreak       = $this->currentStepStreak();
         $sleepStreak      = $this->currentSleepStreak();
+        $dailyBrief       = $this->buildDailyBrief($todaySteps, $currentGoal, $lastSleep);
 
         $stepsThisWeek = HealthEntry::withSteps()->thisWeek()->sum('steps');
 
@@ -123,6 +124,7 @@ final class DashboardController extends Controller
             'lastPlayedAt'      => $lastPlayedSession?->started_at,
             'lastPlayedGameUrl' => $lastPlayedGameUrl,
             'lastYear'          => $lastYear,
+            'dailyBrief'        => $dailyBrief,
         ]);
     }
 
@@ -374,6 +376,41 @@ final class DashboardController extends Controller
         }
 
         return $b->occurredAt->timestamp <=> $a->occurredAt->timestamp;
+    }
+
+    /** @return array<string, mixed> */
+    private function buildDailyBrief(int $todaySteps, int $stepGoal, ?HealthSleep $lastSleep): array
+    {
+        $sevenDayAvg = (int) round(
+            HealthEntry::withSteps()
+                ->where('date', '>=', now()->subDays(7)->startOfDay())
+                ->where('date', '<', today())
+                ->avg('steps') ?? 0
+        );
+
+        $goalPct  = $stepGoal > 0 ? min(100, (int) round($todaySteps / $stepGoal * 100)) : null;
+        $remaining = $stepGoal > 0 ? max(0, $stepGoal - $todaySteps) : null;
+
+        $stepVsAvg = null;
+        if ($sevenDayAvg > 0 && $todaySteps > 0) {
+            $stepVsAvg = (int) round(($todaySteps - $sevenDayAvg) / $sevenDayAvg * 100);
+        }
+
+        return [
+            'sleep'        => $lastSleep && $lastSleep->date->copy()->gte(today()->subDay())
+                ? [
+                    'duration' => $lastSleep->formattedMinutes($lastSleep->total_sleep_minutes),
+                    'score'    => $lastSleep->sleepScore(),
+                    'label'    => $lastSleep->sleepScoreLabel(),
+                ]
+                : null,
+            'steps'        => $todaySteps > 0 ? number_format($todaySteps) : null,
+            'stepGoal'     => $stepGoal > 0 ? number_format($stepGoal) : null,
+            'goalPct'      => $goalPct,
+            'remaining'    => $remaining !== null && $remaining > 0 ? number_format($remaining) : null,
+            'sevenDayAvg'  => $sevenDayAvg > 0 ? number_format($sevenDayAvg) : null,
+            'stepVsAvg'    => $stepVsAvg,
+        ];
     }
 
     /** @return array<string, mixed>|null */
