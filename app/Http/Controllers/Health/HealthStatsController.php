@@ -127,6 +127,8 @@ final class HealthStatsController extends Controller
 
         // Monthly active calories history
         $calorieMonthlyHistory = $this->calorieMonthlyHistory($year);
+        $sleepMonthlyHistory   = $this->sleepMonthlyHistory($year);
+        $sleepStreak           = $this->sleepStreak();
 
         $distanceComparisons = collect([
             ['label' => 'Amsterdam → Paris',      'km' => 500],
@@ -166,6 +168,7 @@ final class HealthStatsController extends Controller
             'exerciseDaysMet', 'exerciseDaysTotal',
             'standDaysMet', 'standDaysTotal',
             'calorieMonthlyHistory',
+            'sleepMonthlyHistory', 'sleepStreak',
         ));
     }
 
@@ -426,23 +429,26 @@ final class HealthStatsController extends Controller
             ->orderByDesc('total')
             ->first();
 
-        $bestHrvEntry = HealthEntry::whereNotNull('hrv')->orderByDesc('hrv')->first(['date', 'hrv']);
-        $bestCalEntry = HealthEntry::whereNotNull('active_calories')->orderByDesc('active_calories')->first(['date', 'active_calories']);
-        $bestSleep    = HealthSleep::orderByDesc('total_sleep_minutes')->first(['date', 'total_sleep_minutes', 'deep_minutes']);
+        $bestHrvEntry  = HealthEntry::whereNotNull('hrv')->orderByDesc('hrv')->first(['date', 'hrv']);
+        $bestCalEntry  = HealthEntry::whereNotNull('active_calories')->orderByDesc('active_calories')->first(['date', 'active_calories']);
+        $bestSleep     = HealthSleep::orderByDesc('total_sleep_minutes')->first(['date', 'total_sleep_minutes']);
+        $worstSleep    = HealthSleep::orderBy('total_sleep_minutes')->first(['date', 'total_sleep_minutes']);
 
         return [
-            'bestDaySteps'      => $bestDay?->steps,
-            'bestDayDate'       => $bestDay?->date->format('d M Y'),
-            'bestWeekSteps'     => $bestWeekRow ? (int) $bestWeekRow->total : null,
-            'bestWeekStart'     => $bestWeekRow ? Carbon::parse($bestWeekRow->week_start)->format('d M Y') : null,
-            'bestMonthSteps'    => $bestMonthRow ? (int) $bestMonthRow->total : null,
-            'bestMonthLabel'    => $bestMonthRow ? Carbon::createFromFormat('Y-m', $bestMonthRow->month)->format('F Y') : null,
-            'bestHrv'           => $bestHrvEntry ? round((float) $bestHrvEntry->hrv, 1) : null,
-            'bestHrvDate'       => $bestHrvEntry?->date->format('d M Y'),
-            'bestActiveCalories'=> $bestCalEntry ? (int) $bestCalEntry->active_calories : null,
-            'bestCalDate'       => $bestCalEntry?->date->format('d M Y'),
-            'bestSleepMinutes'  => $bestSleep?->total_sleep_minutes,
-            'bestSleepDate'     => $bestSleep?->date->format('d M Y'),
+            'bestDaySteps'        => $bestDay?->steps,
+            'bestDayDate'         => $bestDay?->date->format('d M Y'),
+            'bestWeekSteps'       => $bestWeekRow ? (int) $bestWeekRow->total : null,
+            'bestWeekStart'       => $bestWeekRow ? Carbon::parse($bestWeekRow->week_start)->format('d M Y') : null,
+            'bestMonthSteps'      => $bestMonthRow ? (int) $bestMonthRow->total : null,
+            'bestMonthLabel'      => $bestMonthRow ? Carbon::createFromFormat('Y-m', $bestMonthRow->month)->format('F Y') : null,
+            'bestHrv'             => $bestHrvEntry ? round((float) $bestHrvEntry->hrv, 1) : null,
+            'bestHrvDate'         => $bestHrvEntry?->date->format('d M Y'),
+            'bestActiveCalories'  => $bestCalEntry ? (int) $bestCalEntry->active_calories : null,
+            'bestCalDate'         => $bestCalEntry?->date->format('d M Y'),
+            'bestSleepMinutes'    => $bestSleep?->total_sleep_minutes,
+            'bestSleepDate'       => $bestSleep?->date->format('d M Y'),
+            'worstSleepMinutes'   => $worstSleep?->total_sleep_minutes,
+            'worstSleepDate'      => $worstSleep?->date->format('d M Y'),
         ];
     }
 
@@ -562,5 +568,58 @@ final class HealthStatsController extends Controller
                 'avg_cal'     => number_format((int) round((float) $row->avg_cal)),
                 'total_basal' => $row->total_basal ? number_format((int) $row->total_basal) : null,
             ]);
+    }
+
+    private function sleepMonthlyHistory(?int $year): SupportCollection
+    {
+        $helper = new HealthSleep;
+
+        return HealthSleep::when($year, fn ($q) => $q->whereYear('date', $year))
+            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, COUNT(*) as nights, AVG(total_sleep_minutes) as avg_total, AVG(deep_minutes) as avg_deep, AVG(rem_minutes) as avg_rem')
+            ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
+            ->orderByDesc('month')
+            ->get()
+            ->map(fn ($row) => [
+                'month'     => Carbon::createFromFormat('Y-m', $row->month)->format('F Y'),
+                'nights'    => (int) $row->nights,
+                'avg_total' => $helper->formattedMinutes((int) round((float) $row->avg_total)),
+                'avg_deep'  => $row->avg_deep ? $helper->formattedMinutes((int) round((float) $row->avg_deep)) : '—',
+                'avg_rem'   => $row->avg_rem ? $helper->formattedMinutes((int) round((float) $row->avg_rem)) : '—',
+            ]);
+    }
+
+    /** @return array<string, int> */
+    private function sleepStreak(): array
+    {
+        $records = HealthSleep::orderBy('date')->get(['date', 'total_sleep_minutes']);
+
+        if ($records->isEmpty()) {
+            return ['current' => 0, 'longest' => 0];
+        }
+
+        $longest = 0;
+        $current = 0;
+        $running = 0;
+
+        for ($i = 0; $i < $records->count(); $i++) {
+            $meetsGoal     = $records[$i]->total_sleep_minutes >= 420; // 7 hours
+            $isConsecutive = $i === 0 || $records[$i - 1]->date->copy()->addDay()->equalTo($records[$i]->date);
+
+            if ($meetsGoal && $isConsecutive) {
+                $running++;
+            } elseif ($meetsGoal) {
+                $running = 1;
+            } else {
+                $running = 0;
+            }
+
+            $longest = max($longest, $running);
+
+            if ($i === $records->count() - 1) {
+                $current = $running;
+            }
+        }
+
+        return ['current' => $current, 'longest' => max($longest, $current)];
     }
 }

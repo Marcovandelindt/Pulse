@@ -212,6 +212,21 @@
                     </div>
                 </div>
             @endif
+
+            @if ($personalRecords['worstSleepMinutes'])
+                <div class="health-record">
+                    <div class="health-record__icon">😵</div>
+                    <div class="health-record__body">
+                        <div class="health-record__value health-record__value--sm" style="color: #f87171;">
+                            {{ (new App\Models\HealthSleep)->formattedMinutes($personalRecords['worstSleepMinutes']) }}
+                        </div>
+                        <div class="health-record__label">Shortest sleep</div>
+                        @if ($personalRecords['worstSleepDate'])
+                            <div class="health-record__sub">{{ $personalRecords['worstSleepDate'] }}</div>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
     </x-ui.card>
 
@@ -545,6 +560,13 @@
                             <div class="health-consistency__sub">Higher = better recovered</div>
                         </div>
                     @endif
+                    @if ($sleepStreak['longest'] > 0)
+                        <div class="health-consistency__block">
+                            <div class="health-consistency__value">{{ $sleepStreak['longest'] }}</div>
+                            <div class="health-consistency__label">Longest 7h+ streak</div>
+                            <div class="health-consistency__sub">Current: {{ $sleepStreak['current'] }} night(s)</div>
+                        </div>
+                    @endif
                 </div>
             @else
                 <x-ui.empty-state message="No sleep data yet — sync your Apple Watch to see recovery stats." />
@@ -601,6 +623,34 @@
                                 <td>{{ $row['total_cal'] }}</td>
                                 <td>{{ $row['avg_cal'] }}</td>
                                 <td>{{ $row['total_basal'] ?? '—' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </x-ui.table>
+            </x-ui.card>
+        @endif
+
+        {{-- Sleep monthly history --}}
+        @if ($sleepMonthlyHistory->isNotEmpty())
+            <x-ui.card title="Sleep — monthly history" class="health-stats-grid__wide">
+                <x-ui.table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Nights</th>
+                            <th>Avg total sleep</th>
+                            <th>Avg deep</th>
+                            <th>Avg REM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($sleepMonthlyHistory as $row)
+                            <tr>
+                                <td>{{ $row['month'] }}</td>
+                                <td>{{ $row['nights'] }}</td>
+                                <td>{{ $row['avg_total'] }}</td>
+                                <td>{{ $row['avg_deep'] }}</td>
+                                <td>{{ $row['avg_rem'] }}</td>
                             </tr>
                         @endforeach
                     </tbody>
