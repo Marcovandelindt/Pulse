@@ -5,6 +5,26 @@
         :subtitle="$adaptiveSubtitle"
     />
 
+    {{-- Streak pills --}}
+    @if($stepStreak > 0 || $sleepStreak > 0)
+        <div class="dashboard-streaks">
+            @if($stepStreak > 0)
+                <div class="dashboard-streak-pill">
+                    <span class="dashboard-streak-pill__icon">🔥</span>
+                    <span class="dashboard-streak-pill__count">{{ $stepStreak }}</span>
+                    <span class="dashboard-streak-pill__label">day{{ $stepStreak !== 1 ? 's' : '' }} step goal</span>
+                </div>
+            @endif
+            @if($sleepStreak > 0)
+                <div class="dashboard-streak-pill dashboard-streak-pill--sleep">
+                    <span class="dashboard-streak-pill__icon">😴</span>
+                    <span class="dashboard-streak-pill__count">{{ $sleepStreak }}</span>
+                    <span class="dashboard-streak-pill__label">night{{ $sleepStreak !== 1 ? 's' : '' }} 7h+ sleep</span>
+                </div>
+            @endif
+        </div>
+    @endif
+
     {{-- Stats row --}}
     <div class="stats-row">
         <x-stats.stat-card

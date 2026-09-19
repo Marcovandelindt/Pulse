@@ -43,6 +43,8 @@ final class DashboardController extends Controller
         $lastSleep   = HealthSleep::orderByDesc('date')->first();
         $currentGoal = StepGoal::current();
         $adaptiveSubtitle = $this->buildAdaptiveSubtitle($todaySteps, $currentGoal, $lastSleep);
+        $stepStreak       = $this->currentStepStreak();
+        $sleepStreak      = $this->currentSleepStreak();
 
         $stepsThisWeek = HealthEntry::withSteps()->thisWeek()->sum('steps');
 
@@ -100,6 +102,8 @@ final class DashboardController extends Controller
         return view('pages.dashboard.index', [
             'greeting'          => $greeting,
             'adaptiveSubtitle'  => $adaptiveSubtitle,
+            'stepStreak'        => $stepStreak,
+            'sleepStreak'       => $sleepStreak,
             'timeline'          => $this->buildTimeline(),
             'stepsThisWeek'     => $stepsThisWeek > 0 ? number_format((int) $stepsThisWeek) : null,
             'watchtimeThisWeek' => $this->formatMinutes($episodeMinutes + $movieMinutes),
@@ -117,6 +121,77 @@ final class DashboardController extends Controller
             'lastPlayedAt'      => $lastPlayedSession?->started_at,
             'lastPlayedGameUrl' => $lastPlayedGameUrl,
         ]);
+    }
+
+    private function currentStepStreak(): int
+    {
+        $goals   = StepGoal::orderByDesc('effective_from')->get();
+        $entries = HealthEntry::withSteps()->orderByDesc('date')->take(90)->get(['date', 'steps']);
+
+        if ($entries->isEmpty()) {
+            return 0;
+        }
+
+        $todayLogged = $entries->first()->date->copy()->startOfDay()->equalTo(now()->startOfDay());
+        $check       = $todayLogged ? now()->startOfDay() : now()->subDay()->startOfDay();
+
+        while ($check->isWeekend()) {
+            $check->subDay();
+        }
+
+        $streak = 0;
+
+        foreach ($entries as $entry) {
+            if ($entry->date->isWeekend()) {
+                continue;
+            }
+            if (! $entry->date->copy()->startOfDay()->equalTo($check)) {
+                break;
+            }
+
+            $goal = $goals->first(fn ($g) => ! $g->effective_from->isAfter($entry->date))?->steps ?? 10000;
+            if (($entry->steps ?? 0) < $goal) {
+                break;
+            }
+
+            $streak++;
+            $check->subDay();
+            while ($check->isWeekend()) {
+                $check->subDay();
+            }
+        }
+
+        return $streak;
+    }
+
+    private function currentSleepStreak(): int
+    {
+        $records = HealthSleep::orderByDesc('date')->take(60)->get(['date', 'total_sleep_minutes']);
+
+        if ($records->isEmpty()) {
+            return 0;
+        }
+
+        if ($records->first()->date->copy()->startOfDay()->lt(now()->subDay()->startOfDay())) {
+            return 0;
+        }
+
+        $streak   = 0;
+        $prevDate = null;
+
+        foreach ($records as $record) {
+            if ($record->total_sleep_minutes < 420) {
+                break;
+            }
+            if ($prevDate !== null && ! $record->date->copy()->addDay()->startOfDay()->equalTo($prevDate)) {
+                break;
+            }
+
+            $streak++;
+            $prevDate = $record->date->copy()->startOfDay();
+        }
+
+        return $streak;
     }
 
     private function buildAdaptiveSubtitle(int $todaySteps, int $stepGoal, ?HealthSleep $lastSleep): string
