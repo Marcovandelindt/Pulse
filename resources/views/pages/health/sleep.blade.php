@@ -83,43 +83,81 @@
         </x-ui.card>
     @endif
 
-    {{-- Sleep debt tracker --}}
-    @if ($debtData['weekNights'] > 0)
-        @php
-            $weekBalance    = $debtData['weekBalance'];
-            $balanceLabel   = $weekBalance >= 0 ? 'ahead' : 'behind';
-            $balanceMod     = $weekBalance >= 0 ? 'surplus' : 'deficit';
-            $balanceAbs     = abs($weekBalance);
-            $balanceH       = intdiv($balanceAbs, 60);
-            $balanceM       = $balanceAbs % 60;
-            $balanceFormatted = $balanceH > 0 ? "{$balanceH}h {$balanceM}m" : "{$balanceM}m";
-            $helper         = new App\Models\HealthSleep;
-        @endphp
-        <x-ui.card title="Weekly sleep balance" class="mb-6">
-            <p class="health-section-desc">
-                Measured against a goal of {{ $helper->formattedMinutes($debtData['goalMinutes']) }} per night.
-                Covers the last {{ $debtData['weekNights'] }} night(s) with recorded data.
-            </p>
-            <div class="sleep-debt">
-                <div class="sleep-debt__balance">
-                    <span class="sleep-debt__value sleep-debt__value--{{ $balanceMod }}">
-                        {{ $weekBalance >= 0 ? '+' : '-' }}{{ $balanceFormatted }}
-                    </span>
-                    <span class="sleep-debt__label">this week vs. goal</span>
-                </div>
-                <div class="sleep-debt__all-time">
-                    <div class="sleep-debt__all-time-block">
-                        <div class="sleep-debt__all-time-value">{{ $helper->formattedMinutes(intdiv($debtData['allTimeDeficit'], 60) * 60 + $debtData['allTimeDeficit'] % 60) }}</div>
-                        <div class="sleep-debt__all-time-label">All-time shortfall (vs. 8h)</div>
+    {{-- Debt + Correlation --}}
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-6">
+
+        {{-- Sleep debt tracker --}}
+        @if ($debtData['weekNights'] > 0)
+            @php
+                $weekBalance      = $debtData['weekBalance'];
+                $balanceMod       = $weekBalance >= 0 ? 'surplus' : 'deficit';
+                $balanceAbs       = abs($weekBalance);
+                $balanceH         = intdiv($balanceAbs, 60);
+                $balanceM         = $balanceAbs % 60;
+                $balanceFormatted = $balanceH > 0 ? "{$balanceH}h {$balanceM}m" : "{$balanceM}m";
+                $helper           = new App\Models\HealthSleep;
+            @endphp
+            <x-ui.card title="Weekly sleep balance">
+                <p class="health-section-desc">
+                    Against a goal of {{ $helper->formattedMinutes($debtData['goalMinutes']) }}/night.
+                    Last {{ $debtData['weekNights'] }} night(s) with data.
+                </p>
+                <div class="sleep-debt">
+                    <div class="sleep-debt__balance">
+                        <span class="sleep-debt__value sleep-debt__value--{{ $balanceMod }}">
+                            {{ $weekBalance >= 0 ? '+' : '-' }}{{ $balanceFormatted }}
+                        </span>
+                        <span class="sleep-debt__label">this week vs. goal</span>
                     </div>
-                    <div class="sleep-debt__all-time-block">
-                        <div class="sleep-debt__all-time-value">{{ $helper->formattedMinutes(intdiv($debtData['allTimeSurplus'], 60) * 60 + $debtData['allTimeSurplus'] % 60) }}</div>
-                        <div class="sleep-debt__all-time-label">All-time surplus (vs. 8h)</div>
+                    <div class="sleep-debt__all-time">
+                        <div class="sleep-debt__all-time-block">
+                            <div class="sleep-debt__all-time-value">{{ $helper->formattedMinutes($debtData['allTimeDeficit']) }}</div>
+                            <div class="sleep-debt__all-time-label">All-time shortfall</div>
+                        </div>
+                        <div class="sleep-debt__all-time-block">
+                            <div class="sleep-debt__all-time-value">{{ $helper->formattedMinutes($debtData['allTimeSurplus']) }}</div>
+                            <div class="sleep-debt__all-time-label">All-time surplus</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </x-ui.card>
-    @endif
+            </x-ui.card>
+        @endif
+
+        {{-- Sleep vs. next-day steps correlation --}}
+        @if ($correlationPoints->count() >= 5)
+            @php
+                $scatterData = [
+                    'points' => $correlationPoints->map(fn ($p) => ['x' => $p['x'], 'y' => $p['y']])->values()->all(),
+                    'labels' => $correlationPoints->map(fn ($p) => $p['label'])->values()->all(),
+                ];
+                $corrLabel = match(true) {
+                    $correlationCoefficient >= 0.5  => 'strong positive',
+                    $correlationCoefficient >= 0.3  => 'moderate positive',
+                    $correlationCoefficient >= 0.1  => 'weak positive',
+                    $correlationCoefficient <= -0.5 => 'strong negative',
+                    $correlationCoefficient <= -0.3 => 'moderate negative',
+                    $correlationCoefficient <= -0.1 => 'weak negative',
+                    default                         => 'negligible',
+                };
+            @endphp
+            <x-ui.card title="Sleep vs. next-day steps">
+                <p class="health-section-desc">
+                    Each dot is one night's sleep (x = hours) paired with the following day's step count (y).
+                    Based on {{ $correlationPoints->count() }} matched pairs.
+                </p>
+                <div class="sleep-trend-chart">
+                    <canvas data-chart="scatter" data-chart-data="{{ json_encode($scatterData) }}"></canvas>
+                </div>
+                @if ($correlationCoefficient !== null)
+                    <p class="sleep-correlation__coefficient">
+                        Pearson r = <strong>{{ $correlationCoefficient }}</strong>
+                        <span>({{ $corrLabel }} correlation)</span>
+                    </p>
+                @endif
+            </x-ui.card>
+        @endif
+
+    </div>
 
     {{-- Sleep history --}}
     <x-ui.card title="Sleep history">

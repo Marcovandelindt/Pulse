@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Health;
 
 use App\Http\Controllers\Controller;
+use App\Models\HealthEntry;
 use App\Models\HealthSleep;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\View\View;
 
 final class HealthSleepController extends Controller
@@ -26,11 +28,66 @@ final class HealthSleepController extends Controller
         $consistency = $this->sleepConsistency($records);
         $debtData    = $this->sleepDebt($records);
         $trendData   = $this->trendChartData();
+        [$correlationPoints, $correlationCoefficient] = $this->correlationData();
 
         return view('pages.health.sleep', compact(
             'records', 'lastSleep', 'avgTotal', 'avgDeep', 'avgRem', 'avgCore', 'avgScore',
-            'consistency', 'debtData', 'trendData',
+            'consistency', 'debtData', 'trendData', 'correlationPoints', 'correlationCoefficient',
         ));
+    }
+
+    /**
+     * @return array{0: SupportCollection, 1: float|null}
+     */
+    private function correlationData(): array
+    {
+        $sleepRecords = HealthSleep::orderBy('date')->get(['date', 'total_sleep_minutes']);
+
+        $nextDates = $sleepRecords->map(fn ($r) => $r->date->copy()->addDay()->format('Y-m-d'))->all();
+
+        $stepsByDate = HealthEntry::withSteps()
+            ->whereIn('date', $nextDates)
+            ->get(['date', 'steps'])
+            ->keyBy(fn ($e) => $e->date->format('Y-m-d'));
+
+        $points = $sleepRecords
+            ->map(function (HealthSleep $sleep) use ($stepsByDate): ?array {
+                $entry = $stepsByDate->get($sleep->date->copy()->addDay()->format('Y-m-d'));
+                if (! $entry) {
+                    return null;
+                }
+
+                $sleepHours = round($sleep->total_sleep_minutes / 60, 1);
+
+                return [
+                    'x'     => $sleepHours,
+                    'y'     => $entry->steps,
+                    'label' => $sleep->date->format('d M Y') . ': ' . $sleepHours . 'h sleep → ' . number_format($entry->steps) . ' steps',
+                ];
+            })
+            ->filter()
+            ->values();
+
+        return [$points, $this->pearsonCorrelation($points)];
+    }
+
+    private function pearsonCorrelation(SupportCollection $points): ?float
+    {
+        $n = $points->count();
+        if ($n < 5) {
+            return null;
+        }
+
+        $sumX  = $points->sum('x');
+        $sumY  = $points->sum('y');
+        $sumXY = $points->sum(fn ($p) => $p['x'] * $p['y']);
+        $sumX2 = $points->sum(fn ($p) => $p['x'] ** 2);
+        $sumY2 = $points->sum(fn ($p) => $p['y'] ** 2);
+
+        $num = $n * $sumXY - $sumX * $sumY;
+        $den = sqrt(($n * $sumX2 - $sumX ** 2) * ($n * $sumY2 - $sumY ** 2));
+
+        return $den > 0 ? round($num / $den, 2) : null;
     }
 
     /** @return array<string, mixed> */

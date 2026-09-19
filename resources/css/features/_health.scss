@@ -923,6 +923,18 @@
     height:     14rem;
 }
 
+/* ── Sleep correlation ────────────────────────────── */
+
+.sleep-correlation__coefficient {
+    margin-top: 0.75rem;
+    font-size:  0.8125rem;
+    color:      var(--color-text-muted);
+
+    strong {
+        color: var(--color-text-primary);
+    }
+}
+
 /* ── Sleep debt tracker ───────────────────────────── */
 
 .sleep-debt {
