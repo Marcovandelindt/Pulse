@@ -11,6 +11,8 @@ use Illuminate\View\View;
 
 final class HealthSleepController extends Controller
 {
+    private const SLEEP_GOAL_MINUTES = 480; // 8 hours
+
     public function index(): View
     {
         $records = HealthSleep::orderByDesc('date')->get();
@@ -22,11 +24,39 @@ final class HealthSleepController extends Controller
         $avgCore   = $records->avg('core_minutes');
         $avgScore    = $records->isEmpty() ? null : (int) round($records->avg(fn ($r) => $r->sleepScore()));
         $consistency = $this->sleepConsistency($records);
+        $debtData    = $this->sleepDebt($records);
 
         return view('pages.health.sleep', compact(
             'records', 'lastSleep', 'avgTotal', 'avgDeep', 'avgRem', 'avgCore', 'avgScore',
-            'consistency',
+            'consistency', 'debtData',
         ));
+    }
+
+    /**
+     * @param Collection<int, HealthSleep> $records
+     * @return array<string, mixed>
+     */
+    private function sleepDebt(Collection $records): array
+    {
+        $last7 = HealthSleep::where('date', '>=', now()->subDays(6)->toDateString())
+            ->orderByDesc('date')
+            ->get(['date', 'total_sleep_minutes']);
+
+        $weekNights  = $last7->count();
+        $weekBalance = $weekNights > 0
+            ? (int) $last7->sum('total_sleep_minutes') - ($weekNights * self::SLEEP_GOAL_MINUTES)
+            : 0;
+
+        $allTimeDeficit = (int) $records->sum(fn ($r) => max(0, self::SLEEP_GOAL_MINUTES - $r->total_sleep_minutes));
+        $allTimeSurplus = (int) $records->sum(fn ($r) => max(0, $r->total_sleep_minutes - self::SLEEP_GOAL_MINUTES));
+
+        return [
+            'weekNights'     => $weekNights,
+            'weekBalance'    => $weekBalance,
+            'allTimeDeficit' => $allTimeDeficit,
+            'allTimeSurplus' => $allTimeSurplus,
+            'goalMinutes'    => self::SLEEP_GOAL_MINUTES,
+        ];
     }
 
     /**

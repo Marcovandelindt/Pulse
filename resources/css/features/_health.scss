@@ -915,3 +915,55 @@
     &--fair      { background: rgba(251, 191, 36, 0.12);  color: #fbbf24; }
     &--poor      { background: rgba(248, 113, 113, 0.12); color: #f87171; }
 }
+
+/* ── Sleep debt tracker ───────────────────────────── */
+
+.sleep-debt {
+    display:        flex;
+    flex-direction: column;
+    gap:            1rem;
+
+    &__balance {
+        display:     flex;
+        align-items: baseline;
+        gap:         0.625rem;
+    }
+
+    &__value {
+        font-size:   2.25rem;
+        font-weight: 700;
+        line-height: 1;
+
+        &--surplus { color: #4ade80; }
+        &--deficit { color: #f87171; }
+        &--neutral { color: var(--color-text-muted); }
+    }
+
+    &__label {
+        font-size: 0.875rem;
+        color:     var(--color-text-muted);
+    }
+
+    &__all-time {
+        display:     flex;
+        gap:         2rem;
+        padding-top: 1rem;
+        border-top:  1px solid var(--color-border);
+    }
+
+    &__all-time-block {
+        flex: 1;
+    }
+
+    &__all-time-value {
+        font-size:   1.125rem;
+        font-weight: 600;
+        color:       var(--color-text-primary);
+    }
+
+    &__all-time-label {
+        font-size:  0.75rem;
+        color:      var(--color-text-muted);
+        margin-top: 0.125rem;
+    }
+}

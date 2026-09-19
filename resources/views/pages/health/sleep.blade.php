@@ -73,6 +73,44 @@
         </div>
     </div>
 
+    {{-- Sleep debt tracker --}}
+    @if ($debtData['weekNights'] > 0)
+        @php
+            $weekBalance    = $debtData['weekBalance'];
+            $balanceLabel   = $weekBalance >= 0 ? 'ahead' : 'behind';
+            $balanceMod     = $weekBalance >= 0 ? 'surplus' : 'deficit';
+            $balanceAbs     = abs($weekBalance);
+            $balanceH       = intdiv($balanceAbs, 60);
+            $balanceM       = $balanceAbs % 60;
+            $balanceFormatted = $balanceH > 0 ? "{$balanceH}h {$balanceM}m" : "{$balanceM}m";
+            $helper         = new App\Models\HealthSleep;
+        @endphp
+        <x-ui.card title="Weekly sleep balance" class="mb-6">
+            <p class="health-section-desc">
+                Measured against a goal of {{ $helper->formattedMinutes($debtData['goalMinutes']) }} per night.
+                Covers the last {{ $debtData['weekNights'] }} night(s) with recorded data.
+            </p>
+            <div class="sleep-debt">
+                <div class="sleep-debt__balance">
+                    <span class="sleep-debt__value sleep-debt__value--{{ $balanceMod }}">
+                        {{ $weekBalance >= 0 ? '+' : '-' }}{{ $balanceFormatted }}
+                    </span>
+                    <span class="sleep-debt__label">this week vs. goal</span>
+                </div>
+                <div class="sleep-debt__all-time">
+                    <div class="sleep-debt__all-time-block">
+                        <div class="sleep-debt__all-time-value">{{ $helper->formattedMinutes(intdiv($debtData['allTimeDeficit'], 60) * 60 + $debtData['allTimeDeficit'] % 60) }}</div>
+                        <div class="sleep-debt__all-time-label">All-time shortfall (vs. 8h)</div>
+                    </div>
+                    <div class="sleep-debt__all-time-block">
+                        <div class="sleep-debt__all-time-value">{{ $helper->formattedMinutes(intdiv($debtData['allTimeSurplus'], 60) * 60 + $debtData['allTimeSurplus'] % 60) }}</div>
+                        <div class="sleep-debt__all-time-label">All-time surplus (vs. 8h)</div>
+                    </div>
+                </div>
+            </div>
+        </x-ui.card>
+    @endif
+
     {{-- Sleep history --}}
     <x-ui.card title="Sleep history">
         <p class="health-section-desc">
