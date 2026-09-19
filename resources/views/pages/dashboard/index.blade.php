@@ -1,9 +1,20 @@
 <x-layouts.app title="Dashboard">
 
+    <div x-data="{ syncOpen: false }" @keydown.escape.window="syncOpen = false">
+
     <x-layout.page-header
         title="{{ $greeting }}, {{ auth()->user()->name }}"
         :subtitle="$adaptiveSubtitle"
-    />
+    >
+        <x-slot:actions>
+            <button @click="syncOpen = true" class="btn btn--secondary btn--sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Sync sessions
+            </button>
+        </x-slot:actions>
+    </x-layout.page-header>
 
     {{-- Milestone banner --}}
     @if($recentMilestone)
@@ -378,5 +389,45 @@
     </div>
 
     <x-layout.notification />
+
+    {{-- PlayStation session sync modal --}}
+    <div x-show="syncOpen" x-cloak class="psn-sync-modal" @click.self="syncOpen = false">
+        <div class="psn-sync-modal__panel">
+            <div class="psn-sync-modal__header">
+                <span>Sync PlayStation Sessions</span>
+                <button class="psn-sync-modal__close" @click="syncOpen = false">✕</button>
+            </div>
+
+            <form method="POST" action="{{ route('playstation.sessions.sync') }}" class="psn-sync-modal__body">
+                @csrf
+                <p class="psn-sync-modal__desc">
+                    Pulls recent sessions from ps-timetracker.com. If your profile is private, paste your session cookie below.
+                </p>
+
+                <label class="psn-sync-modal__label" for="sync-cookie">
+                    Session cookie
+                    <span class="psn-sync-modal__optional">optional</span>
+                </label>
+                <textarea
+                    id="sync-cookie"
+                    name="cookie"
+                    class="psn-sync-modal__textarea"
+                    rows="3"
+                    placeholder="_my_app_session=..."
+                    spellcheck="false"
+                ></textarea>
+                <p class="psn-sync-modal__hint">
+                    Find it in DevTools → Application → Cookies → ps-timetracker.com → <code>_my_app_session</code>
+                </p>
+
+                <div class="psn-sync-modal__footer">
+                    <button type="button" class="btn btn--secondary btn--sm" @click="syncOpen = false">Cancel</button>
+                    <button type="submit" class="btn btn--primary btn--sm">Sync now</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    </div>{{-- end x-data="{ syncOpen }" --}}
 
 </x-layouts.app>

@@ -14,6 +14,7 @@ use App\Http\Controllers\Gaming\PlayStationSessionController;
 use App\Http\Controllers\Gaming\PlayStationRecommendationsController;
 use App\Http\Controllers\Gaming\PlayStationWrappedController;
 use App\Http\Controllers\Gaming\PlayStationStatsController;
+use App\Http\Controllers\Gaming\PlayStationSessionSyncController;
 use App\Http\Controllers\Gaming\PlayStationSyncController;
 use App\Http\Controllers\Gaming\PlayStationTrophyController;
 use App\Http\Controllers\Gaming\SteamAccountController;
@@ -34,6 +35,7 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
     Route::prefix('sessions')->name('sessions.')->group(function () {
         Route::get('/', [PlayStationSessionController::class, 'index'])->name('index');
         Route::get('/daily', [PlayStationSessionController::class, 'daily'])->name('daily');
+        Route::post('/sync', [PlayStationSessionSyncController::class, 'store'])->name('sync');
     });
 
     Route::prefix('categories')->name('categories.')->group(function () {
