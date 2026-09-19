@@ -9,9 +9,11 @@ use App\Data\ActivityItem;
 use App\Http\Controllers\Controller;
 use App\Models\EpisodeWatch;
 use App\Models\HealthEntry;
+use App\Models\HealthSleep;
 use App\Models\MovieWatch;
 use App\Models\Play;
 use App\Models\PlayStationSession;
+use App\Models\StepGoal;
 use Illuminate\Support\Carbon;
 use App\Services\PlayStation\PsnPresenceService;
 use App\Services\Spotify\SpotifyTrackService;
@@ -30,6 +32,18 @@ final class DashboardController extends Controller
 
     public function index(): View
     {
+        $hour     = now()->hour;
+        $greeting = match(true) {
+            $hour >= 5 && $hour < 12  => 'Good morning',
+            $hour >= 12 && $hour < 18 => 'Good afternoon',
+            default                   => 'Good evening',
+        };
+
+        $todaySteps  = (int) (HealthEntry::whereDate('date', today())->value('steps') ?? 0);
+        $lastSleep   = HealthSleep::orderByDesc('date')->first();
+        $currentGoal = StepGoal::current();
+        $adaptiveSubtitle = $this->buildAdaptiveSubtitle($todaySteps, $currentGoal, $lastSleep);
+
         $stepsThisWeek = HealthEntry::withSteps()->thisWeek()->sum('steps');
 
         $episodeMinutes = (int) EpisodeWatch::join('tv_episodes', 'episode_watches.tv_episode_id', '=', 'tv_episodes.id')
@@ -84,6 +98,8 @@ final class DashboardController extends Controller
             : null;
 
         return view('pages.dashboard.index', [
+            'greeting'          => $greeting,
+            'adaptiveSubtitle'  => $adaptiveSubtitle,
             'timeline'          => $this->buildTimeline(),
             'stepsThisWeek'     => $stepsThisWeek > 0 ? number_format((int) $stepsThisWeek) : null,
             'watchtimeThisWeek' => $this->formatMinutes($episodeMinutes + $movieMinutes),
@@ -101,6 +117,30 @@ final class DashboardController extends Controller
             'lastPlayedAt'      => $lastPlayedSession?->started_at,
             'lastPlayedGameUrl' => $lastPlayedGameUrl,
         ]);
+    }
+
+    private function buildAdaptiveSubtitle(int $todaySteps, int $stepGoal, ?HealthSleep $lastSleep): string
+    {
+        $hour  = now()->hour;
+        $parts = [];
+
+        if ($lastSleep && $hour < 14) {
+            $parts[] = 'Slept ' . $lastSleep->formattedMinutes($lastSleep->total_sleep_minutes) . ' last night';
+        }
+
+        if ($stepGoal > 0) {
+            if ($todaySteps >= $stepGoal) {
+                $parts[] = 'Goal hit · ' . number_format($todaySteps) . ' steps today';
+            } elseif ($todaySteps > 0) {
+                $parts[] = number_format($stepGoal - $todaySteps) . ' steps to go today';
+            } elseif ($hour >= 9) {
+                $parts[] = 'Goal: ' . number_format($stepGoal) . ' steps today';
+            }
+        } elseif ($todaySteps > 0) {
+            $parts[] = number_format($todaySteps) . ' steps today';
+        }
+
+        return implode(' · ', $parts) ?: "Here's what's happening today.";
     }
 
     /** @return Collection<int, ActivityItem> */
