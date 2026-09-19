@@ -387,10 +387,10 @@ final class DashboardController extends Controller
     private function buildDailyBrief(int $todaySteps, int $stepGoal, ?HealthSleep $lastSleep): array
     {
         $sevenDayAvg = (int) round(
-            HealthEntry::withSteps()
+            (float) (HealthEntry::withSteps()
                 ->where('date', '>=', now()->subDays(7)->startOfDay())
                 ->where('date', '<', today())
-                ->avg('steps') ?? 0
+                ->avg('steps') ?? 0)
         );
 
         $goalPct  = $stepGoal > 0 ? min(100, (int) round($todaySteps / $stepGoal * 100)) : null;
