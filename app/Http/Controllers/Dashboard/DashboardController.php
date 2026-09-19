@@ -483,8 +483,8 @@ final class DashboardController extends Controller
     /** @return array<string, mixed>|null */
     private function weekTopArtist(): ?array
     {
-        $artist = Artist::query()
-            ->selectRaw('artists.*, COUNT(plays.id) as play_count')
+        $row = Artist::query()
+            ->selectRaw('artists.id, COUNT(plays.id) as play_count')
             ->join('track_artists', 'artists.id', '=', 'track_artists.artist_id')
             ->join('tracks', 'track_artists.track_id', '=', 'tracks.id')
             ->join('plays', 'tracks.id', '=', 'plays.track_id')
@@ -494,9 +494,11 @@ final class DashboardController extends Controller
             ->orderByDesc('play_count')
             ->first();
 
-        if ($artist === null) {
+        if ($row === null) {
             return null;
         }
+
+        $artist = Artist::find($row->id);
 
         $totalTracks = Play::whereBetween('played_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
         $topGenre    = is_array($artist->genres) && count($artist->genres) > 0
@@ -505,7 +507,7 @@ final class DashboardController extends Controller
 
         return [
             'artist'      => $artist,
-            'playCount'   => (int) $artist->play_count,
+            'playCount'   => (int) $row->play_count,
             'totalTracks' => $totalTracks,
             'topGenre'    => $topGenre,
         ];
