@@ -21,6 +21,8 @@ class PlayStationTrophy extends Model
         'earned_at',
         'rarity',
         'earned_rate',
+        'progress_value',
+        'progress_target',
     ];
 
     protected function casts(): array
@@ -35,6 +37,20 @@ class PlayStationTrophy extends Model
     public function game(): BelongsTo
     {
         return $this->belongsTo(PlayStationGame::class, 'play_station_game_id');
+    }
+
+    public function hasProgress(): bool
+    {
+        return $this->progress_target !== null && (int) $this->progress_target > 0;
+    }
+
+    public function progressPercent(): int
+    {
+        if (! $this->hasProgress()) {
+            return 0;
+        }
+
+        return min(100, (int) round((int) $this->progress_value / (int) $this->progress_target * 100));
     }
 
     public function typeColor(): string

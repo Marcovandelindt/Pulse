@@ -48,6 +48,14 @@ final class PsnApiTrophyDetailService
                 ? Carbon::parse($earnedEntry['earnedDateTime'])
                 : null;
 
+            $progressTarget = isset($def['trophyProgressTargetValue'])
+                ? (string) $def['trophyProgressTargetValue']
+                : null;
+
+            $progressValue = isset($earnedEntry['progress'])
+                ? (string) $earnedEntry['progress']
+                : null;
+
             $game->trophyList()->create([
                 'trophy_id'       => $trophyId,
                 'trophy_group_id' => $def['trophyGroupId'] ?? 'default',
@@ -61,6 +69,8 @@ final class PsnApiTrophyDetailService
                 'earned_rate'     => isset($earnedEntry['trophyEarnedRate'])
                     ? (float) $earnedEntry['trophyEarnedRate']
                     : null,
+                'progress_value'  => $progressValue,
+                'progress_target' => $progressTarget,
             ]);
 
             if ($isEarned && strtolower($def['trophyType'] ?? '') === 'platinum') {

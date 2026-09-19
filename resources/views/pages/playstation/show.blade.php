@@ -242,6 +242,17 @@
                                         @if($trophy->detail)
                                             <div class="trophy-item__detail">{{ $trophy->detail }}</div>
                                         @endif
+                                        @if($trophy->hasProgress() && ! $trophy->is_earned)
+                                            <div class="trophy-item__progress">
+                                                <div class="trophy-item__progress-bar-wrap">
+                                                    <div class="trophy-item__progress-bar" style="width: {{ $trophy->progressPercent() }}%; background: {{ $trophy->typeColor() }}"></div>
+                                                </div>
+                                                <span class="trophy-item__progress-label">
+                                                    {{ number_format((int) $trophy->progress_value) }} / {{ number_format((int) $trophy->progress_target) }}
+                                                    <span class="trophy-item__progress-pct">({{ $trophy->progressPercent() }}%)</span>
+                                                </span>
+                                            </div>
+                                        @endif
                                         @if($trophy->rarityLabel())
                                             <div class="trophy-item__rarity" style="color: {{ $trophy->rarityColor() }}">
                                                 {{ $trophy->rarityLabel() }}

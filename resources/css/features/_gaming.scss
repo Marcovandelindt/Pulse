@@ -584,6 +584,36 @@
     text-overflow: ellipsis;
 }
 
+.trophy-item__progress {
+    margin-top: 0.375rem;
+}
+
+.trophy-item__progress-bar-wrap {
+    width:         100%;
+    height:        0.25rem;
+    background:    var(--color-bg-primary);
+    border-radius: 999px;
+    overflow:      hidden;
+    margin-bottom: 0.25rem;
+}
+
+.trophy-item__progress-bar {
+    height:        100%;
+    border-radius: 999px;
+    transition:    width 0.3s ease;
+    opacity:       0.8;
+}
+
+.trophy-item__progress-label {
+    font-size:            0.6875rem;
+    color:                var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.trophy-item__progress-pct {
+    opacity: 0.6;
+}
+
 .trophy-item__earned-at {
     font-size:   0.6875rem;
     color:       var(--color-text-muted);
