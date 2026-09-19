@@ -91,6 +91,8 @@ final class DashboardController extends Controller
             ? PlayStationSession::with('game')->latest('started_at')->first()
             : null;
 
+        $lastYear = $this->thisTimeLastYear();
+
         $lastPlayedGameUrl = $lastPlayedSession
             ? route('playstation.show', $lastPlayedSession->game)
             : null;
@@ -120,6 +122,7 @@ final class DashboardController extends Controller
             ] : null,
             'lastPlayedAt'      => $lastPlayedSession?->started_at,
             'lastPlayedGameUrl' => $lastPlayedGameUrl,
+            'lastYear'          => $lastYear,
         ]);
     }
 
@@ -371,6 +374,33 @@ final class DashboardController extends Controller
         }
 
         return $b->occurredAt->timestamp <=> $a->occurredAt->timestamp;
+    }
+
+    /** @return array<string, mixed>|null */
+    private function thisTimeLastYear(): ?array
+    {
+        $date = today()->subYear();
+
+        $steps          = (int) (HealthEntry::whereDate('date', $date)->value('steps') ?? 0);
+        $sleep          = HealthSleep::whereDate('date', $date)->first();
+        $trackCount     = Play::whereDate('played_at', $date)->count();
+        $gamingMinutes  = (int) PlayStationSession::whereDate('started_at', $date)->sum('duration_minutes');
+        $episodeCount   = EpisodeWatch::whereDate('watched_at', $date)->whereNotNull('watched_at')->count();
+        $movieWatched   = MovieWatch::whereDate('watched_at', $date)->whereNotNull('watched_at')->exists();
+
+        if ($steps === 0 && $sleep === null && $trackCount === 0 && $gamingMinutes === 0 && $episodeCount === 0 && ! $movieWatched) {
+            return null;
+        }
+
+        return [
+            'date'          => $date,
+            'steps'         => $steps > 0 ? number_format($steps) : null,
+            'sleep'         => $sleep ? $sleep->formattedMinutes($sleep->total_sleep_minutes) : null,
+            'tracks'        => $trackCount > 0 ? $trackCount : null,
+            'gaming'        => $gamingMinutes > 0 ? $this->formatMinutes($gamingMinutes) : null,
+            'episodes'      => $episodeCount > 0 ? $episodeCount : null,
+            'movieWatched'  => $movieWatched,
+        ];
     }
 
     private function formatMinutes(int $minutes): ?string

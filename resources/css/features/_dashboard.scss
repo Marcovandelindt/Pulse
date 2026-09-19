@@ -282,3 +282,69 @@
     0%, 100% { opacity: 1; transform: scale(1); }
     50%       { opacity: 0.4; transform: scale(0.85); }
 }
+
+/* ── This time last year ──────────────────────────── */
+
+.last-year {
+    padding: 1rem 1.25rem;
+}
+
+.last-year__heading {
+    display:     flex;
+    align-items: center;
+    gap:         0.5rem;
+    margin-bottom: 0.875rem;
+}
+
+.last-year__icon {
+    font-size:   1rem;
+    line-height: 1;
+}
+
+.last-year__title {
+    font-size:   0.8125rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+    flex:        1;
+}
+
+.last-year__date {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+}
+
+.last-year__items {
+    display:               grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:                   0.5rem;
+}
+
+.last-year__item {
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    gap:            0.125rem;
+    padding:        0.5rem 0.25rem;
+    background:     var(--color-bg-tertiary);
+    border-radius:  var(--radius-md);
+    text-align:     center;
+}
+
+.last-year__item-icon {
+    font-size:   1rem;
+    line-height: 1;
+    margin-bottom: 0.125rem;
+}
+
+.last-year__item-value {
+    font-size:   0.8125rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+    line-height: 1;
+}
+
+.last-year__item-label {
+    font-size: 0.6875rem;
+    color:     var(--color-text-muted);
+    line-height: 1;
+}

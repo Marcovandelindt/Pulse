@@ -126,6 +126,62 @@
                     <x-playstation.now-gaming :game="$lastPlayedGame" :playing="false" :playedAt="$lastPlayedAt" :url="$lastPlayedGameUrl" />
                 </x-ui.card>
             @endif
+
+            @if($lastYear)
+                <x-ui.card>
+                    <div class="last-year">
+                        <div class="last-year__heading">
+                            <span class="last-year__icon">📅</span>
+                            <span class="last-year__title">This time last year</span>
+                            <span class="last-year__date">{{ $lastYear['date']->format('M j, Y') }}</span>
+                        </div>
+                        <div class="last-year__items">
+                            @if($lastYear['steps'])
+                                <div class="last-year__item">
+                                    <span class="last-year__item-icon">🚶</span>
+                                    <span class="last-year__item-value">{{ $lastYear['steps'] }}</span>
+                                    <span class="last-year__item-label">steps</span>
+                                </div>
+                            @endif
+                            @if($lastYear['sleep'])
+                                <div class="last-year__item">
+                                    <span class="last-year__item-icon">😴</span>
+                                    <span class="last-year__item-value">{{ $lastYear['sleep'] }}</span>
+                                    <span class="last-year__item-label">sleep</span>
+                                </div>
+                            @endif
+                            @if($lastYear['tracks'])
+                                <div class="last-year__item">
+                                    <span class="last-year__item-icon">🎵</span>
+                                    <span class="last-year__item-value">{{ $lastYear['tracks'] }}</span>
+                                    <span class="last-year__item-label">track{{ $lastYear['tracks'] !== 1 ? 's' : '' }}</span>
+                                </div>
+                            @endif
+                            @if($lastYear['gaming'])
+                                <div class="last-year__item">
+                                    <span class="last-year__item-icon">🎮</span>
+                                    <span class="last-year__item-value">{{ $lastYear['gaming'] }}</span>
+                                    <span class="last-year__item-label">gaming</span>
+                                </div>
+                            @endif
+                            @if($lastYear['episodes'])
+                                <div class="last-year__item">
+                                    <span class="last-year__item-icon">📺</span>
+                                    <span class="last-year__item-value">{{ $lastYear['episodes'] }}</span>
+                                    <span class="last-year__item-label">episode{{ $lastYear['episodes'] !== 1 ? 's' : '' }}</span>
+                                </div>
+                            @endif
+                            @if($lastYear['movieWatched'])
+                                <div class="last-year__item">
+                                    <span class="last-year__item-icon">🎬</span>
+                                    <span class="last-year__item-value">1</span>
+                                    <span class="last-year__item-label">movie</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </x-ui.card>
+            @endif
         </div>
     </div>
 
