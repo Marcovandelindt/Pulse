@@ -19,9 +19,10 @@ final class HealthSleepController extends Controller
         $avgDeep   = $records->avg('deep_minutes');
         $avgRem    = $records->avg('rem_minutes');
         $avgCore   = $records->avg('core_minutes');
+        $avgScore  = $records->isEmpty() ? null : (int) round($records->avg(fn ($r) => $r->sleepScore()));
 
         return view('pages.health.sleep', compact(
-            'records', 'lastSleep', 'avgTotal', 'avgDeep', 'avgRem', 'avgCore',
+            'records', 'lastSleep', 'avgTotal', 'avgDeep', 'avgRem', 'avgCore', 'avgScore',
         ));
     }
 }

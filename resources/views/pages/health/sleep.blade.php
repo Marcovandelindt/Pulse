@@ -29,6 +29,10 @@
             label="Avg REM"
             :value="$avgRem ? (new App\Models\HealthSleep)->formattedMinutes((int) round($avgRem)) : '—'"
         />
+        <x-stats.stat-card
+            label="Avg sleep score"
+            :value="$avgScore !== null ? $avgScore . ' / 100' : '—'"
+        />
     </div>
 
     {{-- Sleep legend --}}
@@ -76,6 +80,10 @@
                         <div class="sleep-record__total">
                             {{ $record->formattedMinutes($record->total_sleep_minutes) }}
                         </div>
+                        <span class="sleep-score sleep-score--{{ strtolower($record->sleepScoreLabel()) }}"
+                              title="{{ $record->sleepScoreLabel() }}">
+                            {{ $record->sleepScore() }}
+                        </span>
                     </div>
 
                     @if ($base > 0)
