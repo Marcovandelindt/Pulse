@@ -5,6 +5,7 @@
         <div class="sidebar__group">
             <span class="sidebar__group-label">Overview</span>
             <x-layout.nav-item route="dashboard" icon="home" label="Dashboard" />
+            <x-layout.nav-item route="day.show" icon="calendar-days" label="On This Day" />
         </div>
 
         <div class="sidebar__group">

@@ -257,7 +257,7 @@
                         <div class="last-year__heading">
                             <span class="last-year__icon">📅</span>
                             <span class="last-year__title">This time last year</span>
-                            <span class="last-year__date">{{ $lastYear['date']->format('M j, Y') }}</span>
+                            <a href="{{ route('day.show', $lastYear['date']->format('Y-m-d')) }}" class="last-year__date last-year__date--link">{{ $lastYear['date']->format('M j, Y') }}</a>
                         </div>
                         <div class="last-year__items">
                             @if($lastYear['steps'])

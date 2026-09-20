@@ -1,0 +1,596 @@
+/* Day view — "On This Day" page */
+
+.day-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.day-header__nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.875rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: border-color var(--transition-base), color var(--transition-base);
+    white-space: nowrap;
+}
+
+.day-header__nav:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--color-text-primary);
+}
+
+.day-header__nav--disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.day-header__center {
+    text-align: center;
+    flex: 1;
+}
+
+.day-header__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.day-header__picker {
+    display: flex;
+    justify-content: center;
+}
+
+.day-header__input {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    padding: 0.3rem 0.625rem;
+    cursor: pointer;
+    transition: border-color var(--transition-base);
+}
+
+.day-header__input:hover,
+.day-header__input:focus {
+    border-color: rgba(255, 255, 255, 0.2);
+    outline: none;
+}
+
+.day-header__input::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+}
+
+/* Empty state */
+
+.day-empty {
+    text-align: center;
+    padding: 4rem 1rem;
+}
+
+.day-empty__icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.day-empty__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.day-empty__sub {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    max-width: 28rem;
+    margin: 0 auto;
+}
+
+/* Grid layout */
+
+.day-grid {
+    display: grid;
+    gap: 1.25rem;
+    align-items: start;
+}
+
+@media (min-width: 900px) {
+    .day-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Section header */
+
+.day-section__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.day-section__icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.day-section__title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    flex: 1;
+}
+
+.day-section__meta {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-brand-light);
+}
+
+/* Health section */
+
+.day-health {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.day-health__block {
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    padding: 0.875rem 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.day-health__block-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.day-health__block-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.1;
+}
+
+.day-health__block-sub {
+    margin-top: 0.25rem;
+}
+
+.day-health__score {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+}
+
+.day-health__score--excellent { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+.day-health__score--good      { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+.day-health__score--fair      { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+.day-health__score--poor      { background: rgba(239, 68, 68, 0.15);  color: #ef4444; }
+
+.day-health__sleep-breakdown {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+.day-health__sleep-stage {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.day-health__sleep-stage--rem  { background: rgba(167, 139, 250, 0.15); color: #a78bfa; }
+.day-health__sleep-stage--deep { background: rgba(96, 165, 250, 0.15);  color: #60a5fa; }
+.day-health__sleep-stage--core { background: rgba(52, 211, 153, 0.15);  color: #34d399; }
+
+.day-health__row {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.875rem;
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+}
+
+.day-health__row-icon {
+    font-size: 0.875rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.day-health__row-label {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    min-width: 5rem;
+    flex-shrink: 0;
+}
+
+.day-health__row-value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-primary);
+}
+
+/* Gaming section */
+
+.day-platform-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.day-sessions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.day-session {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem;
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: background var(--transition-base);
+}
+
+.day-session:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.day-session__cover {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--color-bg-primary);
+}
+
+.day-session__cover--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+}
+
+.day-session__info {
+    flex: 1;
+    min-width: 0;
+}
+
+.day-session__game {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.day-session__time {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-top: 0.125rem;
+}
+
+.day-session__duration {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-brand-light);
+    flex-shrink: 0;
+}
+
+/* Music section */
+
+.day-top-artists {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.day-top-artist {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.625rem 0.375rem 0.375rem;
+    background: var(--color-bg-tertiary);
+    border-radius: 9999px;
+    text-decoration: none;
+    transition: background var(--transition-base);
+}
+
+.day-top-artist:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.day-top-artist__avatar {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--color-bg-primary);
+}
+
+.day-top-artist__avatar--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.day-top-artist__info {
+    display: flex;
+    flex-direction: column;
+}
+
+.day-top-artist__name {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    line-height: 1.2;
+    max-width: 8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.day-top-artist__count {
+    font-size: 0.6875rem;
+    color: var(--color-text-muted);
+}
+
+.day-tracks-list {
+    max-height: 18rem;
+    overflow-y: auto;
+    margin-right: -0.25rem;
+    padding-right: 0.25rem;
+}
+
+.day-tracks-list::-webkit-scrollbar { width: 3px; }
+.day-tracks-list::-webkit-scrollbar-track { background: transparent; }
+.day-tracks-list::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+
+.day-track {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--color-border);
+    text-decoration: none;
+}
+
+.day-track:last-child {
+    border-bottom: none;
+}
+
+.day-track:hover .day-track__title {
+    color: var(--color-brand-light);
+}
+
+.day-track__cover {
+    width: 1.875rem;
+    height: 1.875rem;
+    border-radius: 0.25rem;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--color-bg-primary);
+}
+
+.day-track__cover--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.day-track__info {
+    flex: 1;
+    min-width: 0;
+}
+
+.day-track__title {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color var(--transition-base);
+}
+
+.day-track__artist {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.day-track__time {
+    font-size: 0.6875rem;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+/* Entertainment section */
+
+.day-media-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.day-media-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem;
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: background var(--transition-base);
+}
+
+.day-media-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.day-media-item__poster {
+    width: 2.75rem;
+    height: 3.75rem;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--color-bg-primary);
+}
+
+.day-media-item__poster--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.day-media-item__info {
+    flex: 1;
+    min-width: 0;
+}
+
+.day-media-item__title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.day-media-item__meta {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin-top: 0.25rem;
+}
+
+.day-episodes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.day-series__header {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+}
+
+.day-series__header:hover .day-series__name {
+    color: var(--color-brand-light);
+}
+
+.day-series__poster {
+    width: 2.25rem;
+    height: 3rem;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--color-bg-primary);
+}
+
+.day-series__poster--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.day-series__info {
+    display: flex;
+    flex-direction: column;
+}
+
+.day-series__name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    transition: color var(--transition-base);
+}
+
+.day-series__count {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.day-series__episodes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-left: 2.875rem;
+}
+
+.day-episode {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+}
+
+.day-episode__code {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-brand-light);
+    flex-shrink: 0;
+    min-width: 3.5rem;
+}
+
+.day-episode__title {
+    color: var(--color-text-primary);
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.day-episode__time {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}

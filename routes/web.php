@@ -8,6 +8,7 @@ use App\Http\Controllers\Stats\StatsController;
 use App\Http\Controllers\Stats\WeekReportController;
 use App\Http\Controllers\Calendar\WorkScheduleController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Dashboard\DayController;
 use App\Http\Controllers\Health\HealthEntryController;
 use App\Http\Controllers\Health\HealthExportController;
 use App\Http\Controllers\Health\HealthStatsController;
@@ -45,6 +46,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 Route::middleware('auth')->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/day/{date?}', [DayController::class, 'show'])->name('day.show');
 
     Route::prefix('health')->name('health.')->group(function () {
         Route::get('/', [HealthEntryController::class,  'index'])->name('index');
