@@ -23,6 +23,10 @@
                 @csrf
                 <button type="submit" class="btn btn--secondary btn--sm">🏆 Fetch Trophies</button>
             </form>
+            <form method="POST" action="{{ route('playstation.fetch-genres', $game) }}" style="display:inline;">
+                @csrf
+                <button type="submit" class="btn btn--secondary btn--sm">🎮 Fetch Genres</button>
+            </form>
             <a href="{{ route('playstation.edit', $game) }}" class="btn btn--secondary btn--sm">Edit</a>
             <a href="{{ route('playstation.index') }}" class="btn btn--secondary btn--sm">← Back</a>
         </x-slot:actions>

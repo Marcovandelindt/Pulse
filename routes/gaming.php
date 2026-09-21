@@ -10,6 +10,7 @@ use App\Http\Controllers\Gaming\NintendoSyncController;
 use App\Http\Controllers\Gaming\PlayStationCategoryController;
 use App\Http\Controllers\Gaming\PlayStationController;
 use App\Http\Controllers\Gaming\PlayStationFavoriteController;
+use App\Http\Controllers\Gaming\PlayStationGenreController;
 use App\Http\Controllers\Gaming\PlayStationSessionController;
 use App\Http\Controllers\Gaming\PlayStationRecommendationsController;
 use App\Http\Controllers\Gaming\PlayStationWrappedController;
@@ -52,6 +53,7 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
     Route::get('/{playStationGame}/edit', [PlayStationController::class, 'edit'])->name('edit');
     Route::patch('/{playStationGame}', [PlayStationController::class, 'update'])->name('update');
     Route::post('/{playStationGame}/fetch-trophies', [PlayStationTrophyController::class, 'fetch'])->name('fetch-trophies');
+    Route::post('/{playStationGame}/fetch-genres', [PlayStationGenreController::class, 'fetch'])->name('fetch-genres');
     Route::patch('/{playStationGame}/favorite', [PlayStationFavoriteController::class, 'toggle'])->name('favorite');
 });
 
