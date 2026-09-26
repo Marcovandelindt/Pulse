@@ -137,21 +137,21 @@ final class OcrService
         // Fix "uO" → "u0": OCR reads "4uOmin." instead of "4u0min."
         $text = (string) preg_replace('/u(\s*)O/i', 'u${1}0', $text);
 
+        // Dutch hours+minutes: "1u15", "1u 30", "1u00" — return early to avoid double-counting
+        if (preg_match('/(\d+)\s*u\s*(\d+)/i', $text, $m)) {
+            return max(1, (int) $m[1] * 60 + (int) $m[2]);
+        }
+
         $total = 0;
         $found = false;
 
-        // Dutch hours+minutes: "1u15", "1u 30", "1u00"
-        if (preg_match('/(\d+)\s*u\s*(\d+)/i', $text, $m)) {
-            $total += (int) $m[1] * 60 + (int) $m[2];
-            $found  = true;
-        }
         // Dutch hours only: "2u" (no minutes following)
-        elseif (preg_match('/(\d+)\s*u(?:\s|$|\.)/i', $text, $m)) {
+        if (preg_match('/(\d+)\s*u(?:\s|$|\.)/i', $text, $m)) {
             $total += (int) $m[1] * 60;
             $found  = true;
         }
 
-        // Minutes: "15 min.", "30min"
+        // Minutes only: "15 min.", "30min"
         if (preg_match('/(\d+)\s*min/i', $text, $m)) {
             $total += (int) $m[1];
             $found  = true;
@@ -187,6 +187,6 @@ final class OcrService
 
     private function binary(): string
     {
-        return env('TESSERACT_PATH', 'tesseract');
+        return config('services.tesseract.path', 'tesseract');
     }
 }

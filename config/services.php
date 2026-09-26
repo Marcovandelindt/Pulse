@@ -47,4 +47,8 @@ return [
         'client_secret' => env('IGDB_CLIENT_SECRET'),
     ],
 
+    'tesseract' => [
+        'path' => env('TESSERACT_PATH', 'tesseract'),
+    ],
+
 ];
