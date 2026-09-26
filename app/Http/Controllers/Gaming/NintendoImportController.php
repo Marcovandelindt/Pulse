@@ -86,7 +86,7 @@ final class NintendoImportController extends Controller
 
         session()->forget(['nintendo_ocr_sessions', 'nintendo_ocr_raw']);
 
-        return redirect()->route('nintendo.sessions')
+        return redirect()->route('nintendo.import')
             ->with('success', "Imported {$count} sessions.");
     }
 }
