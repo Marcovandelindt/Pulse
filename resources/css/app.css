@@ -35,6 +35,7 @@
 @import './features/_stats.scss';
 @import './features/_ai.scss';
 @import './features/_ideas.scss';
+@import './features/_auth.scss';
 
 @theme {
     --color-brand:        oklch(0.60 0.18 260);

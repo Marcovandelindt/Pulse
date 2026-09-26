@@ -94,12 +94,13 @@
 .layout {
     display:    flex;
     min-height: 100vh;
+    position:   relative;
+    z-index:    1;
 }
 
 .layout__main {
-    flex:       1;
-    min-width:  0;
-    background: var(--color-bg-primary);
+    flex:      1;
+    min-width: 0;
 }
 
 .layout__content {

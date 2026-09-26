@@ -13,6 +13,8 @@
 </head>
 <body class="bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] antialiased">
 
+    <div class="app-blob"></div>
+
     <div class="layout">
         <x-layout.sidebar />
 

@@ -11,12 +11,27 @@
 </head>
 <body class="bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] antialiased">
 
-    <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="auth-bg">
+        <div class="auth-bg__blob auth-bg__blob--1"></div>
+        <div class="auth-bg__blob auth-bg__blob--2"></div>
+    </div>
+
+    <div class="auth-content min-h-screen flex items-center justify-center p-4">
         <div style="width: 100%; max-width: 400px;">
+
+            @php
+                $hour = now()->hour;
+                $greeting = match(true) {
+                    $hour >= 5  && $hour < 12 => 'Good morning',
+                    $hour >= 12 && $hour < 17 => 'Good afternoon',
+                    $hour >= 17 && $hour < 21 => 'Good evening',
+                    default                    => 'Good night',
+                };
+            @endphp
 
             <div class="text-center mb-8">
                 <h1 style="font-size: 1.75rem; font-weight: 700; color: var(--color-text-primary); letter-spacing: -0.02em;">Pulse</h1>
-                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--color-text-muted);">Sign in to continue</p>
+                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--color-text-muted);">{{ $greeting }}</p>
             </div>
 
             <div class="card">

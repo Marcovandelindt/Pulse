@@ -1,0 +1,59 @@
+.auth-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.auth-bg__blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.35;
+}
+
+.auth-bg__blob--1 {
+    width: 500px;
+    height: 500px;
+    background: oklch(0.60 0.18 260);
+    top: -80px;
+    left: -60px;
+    animation: blob-float 14s ease-in-out infinite;
+}
+
+.auth-bg__blob--2 {
+    width: 380px;
+    height: 380px;
+    background: oklch(0.75 0.14 260);
+    bottom: -60px;
+    right: -40px;
+    animation: blob-float 18s ease-in-out infinite reverse;
+    animation-delay: -6s;
+}
+
+.auth-content {
+    position: relative;
+    z-index: 1;
+}
+
+.app-blob {
+    position: fixed;
+    bottom: -80px;
+    right: -60px;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background: oklch(0.60 0.18 260);
+    filter: blur(80px);
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 0;
+    animation: blob-float 18s ease-in-out infinite reverse;
+    animation-delay: -6s;
+}
+
+@keyframes blob-float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%       { transform: translate(28px, -22px) scale(1.05); }
+    66%       { transform: translate(-18px, 14px) scale(0.97); }
+}
