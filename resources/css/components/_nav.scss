@@ -19,8 +19,10 @@
 }
 
 .nav-item--active {
-    background: var(--color-bg-tertiary);
-    color:      var(--color-text-primary);
+    background:  linear-gradient(90deg, oklch(0.60 0.18 260 / 0.18) 0%, transparent 100%);
+    color:       var(--color-text-primary);
+    border-left: 2px solid oklch(0.60 0.18 260);
+    padding-left: calc(0.75rem - 2px);
 }
 
 .nav-item__icon {
