@@ -134,6 +134,8 @@ final class OcrService
         // Fix common OCR error: letter O mistaken for digit 0 in numeric contexts
         $text = (string) preg_replace('/(\d)O/i', '${1}0', $text);
         $text = (string) preg_replace('/O(\d)/i', '0${1}', $text);
+        // Fix "uO" → "u0": OCR reads "4uOmin." instead of "4u0min."
+        $text = (string) preg_replace('/u(\s*)O/i', 'u${1}0', $text);
 
         $total = 0;
         $found = false;
