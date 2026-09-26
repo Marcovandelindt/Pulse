@@ -52,11 +52,14 @@ final class OcrService
             fn (string $l) => $l !== '',
         ));
 
-        $sessions    = [];
+        $sessions = [];
         $currentGame = null;
+        $count = count($lines);
 
-        foreach ($lines as $line) {
-            // Session line: starts with DD-MM-YYYY
+        for ($i = 0; $i < $count; $i++) {
+            $line = $lines[$i];
+
+            // Session line: DD-MM-YYYY followed by duration on the same line
             if (preg_match('/^(\d{2}-\d{2}-\d{4})\s+(.+)$/u', $line, $m)) {
                 $date        = $this->parseDutchDate($m[1]);
                 $rest        = trim($m[2]);
@@ -78,6 +81,33 @@ final class OcrService
                 }
 
                 continue;
+            }
+
+            // Session line split across two lines: date alone, duration on next line
+            if (preg_match('/^(\d{2}-\d{2}-\d{4})$/', $line, $m)) {
+                $next = $lines[$i + 1] ?? null;
+
+                if ($next !== null) {
+                    $date        = $this->parseDutchDate($m[1]);
+                    $minutes     = $this->parseDuration($next);
+                    $needsReview = false;
+
+                    if ($minutes === null && $this->isShortTime($next)) {
+                        $minutes     = 1;
+                        $needsReview = true;
+                    }
+
+                    if ($minutes !== null) {
+                        $sessions[] = [
+                            'game'         => $currentGame ?? '',
+                            'date'         => $date,
+                            'minutes'      => $minutes,
+                            'needs_review' => $needsReview,
+                        ];
+                        $i++; // skip the duration line
+                        continue;
+                    }
+                }
             }
 
             // Skip status-bar noise and single characters
