@@ -23,6 +23,28 @@
         @if($game->image_url)
             <div class="gaming-hero__cover">
                 <img src="{{ $game->image_url }}" alt="{{ $game->name }}" class="gaming-hero__img">
+                <form method="POST" action="{{ route('nintendo.cover.store', $game) }}"
+                      enctype="multipart/form-data" class="gaming-hero__cover-upload">
+                    @csrf
+                    <label class="gaming-hero__cover-label">
+                        <input type="file" name="cover" accept="image/*" class="sr-only"
+                               onchange="this.form.submit()">
+                        Upload cover
+                    </label>
+                </form>
+            </div>
+        @else
+            <div class="gaming-hero__cover gaming-hero__cover--empty">
+                <form method="POST" action="{{ route('nintendo.cover.store', $game) }}"
+                      enctype="multipart/form-data">
+                    @csrf
+                    <label class="gaming-hero__cover-label gaming-hero__cover-label--empty">
+                        <input type="file" name="cover" accept="image/*" class="sr-only"
+                               onchange="this.form.submit()">
+                        <span>🖼️</span>
+                        <span>Upload cover</span>
+                    </label>
+                </form>
             </div>
         @endif
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Gaming\BacklogController;
 use App\Http\Controllers\Gaming\NintendoController;
+use App\Http\Controllers\Gaming\NintendoCoverController;
 use App\Http\Controllers\Gaming\NintendoImportController;
 use App\Http\Controllers\Gaming\NintendoRecordController;
 use App\Http\Controllers\Gaming\NintendoSyncController;
@@ -85,6 +86,7 @@ Route::prefix('nintendo')->name('nintendo.')->group(function () {
 
     Route::get('/{game}',          [NintendoController::class, 'show'])->name('show');
     Route::delete('/{game}',       [NintendoController::class, 'destroy'])->name('destroy');
+    Route::post('/{game}/cover',   [NintendoCoverController::class, 'store'])->name('cover.store');
 
     Route::post('/{game}/records',          [NintendoRecordController::class, 'store'])->name('records.store');
     Route::delete('/{game}/records/{record}', [NintendoRecordController::class, 'destroy'])->name('records.destroy');
