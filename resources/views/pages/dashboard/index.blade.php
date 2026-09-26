@@ -369,7 +369,6 @@
                                         <div class="last-year-panel__list">
                                             @foreach($lastYear['episodeList'] as $e)
                                                 <a href="{{ $e['url'] }}" class="last-year-panel__row">
-                                                    <span class="last-year-panel__time">{{ $e['time'] }}</span>
                                                     <div class="last-year-panel__row-body">
                                                         <span class="last-year-panel__primary">{{ $e['series'] }}</span>
                                                         <span class="last-year-panel__secondary">{{ $e['episode'] }}</span>
