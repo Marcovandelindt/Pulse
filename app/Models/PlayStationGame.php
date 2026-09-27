@@ -31,6 +31,7 @@ final class PlayStationGame extends Model
         'np_communication_id',
         'np_service_name',
         'price',
+        'notes',
         'psn_total_minutes',
         'exclude_from_sync',
         'backlog_status',

@@ -153,6 +153,29 @@
         />
     </div>
 
+    <x-ui.card title="Notes" class="mb-6"
+        x-data="{ saved: true, original: {{ json_encode($game->notes ?? '') }} }"
+    >
+        <form method="POST" action="{{ route('playstation.notes.update', $game) }}">
+            @csrf
+            @method('PATCH')
+            <textarea
+                name="notes"
+                rows="4"
+                placeholder="Your thoughts on this game…"
+                class="w-full text-sm rounded-lg px-3 py-2 resize-none"
+                style="background: var(--color-bg-tertiary); border: 1px solid var(--color-border); color: var(--color-text-primary); outline: none;"
+                x-on:input="saved = ($event.target.value === original)"
+            >{{ old('notes', $game->notes) }}</textarea>
+            <div class="flex items-center justify-between mt-2">
+                <span class="text-xs" style="color: var(--color-text-muted);" x-show="!saved">Unsaved changes</span>
+                <span class="text-xs" style="color: var(--color-text-muted);" x-show="saved && original !== ''">&check; Saved</span>
+                <span></span>
+                <button type="submit" class="btn btn--primary btn--sm">Save</button>
+            </div>
+        </form>
+    </x-ui.card>
+
     @if($monthlyStats->isNotEmpty())
         <x-ui.card title="Monthly Playtime" class="mb-6">
             <canvas
