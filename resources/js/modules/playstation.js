@@ -10,6 +10,25 @@ export function registerPlayStationComponents() {
         clockDate: '',
         _clockTimer: null,
 
+        pickOpen: false,
+        pickedGame: null,
+        _lastPickedIndex: -1,
+
+        pickRandom() {
+            const items = this.sleepItems;
+            if (!items.length) return;
+            let idx;
+            do { idx = Math.floor(Math.random() * items.length); }
+            while (items.length > 1 && idx === this._lastPickedIndex);
+            this._lastPickedIndex = idx;
+            this.pickedGame = items[idx];
+            this.pickOpen = true;
+        },
+
+        closePick() {
+            this.pickOpen = false;
+        },
+
         get sleepItem() {
             return this.sleepItems[this.sleepIndex] ?? null;
         },

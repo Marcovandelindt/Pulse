@@ -4,6 +4,7 @@
 
     <x-layout.page-header title="PlayStation">
         <x-slot:actions>
+            <button @click="pickRandom()" class="btn btn--secondary btn--sm" x-show="sleepItems.length > 0" style="display:none;">🎲 Tonight?</button>
             <button @click="enterSleep()" class="btn btn--secondary btn--sm" x-show="sleepItems.length > 0" style="display:none;">☾ Sleep</button>
             <a href="{{ route('playstation.play-next') }}" class="btn btn--secondary btn--sm">Play Next</a>
             <a href="{{ route('playstation.stats') }}" class="btn btn--secondary btn--sm">Stats</a>
@@ -326,6 +327,46 @@
                 class="sleep-progress__fill"
                 x-effect="sleepIndex; $el.style.animation = 'none'; $el.offsetWidth; $el.style.animation = ''"
             ></div>
+        </div>
+    </div>
+
+    {{-- Tonight? modal --}}
+    <div
+        x-show="pickOpen"
+        x-transition.opacity
+        @keydown.escape.window="closePick()"
+        class="modal"
+        style="display:none;"
+    >
+        <div class="modal__backdrop" @click="closePick()"></div>
+        <div class="modal__panel" style="max-width: 360px; padding: 0; overflow: hidden;" @click.stop>
+            <template x-if="pickedGame">
+                <div>
+                    <div style="position: relative;">
+                        <img :src="pickedGame.image_url" :alt="pickedGame.title" style="width: 100%; height: 200px; object-fit: cover; display: block;">
+                        <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,17,23,0.95) 0%, transparent 60%);"></div>
+                        <div style="position: absolute; bottom: 0.75rem; left: 1rem; right: 1rem;">
+                            <div class="text-xs font-medium mb-1" style="color: var(--color-text-muted);">Tonight you're playing</div>
+                            <div class="text-lg font-bold leading-tight" style="color: var(--color-text-primary);" x-text="pickedGame.title"></div>
+                        </div>
+                    </div>
+                    <div style="padding: 1rem 1rem 1.25rem;">
+                        <div class="flex items-center gap-3 mb-4 text-sm" style="color: var(--color-text-muted);">
+                            <span x-text="pickedGame.platform"></span>
+                            <span>·</span>
+                            <span x-text="pickedGame.hours + 'h played'"></span>
+                            <template x-if="pickedGame.completion > 0">
+                                <span>· <span x-text="pickedGame.completion + '% done'"></span></span>
+                            </template>
+                        </div>
+                        <div class="flex gap-2">
+                            <a :href="pickedGame.url" class="btn btn--primary btn--sm flex-1 justify-center">Let's go →</a>
+                            <button @click="pickRandom()" class="btn btn--secondary btn--sm">🎲 Re-roll</button>
+                            <button @click="closePick()" class="btn btn--secondary btn--sm">✕</button>
+                        </div>
+                    </div>
+                </div>
+            </template>
         </div>
     </div>
 
