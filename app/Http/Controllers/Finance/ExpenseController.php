@@ -47,7 +47,7 @@ final class ExpenseController extends Controller
             ->sortByDesc('total')
             ->values();
 
-        $monthlyTotals = Expense::selectRaw("strftime('%Y-%m', date) as month, SUM(amount) as total")
+        $monthlyTotals = Expense::selectRaw("DATE_FORMAT(date, '%Y-%m') as month, SUM(amount) as total")
             ->where('date', '>=', now()->subMonths(11)->startOfMonth())
             ->groupBy('month')
             ->orderBy('month')
