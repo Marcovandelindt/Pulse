@@ -23,6 +23,7 @@ class PlayStationTrophy extends Model
         'earned_rate',
         'progress_value',
         'progress_target',
+        'user_notes',
     ];
 
     protected function casts(): array

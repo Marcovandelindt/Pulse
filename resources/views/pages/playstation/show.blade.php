@@ -239,6 +239,9 @@
                                         name: '{{ addslashes(strtolower($trophy->name)) }}',
                                         earned: {{ $trophy->is_earned ? 'true' : 'false' }},
                                         showDetail: false,
+                                        notesOpen: {{ $trophy->user_notes ? 'true' : 'false' }},
+                                        notes: @js($trophy->user_notes ?? ''),
+                                        savedNotes: @js($trophy->user_notes ?? ''),
                                         toggle() {
                                             fetch('{{ route('playstation.trophies.toggle', $trophy) }}', {
                                                 method: 'PATCH',
@@ -249,6 +252,18 @@
                                                 this.earned = data.is_earned;
                                                 this.$dispatch('trophy-toggled', { delta: data.is_earned ? 1 : -1 });
                                             });
+                                        },
+                                        saveNotes() {
+                                            fetch('{{ route('playstation.trophies.notes', $trophy) }}', {
+                                                method: 'PATCH',
+                                                headers: {
+                                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                                                    'Content-Type': 'application/json',
+                                                },
+                                                body: JSON.stringify({ notes: this.notes }),
+                                            })
+                                            .then(r => r.json())
+                                            .then(data => { this.savedNotes = data.user_notes ?? ''; });
                                         }
                                     }"
                                     x-show="!search || name.includes(search.toLowerCase())"
@@ -293,9 +308,36 @@
                                         @endif
                                     </div>
                                     <div class="trophy-item__badge" style="color: {{ $trophy->typeColor() }}" x-show="earned">✓</div>
+                                    <button
+                                        class="trophy-item__notes-btn"
+                                        :class="{ 'trophy-item__notes-btn--active': savedNotes }"
+                                        @click.stop="notesOpen = !notesOpen"
+                                        title="Notes"
+                                    >📝</button>
                                     @if($trophy->detail)
                                         <div class="trophy-item__tooltip" x-show="showDetail" x-cloak>{{ $trophy->detail }}</div>
                                     @endif
+                                    <div
+                                        class="trophy-item__notes-panel"
+                                        x-show="notesOpen"
+                                        @click.stop
+                                        x-cloak
+                                    >
+                                        <textarea
+                                            x-model="notes"
+                                            rows="3"
+                                            placeholder="Track your progress, visited locations, items collected…"
+                                            class="trophy-item__notes-input"
+                                        ></textarea>
+                                        <div class="trophy-item__notes-footer">
+                                            <span class="trophy-item__notes-status"
+                                                  x-show="notes !== savedNotes"
+                                                  style="color: var(--color-text-muted); font-size: 0.75rem;">
+                                                Unsaved
+                                            </span>
+                                            <button @click="saveNotes()" class="btn btn--primary btn--sm">Save</button>
+                                        </div>
+                                    </div>
                                 </div>
                             @endforeach
                         </div>

@@ -21,6 +21,7 @@ use App\Http\Controllers\Gaming\PlayStationStatsController;
 use App\Http\Controllers\Gaming\PlayStationSessionSyncController;
 use App\Http\Controllers\Gaming\PlayStationSyncController;
 use App\Http\Controllers\Gaming\PlayStationTrophyController;
+use App\Http\Controllers\Gaming\PlayStationTrophyNotesController;
 use App\Http\Controllers\Gaming\SteamAccountController;
 use App\Http\Controllers\Gaming\SteamConnectionController;
 use App\Http\Controllers\Gaming\SteamController;
@@ -57,6 +58,7 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
 
     Route::prefix('trophies')->name('trophies.')->group(function () {
         Route::patch('/{playStationTrophy}/toggle', [PlayStationTrophyController::class, 'toggle'])->name('toggle');
+        Route::patch('/{playStationTrophy}/notes', [PlayStationTrophyNotesController::class, 'update'])->name('notes');
     });
 
     Route::get('/{playStationGame}', [PlayStationController::class, 'show'])->name('show');
