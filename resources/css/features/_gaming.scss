@@ -3096,6 +3096,8 @@
         align-items: center;
         gap:         0.375rem;
         flex-shrink: 0;
+
+        form { display: contents; }
     }
 }
 
