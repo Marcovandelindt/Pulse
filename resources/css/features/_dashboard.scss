@@ -860,67 +860,65 @@
 
 /* ── Personal Records ─────────────────────────────── */
 
-.personal-records {
-    &__heading {
-        display:       flex;
-        align-items:   center;
-        gap:           0.5rem;
-        margin-bottom: 0.75rem;
-    }
+.personal-records__heading {
+    display:       flex;
+    align-items:   center;
+    gap:           0.5rem;
+    margin-bottom: 0.75rem;
+}
 
-    &__icon { font-size: 1rem; }
+.personal-records__icon { font-size: 1rem; }
 
-    &__title {
-        font-size:   0.875rem;
-        font-weight: 600;
-        color:       var(--color-text-primary);
-    }
+.personal-records__title {
+    font-size:   0.875rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+}
 
-    &__list {
-        display:        flex;
-        flex-direction: column;
-        gap:            0.625rem;
-    }
+.personal-records__list {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.625rem;
+}
 
-    &__item {
-        display:     flex;
-        align-items: center;
-        gap:         0.625rem;
-    }
+.personal-records__item {
+    display:     flex;
+    align-items: center;
+    gap:         0.625rem;
+}
 
-    &__item-icon {
-        font-size:   1rem;
-        flex-shrink: 0;
-        width:       1.25rem;
-        text-align:  center;
-    }
+.personal-records__item-icon {
+    font-size:   1rem;
+    flex-shrink: 0;
+    width:       1.25rem;
+    text-align:  center;
+}
 
-    &__item-body {
-        flex:           1;
-        min-width:      0;
-        display:        flex;
-        flex-direction: column;
-        gap:            0.0625rem;
-    }
+.personal-records__item-body {
+    flex:           1;
+    min-width:      0;
+    display:        flex;
+    flex-direction: column;
+    gap:            0.0625rem;
+}
 
-    &__item-label {
-        font-size: 0.6875rem;
-        color:     var(--color-text-muted);
-    }
+.personal-records__item-label {
+    font-size: 0.6875rem;
+    color:     var(--color-text-muted);
+}
 
-    &__item-value {
-        font-size:     0.8125rem;
-        font-weight:   500;
-        color:         var(--color-text-primary);
-        white-space:   nowrap;
-        overflow:      hidden;
-        text-overflow: ellipsis;
-    }
+.personal-records__item-value {
+    font-size:     0.8125rem;
+    font-weight:   500;
+    color:         var(--color-text-primary);
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
 
-    &__item-date {
-        font-size:   0.6875rem;
-        color:       var(--color-text-muted);
-        flex-shrink: 0;
-        white-space: nowrap;
-    }
+.personal-records__item-date {
+    font-size:   0.6875rem;
+    color:       var(--color-text-muted);
+    flex-shrink: 0;
+    white-space: nowrap;
 }
