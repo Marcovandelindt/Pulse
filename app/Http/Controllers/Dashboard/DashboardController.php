@@ -14,6 +14,7 @@ use App\Models\HealthSleep;
 use App\Models\MovieWatch;
 use App\Models\Play;
 use App\Models\PlayStationSession;
+use App\Models\Expense;
 use App\Models\StepGoal;
 use Illuminate\Support\Carbon;
 use App\Services\PlayStation\PsnPresenceService;
@@ -60,7 +61,8 @@ final class DashboardController extends Controller
             ->whereNotNull('movie_watches.watched_at')
             ->sum('movies.runtime');
 
-        $playtimeMinutes = (int) PlayStationSession::thisWeek()->sum('duration_minutes');
+        $playtimeMinutes  = (int) PlayStationSession::thisWeek()->sum('duration_minutes');
+        $spendingThisWeek = (float) Expense::thisWeek()->sum('amount');
 
         $tracksThisWeek = Play::whereBetween('played_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
 
@@ -116,6 +118,7 @@ final class DashboardController extends Controller
             'watchtimeThisWeek' => $this->formatMinutes($episodeMinutes + $movieMinutes),
             'playtimeThisWeek'  => $this->formatMinutes($playtimeMinutes),
             'tracksThisWeek'    => $tracksThisWeek > 0 ? number_format($tracksThisWeek) : null,
+            'spendingThisWeek'  => $spendingThisWeek > 0 ? '€ ' . number_format($spendingThisWeek, 2, ',', '.') : null,
             'currentlyPlaying'  => $currentlyPlaying,
             'recentPlay'        => $recentPlay,
             'currentGame'       => $currentGame,

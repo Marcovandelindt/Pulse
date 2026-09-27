@@ -112,7 +112,7 @@
     @endif
 
     {{-- Stats row --}}
-    <div class="stats-row">
+    <div class="stats-row stats-row--five">
         <x-stats.stat-card
             label="Steps this week"
             :value="$stepsThisWeek ?? '—'"
@@ -132,6 +132,11 @@
             label="Tracks this week"
             :value="$tracksThisWeek ?? '—'"
             icon="musical-note"
+        />
+        <x-stats.stat-card
+            label="Spending this week"
+            :value="$spendingThisWeek ?? '—'"
+            icon="credit-card"
         />
     </div>
 

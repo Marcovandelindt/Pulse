@@ -29,6 +29,10 @@
     .stats-row {
         grid-template-columns: repeat(4, 1fr);
     }
+
+    .stats-row--five {
+        grid-template-columns: repeat(5, 1fr);
+    }
 }
 
 /* ── Milestone banner ────────────────────────────── */
