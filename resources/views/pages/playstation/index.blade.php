@@ -6,6 +6,7 @@
         <x-slot:actions>
             <button @click="pickRandom()" class="btn btn--secondary btn--sm" x-show="sleepItems.length > 0" style="display:none;">🎲 Tonight?</button>
             <button @click="enterSleep()" class="btn btn--secondary btn--sm" x-show="sleepItems.length > 0" style="display:none;">☾ Sleep</button>
+            <a href="{{ route('playstation.wishlist.index') }}" class="btn btn--secondary btn--sm">Wishlist</a>
             <a href="{{ route('playstation.play-next') }}" class="btn btn--secondary btn--sm">Play Next</a>
             <a href="{{ route('playstation.stats') }}" class="btn btn--secondary btn--sm">Stats</a>
             <a href="{{ route('playstation.sessions.index') }}" class="btn btn--secondary btn--sm">Sessions</a>

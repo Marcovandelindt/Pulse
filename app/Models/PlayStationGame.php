@@ -177,12 +177,17 @@ final class PlayStationGame extends Model
 
     public function platformColor(): string
     {
-        return match ($this->platform) {
-            'PS5' => '#003087',
-            'PS4' => '#00439c',
-            'PS3' => '#003791',
+        return self::platformColorFor($this->platform);
+    }
+
+    public static function platformColorFor(string $platform): string
+    {
+        return match ($platform) {
+            'PS5'    => '#003087',
+            'PS4'    => '#00439c',
+            'PS3'    => '#003791',
             'PSVITA' => '#003087',
-            default => '#003087',
+            default  => '#003087',
         };
     }
 }

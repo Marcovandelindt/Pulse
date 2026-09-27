@@ -12,6 +12,7 @@ use App\Http\Controllers\Gaming\PlayStationCategoryController;
 use App\Http\Controllers\Gaming\PlayStationController;
 use App\Http\Controllers\Gaming\PlayStationFavoriteController;
 use App\Http\Controllers\Gaming\PlayStationGameNotesController;
+use App\Http\Controllers\Gaming\PlayStationWishlistController;
 use App\Http\Controllers\Gaming\PlayStationGenreController;
 use App\Http\Controllers\Gaming\PlayStationSessionController;
 use App\Http\Controllers\Gaming\PlayStationRecommendationsController;
@@ -34,6 +35,13 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
     Route::get('/stats', [PlayStationStatsController::class, 'index'])->name('stats');
     Route::get('/wrapped', [PlayStationWrappedController::class, 'index'])->name('wrapped');
     Route::get('/play-next', [PlayStationRecommendationsController::class, 'index'])->name('play-next');
+
+    Route::prefix('wishlist')->name('wishlist.')->group(function () {
+        Route::get('/', [PlayStationWishlistController::class, 'index'])->name('index');
+        Route::post('/', [PlayStationWishlistController::class, 'store'])->name('store');
+        Route::patch('/{playStationWishlistItem}/purchase', [PlayStationWishlistController::class, 'purchase'])->name('purchase');
+        Route::delete('/{playStationWishlistItem}', [PlayStationWishlistController::class, 'destroy'])->name('destroy');
+    });
 
     Route::prefix('sessions')->name('sessions.')->group(function () {
         Route::get('/', [PlayStationSessionController::class, 'index'])->name('index');
