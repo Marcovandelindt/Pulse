@@ -154,6 +154,12 @@
                                         <span>🏆 {{ $game->earned_trophy_count }}/{{ $game->trophy_list_count }}</span>
                                     @endif
                                 </div>
+                                @if($game->latest_session_started_at)
+                                    @php $lastSession = \Carbon\Carbon::parse($game->latest_session_started_at); @endphp
+                                    <div class="gaming-card__last-played">{{ $lastSession->format('D d M') }} · {{ $lastSession->format('H:i') }}</div>
+                                @elseif($game->last_played_at)
+                                    <div class="gaming-card__last-played">{{ $game->last_played_at->format('D d M Y') }}</div>
+                                @endif
                                 @if($game->completion_percentage > 0)
                                     <div class="gaming-card__progress">
                                         <div class="gaming-card__progress-bar" style="width: {{ min(100, $game->completion_percentage) }}%"></div>

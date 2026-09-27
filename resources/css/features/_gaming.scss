@@ -329,6 +329,13 @@
     color:       var(--color-text-muted);
 }
 
+.gaming-card__last-played {
+    font-size:   0.625rem;
+    color:       var(--color-text-muted);
+    opacity:     0.7;
+    margin-top:  0.125rem;
+}
+
 .gaming-card__progress {
     height:        0.2rem;
     background:    var(--color-bg-tertiary);
