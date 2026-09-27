@@ -312,6 +312,7 @@
     <x-ui.card>
         <x-slot:title>
             Sessions
+            <span style="color: var(--color-text-muted); font-weight: 400; font-size: 0.8125rem; margin-left: 0.25rem;">{{ $recentSessions->total() }}</span>
             @if($from || $to)
                 <span style="color: var(--color-text-muted); font-weight: 400; font-size: 0.875rem;">
                     {{ $from ? \Carbon\Carbon::parse($from)->format('d M Y, H:i') : '…' }}
