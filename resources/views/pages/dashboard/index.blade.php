@@ -248,6 +248,29 @@
                 </x-ui.card>
             @endif
 
+            @if(!empty($personalRecords))
+                <x-ui.card>
+                    <div class="personal-records">
+                        <div class="personal-records__heading">
+                            <span class="personal-records__icon">🏅</span>
+                            <span class="personal-records__title">Personal records</span>
+                        </div>
+                        <div class="personal-records__list">
+                            @foreach($personalRecords as $record)
+                                <div class="personal-records__item">
+                                    <span class="personal-records__item-icon">{{ $record['icon'] }}</span>
+                                    <div class="personal-records__item-body">
+                                        <span class="personal-records__item-label">{{ $record['label'] }}</span>
+                                        <span class="personal-records__item-value">{{ $record['value'] }}</span>
+                                    </div>
+                                    <span class="personal-records__item-date">{{ $record['date'] }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </x-ui.card>
+            @endif
+
             @if($lastYear)
                 <x-ui.card
                     x-data="{ panel: null }"
