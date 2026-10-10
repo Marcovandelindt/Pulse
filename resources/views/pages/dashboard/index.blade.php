@@ -333,6 +333,35 @@
                             <span>{{ $weather['wind_speed'] }} km/h</span>
                         </div>
                     </div>
+
+                    @if(!empty($weather['forecast']))
+                        <div class="wx-forecast">
+                            @foreach($weather['forecast'] as $hour)
+                                @php
+                                    $icon = match($hour['condition_class']) {
+                                        'clear'        => '☀️',
+                                        'partly-cloudy'=> '⛅',
+                                        'cloudy'       => '☁️',
+                                        'fog'          => '🌫️',
+                                        'drizzle'      => '🌦️',
+                                        'rain'         => '🌧️',
+                                        'showers'      => '🌦️',
+                                        'snow'         => '❄️',
+                                        'thunder'      => '⛈️',
+                                        default        => '☀️',
+                                    };
+                                @endphp
+                                <div class="wx-hour">
+                                    <span class="wx-hour__time">{{ $hour['time'] }}</span>
+                                    <span class="wx-hour__icon">{{ $icon }}</span>
+                                    <span class="wx-hour__temp">{{ $hour['temperature'] }}°</span>
+                                    @if($hour['precipitation_pct'] > 0)
+                                        <span class="wx-hour__rain">{{ $hour['precipitation_pct'] }}%</span>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
             @endif

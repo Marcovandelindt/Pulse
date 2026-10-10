@@ -133,3 +133,50 @@
         flex-shrink: 0;
     }
 }
+
+.wx-forecast {
+    display:         flex;
+    gap:             0.125rem;
+    overflow-x:      auto;
+    margin-top:      0.875rem;
+    padding-top:     0.75rem;
+    border-top:      1px solid rgba(255, 255, 255, 0.07);
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar { display: none; }
+}
+
+.wx-hour {
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    gap:            0.2rem;
+    min-width:      2.875rem;
+    padding:        0.375rem 0.25rem;
+    border-radius:  var(--radius-sm);
+    flex-shrink:    0;
+}
+
+.wx-hour__time {
+    font-size:      0.6875rem;
+    font-weight:    500;
+    color:          var(--color-text-muted);
+    letter-spacing: 0.01em;
+}
+
+.wx-hour__icon {
+    font-size:   1rem;
+    line-height: 1;
+}
+
+.wx-hour__temp {
+    font-size:   0.8125rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+}
+
+.wx-hour__rain {
+    font-size:   0.625rem;
+    font-weight: 500;
+    color:       #60a5fa;
+}

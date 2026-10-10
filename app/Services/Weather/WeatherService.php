@@ -64,8 +64,10 @@ final class WeatherService
                 'latitude'        => $lat,
                 'longitude'       => $lon,
                 'current'         => 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,is_day',
+                'hourly'          => 'temperature_2m,weather_code,precipitation_probability',
                 'wind_speed_unit' => 'kmh',
                 'timezone'        => 'auto',
+                'forecast_days'   => 2,
             ]);
 
             if (! $response->successful()) {
@@ -81,6 +83,25 @@ final class WeatherService
             $code      = (int) ($current['weather_code'] ?? 0);
             $condition = self::CONDITIONS[$code] ?? ['label' => 'Unknown', 'class' => 'clear'];
 
+            $hourly      = $response->json('hourly') ?? [];
+            $timezone    = $response->json('timezone') ?? 'UTC';
+            $currentHour = now($timezone)->format('Y-m-d\TH:00');
+            $times       = $hourly['time'] ?? [];
+            $idx         = array_search($currentHour, $times, strict: true);
+            $idx         = ($idx === false) ? 0 : $idx;
+
+            $forecast = [];
+            for ($i = $idx + 1; $i <= $idx + 8 && $i < count($times); $i++) {
+                $hCode      = (int) ($hourly['weather_code'][$i] ?? 0);
+                $hCondition = self::CONDITIONS[$hCode] ?? ['label' => 'Unknown', 'class' => 'clear'];
+                $forecast[] = [
+                    'time'              => substr($times[$i], 11, 5), // "HH:MM"
+                    'temperature'       => (int) round((float) ($hourly['temperature_2m'][$i] ?? 0)),
+                    'condition_class'   => $hCondition['class'],
+                    'precipitation_pct' => (int) ($hourly['precipitation_probability'][$i] ?? 0),
+                ];
+            }
+
             $result = [
                 'city'                 => $city,
                 'temperature'          => (int) round((float) ($current['temperature_2m'] ?? 0)),
@@ -91,6 +112,7 @@ final class WeatherService
                 'condition'            => $condition['label'],
                 'condition_class'      => $condition['class'],
                 'is_day'               => (bool) ($current['is_day'] ?? true),
+                'forecast'             => $forecast,
             ];
 
             Cache::put('weather.current', $result, self::CACHE_TTL);
