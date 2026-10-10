@@ -65,9 +65,10 @@ final class WeatherService
                 'longitude'       => $lon,
                 'current'         => 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,is_day',
                 'hourly'          => 'temperature_2m,weather_code,precipitation_probability',
+                'daily'           => 'temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max',
                 'wind_speed_unit' => 'kmh',
                 'timezone'        => 'auto',
-                'forecast_days'   => 2,
+                'forecast_days'   => 7,
             ]);
 
             if (! $response->successful()) {
@@ -102,6 +103,21 @@ final class WeatherService
                 ];
             }
 
+            $daily       = $response->json('daily') ?? [];
+            $dailyTimes  = $daily['time'] ?? [];
+            $dailyForecast = [];
+            foreach ($dailyTimes as $i => $date) {
+                $dCode      = (int) ($daily['weather_code'][$i] ?? 0);
+                $dCondition = self::CONDITIONS[$dCode] ?? ['label' => 'Unknown', 'class' => 'clear'];
+                $dailyForecast[] = [
+                    'date'             => $date,
+                    'temp_max'         => (int) round((float) ($daily['temperature_2m_max'][$i] ?? 0)),
+                    'temp_min'         => (int) round((float) ($daily['temperature_2m_min'][$i] ?? 0)),
+                    'condition_class'  => $dCondition['class'],
+                    'precipitation_pct'=> (int) ($daily['precipitation_probability_max'][$i] ?? 0),
+                ];
+            }
+
             $result = [
                 'city'                 => $city,
                 'temperature'          => (int) round((float) ($current['temperature_2m'] ?? 0)),
@@ -113,6 +129,7 @@ final class WeatherService
                 'condition_class'      => $condition['class'],
                 'is_day'               => (bool) ($current['is_day'] ?? true),
                 'forecast'             => $forecast,
+                'daily_forecast'       => $dailyForecast,
             ];
 
             Cache::put('weather.current', $result, self::CACHE_TTL);

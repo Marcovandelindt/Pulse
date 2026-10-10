@@ -140,20 +140,12 @@
         />
     </div>
 
-    {{-- Main grid --}}
-    <div class="dashboard-grid">
-        <x-ui.card title="Recent Activity">
-            <x-dashboard.activity-timeline :activities="$timeline" />
-        </x-ui.card>
-
-        <div class="flex flex-col gap-6">
-
-            {{-- Weather widget --}}
-            @if($weather)
-            <div class="weather-widget"
-                 data-condition="{{ $weather['condition_class'] }}"
-                 @if(!$weather['is_day']) data-night @endif>
-                <div class="wx-bg" aria-hidden="true">
+    {{-- Weather widget --}}
+    @if($weather)
+    <div class="weather-widget weather-widget--full"
+         data-condition="{{ $weather['condition_class'] }}"
+         @if(!$weather['is_day']) data-night @endif>
+        <div class="wx-bg" aria-hidden="true">
                     @switch($weather['condition_class'])
                         @case('clear')
                             @if($weather['is_day'])
@@ -304,7 +296,9 @@
                             </svg>
                     @endswitch
                 </div>
-                <div class="wx-body">
+        <div class="wx-body">
+            <div class="wx-top">
+                <div class="wx-left">
                     <div class="wx-location">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
@@ -333,22 +327,24 @@
                             <span>{{ $weather['wind_speed'] }} km/h</span>
                         </div>
                     </div>
+                </div>
 
-                    @if(!empty($weather['forecast']))
+                @if(!empty($weather['forecast']))
+                    <div class="wx-right">
                         <div class="wx-forecast">
                             @foreach($weather['forecast'] as $hour)
                                 @php
                                     $icon = match($hour['condition_class']) {
-                                        'clear'        => '☀️',
-                                        'partly-cloudy'=> '⛅',
-                                        'cloudy'       => '☁️',
-                                        'fog'          => '🌫️',
-                                        'drizzle'      => '🌦️',
-                                        'rain'         => '🌧️',
-                                        'showers'      => '🌦️',
-                                        'snow'         => '❄️',
-                                        'thunder'      => '⛈️',
-                                        default        => '☀️',
+                                        'clear'         => '☀️',
+                                        'partly-cloudy' => '⛅',
+                                        'cloudy'        => '☁️',
+                                        'fog'           => '🌫️',
+                                        'drizzle'       => '🌦️',
+                                        'rain'          => '🌧️',
+                                        'showers'       => '🌦️',
+                                        'snow'          => '❄️',
+                                        'thunder'       => '⛈️',
+                                        default         => '☀️',
                                     };
                                 @endphp
                                 <div class="wx-hour">
@@ -361,10 +357,55 @@
                                 </div>
                             @endforeach
                         </div>
-                    @endif
-                </div>
+                    </div>
+                @endif
             </div>
+
+            @if(!empty($weather['daily_forecast']))
+                <div class="wx-daily">
+                    @foreach($weather['daily_forecast'] as $i => $day)
+                        @php
+                            $dayIcon = match($day['condition_class']) {
+                                'clear'         => '☀️',
+                                'partly-cloudy' => '⛅',
+                                'cloudy'        => '☁️',
+                                'fog'           => '🌫️',
+                                'drizzle'       => '🌦️',
+                                'rain'          => '🌧️',
+                                'showers'       => '🌦️',
+                                'snow'          => '❄️',
+                                'thunder'       => '⛈️',
+                                default         => '☀️',
+                            };
+                            $dayLabel = $i === 0 ? 'Today' : \Carbon\Carbon::parse($day['date'])->format('D');
+                        @endphp
+                        <div class="wx-day">
+                            <span class="wx-day__name">{{ $dayLabel }}</span>
+                            <span class="wx-day__icon">{{ $dayIcon }}</span>
+                            @if($day['precipitation_pct'] > 0)
+                                <span class="wx-day__rain">{{ $day['precipitation_pct'] }}%</span>
+                            @else
+                                <span class="wx-day__rain wx-day__rain--empty"></span>
+                            @endif
+                            <div class="wx-day__temps">
+                                <span class="wx-day__max">{{ $day['temp_max'] }}°</span>
+                                <span class="wx-day__min">{{ $day['temp_min'] }}°</span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             @endif
+        </div>
+    </div>
+    @endif
+
+    {{-- Main grid --}}
+    <div class="dashboard-grid">
+        <x-ui.card title="Recent Activity">
+            <x-dashboard.activity-timeline :activities="$timeline" />
+        </x-ui.card>
+
+        <div class="flex flex-col gap-6">
 
             <x-ui.card title="Now listening" class="card--flush">
                 @if($currentlyPlaying)
