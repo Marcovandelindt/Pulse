@@ -14,5 +14,7 @@ return [
         SpotifyScope::UserReadRecentlyPlayed->value,
         SpotifyScope::UserReadCurrentlyPlaying->value,
         SpotifyScope::UserReadPlaybackState->value,
+        SpotifyScope::PlaylistModifyPrivate->value,
+        SpotifyScope::PlaylistModifyPublic->value,
     ],
 ];

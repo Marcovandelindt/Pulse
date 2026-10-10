@@ -11,4 +11,6 @@ enum SpotifyScope: string
     case UserReadRecentlyPlayed = 'user-read-recently-played';
     case UserReadCurrentlyPlaying = 'user-read-currently-playing';
     case UserReadPlaybackState = 'user-read-playback-state';
+    case PlaylistModifyPrivate = 'playlist-modify-private';
+    case PlaylistModifyPublic  = 'playlist-modify-public';
 }

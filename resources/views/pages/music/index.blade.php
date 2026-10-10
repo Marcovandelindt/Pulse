@@ -1,9 +1,38 @@
 <x-layouts.app title="Music">
 
+    <div x-data="{
+        playlistOpen: false,
+        period: 'last_30_days',
+        year: {{ now()->year }},
+        from: '',
+        to: '',
+        limit: 50,
+        customName: '',
+        get autoName() {
+            const y = this.year || {{ now()->year }};
+            const names = {
+                last_30_days:  'Most played — last 30 days',
+                last_6_months: 'Most played — last 6 months',
+                this_year:     'Most played — ' + {{ now()->year }},
+                specific_year: 'Most played — ' + y,
+                custom:        this.from && this.to ? 'Most played — ' + this.from + ' to ' + this.to : 'Most played — custom period',
+            };
+            return names[this.period] || '';
+        },
+        get name() { return this.customName || this.autoName; },
+        open() { this.customName = ''; this.playlistOpen = true; },
+    }" @keydown.escape.window="playlistOpen = false">
+
     <x-layout.page-header title="Music">
         <x-slot:actions>
             <a href="{{ route('music.stats') }}" class="btn btn--secondary btn--sm">Stats</a>
             <a href="{{ route('music.import.index') }}" class="btn btn--secondary btn--sm">Import</a>
+            <button @click="open()" class="btn btn--secondary btn--sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.661a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 0 1-.99-3.467l2.31-.661A2.25 2.25 0 0 0 9 15.553Z" />
+                </svg>
+                Create playlist
+            </button>
             <form method="POST" action="{{ route('music.sync') }}">
                 @csrf
                 <button type="submit" class="btn btn--primary btn--sm">Sync now</button>
@@ -14,6 +43,18 @@
             </form>
         </x-slot:actions>
     </x-layout.page-header>
+
+    @if(session('playlist_url'))
+        <div class="playlist-created-banner">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.661a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 0 1-.99-3.467l2.31-.661A2.25 2.25 0 0 0 9 15.553Z" />
+            </svg>
+            <span>{{ session('success') }}</span>
+            <a href="{{ session('playlist_url') }}" target="_blank" rel="noopener" class="playlist-created-banner__link">
+                Open in Spotify →
+            </a>
+        </div>
+    @endif
 
     @if($lastSync)
         <p class="music-header__meta" style="margin-bottom: 1.5rem;">
@@ -243,6 +284,129 @@
         </div>
 
     </div>
+
+    {{-- Create playlist modal --}}
+    <div x-show="playlistOpen" x-cloak class="playlist-modal" @click.self="playlistOpen = false">
+        <div class="playlist-modal__panel">
+            <div class="playlist-modal__header">
+                <span class="playlist-modal__title">Create Spotify playlist</span>
+                <button class="playlist-modal__close" @click="playlistOpen = false">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form method="POST" action="{{ route('music.playlists.store') }}" class="playlist-modal__body">
+                @csrf
+
+                {{-- Period --}}
+                <div class="playlist-field">
+                    <label class="playlist-field__label">Period</label>
+                    <div class="playlist-period-grid">
+                        @foreach([
+                            'last_30_days'  => 'Last 30 days',
+                            'last_6_months' => 'Last 6 months',
+                            'this_year'     => 'This year',
+                            'specific_year' => 'Specific year',
+                            'custom'        => 'Custom range',
+                        ] as $value => $label)
+                            <label class="playlist-period-btn" :class="{ 'playlist-period-btn--active': period === '{{ $value }}' }">
+                                <input type="radio" name="period_type" value="{{ $value }}" x-model="period" class="sr-only">
+                                {{ $label }}
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('period_type') <span class="playlist-field__error">{{ $message }}</span> @enderror
+                </div>
+
+                {{-- Year (conditional) --}}
+                <div x-show="period === 'specific_year'" x-cloak class="playlist-field">
+                    <label class="playlist-field__label" for="pl-year">Year</label>
+                    <input
+                        id="pl-year"
+                        type="number"
+                        name="year"
+                        x-model="year"
+                        class="form-input"
+                        min="2000"
+                        max="{{ now()->year }}"
+                        placeholder="{{ now()->year }}"
+                    >
+                    @error('year') <span class="playlist-field__error">{{ $message }}</span> @enderror
+                </div>
+
+                {{-- Custom range (conditional) --}}
+                <div x-show="period === 'custom'" x-cloak class="playlist-field">
+                    <label class="playlist-field__label">Date range</label>
+                    <div class="playlist-date-row">
+                        <div>
+                            <label class="playlist-field__sublabel" for="pl-from">From</label>
+                            <input id="pl-from" type="date" name="from" x-model="from" class="form-input" max="{{ now()->toDateString() }}">
+                            @error('from') <span class="playlist-field__error">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="playlist-field__sublabel" for="pl-to">To</label>
+                            <input id="pl-to" type="date" name="to" x-model="to" class="form-input" max="{{ now()->toDateString() }}">
+                            @error('to') <span class="playlist-field__error">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Track limit --}}
+                <div class="playlist-field">
+                    <label class="playlist-field__label" for="pl-limit">
+                        Tracks
+                        <span class="playlist-field__count" x-text="limit"></span>
+                    </label>
+                    <input
+                        id="pl-limit"
+                        type="range"
+                        name="track_limit"
+                        x-model="limit"
+                        min="5"
+                        max="100"
+                        step="5"
+                        class="playlist-range"
+                    >
+                    <div class="playlist-range-labels">
+                        <span>5</span><span>100</span>
+                    </div>
+                    @error('track_limit') <span class="playlist-field__error">{{ $message }}</span> @enderror
+                </div>
+
+                {{-- Playlist name --}}
+                <div class="playlist-field">
+                    <label class="playlist-field__label" for="pl-name">Playlist name</label>
+                    <input
+                        id="pl-name"
+                        type="text"
+                        name="playlist_name"
+                        :value="name"
+                        @input="customName = $event.target.value"
+                        class="form-input"
+                        maxlength="100"
+                        required
+                    >
+                    @error('playlist_name') <span class="playlist-field__error">{{ $message }}</span> @enderror
+                </div>
+
+                <p class="playlist-modal__note">The playlist will be created as private on your Spotify account.</p>
+
+                <div class="playlist-modal__footer">
+                    <button type="button" class="btn btn--secondary btn--sm" @click="playlistOpen = false">Cancel</button>
+                    <button type="submit" class="btn btn--primary btn--sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.661a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 0 1-.99-3.467l2.31-.661A2.25 2.25 0 0 0 9 15.553Z" />
+                        </svg>
+                        Create playlist
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    </div>{{-- end x-data --}}
 
     <x-layout.notification />
 

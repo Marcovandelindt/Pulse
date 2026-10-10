@@ -8,6 +8,7 @@ use App\Http\Controllers\Music\ImportSpotifyHistoryController;
 use App\Http\Controllers\Music\MusicDashboardController;
 use App\Http\Controllers\Music\MusicStatsController;
 use App\Http\Controllers\Music\ObsessionController;
+use App\Http\Controllers\Music\SpotifyPlaylistController;
 use App\Http\Controllers\Music\TrackController;
 use App\Http\Controllers\Music\TrackGameController;
 use App\Http\Controllers\Spotify\SpotifyAuthController;
@@ -29,6 +30,7 @@ Route::prefix('music')->name('music.')->middleware('spotify.connected')->group(f
     Route::post('/tracks/{track}/obsession', [ObsessionController::class, 'toggle'])->name('tracks.obsession');
     Route::put('/tracks/{track}/game', [TrackGameController::class, 'update'])->name('tracks.game.update');
     Route::delete('/tracks/{track}/game', [TrackGameController::class, 'destroy'])->name('tracks.game.destroy');
+    Route::post('/playlists', [SpotifyPlaylistController::class, 'store'])->name('playlists.store');
     Route::get('/albums/{album}', [AlbumController::class, 'show'])->name('albums.show');
     Route::get('/artists/{artist}', [ArtistController::class, 'show'])->name('artists.show');
 });
