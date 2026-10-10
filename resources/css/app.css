@@ -20,6 +20,7 @@
 @import './components/_pagination.scss';
 @import './components/_global-search.scss';
 @import './features/_dashboard.scss';
+@import './features/_weather.scss';
 @import './features/_day.scss';
 @import './features/_health.scss';
 @import './features/_finance.scss';
@@ -34,6 +35,7 @@
 @import './features/_changelog.scss';
 @import './features/_stats.scss';
 @import './features/_ai.scss';
+@import './features/_settings.scss';
 @import './features/_ideas.scss';
 @import './features/_auth.scss';
 

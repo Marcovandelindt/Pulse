@@ -51,4 +51,10 @@ return [
         'path' => env('TESSERACT_PATH', 'tesseract'),
     ],
 
+    'weather' => [
+        'lat'  => env('WEATHER_LAT', '52.3676'),
+        'lon'  => env('WEATHER_LON', '4.9041'),
+        'city' => env('WEATHER_CITY', 'Amsterdam'),
+    ],
+
 ];

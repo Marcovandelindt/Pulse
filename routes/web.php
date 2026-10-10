@@ -30,6 +30,7 @@ use App\Http\Controllers\Changelog\ChangelogController;
 use App\Http\Controllers\Ideas\IdeaController;
 use App\Http\Controllers\Ideas\IdeaStatusController;
 use App\Http\Controllers\Settings\RelationshipTypeController;
+use App\Http\Controllers\Settings\SettingsController;
 use App\Http\Controllers\AI\AiSettingsController;
 use App\Http\Controllers\AI\ChatController;
 use App\Http\Controllers\Stats\CrossStatsController;
@@ -143,6 +144,9 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [SettingsController::class, 'index'])->name('index');
+        Route::post('/', [SettingsController::class, 'update'])->name('update');
+
         Route::prefix('relationships')->name('relationships.')->group(function () {
             Route::get('/', [RelationshipTypeController::class, 'index'])->name('index');
             Route::post('/', [RelationshipTypeController::class, 'store'])->name('store');

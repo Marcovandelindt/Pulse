@@ -57,6 +57,7 @@
             <x-layout.nav-item route="stats.wrapped" icon="trophy" label="Wrapped" />
             <x-layout.nav-item route="stats.patterns" icon="arrows-pointing-in" label="Cross-domain" />
             <x-layout.nav-item route="changelog.index" icon="clock" label="Changelog" />
+            <x-layout.nav-item route="settings.index" icon="cog" label="Settings" />
         </div>
     </nav>
 

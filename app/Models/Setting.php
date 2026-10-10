@@ -78,6 +78,22 @@ final class Setting extends Model
         }
     }
 
+    public static function getWeatherLocation(): array
+    {
+        return [
+            'lat'  => self::get('weather_lat'),
+            'lon'  => self::get('weather_lon'),
+            'city' => self::get('weather_city'),
+        ];
+    }
+
+    public static function setWeatherLocation(string $city, string $lat, string $lon): void
+    {
+        self::set('weather_lat', $lat);
+        self::set('weather_lon', $lon);
+        self::set('weather_city', $city);
+    }
+
     public static function getSpotifyCredentials(): array
     {
         return [

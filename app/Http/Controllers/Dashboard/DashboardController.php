@@ -19,6 +19,7 @@ use App\Models\StepGoal;
 use Illuminate\Support\Carbon;
 use App\Services\PlayStation\PsnPresenceService;
 use App\Services\Spotify\SpotifyTrackService;
+use App\Services\Weather\WeatherService;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
@@ -30,6 +31,7 @@ final class DashboardController extends Controller
         private readonly SpotifyTrackService $trackService,
         private readonly PsnPresenceService $psnPresence,
         private readonly SyncGamingPresenceAction $syncPresence,
+        private readonly WeatherService $weatherService,
     ) {}
 
     public function index(): View
@@ -95,6 +97,8 @@ final class DashboardController extends Controller
             ? PlayStationSession::with('game')->latest('started_at')->first()
             : null;
 
+        $weather         = $this->weatherService->getCurrent();
+
         $lastYear        = $this->thisTimeLastYear();
         $weekTopArtist   = $this->weekTopArtist();
         $recentMilestone = $this->recentMilestone($stepStreak, $sleepStreak);
@@ -135,6 +139,7 @@ final class DashboardController extends Controller
             'weekTopArtist'     => $weekTopArtist,
             'recentMilestone'   => $recentMilestone,
             'personalRecords'   => $personalRecords,
+            'weather'           => $weather,
         ]);
     }
 
