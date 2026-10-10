@@ -197,10 +197,81 @@
     color:       #60a5fa;
 }
 
+/* ── Animations ───────────────────────────────────── */
+
+@keyframes wx-spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes wx-twinkle {
+    0%, 100% { opacity: 1;    transform: scale(1);    }
+    50%       { opacity: 0.15; transform: scale(0.55); }
+}
+
+@keyframes wx-cloud-drift {
+    0%, 100% { transform: translateX(0);    }
+    50%       { transform: translateX(-7px); }
+}
+
+@keyframes wx-rain-drift {
+    from { transform: translateY(-5px); }
+    to   { transform: translateY(5px);  }
+}
+
+@keyframes wx-snow-fade {
+    0%, 100% { opacity: 1;   }
+    50%       { opacity: 0.2; }
+}
+
+@keyframes wx-fog-shift {
+    0%, 100% { transform: translateX(0);    opacity: 1;   }
+    50%       { transform: translateX(10px); opacity: 0.5; }
+}
+
+@keyframes wx-lightning-flash {
+    0%, 87%, 100% { opacity: 0.65; }
+    89%            { opacity: 0.05; }
+    91%            { opacity: 1;    }
+    94%            { opacity: 0.3;  }
+}
+
+.wx-anim-spin {
+    transform-box:    fill-box;
+    transform-origin: center;
+    animation:        wx-spin 30s linear infinite;
+}
+
+.wx-anim-star {
+    transform-box:    fill-box;
+    transform-origin: center;
+    animation:        wx-twinkle 3.5s ease-in-out infinite;
+}
+
+.wx-anim-cloud       { animation: wx-cloud-drift 7s  ease-in-out infinite; }
+.wx-anim-cloud-slow  { animation: wx-cloud-drift 11s ease-in-out infinite; animation-delay: -3s; }
+.wx-anim-rain        { animation: wx-rain-drift 1.8s ease-in-out infinite alternate; }
+.wx-anim-lightning   { animation: wx-lightning-flash 6s ease-in-out infinite; }
+
+.wx-anim-snow { animation: wx-snow-fade 2.5s ease-in-out infinite; }
+
+.wx-anim-fog-1 { animation: wx-fog-shift 6s ease-in-out infinite; }
+.wx-anim-fog-2 { animation: wx-fog-shift 8s ease-in-out infinite; animation-delay: -2s;   }
+.wx-anim-fog-3 { animation: wx-fog-shift 7s ease-in-out infinite; animation-delay: -1s;   }
+.wx-anim-fog-4 { animation: wx-fog-shift 9s ease-in-out infinite; animation-delay: -3.5s; }
+.wx-anim-fog-5 { animation: wx-fog-shift 5s ease-in-out infinite; animation-delay: -0.8s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .wx-anim-spin, .wx-anim-star, .wx-anim-cloud, .wx-anim-cloud-slow,
+    .wx-anim-rain, .wx-anim-snow, .wx-anim-lightning,
+    .wx-anim-fog-1, .wx-anim-fog-2, .wx-anim-fog-3,
+    .wx-anim-fog-4, .wx-anim-fog-5 { animation: none; }
+}
+
 /* ── Full-width variant ───────────────────────────── */
 
 .weather-widget--full {
-    padding: 1.5rem 1.75rem 1.25rem;
+    padding:       1.5rem 1.75rem 1.25rem;
+    margin-bottom: 1.5rem;
 
     .wx-bg { width: 45%; }
 }
