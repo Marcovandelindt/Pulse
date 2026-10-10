@@ -7,6 +7,7 @@ namespace App\Queries\Music;
 use App\Models\Artist;
 use App\Models\Play;
 use App\Models\PlayStationGame;
+use App\Models\SpotifyPlaylist;
 use App\Models\SpotifySyncCursor;
 use App\Models\SteamGame;
 use App\Models\Track;
@@ -63,10 +64,10 @@ final class MusicDashboardQuery
         $obsessionSlides = $obsessions
             ->filter(fn (Track $t) => $t->album?->image_url)
             ->map(fn (Track $t) => [
-                'name'   => $t->title,
+                'name' => $t->title,
                 'artist' => $t->artists_string,
-                'image'  => $t->album->image_url,
-                'plays'  => $t->plays_since_obsession,
+                'image' => $t->album->image_url,
+                'plays' => $t->plays_since_obsession,
             ])
             ->values();
 
@@ -77,6 +78,8 @@ final class MusicDashboardQuery
                 ->filter()
         );
 
+        $playlists = SpotifyPlaylist::orderByDesc('created_at')->get();
+
         return compact(
             'recentPlays',
             'topTracksThisWeek',
@@ -86,6 +89,7 @@ final class MusicDashboardQuery
             'obsessions',
             'obsessionSlides',
             'gameMap',
+            'playlists',
         );
     }
 
@@ -101,7 +105,7 @@ final class MusicDashboardQuery
         $track = Track::where('spotify_track_id', $currentlyPlaying['spotify_track_id'])->first()
             ?? $this->trackService->upsertTrack($currentlyPlaying['raw_track'], fetchDetails: false);
 
-        $currentlyPlaying['track']         = $track->load('artists');
+        $currentlyPlaying['track'] = $track->load('artists');
         $currentlyPlaying['artist_models'] = $track->artists->keyBy('spotify_artist_id');
 
         return $currentlyPlaying;
@@ -112,7 +116,7 @@ final class MusicDashboardQuery
     {
         $map = [];
 
-        $psIds    = $tracks->where('gameable_type', 'playstation')->pluck('gameable_id')->filter()->unique()->values();
+        $psIds = $tracks->where('gameable_type', 'playstation')->pluck('gameable_id')->filter()->unique()->values();
         $steamIds = $tracks->where('gameable_type', 'steam')->pluck('gameable_id')->filter()->unique()->values();
 
         if ($psIds->isNotEmpty()) {

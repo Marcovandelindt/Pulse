@@ -15,9 +15,9 @@ final class SpotifyPlaylistService
     public function create(string $userId, string $name, string $description): string
     {
         $response = $this->spotify->post("/users/{$userId}/playlists", [
-            'name'        => $name,
+            'name' => $name,
             'description' => $description,
-            'public'      => false,
+            'public' => false,
         ]);
 
         if (! isset($response['id'])) {
@@ -44,5 +44,10 @@ final class SpotifyPlaylistService
     public function getUrl(string $playlistId): string
     {
         return "https://open.spotify.com/playlist/{$playlistId}";
+    }
+
+    public function unfollow(string $playlistId): void
+    {
+        $this->spotify->delete("/playlists/{$playlistId}/followers");
     }
 }

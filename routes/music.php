@@ -31,6 +31,8 @@ Route::prefix('music')->name('music.')->middleware('spotify.connected')->group(f
     Route::put('/tracks/{track}/game', [TrackGameController::class, 'update'])->name('tracks.game.update');
     Route::delete('/tracks/{track}/game', [TrackGameController::class, 'destroy'])->name('tracks.game.destroy');
     Route::post('/playlists', [SpotifyPlaylistController::class, 'store'])->name('playlists.store');
+    Route::get('/playlists/{playlist}', [SpotifyPlaylistController::class, 'show'])->name('playlists.show');
+    Route::delete('/playlists/{playlist}', [SpotifyPlaylistController::class, 'destroy'])->name('playlists.destroy');
     Route::get('/albums/{album}', [AlbumController::class, 'show'])->name('albums.show');
     Route::get('/artists/{artist}', [ArtistController::class, 'show'])->name('artists.show');
 });

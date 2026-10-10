@@ -92,4 +92,18 @@ final class SpotifyService
 
         return $response->json();
     }
+
+    public function delete(string $endpoint): bool
+    {
+        $client = $this->getAuthenticatedClient();
+
+        if ($client === null) {
+            return false;
+        }
+
+        $response = Http::withToken($client['access_token'])
+            ->delete('https://api.spotify.com/v1'.$endpoint);
+
+        return ! $response->failed();
+    }
 }

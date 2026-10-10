@@ -285,6 +285,50 @@
 
     </div>
 
+    {{-- Playlists --}}
+    @if($playlists->isNotEmpty())
+        <div class="music-playlists">
+            <div class="music-header" style="margin-top: 2rem;">
+                <h2 class="music-header__title">Created playlists</h2>
+            </div>
+            <div class="playlist-list">
+                @foreach($playlists as $playlist)
+                    @php
+                        $periodLabel = match($playlist->period_type) {
+                            'last_30_days'  => 'Last 30 days',
+                            'last_6_months' => 'Last 6 months',
+                            'this_year'     => 'This year',
+                            'specific_year' => $playlist->period_from?->format('Y') ?? '—',
+                            'custom'        => ($playlist->period_from?->format('M j, Y') ?? '—').' – '.($playlist->period_to?->format('M j, Y') ?? '—'),
+                            default         => '—',
+                        };
+                    @endphp
+                    <div class="playlist-row">
+                        <div class="playlist-row__icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.661a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 0 1-.99-3.467l2.31-.661A2.25 2.25 0 0 0 9 15.553Z" />
+                            </svg>
+                        </div>
+                        <div class="playlist-row__info">
+                            <a href="{{ route('music.playlists.show', $playlist) }}" class="playlist-row__name">{{ $playlist->name }}</a>
+                            <div class="playlist-row__meta">{{ $periodLabel }} · {{ $playlist->track_count }} tracks · created {{ $playlist->created_at->diffForHumans() }}</div>
+                        </div>
+                        <div class="playlist-row__actions">
+                            <a href="{{ $playlist->url }}" target="_blank" rel="noopener" class="btn btn--secondary btn--sm">
+                                Open in Spotify
+                            </a>
+                            <form method="POST" action="{{ route('music.playlists.destroy', $playlist) }}" onsubmit="return confirm('Delete \'{{ addslashes($playlist->name) }}\' from Pulse and Spotify?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     {{-- Create playlist modal --}}
     <div x-show="playlistOpen" x-cloak class="playlist-modal" @click.self="playlistOpen = false">
         <div class="playlist-modal__panel">
