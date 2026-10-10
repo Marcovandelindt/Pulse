@@ -87,13 +87,26 @@ final class CreateSpotifyPlaylist
     private function resolveDateRange(string $periodType, ?int $year, ?string $from, ?string $to): array
     {
         return match ($periodType) {
-            'last_30_days' => [now()->subDays(30)->startOfDay(),                now()->endOfDay()],
-            'last_6_months' => [now()->subMonths(6)->startOfDay(),               now()->endOfDay()],
-            'this_year' => [now()->startOfYear(),                            now()->endOfDay()],
-            'specific_year' => [Carbon::create($year)->startOfYear(),            Carbon::create($year)->endOfYear()],
-            'custom' => [Carbon::parse($from)->startOfDay(),              Carbon::parse($to)->endOfDay()],
+            'last_30_days' => [now()->subDays(30)->startOfDay(), now()->endOfDay()],
+            'last_6_months' => [now()->subMonths(6)->startOfDay(), now()->endOfDay()],
+            'this_year' => [now()->startOfYear(), now()->endOfDay()],
+            'specific_year' => [Carbon::create($year)->startOfYear(), Carbon::create($year)->endOfYear()],
+            'custom' => $this->resolveCustomRange($from, $to),
             default => throw new RuntimeException("Unknown period type: {$periodType}"),
         };
+    }
+
+    /** @return array{Carbon, Carbon} */
+    private function resolveCustomRange(?string $from, ?string $to): array
+    {
+        $start = Carbon::parse($from)->startOfDay();
+        $end = Carbon::parse($to)->endOfDay();
+
+        if ($start->greaterThan($end)) {
+            [$start, $end] = [$end, $start];
+        }
+
+        return [$start, $end];
     }
 
     private function buildDescription(string $periodType, ?int $year, ?string $from, ?string $to, int $count): string

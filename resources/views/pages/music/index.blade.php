@@ -1,13 +1,13 @@
 <x-layouts.app title="Music">
 
     <div x-data="{
-        playlistOpen: false,
-        period: 'last_30_days',
-        year: {{ now()->year }},
-        from: '',
-        to: '',
-        limit: 50,
-        customName: '',
+        playlistOpen: {{ $errors->isNotEmpty() || old('period_type') ? 'true' : 'false' }},
+        period: '{{ old('period_type', 'last_30_days') }}',
+        year: {{ old('year', now()->year) }},
+        from: '{{ old('from', '') }}',
+        to: '{{ old('to', '') }}',
+        limit: {{ old('track_limit', 50) }},
+        customName: '{{ old('playlist_name', '') }}',
         get autoName() {
             const y = this.year || {{ now()->year }};
             const names = {
