@@ -64,7 +64,7 @@ final class PlayStationGame extends Model
             'trophy_earned' => 'array',
             'trophy_defined' => 'array',
             'trophies_last_synced_at' => 'datetime',
-            'completed_at'       => 'datetime',
+            'completed_at' => 'datetime',
             'completion_minutes' => 'integer',
             'price' => 'decimal:2',
             'user_rating' => 'decimal:1',
@@ -90,6 +90,11 @@ final class PlayStationGame extends Model
     public function tracks(): MorphMany
     {
         return $this->morphMany(Track::class, 'gameable');
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(PlayStationGameImage::class)->orderBy('sort_order');
     }
 
     protected function label(): Attribute
@@ -183,11 +188,11 @@ final class PlayStationGame extends Model
     public static function platformColorFor(string $platform): string
     {
         return match ($platform) {
-            'PS5'    => '#003087',
-            'PS4'    => '#00439c',
-            'PS3'    => '#003791',
+            'PS5' => '#003087',
+            'PS4' => '#00439c',
+            'PS3' => '#003791',
             'PSVITA' => '#003087',
-            default  => '#003087',
+            default => '#003087',
         };
     }
 }

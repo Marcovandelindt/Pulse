@@ -1,6 +1,6 @@
 <x-layouts.app title="PlayStation">
 
-<div x-data="playstationIndex({ sleepItems: @js($sleepItems) })">
+<div x-data="playstationIndex({ sleepItems: @js($sleepItems), galleryItems: @js($galleryItems) })">
 
     <x-layout.page-header title="PlayStation">
         <x-slot:actions>
@@ -272,7 +272,7 @@
     </div>
 
     {{-- Sleep mode --}}
-    <div class="sleep-mode" x-show="sleepOpen" style="display:none;">
+    <div class="sleep-mode" x-show="sleepOpen" :class="{ 'sleep-mode--gallery': sleepMode === 'gallery' }" style="display:none;">
         <div class="sleep-mode__backdrop"
              :style="sleepItem ? `background-image: url('${sleepItem.image_url}')` : ''"
              x-effect="sleepIndex; $el.style.animation = 'none'; $el.offsetHeight; $el.style.animation = ''">
@@ -282,46 +282,74 @@
 
         <button class="sleep-mode__close" @click="exitSleep()">✕</button>
 
+        <template x-if="galleryItems.length > 0">
+            <button class="sleep-mode__mode-toggle" @click="toggleSleepMode()" x-text="sleepMode === 'gallery' ? '🎮 Games' : '🖼 Gallery'"></button>
+        </template>
+
         <button class="sleep-mode__nav sleep-mode__nav--prev" @click="_sleepPrev()">‹</button>
         <button class="sleep-mode__nav sleep-mode__nav--next" @click="_sleepNext()">›</button>
 
-        <div class="sleep-mode__clock">
-            <div class="sleep-mode__clock-time" x-text="clockTime"></div>
-            <div class="sleep-mode__clock-date" x-text="clockDate"></div>
-        </div>
+        {{-- Standard mode --}}
+        <template x-if="sleepMode === 'standard'">
+            <div style="display: contents;">
+                <div class="sleep-mode__clock">
+                    <div class="sleep-mode__clock-time" x-text="clockTime"></div>
+                    <div class="sleep-mode__clock-date" x-text="clockDate"></div>
+                </div>
 
-        <div class="sleep-mode__content">
-            <div class="sleep-mode__poster-wrap">
-                <img :src="sleepItem?.image_url" :alt="sleepItem?.title" class="sleep-mode__poster">
-            </div>
-            <div class="sleep-mode__info">
-                <div class="sleep-mode__title" x-text="sleepItem?.title"></div>
-                <div class="sleep-mode__meta" x-text="sleepItem?.platform"></div>
-                <div class="sleep-mode__stats">
-                    <div>
-                        <div class="sleep-mode__stat-label">Hours played</div>
-                        <div class="sleep-mode__stat" x-text="sleepItem?.hours + 'h'"></div>
+                <div class="sleep-mode__content">
+                    <div class="sleep-mode__poster-wrap">
+                        <img :src="sleepItem?.image_url" :alt="sleepItem?.title" class="sleep-mode__poster">
                     </div>
-                    <template x-if="sleepItem?.completion > 0">
-                        <div>
-                            <div class="sleep-mode__stat-label">Completion</div>
-                            <div class="sleep-mode__stat" x-text="sleepItem?.completion + '%'"></div>
-                            <div class="sleep-mode__bar-wrap">
-                                <div class="sleep-mode__bar" :style="`width: ${sleepItem?.completion}%`"></div>
+                    <div class="sleep-mode__info">
+                        <div class="sleep-mode__title" x-text="sleepItem?.title"></div>
+                        <div class="sleep-mode__meta" x-text="sleepItem?.platform"></div>
+                        <div class="sleep-mode__stats">
+                            <div>
+                                <div class="sleep-mode__stat-label">Hours played</div>
+                                <div class="sleep-mode__stat" x-text="sleepItem?.hours + 'h'"></div>
                             </div>
+                            <template x-if="sleepItem?.completion > 0">
+                                <div>
+                                    <div class="sleep-mode__stat-label">Completion</div>
+                                    <div class="sleep-mode__stat" x-text="sleepItem?.completion + '%'"></div>
+                                    <div class="sleep-mode__bar-wrap">
+                                        <div class="sleep-mode__bar" :style="`width: ${sleepItem?.completion}%`"></div>
+                                    </div>
+                                </div>
+                            </template>
+                            <template x-if="sleepItem?.last_played">
+                                <div>
+                                    <div class="sleep-mode__stat-label">Last played</div>
+                                    <div class="sleep-mode__stat" x-text="sleepItem?.last_played"></div>
+                                </div>
+                            </template>
                         </div>
-                    </template>
-                    <template x-if="sleepItem?.last_played">
-                        <div>
-                            <div class="sleep-mode__stat-label">Last played</div>
-                            <div class="sleep-mode__stat" x-text="sleepItem?.last_played"></div>
-                        </div>
-                    </template>
+                    </div>
                 </div>
             </div>
-        </div>
+        </template>
 
-        <div class="sleep-mode__counter" x-text="`${sleepIndex + 1} / ${sleepItems.length}`"></div>
+        {{-- Gallery mode --}}
+        <template x-if="sleepMode === 'gallery'">
+            <div style="display: contents;">
+                <div class="sleep-mode__gallery-image-wrap">
+                    <img :src="sleepItem?.image_url" :alt="sleepItem?.game_title" class="sleep-mode__gallery-image">
+                </div>
+                <div class="sleep-mode__gallery-info">
+                    <div class="sleep-mode__gallery-clock">
+                        <span x-text="clockTime"></span>
+                        <span class="sleep-mode__gallery-clock-date" x-text="clockDate"></span>
+                    </div>
+                    <div class="sleep-mode__gallery-caption-wrap">
+                        <div class="sleep-mode__gallery-game" x-text="sleepItem?.game_title"></div>
+                        <div class="sleep-mode__gallery-caption" x-show="sleepItem?.caption" x-text="sleepItem?.caption"></div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <div class="sleep-mode__counter" x-text="`${sleepIndex + 1} / ${currentSleepItems.length}`"></div>
 
         <div class="sleep-progress">
             <div

@@ -374,6 +374,57 @@
         </x-ui.card>
     @endif
 
+    <div x-data="{ uploadOpen: {{ $errors->has('image') ? 'true' : 'false' }} }">
+    <x-ui.card class="mb-6">
+        <x-slot:title>
+            Gallery
+            <span style="color: var(--color-text-muted); font-weight: 400; font-size: 0.875rem;">{{ $game->images->count() }}</span>
+        </x-slot:title>
+        <x-slot:action>
+            <button @click="uploadOpen = !uploadOpen" class="btn btn--secondary btn--sm">+ Add image</button>
+        </x-slot:action>
+
+        <div x-show="uploadOpen" x-cloak class="mb-5 pb-5" style="border-bottom: 1px solid var(--color-border);">
+            <form method="POST" action="{{ route('playstation.gallery.store', $game) }}" enctype="multipart/form-data" class="flex items-end gap-3 flex-wrap">
+                @csrf
+                <div>
+                    <label class="block text-xs font-medium mb-1" style="color: var(--color-text-muted);">Image</label>
+                    <input type="file" name="image" accept="image/*" required class="form-input text-sm">
+                </div>
+                <div class="flex-1" style="min-width: 12rem;">
+                    <label class="block text-xs font-medium mb-1" style="color: var(--color-text-muted);">Caption <span style="opacity:.5">(optional)</span></label>
+                    <input type="text" name="caption" maxlength="255" placeholder="e.g. Final boss fight" class="form-input w-full">
+                </div>
+                <button type="submit" class="btn btn--primary btn--sm">Upload</button>
+            </form>
+            @error('image')
+                <p class="mt-2 text-sm" style="color: #f87171;">{{ $message }}</p>
+            @enderror
+        </div>
+
+        @if($game->images->isEmpty())
+            <p class="text-sm" style="color: var(--color-text-muted);">No images yet. Add screenshots or artwork to build a gallery.</p>
+        @else
+            <div class="game-gallery">
+                @foreach($game->images as $image)
+                    <div class="game-gallery__item">
+                        <img src="{{ Storage::url($image->path) }}" alt="{{ $image->caption ?? $game->label }}" class="game-gallery__img">
+                        @if($image->caption)
+                            <div class="game-gallery__caption">{{ $image->caption }}</div>
+                        @endif
+                        <form method="POST" action="{{ route('playstation.gallery.destroy', [$game, $image]) }}" class="game-gallery__delete"
+                              x-data @submit.prevent="if(confirm('Remove this image?')) $el.submit()">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" title="Remove">✕</button>
+                        </form>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+    </x-ui.card>
+    </div>
+
     <x-ui.card>
         <x-slot:title>
             Sessions

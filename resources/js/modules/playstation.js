@@ -1,9 +1,11 @@
 export function registerPlayStationComponents() {
-    Alpine.data('playstationIndex', ({ sleepItems: rawSleepItems }) => ({
+    Alpine.data('playstationIndex', ({ sleepItems: rawSleepItems, galleryItems: rawGalleryItems }) => ({
         sleepOpen: false,
         sleepIndex: 0,
         sleepTransitioning: false,
+        sleepMode: 'standard',
         sleepItems: (rawSleepItems ?? []).slice().sort(() => Math.random() - 0.5),
+        galleryItems: (rawGalleryItems ?? []).slice().sort(() => Math.random() - 0.5),
         sleepTimer: null,
         sleepKeyHandler: null,
         clockTime: '',
@@ -13,6 +15,16 @@ export function registerPlayStationComponents() {
         pickOpen: false,
         pickedGame: null,
         _lastPickedIndex: -1,
+
+        get currentSleepItems() {
+            return this.sleepMode === 'gallery' && this.galleryItems.length
+                ? this.galleryItems
+                : this.sleepItems;
+        },
+
+        get sleepItem() {
+            return this.currentSleepItems[this.sleepIndex] ?? null;
+        },
 
         pickRandom() {
             const items = this.sleepItems;
@@ -27,10 +39,6 @@ export function registerPlayStationComponents() {
 
         closePick() {
             this.pickOpen = false;
-        },
-
-        get sleepItem() {
-            return this.sleepItems[this.sleepIndex] ?? null;
         },
 
         init() {
@@ -49,7 +57,7 @@ export function registerPlayStationComponents() {
         },
 
         enterSleep() {
-            if (!this.sleepItems.length) return;
+            if (!this.currentSleepItems.length) return;
             this.sleepOpen  = true;
             this.sleepIndex = 0;
             document.body.style.overflow = 'hidden';
@@ -71,11 +79,19 @@ export function registerPlayStationComponents() {
             }
         },
 
+        toggleSleepMode() {
+            const next = this.sleepMode === 'standard' ? 'gallery' : 'standard';
+            if (next === 'gallery' && !this.galleryItems.length) return;
+            this.sleepMode  = next;
+            this.sleepIndex = 0;
+            this._resetSleepTimer();
+        },
+
         _sleepNext() {
             this.sleepTransitioning = true;
             this._resetSleepTimer();
             setTimeout(() => {
-                this.sleepIndex = (this.sleepIndex + 1) % this.sleepItems.length;
+                this.sleepIndex = (this.sleepIndex + 1) % this.currentSleepItems.length;
                 this.sleepTransitioning = false;
             }, 400);
         },
@@ -84,7 +100,7 @@ export function registerPlayStationComponents() {
             this.sleepTransitioning = true;
             this._resetSleepTimer();
             setTimeout(() => {
-                this.sleepIndex = (this.sleepIndex - 1 + this.sleepItems.length) % this.sleepItems.length;
+                this.sleepIndex = (this.sleepIndex - 1 + this.currentSleepItems.length) % this.currentSleepItems.length;
                 this.sleepTransitioning = false;
             }, 400);
         },

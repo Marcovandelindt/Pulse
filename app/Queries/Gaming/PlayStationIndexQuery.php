@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Queries\Gaming;
 
 use App\Models\PlayStationGame;
+use App\Models\PlayStationGameImage;
 use App\Models\PlayStationSession;
 use App\Services\PlayStation\PsnPresenceService;
+use Illuminate\Support\Facades\Storage;
 
 final class PlayStationIndexQuery
 {
@@ -30,7 +32,7 @@ final class PlayStationIndexQuery
         if ($search !== '') {
             $baseQuery->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('display_name', 'like', "%{$search}%");
+                    ->orWhere('display_name', 'like', "%{$search}%");
             });
         }
 
@@ -45,7 +47,7 @@ final class PlayStationIndexQuery
             ->sum('play_station_sessions.duration_minutes');
 
         $totalHours = round(($totalFromPsn + $totalFromSessions) / 60, 1);
-        $totalGames    = (clone $baseQuery)->count();
+        $totalGames = (clone $baseQuery)->count();
         $totalSessions = (clone $baseQuery)->sum('sessions');
 
         $calculatedMinutesSql = '
@@ -61,10 +63,10 @@ final class PlayStationIndexQuery
         $latestSessionSql = '(SELECT MAX(ps.started_at) FROM play_station_sessions ps WHERE ps.play_station_game_id = play_station_games.id)';
 
         $sorted = match ($sort) {
-            'name'        => (clone $baseQuery)->orderBy('name'),
+            'name' => (clone $baseQuery)->orderBy('name'),
             'last_played' => (clone $baseQuery)->orderByRaw("{$latestSessionSql} DESC")->orderByDesc('last_played_at'),
-            'completion'  => (clone $baseQuery)->orderByDesc('completion_percentage'),
-            default       => (clone $baseQuery)->orderByRaw("{$calculatedMinutesSql} DESC"),
+            'completion' => (clone $baseQuery)->orderByDesc('completion_percentage'),
+            default => (clone $baseQuery)->orderByRaw("{$calculatedMinutesSql} DESC"),
         };
 
         $games = $sorted->withCount([
@@ -73,17 +75,17 @@ final class PlayStationIndexQuery
         ])->withSum(['playSessions as filtered_minutes' => fn ($q) => $q->whereRaw(
             '(play_station_games.released_at IS NULL OR play_station_sessions.started_at >= play_station_games.released_at)'
         )], 'duration_minutes')
-        ->addSelect([
-            'latest_session_started_at' => PlayStationSession::select('started_at')
-                ->whereColumn('play_station_game_id', 'play_station_games.id')
-                ->latest('started_at')
-                ->limit(1),
-            'latest_session_ended_at' => PlayStationSession::select('ended_at')
-                ->whereColumn('play_station_game_id', 'play_station_games.id')
-                ->latest('started_at')
-                ->limit(1),
-        ])
-        ->paginate(24)->withQueryString();
+            ->addSelect([
+                'latest_session_started_at' => PlayStationSession::select('started_at')
+                    ->whereColumn('play_station_game_id', 'play_station_games.id')
+                    ->latest('started_at')
+                    ->limit(1),
+                'latest_session_ended_at' => PlayStationSession::select('ended_at')
+                    ->whereColumn('play_station_game_id', 'play_station_games.id')
+                    ->latest('started_at')
+                    ->limit(1),
+            ])
+            ->paginate(24)->withQueryString();
 
         $recentSessions = PlayStationSession::with('game')
             ->whereHas('game')
@@ -91,17 +93,27 @@ final class PlayStationIndexQuery
             ->limit(5)
             ->get();
 
-        $fallbacks  = ['ps1.jpg', 'ps2.webp', 'ps3.jpg', 'ps4.jpg', 'ps5.jpg'];
+        $fallbacks = ['ps1.jpg', 'ps2.webp', 'ps3.jpg', 'ps4.jpg', 'ps5.jpg'];
         $sleepItems = PlayStationGame::orderByRaw("{$calculatedMinutesSql} DESC")
             ->get(['id', 'name', 'display_name', 'platform', 'image_url', 'hours', 'completion_percentage', 'last_played_at'])
             ->map(fn ($g) => [
-                'title'       => $g->label,
-                'platform'    => $g->platform,
-                'image_url'   => $g->image_url ?? '/images/playstation/'.$fallbacks[$g->id % 5],
-                'hours'       => round((float) $g->hours, 1),
-                'completion'  => round((float) $g->completion_percentage, 0),
+                'title' => $g->label,
+                'platform' => $g->platform,
+                'image_url' => $g->image_url ?? '/images/playstation/'.$fallbacks[$g->id % 5],
+                'hours' => round((float) $g->hours, 1),
+                'completion' => round((float) $g->completion_percentage, 0),
                 'last_played' => $g->last_played_at?->format('d M Y'),
-                'url'         => route('playstation.show', $g),
+                'url' => route('playstation.show', $g),
+            ]);
+
+        $galleryItems = PlayStationGameImage::with('game:id,name,display_name,platform')
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn ($img) => [
+                'image_url' => Storage::url($img->path),
+                'game_title' => $img->game->label,
+                'caption' => $img->caption,
+                'url' => route('playstation.show', $img->game),
             ]);
 
         try {
@@ -113,7 +125,7 @@ final class PlayStationIndexQuery
         return compact(
             'games', 'sort', 'platform', 'search', 'completed',
             'totalHours', 'totalGames', 'totalSessions',
-            'recentSessions', 'sleepItems', 'currentGame',
+            'recentSessions', 'sleepItems', 'galleryItems', 'currentGame',
         );
     }
 }

@@ -7,21 +7,21 @@ use App\Http\Controllers\Gaming\NintendoController;
 use App\Http\Controllers\Gaming\NintendoCoverController;
 use App\Http\Controllers\Gaming\NintendoImportController;
 use App\Http\Controllers\Gaming\NintendoRecordController;
-use App\Http\Controllers\Gaming\NintendoSyncController;
 use App\Http\Controllers\Gaming\PlayStationCategoryController;
 use App\Http\Controllers\Gaming\PlayStationController;
 use App\Http\Controllers\Gaming\PlayStationFavoriteController;
+use App\Http\Controllers\Gaming\PlayStationGameImageController;
 use App\Http\Controllers\Gaming\PlayStationGameNotesController;
-use App\Http\Controllers\Gaming\PlayStationWishlistController;
 use App\Http\Controllers\Gaming\PlayStationGenreController;
-use App\Http\Controllers\Gaming\PlayStationSessionController;
 use App\Http\Controllers\Gaming\PlayStationRecommendationsController;
-use App\Http\Controllers\Gaming\PlayStationWrappedController;
-use App\Http\Controllers\Gaming\PlayStationStatsController;
+use App\Http\Controllers\Gaming\PlayStationSessionController;
 use App\Http\Controllers\Gaming\PlayStationSessionSyncController;
+use App\Http\Controllers\Gaming\PlayStationStatsController;
 use App\Http\Controllers\Gaming\PlayStationSyncController;
 use App\Http\Controllers\Gaming\PlayStationTrophyController;
 use App\Http\Controllers\Gaming\PlayStationTrophyNotesController;
+use App\Http\Controllers\Gaming\PlayStationWishlistController;
+use App\Http\Controllers\Gaming\PlayStationWrappedController;
 use App\Http\Controllers\Gaming\SteamAccountController;
 use App\Http\Controllers\Gaming\SteamConnectionController;
 use App\Http\Controllers\Gaming\SteamController;
@@ -68,6 +68,8 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
     Route::post('/{playStationGame}/fetch-genres', [PlayStationGenreController::class, 'fetch'])->name('fetch-genres');
     Route::patch('/{playStationGame}/favorite', [PlayStationFavoriteController::class, 'toggle'])->name('favorite');
     Route::patch('/{playStationGame}/notes', [PlayStationGameNotesController::class, 'update'])->name('notes.update');
+    Route::post('/{playStationGame}/gallery', [PlayStationGameImageController::class, 'store'])->name('gallery.store');
+    Route::delete('/{playStationGame}/gallery/{playStationGameImage}', [PlayStationGameImageController::class, 'destroy'])->name('gallery.destroy');
 });
 
 Route::prefix('steam')->name('steam.')->group(function () {
@@ -85,22 +87,22 @@ Route::prefix('steam')->name('steam.')->group(function () {
 });
 
 Route::prefix('nintendo')->name('nintendo.')->group(function () {
-    Route::get('/',        [NintendoController::class, 'index'])->name('index');
-    Route::get('/create',  [NintendoController::class, 'create'])->name('create');
-    Route::post('/',       [NintendoController::class, 'store'])->name('store');
-    Route::get('/search',   [NintendoController::class, 'search'])->name('search');
+    Route::get('/', [NintendoController::class, 'index'])->name('index');
+    Route::get('/create', [NintendoController::class, 'create'])->name('create');
+    Route::post('/', [NintendoController::class, 'store'])->name('store');
+    Route::get('/search', [NintendoController::class, 'search'])->name('search');
     Route::get('/sessions', [NintendoRecordController::class, 'index'])->name('sessions');
 
-    Route::get('/import',          [NintendoImportController::class, 'create'])->name('import');
-    Route::post('/import',         [NintendoImportController::class, 'store'])->name('import.store');
-    Route::get('/import/preview',  [NintendoImportController::class, 'preview'])->name('import.preview');
+    Route::get('/import', [NintendoImportController::class, 'create'])->name('import');
+    Route::post('/import', [NintendoImportController::class, 'store'])->name('import.store');
+    Route::get('/import/preview', [NintendoImportController::class, 'preview'])->name('import.preview');
     Route::post('/import/confirm', [NintendoImportController::class, 'confirm'])->name('import.confirm');
 
-    Route::get('/{game}',          [NintendoController::class, 'show'])->name('show');
-    Route::delete('/{game}',       [NintendoController::class, 'destroy'])->name('destroy');
-    Route::post('/{game}/cover',   [NintendoCoverController::class, 'store'])->name('cover.store');
+    Route::get('/{game}', [NintendoController::class, 'show'])->name('show');
+    Route::delete('/{game}', [NintendoController::class, 'destroy'])->name('destroy');
+    Route::post('/{game}/cover', [NintendoCoverController::class, 'store'])->name('cover.store');
 
-    Route::post('/{game}/records',          [NintendoRecordController::class, 'store'])->name('records.store');
+    Route::post('/{game}/records', [NintendoRecordController::class, 'store'])->name('records.store');
     Route::delete('/{game}/records/{record}', [NintendoRecordController::class, 'destroy'])->name('records.destroy');
 });
 

@@ -234,3 +234,105 @@
     from { transform: scale(1); }
     to   { transform: scale(1.06); }
 }
+
+/* Gallery mode toggle button */
+.sleep-mode__mode-toggle {
+    position:        absolute;
+    top:             1.25rem;
+    left:            1.25rem;
+    z-index:         10;
+    background:      rgba(255, 255, 255, 0.1);
+    border:          1px solid rgba(255, 255, 255, 0.2);
+    color:           rgba(255, 255, 255, 0.8);
+    border-radius:   var(--radius-md);
+    padding:         0 0.75rem;
+    height:          2.25rem;
+    font-size:       0.8125rem;
+    display:         flex;
+    align-items:     center;
+    cursor:          pointer;
+    transition:      background var(--transition-base);
+    white-space:     nowrap;
+}
+
+.sleep-mode__mode-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color:      #fff;
+}
+
+/* Gallery mode layout */
+.sleep-mode__gallery-image-wrap {
+    position:        relative;
+    z-index:         1;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    flex:            1;
+    padding:         5rem 6rem 4rem;
+    width:           100%;
+}
+
+.sleep-mode__gallery-image {
+    max-height:    70vh;
+    max-width:     100%;
+    object-fit:    contain;
+    border-radius: var(--radius-xl);
+    box-shadow:    0 32px 96px rgba(0, 0, 0, 0.9);
+    display:       block;
+}
+
+.sleep-mode__gallery-info {
+    position: absolute;
+    bottom:   3rem;
+    left:     0;
+    right:    0;
+    z-index:  2;
+    display:  flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding:  0 5rem;
+    gap:      2rem;
+}
+
+.sleep-mode__gallery-clock {
+    display:        flex;
+    flex-direction: column;
+    align-items:    flex-end;
+    flex-shrink:    0;
+    font-size:      2rem;
+    font-weight:    200;
+    color:          rgba(255, 255, 255, 0.85);
+    line-height:    1;
+    letter-spacing: -0.02em;
+}
+
+.sleep-mode__gallery-clock-date {
+    font-size:      0.8125rem;
+    font-weight:    400;
+    color:          rgba(255, 255, 255, 0.4);
+    margin-top:     0.4rem;
+    text-transform: capitalize;
+    letter-spacing: 0;
+}
+
+.sleep-mode__gallery-caption-wrap {
+    min-width: 0;
+}
+
+.sleep-mode__gallery-game {
+    font-size:   1.375rem;
+    font-weight: 700;
+    color:       rgba(255, 255, 255, 0.9);
+    line-height: 1.2;
+}
+
+.sleep-mode__gallery-caption {
+    font-size:  0.9375rem;
+    color:      rgba(255, 255, 255, 0.5);
+    margin-top: 0.25rem;
+}
+
+/* Gallery mode: stronger blur for gallery images as bg */
+.sleep-mode--gallery .sleep-mode__backdrop {
+    filter: blur(20px) brightness(0.2);
+}

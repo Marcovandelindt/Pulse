@@ -12,10 +12,10 @@ final class PlayStationGameQuery
     /** @return array<string, mixed> */
     public function handle(PlayStationGame $game, ?string $from = null, ?string $to = null): array
     {
-        $game->load('playSessions', 'categories', 'trophyList', 'tracks.artists');
+        $game->load('playSessions', 'categories', 'trophyList', 'tracks.artists', 'images');
 
         $fromDt = $from ? Carbon::parse($from) : null;
-        $toDt   = $to   ? Carbon::parse($to)   : null;
+        $toDt = $to ? Carbon::parse($to) : null;
 
         // Include sessions that overlap the range, not just those fully within it.
         // TIMESTAMPADD checks session end time (started_at + duration_minutes).
@@ -29,18 +29,18 @@ final class PlayStationGameQuery
 
         // Per-session clamping in PHP so partial sessions at the boundaries are counted correctly.
         $periodMinutes = null;
-        $sessionCaps   = [];
+        $sessionCaps = [];
 
         if ($fromDt || $toDt) {
             $overlapSessions = (clone $sessionsQuery)->get(['id', 'started_at', 'duration_minutes']);
             $total = 0;
 
             foreach ($overlapSessions as $s) {
-                $sessionEnd   = $s->started_at->copy()->addMinutes($s->duration_minutes);
+                $sessionEnd = $s->started_at->copy()->addMinutes($s->duration_minutes);
                 $clampedStart = ($fromDt && $s->started_at < $fromDt) ? $fromDt->copy() : $s->started_at->copy();
-                $clampedEnd   = ($toDt   && $sessionEnd   > $toDt)   ? $toDt->copy()   : $sessionEnd;
-                $capped       = (int) $clampedStart->diffInMinutes($clampedEnd);
-                $total       += $capped;
+                $clampedEnd = ($toDt && $sessionEnd > $toDt) ? $toDt->copy() : $sessionEnd;
+                $capped = (int) $clampedStart->diffInMinutes($clampedEnd);
+                $total += $capped;
 
                 if ($capped < $s->duration_minutes) {
                     $sessionCaps[$s->id] = $capped;
@@ -62,9 +62,9 @@ final class PlayStationGameQuery
             ->orderBy('month')
             ->get()
             ->map(fn ($row) => [
-                'month'         => $row->month,
+                'month' => $row->month,
                 'total_minutes' => (int) $row->total_minutes,
-                'hours'         => round($row->total_minutes / 60, 1),
+                'hours' => round($row->total_minutes / 60, 1),
             ]);
 
         return compact('game', 'recentSessions', 'monthlyStats', 'from', 'to', 'periodMinutes', 'sessionCaps');
