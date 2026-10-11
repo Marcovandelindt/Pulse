@@ -22,6 +22,7 @@ use App\Http\Controllers\Gaming\PlayStationTrophyController;
 use App\Http\Controllers\Gaming\PlayStationTrophyNotesController;
 use App\Http\Controllers\Gaming\PlayStationWishlistController;
 use App\Http\Controllers\Gaming\PlayStationWrappedController;
+use App\Http\Controllers\Gaming\SleepModeTrackController;
 use App\Http\Controllers\Gaming\SteamAccountController;
 use App\Http\Controllers\Gaming\SteamConnectionController;
 use App\Http\Controllers\Gaming\SteamController;
@@ -59,6 +60,12 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
     Route::prefix('trophies')->name('trophies.')->group(function () {
         Route::patch('/{playStationTrophy}/toggle', [PlayStationTrophyController::class, 'toggle'])->name('toggle');
         Route::patch('/{playStationTrophy}/notes', [PlayStationTrophyNotesController::class, 'update'])->name('notes');
+    });
+
+    Route::prefix('sleep-music')->name('sleep-music.')->group(function () {
+        Route::get('/', [SleepModeTrackController::class, 'index'])->name('index');
+        Route::post('/', [SleepModeTrackController::class, 'store'])->name('store');
+        Route::delete('/{sleepModeTrack}', [SleepModeTrackController::class, 'destroy'])->name('destroy');
     });
 
     Route::get('/{playStationGame}', [PlayStationController::class, 'show'])->name('show');

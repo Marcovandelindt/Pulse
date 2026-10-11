@@ -336,3 +336,66 @@
 .sleep-mode--gallery .sleep-mode__backdrop {
     filter: blur(20px) brightness(0.2);
 }
+
+/* Audio controls bar */
+.sleep-mode__audio {
+    position:    absolute;
+    bottom:      1.5rem;
+    left:        1.5rem;
+    z-index:     10;
+    display:     flex;
+    align-items: center;
+    gap:         0.5rem;
+    background:  rgba(0, 0, 0, 0.45);
+    border:      1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding:     0.4rem 0.75rem;
+    max-width:   22rem;
+}
+
+.sleep-mode__audio-btn {
+    background:  transparent;
+    border:      none;
+    color:       rgba(255, 255, 255, 0.7);
+    cursor:      pointer;
+    font-size:   0.75rem;
+    line-height: 1;
+    padding:     0.25rem;
+    display:     flex;
+    align-items: center;
+    flex-shrink: 0;
+    transition:  color var(--transition-base);
+}
+
+.sleep-mode__audio-btn:hover {
+    color: #fff;
+}
+
+.sleep-mode__audio-btn--play {
+    font-size: 0.875rem;
+    width:     1.5rem;
+    justify-content: center;
+}
+
+.sleep-mode__audio-track {
+    font-size:     0.75rem;
+    color:         rgba(255, 255, 255, 0.65);
+    flex:          1;
+    min-width:     0;
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
+.sleep-mode__audio-volume {
+    flex-shrink:  0;
+    width:        4rem;
+    accent-color: var(--color-brand);
+    cursor:       pointer;
+    opacity:      0.7;
+    transition:   opacity var(--transition-base);
+}
+
+.sleep-mode__audio-volume:hover {
+    opacity: 1;
+}

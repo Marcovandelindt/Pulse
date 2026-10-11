@@ -3228,3 +3228,58 @@
 .game-gallery__item:hover .game-gallery__delete {
     opacity: 1;
 }
+
+/* ── Sleep Music management ───────────────────────── */
+
+.sleep-music-list {
+    display:        flex;
+    flex-direction: column;
+    gap:            0;
+}
+
+.sleep-music-item {
+    display:     flex;
+    align-items: center;
+    gap:         0.875rem;
+    padding:     0.75rem 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.sleep-music-list .sleep-music-item:last-child {
+    border-bottom: none;
+}
+
+.sleep-music-item__icon {
+    font-size:   1.125rem;
+    color:       var(--color-text-muted);
+    flex-shrink: 0;
+    width:       1.5rem;
+    text-align:  center;
+}
+
+.sleep-music-item__info {
+    flex:      1;
+    min-width: 0;
+}
+
+.sleep-music-item__title {
+    font-size:     0.875rem;
+    font-weight:   500;
+    color:         var(--color-text-primary);
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
+.sleep-music-item__path {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+    margin-top: 0.125rem;
+}
+
+.sleep-music-item__player {
+    height:      2rem;
+    flex-shrink: 0;
+    max-width:   10rem;
+    opacity:     0.75;
+}

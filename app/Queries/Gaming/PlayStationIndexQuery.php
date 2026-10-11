@@ -7,6 +7,7 @@ namespace App\Queries\Gaming;
 use App\Models\PlayStationGame;
 use App\Models\PlayStationGameImage;
 use App\Models\PlayStationSession;
+use App\Models\SleepModeTrack;
 use App\Services\PlayStation\PsnPresenceService;
 use Illuminate\Support\Facades\Storage;
 
@@ -116,6 +117,13 @@ final class PlayStationIndexQuery
                 'url' => route('playstation.show', $img->game),
             ]);
 
+        $audioTracks = SleepModeTrack::orderBy('sort_order')->orderBy('id')->get()
+            ->map(fn ($t) => [
+                'title'     => $t->displayTitle(),
+                'game_name' => $t->game_name,
+                'url'       => Storage::url($t->path),
+            ])->values()->all();
+
         try {
             $currentGame = $this->presenceService->getCurrentGame();
         } catch (\Throwable) {
@@ -125,7 +133,7 @@ final class PlayStationIndexQuery
         return compact(
             'games', 'sort', 'platform', 'search', 'completed',
             'totalHours', 'totalGames', 'totalSessions',
-            'recentSessions', 'sleepItems', 'galleryItems', 'currentGame',
+            'recentSessions', 'sleepItems', 'galleryItems', 'audioTracks', 'currentGame',
         );
     }
 }

@@ -1,5 +1,5 @@
 export function registerPlayStationComponents() {
-    Alpine.data('playstationIndex', ({ sleepItems: rawSleepItems, galleryItems: rawGalleryItems }) => ({
+    Alpine.data('playstationIndex', ({ sleepItems: rawSleepItems, galleryItems: rawGalleryItems, audioTracks: rawAudioTracks }) => ({
         sleepOpen: false,
         sleepIndex: 0,
         sleepTransitioning: false,
@@ -11,6 +11,12 @@ export function registerPlayStationComponents() {
         clockTime: '',
         clockDate: '',
         _clockTimer: null,
+
+        audioTracks: rawAudioTracks ?? [],
+        audioIndex: 0,
+        audioPlaying: false,
+        audioVolume: 0.7,
+        _audioEl: null,
 
         pickOpen: false,
         pickedGame: null,
@@ -24,6 +30,10 @@ export function registerPlayStationComponents() {
 
         get sleepItem() {
             return this.currentSleepItems[this.sleepIndex] ?? null;
+        },
+
+        get audioTrack() {
+            return this.audioTracks[this.audioIndex] ?? null;
         },
 
         pickRandom() {
@@ -49,11 +59,21 @@ export function registerPlayStationComponents() {
             };
             tick();
             this._clockTimer = setInterval(tick, 1000);
+
+            if (this.audioTracks.length) {
+                this._audioEl = new Audio();
+                this._audioEl.volume = this.audioVolume;
+                this._audioEl.addEventListener('ended', () => this._audioAdvance());
+            }
         },
 
         destroy() {
             clearInterval(this.sleepTimer);
             clearInterval(this._clockTimer);
+            if (this._audioEl) {
+                this._audioEl.pause();
+                this._audioEl.src = '';
+            }
         },
 
         enterSleep() {
@@ -69,6 +89,11 @@ export function registerPlayStationComponents() {
                 if (e.key === 'ArrowLeft')  this._sleepPrev();
             };
             document.addEventListener('keydown', this.sleepKeyHandler);
+
+            if (this._audioEl && this.audioTracks.length) {
+                this._audioEl.src = this.audioTracks[this.audioIndex].url;
+                this._audioEl.play().then(() => { this.audioPlaying = true; }).catch(() => {});
+            }
         },
 
         exitSleep() {
@@ -77,6 +102,10 @@ export function registerPlayStationComponents() {
             clearInterval(this.sleepTimer);
             if (this.sleepKeyHandler) {
                 document.removeEventListener('keydown', this.sleepKeyHandler);
+            }
+            if (this._audioEl) {
+                this._audioEl.pause();
+                this.audioPlaying = false;
             }
         },
 
@@ -87,6 +116,48 @@ export function registerPlayStationComponents() {
             this.sleepIndex = 0;
             this._preload(this.currentSleepItems);
             this._resetSleepTimer();
+        },
+
+        audioToggle() {
+            if (!this._audioEl) return;
+            if (this._audioEl.paused) {
+                if (!this._audioEl.src) {
+                    this._audioEl.src = this.audioTracks[this.audioIndex].url;
+                }
+                this._audioEl.play().then(() => { this.audioPlaying = true; }).catch(() => {});
+            } else {
+                this._audioEl.pause();
+                this.audioPlaying = false;
+            }
+        },
+
+        audioNext() {
+            if (!this._audioEl || !this.audioTracks.length) return;
+            this.audioIndex = (this.audioIndex + 1) % this.audioTracks.length;
+            this._audioEl.src = this.audioTracks[this.audioIndex].url;
+            if (this.audioPlaying) {
+                this._audioEl.play().catch(() => {});
+            }
+        },
+
+        audioPrev() {
+            if (!this._audioEl || !this.audioTracks.length) return;
+            this.audioIndex = (this.audioIndex - 1 + this.audioTracks.length) % this.audioTracks.length;
+            this._audioEl.src = this.audioTracks[this.audioIndex].url;
+            if (this.audioPlaying) {
+                this._audioEl.play().catch(() => {});
+            }
+        },
+
+        audioSetVolume(vol) {
+            this.audioVolume = vol;
+            if (this._audioEl) this._audioEl.volume = vol;
+        },
+
+        _audioAdvance() {
+            this.audioIndex = (this.audioIndex + 1) % this.audioTracks.length;
+            this._audioEl.src = this.audioTracks[this.audioIndex].url;
+            this._audioEl.play().catch(() => {});
         },
 
         _preload(items) {

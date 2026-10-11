@@ -1,6 +1,6 @@
 <x-layouts.app title="PlayStation">
 
-<div x-data="playstationIndex({ sleepItems: @js($sleepItems), galleryItems: @js($galleryItems) })">
+<div x-data="playstationIndex({ sleepItems: @js($sleepItems), galleryItems: @js($galleryItems), audioTracks: @js($audioTracks) })">
 
     <x-layout.page-header title="PlayStation">
         <x-slot:actions>
@@ -11,6 +11,7 @@
             <a href="{{ route('playstation.stats') }}" class="btn btn--secondary btn--sm">Stats</a>
             <a href="{{ route('playstation.sessions.index') }}" class="btn btn--secondary btn--sm">Sessions</a>
             <a href="{{ route('playstation.categories.index') }}" class="btn btn--secondary btn--sm">Categories</a>
+            <a href="{{ route('playstation.sleep-music.index') }}" class="btn btn--secondary btn--sm">♪ Sleep Music</a>
             <a href="{{ route('playstation.create') }}" class="btn btn--secondary btn--sm">+ Add game</a>
         </x-slot:actions>
     </x-layout.page-header>
@@ -338,6 +339,28 @@
                 <div class="sleep-mode__gallery-game" x-text="sleepItem?.game_title"></div>
                 <div class="sleep-mode__gallery-caption" x-show="sleepItem?.caption" x-text="sleepItem?.caption"></div>
             </div>
+        </div>
+
+        {{-- Audio controls --}}
+        <div class="sleep-mode__audio" x-show="audioTracks.length > 0" style="display:none;">
+            <button class="sleep-mode__audio-btn" x-show="audioTracks.length > 1" style="display:none;" @click="audioPrev()">&#9664;</button>
+            <button class="sleep-mode__audio-btn sleep-mode__audio-btn--play" @click="audioToggle()">
+                <span x-show="!audioPlaying">&#9654;</span>
+                <span x-show="audioPlaying" style="display:none;">&#9646;&#9646;</span>
+            </button>
+            <button class="sleep-mode__audio-btn" x-show="audioTracks.length > 1" style="display:none;" @click="audioNext()">&#9654;</button>
+            <div class="sleep-mode__audio-track">
+                <span x-text="audioTrack?.title ?? ''"></span>
+                <span x-show="audioTrack?.game_name" style="display:none; opacity:.55;" x-text="audioTrack?.game_name ? ' · ' + audioTrack.game_name : ''"></span>
+            </div>
+            <input
+                type="range"
+                min="0" max="1" step="0.05"
+                :value="audioVolume"
+                @input="audioSetVolume(parseFloat($event.target.value))"
+                class="sleep-mode__audio-volume"
+                title="Volume"
+            >
         </div>
 
         <div class="sleep-mode__counter" x-text="`${sleepIndex + 1} / ${currentSleepItems.length}`"></div>
