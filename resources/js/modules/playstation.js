@@ -61,6 +61,7 @@ export function registerPlayStationComponents() {
             this.sleepOpen  = true;
             this.sleepIndex = 0;
             document.body.style.overflow = 'hidden';
+            this._preload(this.currentSleepItems);
             this.sleepTimer = setInterval(() => this._sleepNext(), 5000);
             this.sleepKeyHandler = (e) => {
                 if (e.key === 'Escape')     this.exitSleep();
@@ -84,7 +85,17 @@ export function registerPlayStationComponents() {
             if (next === 'gallery' && !this.galleryItems.length) return;
             this.sleepMode  = next;
             this.sleepIndex = 0;
+            this._preload(this.currentSleepItems);
             this._resetSleepTimer();
+        },
+
+        _preload(items) {
+            items.forEach(item => {
+                if (item.image_url) {
+                    const img = new Image();
+                    img.src = item.image_url;
+                }
+            });
         },
 
         _sleepNext() {
@@ -92,8 +103,10 @@ export function registerPlayStationComponents() {
             this._resetSleepTimer();
             setTimeout(() => {
                 this.sleepIndex = (this.sleepIndex + 1) % this.currentSleepItems.length;
+            }, 350);
+            setTimeout(() => {
                 this.sleepTransitioning = false;
-            }, 400);
+            }, 450);
         },
 
         _sleepPrev() {
@@ -101,8 +114,10 @@ export function registerPlayStationComponents() {
             this._resetSleepTimer();
             setTimeout(() => {
                 this.sleepIndex = (this.sleepIndex - 1 + this.currentSleepItems.length) % this.currentSleepItems.length;
+            }, 350);
+            setTimeout(() => {
                 this.sleepTransitioning = false;
-            }, 400);
+            }, 450);
         },
 
         _resetSleepTimer() {
