@@ -374,7 +374,27 @@
         </x-ui.card>
     @endif
 
-    <div x-data="{ uploadOpen: {{ $errors->has('image') ? 'true' : 'false' }} }">
+    <div x-data="{
+        uploadOpen: {{ $errors->has('image') ? 'true' : 'false' }},
+        lightboxOpen: false,
+        lightboxIndex: 0,
+        lightboxImages: @js($game->images->map(fn ($img) => ['url' => Storage::url($img->path), 'caption' => $img->caption])->values()),
+        openLightbox(index) {
+            this.lightboxIndex = index;
+            this.lightboxOpen = true;
+            document.body.style.overflow = 'hidden';
+        },
+        closeLightbox() {
+            this.lightboxOpen = false;
+            document.body.style.overflow = '';
+        },
+        lightboxNext() {
+            this.lightboxIndex = (this.lightboxIndex + 1) % this.lightboxImages.length;
+        },
+        lightboxPrev() {
+            this.lightboxIndex = (this.lightboxIndex - 1 + this.lightboxImages.length) % this.lightboxImages.length;
+        },
+    }">
     <x-ui.card class="mb-6">
         <x-slot:title>
             Gallery
@@ -408,7 +428,10 @@
             <div class="game-gallery">
                 @foreach($game->images as $image)
                     <div class="game-gallery__item">
-                        <img src="{{ Storage::url($image->path) }}" alt="{{ $image->caption ?? $game->label }}" class="game-gallery__img">
+                        <img src="{{ Storage::url($image->path) }}"
+                             alt="{{ $image->caption ?? $game->label }}"
+                             class="game-gallery__img game-gallery__img--clickable"
+                             @click="openLightbox({{ $loop->index }})">
                         @if($image->caption)
                             <div class="game-gallery__caption">{{ $image->caption }}</div>
                         @endif
@@ -423,6 +446,41 @@
             </div>
         @endif
     </x-ui.card>
+
+    {{-- Lightbox --}}
+    <div
+        class="lightbox"
+        x-show="lightboxOpen"
+        x-transition.opacity.duration.200ms
+        @keydown.escape.window="closeLightbox()"
+        @keydown.arrow-left.window="lightboxPrev()"
+        @keydown.arrow-right.window="lightboxNext()"
+        style="display:none;"
+    >
+        <div class="lightbox__backdrop" @click="closeLightbox()"></div>
+
+        <button class="lightbox__close" @click="closeLightbox()">✕</button>
+
+        <button class="lightbox__nav lightbox__nav--prev" @click="lightboxPrev()" x-show="lightboxImages.length > 1" style="display:none;">‹</button>
+        <button class="lightbox__nav lightbox__nav--next" @click="lightboxNext()" x-show="lightboxImages.length > 1" style="display:none;">›</button>
+
+        <div class="lightbox__content" @click.stop>
+            <img :src="lightboxImages[lightboxIndex]?.url"
+                 :alt="lightboxImages[lightboxIndex]?.caption ?? ''"
+                 class="lightbox__image">
+            <div class="lightbox__footer">
+                <div class="lightbox__caption"
+                     x-show="lightboxImages[lightboxIndex]?.caption"
+                     x-text="lightboxImages[lightboxIndex]?.caption"
+                     style="display:none;"></div>
+                <div class="lightbox__counter"
+                     x-show="lightboxImages.length > 1"
+                     x-text="`${lightboxIndex + 1} / ${lightboxImages.length}`"
+                     style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
     </div>
 
     <x-ui.card>

@@ -3283,3 +3283,119 @@
     max-width:   10rem;
     opacity:     0.75;
 }
+
+/* ── Gallery lightbox ─────────────────────────────── */
+
+.game-gallery__img--clickable {
+    cursor: zoom-in;
+}
+
+.lightbox {
+    position:        fixed;
+    inset:           0;
+    z-index:         9999;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    padding:         1.5rem;
+}
+
+.lightbox__backdrop {
+    position:   absolute;
+    inset:      0;
+    background: rgba(0, 0, 0, 0.92);
+    cursor:     zoom-out;
+}
+
+.lightbox__close {
+    position:        absolute;
+    top:             1.25rem;
+    right:           1.25rem;
+    z-index:         10;
+    background:      rgba(255, 255, 255, 0.1);
+    border:          1px solid rgba(255, 255, 255, 0.2);
+    color:           rgba(255, 255, 255, 0.8);
+    border-radius:   var(--radius-md);
+    width:           2.25rem;
+    height:          2.25rem;
+    font-size:       1.125rem;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    cursor:          pointer;
+    transition:      background var(--transition-base);
+    line-height:     1;
+}
+
+.lightbox__close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color:      #fff;
+}
+
+.lightbox__nav {
+    position:        absolute;
+    top:             50%;
+    transform:       translateY(-50%);
+    z-index:         10;
+    background:      rgba(255, 255, 255, 0.08);
+    border:          1px solid rgba(255, 255, 255, 0.12);
+    color:           rgba(255, 255, 255, 0.7);
+    border-radius:   50%;
+    width:           3rem;
+    height:          3rem;
+    font-size:       1.75rem;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    cursor:          pointer;
+    transition:      background var(--transition-base), color var(--transition-base);
+    line-height:     1;
+}
+
+.lightbox__nav:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color:      #fff;
+}
+
+.lightbox__nav--prev { left:  1.25rem; }
+.lightbox__nav--next { right: 1.25rem; }
+
+.lightbox__content {
+    position:       relative;
+    z-index:        1;
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    max-width:      calc(100vw - 10rem);
+    max-height:     calc(100vh - 4rem);
+}
+
+.lightbox__image {
+    max-width:     100%;
+    max-height:    calc(100vh - 8rem);
+    object-fit:    contain;
+    border-radius: var(--radius-lg);
+    box-shadow:    0 24px 80px rgba(0, 0, 0, 0.8);
+    display:       block;
+}
+
+.lightbox__footer {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    width:           100%;
+    margin-top:      0.75rem;
+    gap:             1rem;
+}
+
+.lightbox__caption {
+    font-size: 0.9375rem;
+    color:     rgba(255, 255, 255, 0.7);
+    flex:      1;
+}
+
+.lightbox__counter {
+    font-size:  0.8125rem;
+    color:      rgba(255, 255, 255, 0.35);
+    flex-shrink: 0;
+}
