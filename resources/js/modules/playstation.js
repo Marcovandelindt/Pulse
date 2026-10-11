@@ -22,10 +22,14 @@ export function registerPlayStationComponents() {
         pickedGame: null,
         _lastPickedIndex: -1,
 
+        get coversItems() {
+            return this.sleepItems.filter(i => i.has_cover);
+        },
+
         get currentSleepItems() {
-            return this.sleepMode === 'gallery' && this.galleryItems.length
-                ? this.galleryItems
-                : this.sleepItems;
+            if (this.sleepMode === 'gallery' && this.galleryItems.length) return this.galleryItems;
+            if (this.sleepMode === 'covers' && this.coversItems.length) return this.coversItems;
+            return this.sleepItems;
         },
 
         get sleepItem() {
@@ -109,10 +113,10 @@ export function registerPlayStationComponents() {
             }
         },
 
-        toggleSleepMode() {
-            const next = this.sleepMode === 'standard' ? 'gallery' : 'standard';
-            if (next === 'gallery' && !this.galleryItems.length) return;
-            this.sleepMode  = next;
+        setMode(mode) {
+            if (mode === 'gallery' && !this.galleryItems.length) return;
+            if (mode === 'covers' && !this.coversItems.length) return;
+            this.sleepMode  = mode;
             this.sleepIndex = 0;
             this._preload(this.currentSleepItems);
             this._resetSleepTimer();

@@ -282,23 +282,22 @@
 
         <button class="sleep-mode__close" @click="exitSleep()">✕</button>
 
-        <button class="sleep-mode__mode-toggle"
-                x-show="galleryItems.length > 0"
-                @click="toggleSleepMode()"
-                x-text="sleepMode === 'gallery' ? '🎮 Games' : '🖼 Gallery'"
-                style="display:none;">
-        </button>
+        <div class="sleep-mode__modes">
+            <button class="sleep-mode__mode-btn" :class="{ 'sleep-mode__mode-btn--active': sleepMode === 'standard' }" @click="setMode('standard')">All</button>
+            <button class="sleep-mode__mode-btn" :class="{ 'sleep-mode__mode-btn--active': sleepMode === 'covers' }" @click="setMode('covers')" x-show="coversItems.length > 0" style="display:none;">Covers</button>
+            <button class="sleep-mode__mode-btn" :class="{ 'sleep-mode__mode-btn--active': sleepMode === 'gallery' }" @click="setMode('gallery')" x-show="galleryItems.length > 0" style="display:none;">Gallery</button>
+        </div>
 
         <button class="sleep-mode__nav sleep-mode__nav--prev" @click="_sleepPrev()">‹</button>
         <button class="sleep-mode__nav sleep-mode__nav--next" @click="_sleepNext()">›</button>
 
         {{-- Standard mode --}}
-        <div class="sleep-mode__clock" x-show="sleepMode === 'standard'">
+        <div class="sleep-mode__clock" x-show="sleepMode === 'standard' || sleepMode === 'covers'">
             <div class="sleep-mode__clock-time" x-text="clockTime"></div>
             <div class="sleep-mode__clock-date" x-text="clockDate"></div>
         </div>
 
-        <div class="sleep-mode__content" x-show="sleepMode === 'standard'">
+        <div class="sleep-mode__content" x-show="sleepMode === 'standard' || sleepMode === 'covers'">
             <div class="sleep-mode__poster-wrap">
                 <img :src="sleepItem?.image_url" :alt="sleepItem?.title" class="sleep-mode__poster">
             </div>

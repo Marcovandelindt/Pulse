@@ -98,10 +98,11 @@ final class PlayStationIndexQuery
         $sleepItems = PlayStationGame::orderByRaw("{$calculatedMinutesSql} DESC")
             ->get(['id', 'name', 'display_name', 'platform', 'image_url', 'hours', 'completion_percentage', 'last_played_at'])
             ->map(fn ($g) => [
-                'title' => $g->label,
-                'platform' => $g->platform,
+                'title'     => $g->label,
+                'platform'  => $g->platform,
                 'image_url' => $g->image_url ?? '/images/playstation/'.$fallbacks[$g->id % 5],
-                'hours' => round((float) $g->hours, 1),
+                'has_cover' => $g->image_url !== null,
+                'hours'     => round((float) $g->hours, 1),
                 'completion' => round((float) $g->completion_percentage, 0),
                 'last_played' => $g->last_played_at?->format('d M Y'),
                 'url' => route('playstation.show', $g),

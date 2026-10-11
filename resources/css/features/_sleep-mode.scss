@@ -235,29 +235,38 @@
     to   { transform: scale(1.06); }
 }
 
-/* Gallery mode toggle button */
-.sleep-mode__mode-toggle {
-    position:        absolute;
-    top:             1.25rem;
-    left:            1.25rem;
-    z-index:         10;
-    background:      rgba(255, 255, 255, 0.1);
-    border:          1px solid rgba(255, 255, 255, 0.2);
-    color:           rgba(255, 255, 255, 0.8);
-    border-radius:   var(--radius-md);
-    padding:         0 0.75rem;
-    height:          2.25rem;
-    font-size:       0.8125rem;
-    display:         flex;
-    align-items:     center;
-    cursor:          pointer;
-    transition:      background var(--transition-base);
-    white-space:     nowrap;
+/* Mode selector buttons */
+.sleep-mode__modes {
+    position:     absolute;
+    top:          1.25rem;
+    left:         1.25rem;
+    z-index:      10;
+    display:      flex;
+    gap:          0.25rem;
 }
 
-.sleep-mode__mode-toggle:hover {
-    background: rgba(255, 255, 255, 0.2);
+.sleep-mode__mode-btn {
+    background:    rgba(255, 255, 255, 0.08);
+    border:        1px solid rgba(255, 255, 255, 0.15);
+    color:         rgba(255, 255, 255, 0.6);
+    border-radius: var(--radius-md);
+    padding:       0 0.75rem;
+    height:        2rem;
+    font-size:     0.8125rem;
+    cursor:        pointer;
+    transition:    background var(--transition-base), color var(--transition-base);
+    white-space:   nowrap;
+}
+
+.sleep-mode__mode-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
     color:      #fff;
+}
+
+.sleep-mode__mode-btn--active {
+    background:   rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.35);
+    color:        #fff;
 }
 
 /* Gallery mode layout */
