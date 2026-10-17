@@ -129,6 +129,7 @@ final class GlobalSleepModeQuery
                 'image_url' => $img->url,
                 'game_title' => $img->game->label,
                 'caption' => $img->caption,
+                'category' => 'PlayStation',
                 'url' => route('playstation.show', $img->game),
             ])
             ->values()

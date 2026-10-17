@@ -55,7 +55,7 @@
                 <img :src="sleepItem?.image_url" :alt="sleepItem?.title" class="sleep-mode__poster">
             </div>
             <div class="sleep-mode__info">
-                <div class="sleep-mode__category" x-text="sleepItem?.category"></div>
+                <div class="sleep-mode__category-badge" :style="categoryBadgeStyle" x-text="sleepItem?.category"></div>
                 <div class="sleep-mode__title" x-text="sleepItem?.title"></div>
                 <div class="sleep-mode__meta" x-text="sleepItem?.meta"></div>
 
@@ -136,6 +136,7 @@
                 <span class="sleep-mode__gallery-clock-date" x-text="clockDate"></span>
             </div>
             <div class="sleep-mode__gallery-caption-wrap">
+                <div class="sleep-mode__category-badge" :style="categoryBadgeStyle" x-text="sleepItem?.category" style="margin-bottom:.5rem;"></div>
                 <div class="sleep-mode__gallery-game" x-text="sleepItem?.game_title"></div>
                 <div class="sleep-mode__gallery-caption" x-show="sleepItem?.caption" x-text="sleepItem?.caption"></div>
             </div>

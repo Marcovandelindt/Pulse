@@ -71,6 +71,25 @@ export function registerGlobalSleepMode() {
             return null;
         },
 
+        get categoryBadgeStyle() {
+            const bg = {
+                PlayStation: 'rgba(0, 112, 209, 0.3)',
+                Steam:       'rgba(100, 140, 175, 0.3)',
+                Nintendo:    'rgba(230, 0, 18, 0.25)',
+                Movie:       'rgba(251, 191, 36, 0.25)',
+                TV:          'rgba(52, 211, 153, 0.25)',
+            };
+            const border = {
+                PlayStation: 'rgba(0, 112, 209, 0.55)',
+                Steam:       'rgba(100, 140, 175, 0.55)',
+                Nintendo:    'rgba(230, 0, 18, 0.45)',
+                Movie:       'rgba(251, 191, 36, 0.45)',
+                TV:          'rgba(52, 211, 153, 0.45)',
+            };
+            const cat = this.sleepItem?.category;
+            return `background:${bg[cat] ?? 'rgba(255,255,255,0.1)'};border-color:${border[cat] ?? 'rgba(255,255,255,0.2)'}`;
+        },
+
         // Anniversary: fires if first_date is today (any year)
         get anniversaryText() {
             const item = this.sleepItem;
