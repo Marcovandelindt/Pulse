@@ -59,6 +59,12 @@
                 <div class="sleep-mode__title" x-text="sleepItem?.title"></div>
                 <div class="sleep-mode__meta" x-text="sleepItem?.meta"></div>
 
+                {{-- Anniversary badge --}}
+                <div class="sleep-mode__anniversary" x-show="anniversaryText" style="display:none;"
+                     x-effect="sleepIndex; $el.style.animation = 'none'; $el.offsetWidth; $el.style.animation = ''">
+                    <span x-text="anniversaryText"></span>
+                </div>
+
                 {{-- Game stats --}}
                 <div class="sleep-mode__stats" x-show="sleepItem?.type === 'game'">
                     <div x-show="sleepItem?.hours > 0">
@@ -154,6 +160,12 @@
                 class="sleep-mode__audio-volume"
                 title="Volume"
             >
+        </div>
+
+        {{-- Milestone overlay (fades in 2s after each item, standard mode only) --}}
+        <div class="sleep-mode__milestone" x-show="milestoneText && filter !== 'gallery'" style="display:none;"
+             x-effect="sleepIndex; $el.style.animation = 'none'; $el.offsetWidth; $el.style.animation = ''">
+            <span x-text="milestoneText"></span>
         </div>
 
         <div class="sleep-mode__counter" x-text="`${sleepIndex + 1} / ${currentSleepItems.length}`"></div>
