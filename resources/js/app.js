@@ -9,6 +9,7 @@ import { registerHealthComponents } from './modules/health.js';
 import { registerCalendarComponents } from './modules/calendar.js';
 import { registerGlobalSearch } from './modules/globalSearch.js';
 import { initQuillEditors } from './modules/quill-editor.js';
+import { registerGlobalSleepMode } from './modules/sleep.js';
 
 window.Alpine = Alpine;
 Alpine.plugin(Collapse);
@@ -20,6 +21,7 @@ registerPlayStationComponents();
 registerHealthComponents();
 registerCalendarComponents();
 registerGlobalSearch();
+registerGlobalSleepMode();
 
 Alpine.start();
 

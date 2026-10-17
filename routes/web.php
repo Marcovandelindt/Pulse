@@ -34,6 +34,7 @@ use App\Http\Controllers\Settings\RelationshipTypeController;
 use App\Http\Controllers\Settings\SettingsController;
 use App\Http\Controllers\AI\AiSettingsController;
 use App\Http\Controllers\AI\ChatController;
+use App\Http\Controllers\SleepMode\SleepModeController;
 use App\Http\Controllers\Stats\CrossStatsController;
 use App\Http\Controllers\Stats\WrappedController;
 use Illuminate\Support\Facades\Route;
@@ -49,6 +50,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/day/{date?}', [DayController::class, 'show'])->name('day.show');
+    Route::get('/sleep-mode', [SleepModeController::class, 'index'])->name('sleep-mode.index');
 
     Route::prefix('health')->name('health.')->group(function () {
         Route::get('/', [HealthEntryController::class,  'index'])->name('index');
