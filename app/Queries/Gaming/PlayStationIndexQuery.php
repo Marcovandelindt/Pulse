@@ -112,7 +112,7 @@ final class PlayStationIndexQuery
             ->orderBy('sort_order')
             ->get()
             ->map(fn ($img) => [
-                'image_url' => Storage::url($img->path),
+                'image_url' => $img->url,
                 'game_title' => $img->game->label,
                 'caption' => $img->caption,
                 'url' => route('playstation.show', $img->game),
