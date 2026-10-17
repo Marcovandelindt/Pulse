@@ -168,4 +168,17 @@ final class PlayStationController extends Controller
 
         return redirect()->route('playstation.show', $playStationGame)->with('success', 'Game updated.');
     }
+
+    public function destroy(PlayStationGame $playStationGame): RedirectResponse
+    {
+        $playStationGame->tracks()->delete();
+
+        foreach ($playStationGame->images as $image) {
+            Storage::disk($image->disk ?? 'public')->delete($image->path);
+        }
+
+        $playStationGame->delete();
+
+        return redirect()->route('playstation.index')->with('success', 'Game deleted.');
+    }
 }

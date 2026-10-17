@@ -71,6 +71,7 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
     Route::get('/{playStationGame}', [PlayStationController::class, 'show'])->name('show');
     Route::get('/{playStationGame}/edit', [PlayStationController::class, 'edit'])->name('edit');
     Route::patch('/{playStationGame}', [PlayStationController::class, 'update'])->name('update');
+    Route::delete('/{playStationGame}', [PlayStationController::class, 'destroy'])->name('destroy');
     Route::post('/{playStationGame}/fetch-trophies', [PlayStationTrophyController::class, 'fetch'])->name('fetch-trophies');
     Route::post('/{playStationGame}/fetch-genres', [PlayStationGenreController::class, 'fetch'])->name('fetch-genres');
     Route::patch('/{playStationGame}/favorite', [PlayStationFavoriteController::class, 'toggle'])->name('favorite');

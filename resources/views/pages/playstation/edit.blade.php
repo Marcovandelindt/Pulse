@@ -352,4 +352,21 @@
         </form>
     </x-ui.card>
 
+    <div class="mt-4" x-data="{ confirm: false }">
+        <template x-if="!confirm">
+            <button @click="confirm = true" class="btn btn--danger btn--sm">Delete game</button>
+        </template>
+        <template x-if="confirm">
+            <div class="flex items-center gap-3">
+                <span class="text-sm" style="color: var(--color-text-muted)">Delete {{ $game->label }} and all its sessions, trophies and images?</span>
+                <form method="POST" action="{{ route('playstation.destroy', $game) }}">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn--danger btn--sm">Yes, delete</button>
+                </form>
+                <button @click="confirm = false" class="btn btn--secondary btn--sm">Cancel</button>
+            </div>
+        </template>
+    </div>
+
 </x-layouts.app>
