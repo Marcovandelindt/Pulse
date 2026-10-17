@@ -20,10 +20,11 @@ final class PlayStationGameImageController extends Controller
             'caption' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $path = $request->file('image')->store('playstation/gallery', 'public');
+        $path = $request->file('image')->store('playstation/gallery', 'r2');
 
         $playStationGame->images()->create([
             'path' => $path,
+            'disk' => 'r2',
             'caption' => $request->input('caption'),
             'sort_order' => $playStationGame->images()->max('sort_order') + 1,
         ]);
@@ -34,7 +35,7 @@ final class PlayStationGameImageController extends Controller
 
     public function destroy(PlayStationGame $playStationGame, PlayStationGameImage $playStationGameImage): RedirectResponse
     {
-        Storage::disk('public')->delete($playStationGameImage->path);
+        Storage::disk($playStationGameImage->disk ?? 'public')->delete($playStationGameImage->path);
         $playStationGameImage->delete();
 
         return redirect()->route('playstation.show', $playStationGame)

@@ -378,7 +378,7 @@
         uploadOpen: {{ $errors->has('image') ? 'true' : 'false' }},
         lightboxOpen: false,
         lightboxIndex: 0,
-        lightboxImages: @js($game->images->map(fn ($img) => ['url' => Storage::url($img->path), 'caption' => $img->caption])->values()),
+        lightboxImages: @js($game->images->map(fn ($img) => ['url' => $img->url, 'caption' => $img->caption])->values()),
         openLightbox(index) {
             this.lightboxIndex = index;
             this.lightboxOpen = true;
@@ -428,7 +428,7 @@
             <div class="game-gallery">
                 @foreach($game->images as $image)
                     <div class="game-gallery__item">
-                        <img src="{{ Storage::url($image->path) }}"
+                        <img src="{{ $image->url }}"
                              alt="{{ $image->caption ?? $game->label }}"
                              class="game-gallery__img game-gallery__img--clickable"
                              @click="openLightbox({{ $loop->index }})">
