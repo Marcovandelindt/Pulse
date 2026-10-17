@@ -22,6 +22,7 @@ use App\Http\Controllers\People\ContactController;
 use App\Http\Controllers\People\ContactDateController;
 use App\Http\Controllers\People\ContactGiftIdeaController;
 use App\Http\Controllers\People\ContactRelationshipController;
+use App\Http\Controllers\Journal\JournalEntryController;
 use App\Http\Controllers\Insights\InsightController;
 use App\Http\Controllers\Insights\InsightPatternController;
 use App\Http\Controllers\Insights\InsightRelatedController;
@@ -92,6 +93,16 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{contact}/relationships/{relationship}', [ContactRelationshipController::class, 'destroy'])->name('relationships.destroy');
         Route::post('/{contact}/gift-ideas', [ContactGiftIdeaController::class, 'store'])->name('gift-ideas.store');
         Route::delete('/{contact}/gift-ideas/{giftIdea}', [ContactGiftIdeaController::class, 'destroy'])->name('gift-ideas.destroy');
+    });
+
+    Route::prefix('journal')->name('journal.')->group(function () {
+        Route::get('/', [JournalEntryController::class, 'index'])->name('index');
+        Route::get('/create', [JournalEntryController::class, 'create'])->name('create');
+        Route::post('/', [JournalEntryController::class, 'store'])->name('store');
+        Route::get('/{journalEntry}', [JournalEntryController::class, 'show'])->name('show');
+        Route::get('/{journalEntry}/edit', [JournalEntryController::class, 'edit'])->name('edit');
+        Route::patch('/{journalEntry}', [JournalEntryController::class, 'update'])->name('update');
+        Route::delete('/{journalEntry}', [JournalEntryController::class, 'destroy'])->name('destroy');
     });
 
     Route::prefix('insights')->name('insights.')->group(function () {
