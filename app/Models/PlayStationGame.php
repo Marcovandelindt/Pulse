@@ -19,6 +19,7 @@ final class PlayStationGame extends Model
         'name',
         'display_name',
         'trophy_search_name',
+        'tracker_name',
         'platform',
         'image_url',
         'hours',

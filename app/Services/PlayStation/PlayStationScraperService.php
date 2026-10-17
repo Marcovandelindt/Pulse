@@ -109,11 +109,15 @@ final class PlayStationScraperService
     {
         // Sort manual entries first (exclude_from_sync=1) so synced entries (0) overwrite them
         // in keyBy — sessions always link to the synced game when both exist.
-        $gameMap = PlayStationGame::all()
+        $gameMap = [];
+        PlayStationGame::all()
             ->sortByDesc('exclude_from_sync')
-            ->keyBy(fn (PlayStationGame $g) => $g->name.'|'.$g->platform)
-            ->map(fn (PlayStationGame $g) => $g->id)
-            ->toArray();
+            ->each(function (PlayStationGame $g) use (&$gameMap): void {
+                $gameMap[$this->normalizeGameName($g->name).'|'.$g->platform] = $g->id;
+                if ($g->tracker_name) {
+                    $gameMap[$this->normalizeGameName($g->tracker_name).'|'.$g->platform] = $g->id;
+                }
+            });
 
         $latestSession = PlayStationSession::orderByDesc('started_at')->first();
         $latestSessionDate = $latestSession?->started_at;
@@ -132,25 +136,13 @@ final class PlayStationScraperService
             $pageHasNew = false;
 
             foreach ($sessions as $data) {
-                $key = $data['game_name'].'|'.$data['platform'];
+                $normalizedName = $this->normalizeGameName($data['game_name']);
+                $key = $normalizedName.'|'.$data['platform'];
                 $gameId = $gameMap[$key] ?? null;
 
                 if (! $gameId) {
-                    // If the session name has no colon it may be a shortened title
-                    // (e.g. "Call of Duty®" while the DB holds "Call of Duty®: Modern Warfare® II").
-                    // Skip rather than create a ghost entry when a colon-suffixed variant exists.
-                    if (! str_contains($data['game_name'], ':')) {
-                        $hasFullVariant = PlayStationGame::where('platform', $data['platform'])
-                            ->where('name', 'like', $data['game_name'].':%')
-                            ->exists();
-
-                        if ($hasFullVariant) {
-                            continue;
-                        }
-                    }
-
                     $game = PlayStationGame::create([
-                        'name' => $data['game_name'],
+                        'name' => $normalizedName,
                         'platform' => $data['platform'],
                     ]);
                     $gameId = $game->id;
@@ -388,5 +380,10 @@ final class PlayStationScraperService
         }
 
         return $minutes;
+    }
+
+    private function normalizeGameName(string $name): string
+    {
+        return trim(str_replace(['®', '™', '©'], '', $name));
     }
 }

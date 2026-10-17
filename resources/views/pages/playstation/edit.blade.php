@@ -59,6 +59,23 @@
             </div>
 
             <div class="form-group">
+                <label class="form-label" for="tracker_name">Tracker Name</label>
+                <input
+                    type="text"
+                    id="tracker_name"
+                    name="tracker_name"
+                    value="{{ old('tracker_name', $game->tracker_name) }}"
+                    class="form-input"
+                    placeholder="{{ $game->name }}"
+                >
+                <p class="text-xs mt-1" style="color: var(--color-text-muted)">
+                    Override the name used to match sessions from ps-timetracker.
+                    Useful when the tracker uses a different or shortened name (e.g. "Call of Duty" for "Call of Duty®: Modern Warfare® II").
+                </p>
+                <x-form.error name="tracker_name" />
+            </div>
+
+            <div class="form-group">
                 <label class="form-label" for="np_communication_id">PSN Communication ID</label>
                 <input
                     type="text"
