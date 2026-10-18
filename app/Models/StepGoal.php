@@ -7,6 +7,9 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property Carbon $effective_from
+ */
 final class StepGoal extends Model
 {
     protected $fillable = ['steps', 'effective_from'];

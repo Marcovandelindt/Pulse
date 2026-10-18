@@ -7,6 +7,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * @property array<int, string>|null $genres
+ */
 final class Artist extends Model
 {
     protected $fillable = ['name', 'spotify_artist_id', 'image_url', 'genres', 'popularity'];

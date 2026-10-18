@@ -4,52 +4,67 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Actions\Dashboard\BuildAdaptiveSubtitle;
+use App\Actions\Dashboard\BuildDailyBrief;
+use App\Actions\Dashboard\BuildDashboardTimeline;
+use App\Actions\Dashboard\GetCurrentSleepStreak;
+use App\Actions\Dashboard\GetCurrentStepStreak;
+use App\Actions\Dashboard\GetLastYearSnapshot;
+use App\Actions\Dashboard\GetPersonalRecords;
+use App\Actions\Dashboard\GetRecentMilestone;
+use App\Actions\Dashboard\GetWeekTopArtist;
 use App\Actions\PlayStation\SyncGamingPresenceAction;
-use App\Data\ActivityItem;
 use App\Http\Controllers\Controller;
-use App\Models\Artist;
 use App\Models\EpisodeWatch;
+use App\Models\Expense;
 use App\Models\HealthEntry;
 use App\Models\HealthSleep;
 use App\Models\MovieWatch;
 use App\Models\Play;
 use App\Models\PlayStationSession;
-use App\Models\Expense;
 use App\Models\StepGoal;
-use Illuminate\Support\Carbon;
+use App\Models\Track;
 use App\Services\PlayStation\PsnPresenceService;
 use App\Services\Spotify\SpotifyTrackService;
 use App\Services\Weather\WeatherService;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 final class DashboardController extends Controller
 {
-    private const TIMELINE_DAYS = 7;
-
     public function __construct(
         private readonly SpotifyTrackService $trackService,
         private readonly PsnPresenceService $psnPresence,
         private readonly SyncGamingPresenceAction $syncPresence,
         private readonly WeatherService $weatherService,
+        private readonly BuildDashboardTimeline $buildTimeline,
+        private readonly GetCurrentStepStreak $stepStreak,
+        private readonly GetCurrentSleepStreak $sleepStreak,
+        private readonly GetLastYearSnapshot $lastYearSnapshot,
+        private readonly GetRecentMilestone $recentMilestone,
+        private readonly GetWeekTopArtist $weekTopArtist,
+        private readonly GetPersonalRecords $personalRecords,
+        private readonly BuildDailyBrief $buildDailyBrief,
+        private readonly BuildAdaptiveSubtitle $buildAdaptiveSubtitle,
     ) {}
 
     public function index(): View
     {
-        $hour     = now()->hour;
-        $greeting = match(true) {
-            $hour >= 5 && $hour < 12  => 'Good morning',
+        $hour = now()->hour;
+        $greeting = match (true) {
+            $hour >= 5 && $hour < 12 => 'Good morning',
             $hour >= 12 && $hour < 18 => 'Good afternoon',
-            default                   => 'Good evening',
+            default => 'Good evening',
         };
 
-        $todaySteps  = (int) (HealthEntry::whereDate('date', today())->value('steps') ?? 0);
-        $lastSleep   = HealthSleep::orderByDesc('date')->first();
+        $todaySteps = (int) (HealthEntry::whereDate('date', today())->value('steps') ?? 0);
+        $lastSleep = HealthSleep::orderByDesc('date')->first();
         $currentGoal = StepGoal::current();
-        $adaptiveSubtitle = $this->buildAdaptiveSubtitle($todaySteps, $currentGoal, $lastSleep);
-        $stepStreak       = $this->currentStepStreak();
-        $sleepStreak      = $this->currentSleepStreak();
-        $dailyBrief       = $this->buildDailyBrief($todaySteps, $currentGoal, $lastSleep);
+
+        $stepStreak = $this->stepStreak->handle();
+        $sleepStreak = $this->sleepStreak->handle();
+        $adaptiveSubtitle = $this->buildAdaptiveSubtitle->handle($todaySteps, $currentGoal, $lastSleep);
+        $dailyBrief = $this->buildDailyBrief->handle($todaySteps, $currentGoal, $lastSleep);
 
         $stepsThisWeek = HealthEntry::withSteps()->thisWeek()->sum('steps');
 
@@ -63,22 +78,22 @@ final class DashboardController extends Controller
             ->whereNotNull('movie_watches.watched_at')
             ->sum('movies.runtime');
 
-        $playtimeMinutes  = (int) PlayStationSession::thisWeek()->sum('duration_minutes');
+        $playtimeMinutes = (int) PlayStationSession::thisWeek()->sum('duration_minutes');
         $spendingThisWeek = (float) Expense::thisWeek()->sum('amount');
-
         $tracksThisWeek = Play::whereBetween('played_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
 
         try {
             $currentlyPlaying = $this->trackService->getCurrentlyPlaying();
 
             if ($currentlyPlaying !== null) {
-                $track = \App\Models\Track::where('spotify_track_id', $currentlyPlaying['spotify_track_id'])->first()
+                $track = Track::where('spotify_track_id', $currentlyPlaying['spotify_track_id'])->first()
                     ?? $this->trackService->upsertTrack($currentlyPlaying['raw_track'], fetchDetails: false);
 
-                $currentlyPlaying['track']         = $track->load('artists');
+                $currentlyPlaying['track'] = $track->load('artists');
                 $currentlyPlaying['artist_models'] = $track->artists->keyBy('spotify_artist_id');
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::warning('Failed to fetch currently playing track', ['error' => $e->getMessage()]);
             $currentlyPlaying = null;
         }
 
@@ -86,10 +101,11 @@ final class DashboardController extends Controller
             $currentGame = $this->psnPresence->getCurrentGame();
             // Sync presence inline so stale records are closed before reading started_at.
             // Passes the already-fetched game to avoid a second PSN API call.
-            $activePresence  = $this->syncPresence->handle($currentGame);
+            $activePresence = $this->syncPresence->handle($currentGame);
             $gamingStartedAt = $activePresence?->started_at;
-        } catch (\Throwable) {
-            $currentGame     = null;
+        } catch (\Throwable $e) {
+            Log::warning('Failed to fetch PSN presence', ['error' => $e->getMessage()]);
+            $currentGame = null;
             $gamingStartedAt = null;
         }
 
@@ -97,542 +113,41 @@ final class DashboardController extends Controller
             ? PlayStationSession::with('game')->latest('started_at')->first()
             : null;
 
-        $weather         = $this->weatherService->getCurrent();
-
-        $lastYear        = $this->thisTimeLastYear();
-        $weekTopArtist   = $this->weekTopArtist();
-        $recentMilestone = $this->recentMilestone($stepStreak, $sleepStreak);
-        $personalRecords = $this->personalRecords();
-
-        $lastPlayedGameUrl = $lastPlayedSession
-            ? route('playstation.show', $lastPlayedSession->game)
-            : null;
-
-        $recentPlay = $currentlyPlaying === null
-            ? Play::with(['track.album', 'track.artists'])->orderByDesc('played_at')->first()
-            : null;
+        $weather = $this->weatherService->getCurrent();
 
         return view('pages.dashboard.index', [
-            'greeting'          => $greeting,
-            'adaptiveSubtitle'  => $adaptiveSubtitle,
-            'stepStreak'        => $stepStreak,
-            'sleepStreak'       => $sleepStreak,
-            'timeline'          => $this->buildTimeline(),
-            'stepsThisWeek'     => $stepsThisWeek > 0 ? number_format((int) $stepsThisWeek) : null,
+            'greeting' => $greeting,
+            'adaptiveSubtitle' => $adaptiveSubtitle,
+            'stepStreak' => $stepStreak,
+            'sleepStreak' => $sleepStreak,
+            'timeline' => $this->buildTimeline->handle(),
+            'stepsThisWeek' => $stepsThisWeek > 0 ? number_format((int) $stepsThisWeek) : null,
             'watchtimeThisWeek' => $this->formatMinutes($episodeMinutes + $movieMinutes),
-            'playtimeThisWeek'  => $this->formatMinutes($playtimeMinutes),
-            'tracksThisWeek'    => $tracksThisWeek > 0 ? number_format($tracksThisWeek) : null,
-            'spendingThisWeek'  => $spendingThisWeek > 0 ? '€ ' . number_format($spendingThisWeek, 2, ',', '.') : null,
-            'currentlyPlaying'  => $currentlyPlaying,
-            'recentPlay'        => $recentPlay,
-            'currentGame'       => $currentGame,
-            'gamingStartedAt'   => $gamingStartedAt,
-            'lastPlayedGame'    => $lastPlayedSession ? [
-                'title'     => $lastPlayedSession->game->label,
-                'platform'  => $lastPlayedSession->game->platform,
+            'playtimeThisWeek' => $this->formatMinutes($playtimeMinutes),
+            'tracksThisWeek' => $tracksThisWeek > 0 ? number_format($tracksThisWeek) : null,
+            'spendingThisWeek' => $spendingThisWeek > 0 ? '€ '.number_format($spendingThisWeek, 2, ',', '.') : null,
+            'currentlyPlaying' => $currentlyPlaying,
+            'recentPlay' => $currentlyPlaying === null
+                ? Play::with(['track.album', 'track.artists'])->orderByDesc('played_at')->first()
+                : null,
+            'currentGame' => $currentGame,
+            'gamingStartedAt' => $gamingStartedAt,
+            'lastPlayedGame' => $lastPlayedSession ? [
+                'title' => $lastPlayedSession->game->label,
+                'platform' => $lastPlayedSession->game->platform,
                 'image_url' => $lastPlayedSession->game->image_url,
             ] : null,
-            'lastPlayedAt'      => $lastPlayedSession?->started_at,
-            'lastPlayedGameUrl' => $lastPlayedGameUrl,
-            'lastYear'          => $lastYear,
-            'dailyBrief'        => $dailyBrief,
-            'weekTopArtist'     => $weekTopArtist,
-            'recentMilestone'   => $recentMilestone,
-            'personalRecords'   => $personalRecords,
-            'weather'           => $weather,
-        ]);
-    }
-
-    private function currentStepStreak(): int
-    {
-        $goals   = StepGoal::orderByDesc('effective_from')->get();
-        $entries = HealthEntry::withSteps()->orderByDesc('date')->take(90)->get(['date', 'steps']);
-
-        if ($entries->isEmpty()) {
-            return 0;
-        }
-
-        $todayLogged = $entries->first()->date->copy()->startOfDay()->equalTo(now()->startOfDay());
-        $check       = $todayLogged ? now()->startOfDay() : now()->subDay()->startOfDay();
-
-        while ($check->isWeekend()) {
-            $check->subDay();
-        }
-
-        $streak = 0;
-
-        foreach ($entries as $entry) {
-            if ($entry->date->isWeekend()) {
-                continue;
-            }
-            if (! $entry->date->copy()->startOfDay()->equalTo($check)) {
-                break;
-            }
-
-            $goal = $goals->first(fn ($g) => ! $g->effective_from->isAfter($entry->date))?->steps ?? 10000;
-            if (($entry->steps ?? 0) < $goal) {
-                break;
-            }
-
-            $streak++;
-            $check->subDay();
-            while ($check->isWeekend()) {
-                $check->subDay();
-            }
-        }
-
-        return $streak;
-    }
-
-    private function currentSleepStreak(): int
-    {
-        $records = HealthSleep::orderByDesc('date')->take(60)->get(['date', 'total_sleep_minutes']);
-
-        if ($records->isEmpty()) {
-            return 0;
-        }
-
-        if ($records->first()->date->copy()->startOfDay()->lt(now()->subDay()->startOfDay())) {
-            return 0;
-        }
-
-        $streak   = 0;
-        $prevDate = null;
-
-        foreach ($records as $record) {
-            if ($record->total_sleep_minutes < 420) {
-                break;
-            }
-            if ($prevDate !== null && ! $record->date->copy()->addDay()->startOfDay()->equalTo($prevDate)) {
-                break;
-            }
-
-            $streak++;
-            $prevDate = $record->date->copy()->startOfDay();
-        }
-
-        return $streak;
-    }
-
-    private function buildAdaptiveSubtitle(int $todaySteps, int $stepGoal, ?HealthSleep $lastSleep): string
-    {
-        $hour  = now()->hour;
-        $parts = [];
-
-        if ($lastSleep && $hour < 14) {
-            $parts[] = 'Slept ' . $lastSleep->formattedMinutes($lastSleep->total_sleep_minutes) . ' last night';
-        }
-
-        if ($stepGoal > 0) {
-            if ($todaySteps >= $stepGoal) {
-                $parts[] = 'Goal hit · ' . number_format($todaySteps) . ' steps today';
-            } elseif ($todaySteps > 0) {
-                $parts[] = number_format($stepGoal - $todaySteps) . ' steps to go today';
-            } elseif ($hour >= 9) {
-                $parts[] = 'Goal: ' . number_format($stepGoal) . ' steps today';
-            }
-        } elseif ($todaySteps > 0) {
-            $parts[] = number_format($todaySteps) . ' steps today';
-        }
-
-        return implode(' · ', $parts) ?: "Here's what's happening today.";
-    }
-
-    /** @return Collection<int, ActivityItem> */
-    private function buildTimeline(): Collection
-    {
-        $watches = EpisodeWatch::with(['episode.season.series'])
-            ->whereNotNull('watched_at')
-            ->where('watched_at', '>=', now()->subDays(self::TIMELINE_DAYS)->startOfDay())
-            ->orderByDesc('watched_at')
-            ->get();
-
-        // Group by series + calendar date so binge sessions collapse into one item
-        $watchActivities = $watches
-            ->groupBy(fn (EpisodeWatch $w) => $w->episode->season->series->id.'_'.$w->watched_at->toDateString())
-            ->map(function (Collection $group): ActivityItem {
-                $first = $group->first();
-                $series = $first->episode->season->series;
-                $count = $group->count();
-
-                $episodeLabel = fn (EpisodeWatch $w): string =>
-                    'S'.$w->episode->season->season_number.'E'.$w->episode->episode_number.' — '.$w->episode->name;
-
-                $subtitle = $count === 1
-                    ? $episodeLabel($first)
-                    : $count.' episodes';
-
-                $episodes = $count > 1
-                    ? $group->sortBy('watched_at')->map($episodeLabel)->values()->all()
-                    : [];
-
-                return new ActivityItem(
-                    type: 'episode_watch',
-                    title: $series->name,
-                    subtitle: $subtitle,
-                    imageUrl: $series->poster_url,
-                    occurredAt: $first->watched_at,
-                    isPinned: false,
-                    episodes: $episodes,
-                    url: route('tv.show', $series),
-                );
-            })
-            ->values();
-
-        $stepActivities = HealthEntry::withSteps()
-            ->where('date', '>=', now()->subDays(self::TIMELINE_DAYS)->startOfDay())
-            ->where('date', '<', today())
-            ->orderByDesc('date')
-            ->get()
-            ->map(fn (HealthEntry $entry): ActivityItem => new ActivityItem(
-                type: 'steps',
-                title: number_format($entry->steps).' steps',
-                subtitle: 'Daily steps',
-                imageUrl: null,
-                occurredAt: $entry->date->startOfDay(),
-                isPinned: true,
-            ));
-
-        $movieActivities = MovieWatch::with('movie')
-            ->whereNotNull('watched_at')
-            ->where('watched_at', '>=', now()->subDays(self::TIMELINE_DAYS)->startOfDay())
-            ->orderByDesc('watched_at')
-            ->get()
-            ->map(fn (MovieWatch $w): ActivityItem => new ActivityItem(
-                type: 'movie_watch',
-                title: $w->movie->title,
-                subtitle: $w->movie->release_date?->year
-                    ? 'Movie · '.$w->movie->release_date->year
-                    : 'Movie',
-                imageUrl: $w->movie->poster_url,
-                occurredAt: $w->watched_at,
-                isPinned: false,
-                url: route('movies.show', $w->movie),
-            ));
-
-        $musicActivities = Play::with(['track.artists'])
-            ->where('played_at', '>=', now()->subDays(self::TIMELINE_DAYS)->startOfDay())
-            ->orderBy('played_at')
-            ->get()
-            ->groupBy(fn (Play $p) => $p->played_at->toDateString())
-            ->map(function (Collection $group, string $date): ActivityItem {
-                $count = $group->count();
-                $tracks = $group->map(fn (Play $p) => $p->track->title.' — '.$p->track->artists_string)->values()->all();
-
-                return new ActivityItem(
-                    type: 'music',
-                    title: 'Spotify',
-                    subtitle: 'Listened to '.($count === 1 ? '1 track' : $count.' tracks'),
-                    imageUrl: null,
-                    occurredAt: Carbon::parse($date)->startOfDay(),
-                    isPinned: false,
-                    episodes: $tracks,
-                );
-            })
-            ->values();
-
-        $playstationActivities = PlayStationSession::with('game')
-            ->where('started_at', '>=', now()->subDays(self::TIMELINE_DAYS)->startOfDay())
-            ->orderBy('started_at')
-            ->get()
-            ->groupBy(fn (PlayStationSession $s) => $s->started_at->toDateString())
-            ->map(function (Collection $group, string $date): ActivityItem {
-                $count = $group->count();
-                $totalMinutes = $group->sum('duration_minutes');
-
-                $sessionLabel = fn (PlayStationSession $s): string =>
-                    $s->game->label.' · '.$s->started_at->format('H:i').' – '.$s->end_time->format('H:i');
-
-                if ($count === 1) {
-                    $session = $group->first();
-
-                    return new ActivityItem(
-                        type: 'playstation',
-                        title: $session->game->label,
-                        subtitle: $session->started_at->format('H:i').' – '.$session->end_time->format('H:i').' · '.$this->formatMinutes($session->duration_minutes),
-                        imageUrl: $session->game->image_url,
-                        occurredAt: $session->started_at,
-                        isPinned: false,
-                    );
-                }
-
-                return new ActivityItem(
-                    type: 'playstation',
-                    title: 'PlayStation',
-                    subtitle: $count.' sessions · '.$this->formatMinutes($totalMinutes),
-                    imageUrl: null,
-                    occurredAt: Carbon::parse($date)->startOfDay(),
-                    isPinned: false,
-                    episodes: $group->sortBy('started_at')->map($sessionLabel)->values()->all(),
-                );
-            })
-            ->values();
-
-        return $watchActivities
-            ->concat($movieActivities)
-            ->concat($stepActivities)
-            ->concat($musicActivities)
-            ->concat($playstationActivities)
-            ->sort(fn (ActivityItem $a, ActivityItem $b): int => $this->compareActivities($a, $b))
-            ->values();
-    }
-
-    private function compareActivities(ActivityItem $a, ActivityItem $b): int
-    {
-        $dateCompare = $b->occurredAt->toDateString() <=> $a->occurredAt->toDateString();
-        if ($dateCompare !== 0) {
-            return $dateCompare;
-        }
-
-        // Within the same date: episode watches before steps
-        $pinnedCompare = $a->isPinned <=> $b->isPinned;
-        if ($pinnedCompare !== 0) {
-            return $pinnedCompare;
-        }
-
-        return $b->occurredAt->timestamp <=> $a->occurredAt->timestamp;
-    }
-
-    /** @return array<string, mixed> */
-    private function buildDailyBrief(int $todaySteps, int $stepGoal, ?HealthSleep $lastSleep): array
-    {
-        $sevenDayAvg = (int) round(
-            (float) (HealthEntry::withSteps()
-                ->where('date', '>=', now()->subDays(7)->startOfDay())
-                ->where('date', '<', today())
-                ->avg('steps') ?? 0)
-        );
-
-        $goalPct  = $stepGoal > 0 ? min(100, (int) round($todaySteps / $stepGoal * 100)) : null;
-        $remaining = $stepGoal > 0 ? max(0, $stepGoal - $todaySteps) : null;
-
-        $stepVsAvg = null;
-        if ($sevenDayAvg > 0 && $todaySteps > 0) {
-            $stepVsAvg = (int) round(($todaySteps - $sevenDayAvg) / $sevenDayAvg * 100);
-        }
-
-        return [
-            'sleep'        => $lastSleep && $lastSleep->date->copy()->gte(today()->subDay())
-                ? [
-                    'duration' => $lastSleep->formattedMinutes($lastSleep->total_sleep_minutes),
-                    'score'    => $lastSleep->sleepScore(),
-                    'label'    => $lastSleep->sleepScoreLabel(),
-                ]
+            'lastPlayedAt' => $lastPlayedSession?->started_at,
+            'lastPlayedGameUrl' => $lastPlayedSession
+                ? route('playstation.show', $lastPlayedSession->game)
                 : null,
-            'steps'        => $todaySteps > 0 ? number_format($todaySteps) : null,
-            'stepGoal'     => $stepGoal > 0 ? number_format($stepGoal) : null,
-            'goalPct'      => $goalPct,
-            'remaining'    => $remaining !== null && $remaining > 0 ? number_format($remaining) : null,
-            'sevenDayAvg'  => $sevenDayAvg > 0 ? number_format($sevenDayAvg) : null,
-            'stepVsAvg'    => $stepVsAvg,
-        ];
-    }
-
-    /** @return array<string, mixed>|null */
-    private function recentMilestone(int $stepStreak, int $sleepStreak): ?array
-    {
-        $candidates = [];
-
-        // Streak milestones
-        foreach ([7, 14, 30, 60, 100] as $target) {
-            if ($stepStreak === $target) {
-                $candidates[] = ['priority' => 3, 'icon' => '🔥', 'title' => "{$target}-day step streak!", 'sub' => "You've hit your step goal {$target} weekdays in a row."];
-            }
-            if ($sleepStreak === $target) {
-                $candidates[] = ['priority' => 3, 'icon' => '😴', 'title' => "{$target}-night sleep streak!", 'sub' => "{$target} consecutive nights of 7+ hours sleep."];
-            }
-        }
-
-        // Plays milestone
-        $totalPlays   = Play::count();
-        $last7Plays   = Play::where('played_at', '>=', now()->subDays(7))->count();
-        $playsWeekAgo = $totalPlays - $last7Plays;
-
-        foreach ([500, 1000, 2000, 5000, 10000, 25000, 50000] as $m) {
-            if ($playsWeekAgo < $m && $totalPlays >= $m) {
-                $candidates[] = ['priority' => 2, 'icon' => '🎵', 'title' => number_format($m).' tracks played!', 'sub' => "You've listened to {$m} songs on Spotify."];
-                break;
-            }
-        }
-
-        // Gaming hours milestone
-        $totalGamingMinutes   = (int) PlayStationSession::sum('duration_minutes');
-        $last7GamingMinutes   = (int) PlayStationSession::where('started_at', '>=', now()->subDays(7))->sum('duration_minutes');
-        $gamingMinutesWeekAgo = $totalGamingMinutes - $last7GamingMinutes;
-
-        foreach ([3000, 6000, 12000, 30000, 60000] as $m) { // 50h, 100h, 200h, 500h, 1000h
-            if ($gamingMinutesWeekAgo < $m && $totalGamingMinutes >= $m) {
-                $hours = intdiv($m, 60);
-                $candidates[] = ['priority' => 2, 'icon' => '🎮', 'title' => "{$hours} hours gamed!", 'sub' => "You've clocked {$hours} hours on PlayStation."];
-                break;
-            }
-        }
-
-        // Steps all-time milestone
-        $totalSteps       = (int) HealthEntry::withSteps()->sum('steps');
-        $last7StepsSum    = (int) HealthEntry::withSteps()->where('date', '>=', now()->subDays(7))->sum('steps');
-        $stepsWeekAgo     = $totalSteps - $last7StepsSum;
-
-        foreach ([500000, 1000000, 2000000, 5000000, 10000000] as $m) {
-            if ($stepsWeekAgo < $m && $totalSteps >= $m) {
-                $label = number_format($m / 1000000, 1).'M';
-                $candidates[] = ['priority' => 1, 'icon' => '🚶', 'title' => "{$label} steps total!", 'sub' => 'A life milestone in total steps recorded.'];
-                break;
-            }
-        }
-
-        if (empty($candidates)) {
-            return null;
-        }
-
-        usort($candidates, fn ($a, $b) => $b['priority'] <=> $a['priority']);
-
-        return $candidates[0];
-    }
-
-    /** @return array<string, mixed>|null */
-    private function weekTopArtist(): ?array
-    {
-        $row = Artist::query()
-            ->selectRaw('artists.id, COUNT(plays.id) as play_count')
-            ->join('track_artists', 'artists.id', '=', 'track_artists.artist_id')
-            ->join('tracks', 'track_artists.track_id', '=', 'tracks.id')
-            ->join('plays', 'tracks.id', '=', 'plays.track_id')
-            ->where('track_artists.is_primary', true)
-            ->whereBetween('plays.played_at', [now()->startOfWeek(), now()->endOfWeek()])
-            ->groupBy('artists.id')
-            ->orderByDesc('play_count')
-            ->first();
-
-        if ($row === null) {
-            return null;
-        }
-
-        $artist = Artist::find($row->id);
-
-        $totalTracks = Play::whereBetween('played_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
-        $topGenre    = is_array($artist->genres) && count($artist->genres) > 0
-            ? ucfirst($artist->genres[0])
-            : null;
-
-        return [
-            'artist'      => $artist,
-            'playCount'   => (int) $row->play_count,
-            'totalTracks' => $totalTracks,
-            'topGenre'    => $topGenre,
-        ];
-    }
-
-    /** @return array<string, mixed>|null */
-    private function thisTimeLastYear(): ?array
-    {
-        $date = today()->subYear();
-
-        $steps    = (int) (HealthEntry::whereDate('date', $date)->value('steps') ?? 0);
-        $sleep    = HealthSleep::whereDate('date', $date)->first();
-        $plays    = Play::with(['track.artists'])->whereDate('played_at', $date)->orderBy('played_at')->get();
-        $sessions = PlayStationSession::with('game')->whereDate('started_at', $date)->orderBy('started_at')->get();
-        $episodes = EpisodeWatch::with(['episode.season.series'])
-            ->whereDate('watched_at', $date)
-            ->whereNotNull('watched_at')
-            ->orderBy('watched_at')
-            ->get();
-        $movieWatched = MovieWatch::with('movie')->whereDate('watched_at', $date)->whereNotNull('watched_at')->first();
-
-        $trackCount    = $plays->count();
-        $gamingMinutes = (int) $sessions->sum('duration_minutes');
-        $episodeCount  = $episodes->count();
-
-        if ($steps === 0 && $sleep === null && $trackCount === 0 && $gamingMinutes === 0 && $episodeCount === 0 && $movieWatched === null) {
-            return null;
-        }
-
-        return [
-            'date'         => $date,
-            'steps'        => $steps > 0 ? number_format($steps) : null,
-            'sleep'        => $sleep ? $sleep->formattedMinutes($sleep->total_sleep_minutes) : null,
-            'tracks'       => $trackCount > 0 ? $trackCount : null,
-            'trackList'    => $plays->map(fn ($p) => [
-                'time'   => $p->played_at->format('H:i'),
-                'title'  => $p->track->title,
-                'artist' => $p->track->artists->first()?->name ?? '',
-                'url'    => route('music.tracks.show', $p->track),
-            ])->all(),
-            'gaming'       => $gamingMinutes > 0 ? $this->formatMinutes($gamingMinutes) : null,
-            'sessions'     => $sessions->map(fn ($s) => [
-                'game'      => $s->game->label,
-                'imageUrl'  => $s->game->image_url,
-                'start'     => $s->started_at->format('H:i'),
-                'end'       => $s->end_time->format('H:i'),
-                'duration'  => $s->formatted_duration,
-                'url'       => route('playstation.show', $s->game),
-            ])->all(),
-            'episodes'     => $episodeCount > 0 ? $episodeCount : null,
-            'episodeList'  => $episodes->map(fn ($w) => [
-                'time'    => $w->watched_at->format('H:i'),
-                'series'  => $w->episode->season->series->name,
-                'episode' => 'S'.$w->episode->season->season_number.'E'.$w->episode->episode_number.' — '.$w->episode->name,
-                'url'     => route('tv.show', $w->episode->season->series),
-            ])->all(),
-            'movieWatched' => $movieWatched !== null,
-            'movieTitle'   => $movieWatched?->movie->title,
-            'movieUrl'     => $movieWatched !== null ? route('movies.show', $movieWatched->movie) : null,
-        ];
-    }
-
-    /** @return array<int, array<string, string>> */
-    private function personalRecords(): array
-    {
-        $records = [];
-
-        $bestSteps = HealthEntry::withSteps()->orderByDesc('steps')->first(['steps', 'date']);
-        if ($bestSteps && $bestSteps->steps > 0) {
-            $records[] = [
-                'icon'  => '🚶',
-                'label' => 'Best step day',
-                'value' => number_format((int) $bestSteps->steps) . ' steps',
-                'date'  => $bestSteps->date->format('d M Y'),
-            ];
-        }
-
-        $longestSession = PlayStationSession::with('game')->orderByDesc('duration_minutes')->first();
-        if ($longestSession) {
-            $h        = intdiv($longestSession->duration_minutes, 60);
-            $m        = $longestSession->duration_minutes % 60;
-            $duration = $h > 0 ? "{$h}h" . ($m > 0 ? " {$m}m" : '') : "{$m}m";
-            $records[] = [
-                'icon'  => '🎮',
-                'label' => 'Longest session',
-                'value' => $duration . ' — ' . $longestSession->game->label,
-                'date'  => $longestSession->started_at->format('d M Y'),
-            ];
-        }
-
-        $bestSleep = HealthSleep::orderByDesc('total_sleep_minutes')->first(['total_sleep_minutes', 'date']);
-        if ($bestSleep && $bestSleep->total_sleep_minutes > 0) {
-            $records[] = [
-                'icon'  => '😴',
-                'label' => 'Best sleep',
-                'value' => $bestSleep->formattedMinutes($bestSleep->total_sleep_minutes),
-                'date'  => $bestSleep->date->format('d M Y'),
-            ];
-        }
-
-        $bestMusicDay = Play::selectRaw('DATE(played_at) as day, COUNT(*) as track_count')
-            ->whereNotNull('played_at')
-            ->groupBy('day')
-            ->orderByDesc('track_count')
-            ->first();
-        if ($bestMusicDay && $bestMusicDay->track_count > 0) {
-            $records[] = [
-                'icon'  => '🎵',
-                'label' => 'Most tracks in a day',
-                'value' => number_format($bestMusicDay->track_count) . ' tracks',
-                'date'  => Carbon::parse($bestMusicDay->day)->format('d M Y'),
-            ];
-        }
-
-        return $records;
+            'lastYear' => $this->lastYearSnapshot->handle(),
+            'dailyBrief' => $dailyBrief,
+            'weekTopArtist' => $this->weekTopArtist->handle(),
+            'recentMilestone' => $this->recentMilestone->handle($stepStreak, $sleepStreak),
+            'personalRecords' => $this->personalRecords->handle(),
+            'weather' => $weather,
+        ]);
     }
 
     private function formatMinutes(int $minutes): ?string

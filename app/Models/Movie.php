@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Database\Factories\MovieFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +12,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property Carbon|null $release_date
+ * @property string|null $poster_url
+ */
 final class Movie extends Model
 {
     /** @use HasFactory<MovieFactory> */
@@ -62,5 +67,4 @@ final class Movie extends Model
                 : null,
         );
     }
-
 }

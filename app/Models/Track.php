@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
+/**
+ * @property string $artists_string
+ * @property Collection<int, Artist> $artists
+ */
 final class Track extends Model
 {
     protected $fillable = [
@@ -30,9 +35,9 @@ final class Track extends Model
     protected function casts(): array
     {
         return [
-            'is_explicit'    => 'boolean',
-            'genres'         => 'array',
-            'is_obsession'   => 'boolean',
+            'is_explicit' => 'boolean',
+            'genres' => 'array',
+            'is_obsession' => 'boolean',
             'obsession_since' => 'datetime',
         ];
     }

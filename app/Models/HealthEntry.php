@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property Carbon $date
+ * @property int|null $steps
+ */
 final class HealthEntry extends Model
 {
     /** @use HasFactory<HealthEntryFactory> */
@@ -47,7 +51,7 @@ final class HealthEntry extends Model
     protected function casts(): array
     {
         return [
-            'date'  => 'date',
+            'date' => 'date',
             'steps' => 'integer',
         ];
     }

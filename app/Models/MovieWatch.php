@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Database\Factories\MovieWatchFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property Carbon|null $watched_at
+ * @property Movie $movie
+ */
 final class MovieWatch extends Model
 {
     /** @use HasFactory<MovieWatchFactory> */

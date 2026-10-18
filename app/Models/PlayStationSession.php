@@ -4,11 +4,19 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property Carbon $started_at
+ * @property Carbon $ended_at
+ * @property Carbon $end_time
+ * @property string $formatted_duration
+ * @property PlayStationGame $game
+ */
 final class PlayStationSession extends Model
 {
     protected $fillable = [

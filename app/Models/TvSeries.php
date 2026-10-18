@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Database\Factories\TvSeriesFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -12,6 +13,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string|null $poster_url
+ */
 final class TvSeries extends Model
 {
     /** @use HasFactory<TvSeriesFactory> */
@@ -37,8 +41,8 @@ final class TvSeries extends Model
             'genres' => 'array',
             'last_watched_at' => 'datetime',
             'first_watched_at' => 'datetime',
-            'is_favorite'   => 'boolean',
-            'exclude_cast'  => 'boolean',
+            'is_favorite' => 'boolean',
+            'exclude_cast' => 'boolean',
         ];
     }
 
@@ -110,8 +114,8 @@ final class TvSeries extends Model
             ->whereNotNull('episode_watches.watched_at')
             ->min('episode_watches.watched_at');
 
-        $this->last_watched_at  = $latest   ? \Carbon\Carbon::parse($latest)   : now();
-        $this->first_watched_at ??= $earliest ? \Carbon\Carbon::parse($earliest) : now();
+        $this->last_watched_at = $latest ? Carbon::parse($latest) : now();
+        $this->first_watched_at ??= $earliest ? Carbon::parse($earliest) : now();
         $this->updateProgress();
     }
 }
