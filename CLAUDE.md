@@ -220,7 +220,7 @@ routes/
 
 ---
 
-## 3. PHP-standaarden
+## 4. PHP-standaarden
 
 ### Constructor property promotion — altijd
 
@@ -336,9 +336,176 @@ $totalKm = $steps * 0.00066; // stap lengte Marco = 66 cm
 $steps = $entry->steps; // steps ophalen
 ```
 
+### Exception handling — nooit een lege catch
+
+Een lege catch verbergt fouten zonder spoor. Drie geldige alternatieven:
+
+**1. Laat de exception bubbelen** — geen try-catch als je hem toch niet afhandelt. Laravel's exception handler vangt hem op.
+
+```php
+// ✅ correct — geen onnodige try-catch
+public function handle(): int
+{
+    return $this->scraper->syncGames();
+}
+```
+
+**2. Afhandelen met een fallback** — alleen een specifieke, bekende exception smoren als je een zinvolle fallback hebt.
+
+```php
+// ✅ correct — bekende exception, expliciete fallback
+try {
+    return $this->spotify->getCurrentTrack();
+} catch (SpotifyTokenExpiredException) {
+    return null;
+}
+```
+
+**3. Loggen en verder** — als je een exception bewust negeert, altijd loggen.
+
+```php
+// ✅ correct — stille catch met log-spoor
+try {
+    $this->notifier->send($payload);
+} catch (\Throwable $e) {
+    Log::warning('Notification failed', ['error' => $e->getMessage()]);
+}
+```
+
+```php
+// ❌ vermijd — exception verdwijnt zonder spoor
+try {
+    $this->notifier->send($payload);
+} catch (\Throwable $e) {
+    //
+}
+```
+
+### Early returns — guard clauses boven geneste ifs
+
+Valideer precondities bovenaan en return vroeg. Diepere nesting = moeilijker te lezen.
+
+```php
+// ✅ correct — happy path helemaal links uitgelijnd
+public function handle(HealthEntryData $data): ?HealthEntry
+{
+    if (! $data->date->isToday()) {
+        return null;
+    }
+
+    if ($data->steps <= 0) {
+        return null;
+    }
+
+    return HealthEntry::create([...]);
+}
+
+// ❌ vermijd — happy path verdwijnt in nesting
+public function handle(HealthEntryData $data): ?HealthEntry
+{
+    if ($data->date->isToday()) {
+        if ($data->steps > 0) {
+            return HealthEntry::create([...]);
+        }
+    }
+
+    return null;
+}
+```
+
+### Strikte vergelijking — altijd `===`, nooit `==`
+
+PHP's losse vergelijking (`==`) doet type coercion en leidt tot onverwacht gedrag.
+
+```php
+// ✅ correct
+if ($status === 'active') { }
+if ($count === 0) { }
+
+// ❌ vermijd — 0 == 'foo' is true in PHP
+if ($status == 'active') { }
+if ($count == false) { }
+```
+
+### Geen magic numbers — gebruik enums of constanten
+
+```php
+// ✅ correct
+const int STEP_GOAL = 10000;
+const float STRIDE_LENGTH_CM = 0.00066;
+
+if ($steps >= self::STEP_GOAL) { }
+$totalKm = $steps * self::STRIDE_LENGTH_CM;
+
+// ❌ vermijd
+if ($steps >= 10000) { }
+$totalKm = $steps * 0.00066;
+```
+
+### Typed class constants — PHP 8.3
+
+Geef class constants altijd een expliciete type, zodat PHPStan ze kan valideren.
+
+```php
+// ✅ correct (PHP 8.3)
+final class SpotifyService
+{
+    const string BASE_URL = 'https://api.spotify.com/v1';
+    const int CACHE_TTL   = 30;
+}
+
+// ❌ vermijd
+const BASE_URL = 'https://api.spotify.com/v1';
+```
+
+### Geen `mixed` type — altijd specifiek
+
+`mixed` schakelt PHPStan-analyse uit voor die waarde. Gebruik union types, generics via PHPDoc of splits de methode op.
+
+```php
+// ✅ correct
+public function getValue(): int|string { }
+
+/** @return Collection<int, HealthEntry> */
+public function getEntries(): Collection { }
+
+// ❌ vermijd
+public function getValue(): mixed { }
+```
+
+### Methodelengte — max ~20 regels
+
+Een methode die langer wordt dan ~20 regels doet waarschijnlijk te veel. Extract naar een private methode of aparte Action.
+
+```php
+// ✅ correct — elke methode doet één ding
+public function handle(HealthEntryData $data): HealthEntry
+{
+    $entry = $this->createEntry($data);
+    $this->updateStreak($entry);
+
+    return $entry;
+}
+
+private function createEntry(HealthEntryData $data): HealthEntry { ... }
+private function updateStreak(HealthEntry $entry): void { ... }
+```
+
+### Geen uitgecommentarieerde code
+
+Verwijderde code hoort in git history, niet als commentaar in de codebase.
+
+```php
+// ❌ vermijd
+// public function oldMethod(): void
+// {
+//     $this->legacyService->run();
+// }
+```
+
 ---
 
-## 4. Laravel-architectuur
+## 5. Laravel-architectuur
 
 ### Thin controllers
 
@@ -545,9 +712,91 @@ final class AppLayoutComposer
 }
 ```
 
+### Invokable controllers — voor single-action endpoints
+
+Een controller met maar één actie (geen CRUD) gebruikt `__invoke()`. Dit voorkomt een lege klasse met één methode die een vreemde naam heeft.
+
+```php
+// app/Http/Controllers/PlayStation/SyncPlayStationController.php
+final class SyncPlayStationController extends Controller
+{
+    public function __invoke(SyncPlayStationGames $action): RedirectResponse
+    {
+        $synced = $action->handle();
+
+        return redirect()->back()->with('success', "Synced {$synced} games.");
+    }
+}
+
+// routes/web.php
+Route::post('/playstation/sync', SyncPlayStationController::class)->name('playstation.sync');
+```
+
+### Authorization — altijd via Policies, nooit inline
+
+Inline `Gate::` of `$this->authorize()` met een string verbergt autorisatielogica door de codebase heen. Gebruik altijd een Policy per model.
+
+```bash
+php artisan make:policy HealthEntryPolicy --model=HealthEntry
+```
+
+```php
+// app/Policies/HealthEntryPolicy.php
+final class HealthEntryPolicy
+{
+    public function update(User $user, HealthEntry $entry): bool
+    {
+        return $user->id === $entry->user_id;
+    }
+
+    public function delete(User $user, HealthEntry $entry): bool
+    {
+        return $user->id === $entry->user_id;
+    }
+}
+
+// Controller — Policy wordt automatisch gevonden via model binding
+public function update(UpdateHealthEntryRequest $request, HealthEntry $entry): RedirectResponse
+{
+    $this->authorize('update', $entry);
+
+    // ...
+}
+```
+
+### Facades vs. dependency injection — gebruik DI in Actions en Services
+
+In Actions, Services en Controllers altijd via de constructor injecteren. Geen `Auth::`, `Cache::`, `Log::` etc. rechtstreeks in bedrijfslogica — dat maakt testen moeilijker.
+
+```php
+// ✅ correct — injecteerbaar, testbaar
+final class SyncPlayStationGames
+{
+    public function __construct(
+        private readonly PlayStationScraperService $scraper,
+        private readonly LoggerInterface $logger,
+    ) {}
+}
+
+// ❌ vermijd in Actions/Services
+final class SyncPlayStationGames
+{
+    public function handle(): int
+    {
+        Log::info('Syncing...');   // facade in business logic
+        Cache::forget('ps.games'); // niet testbaar zonder extra mocking
+    }
+}
+```
+
+Facades zijn wél acceptabel in:
+- Route-callbacks en service providers
+- Blade views (`Auth::user()`)
+- Config helpers (`config()`, `env()` buiten productie-code)
+
 ---
 
-## 5. Database & Eloquent
+## 6. Database & Eloquent
 
 ### Migraties — altijd alle attributes herhalen bij wijziging
 
@@ -556,6 +805,29 @@ Schema::table('health_entries', function (Blueprint $table) {
     // Altijd alle bestaande column-attributes meenemen bij een change()
     $table->integer('steps')->nullable()->unsigned()->change();
 });
+```
+
+### Models — expliciete `$fillable`, nooit `$guarded = []`
+
+`$guarded = []` staat mass assignment toe op alle kolommen, inclusief `id`, `user_id` en andere gevoelige velden. Definieer altijd expliciet welke velden invulbaar zijn.
+
+```php
+// ✅ correct — alleen de velden die via create()/fill() mogen
+class HealthEntry extends Model
+{
+    protected $fillable = [
+        'steps',
+        'avg_heart_rate',
+        'resting_heart_rate',
+        'date',
+    ];
+}
+
+// ❌ vermijd — alles is invulbaar, inclusief user_id
+class HealthEntry extends Model
+{
+    protected $guarded = [];
+}
 ```
 
 ### Models — casts via methode, niet property
@@ -625,7 +897,7 @@ DB::table('health_entries')->whereMonth('date', now()->month)->avg('steps');
 
 ---
 
-## 6. Frontend — CSS/SCSS met BEM
+## 7. Frontend — CSS/SCSS met BEM
 
 ### Aanpak
 
@@ -702,42 +974,40 @@ SCSS met **BEM** verzorgt custom component-stijlen die te complex zijn voor util
     border:        1px solid var(--color-border);
     border-radius: var(--radius-lg);
     box-shadow:    var(--shadow-card);
+}
 
-    &__header {
-        display:         flex;
-        align-items:     center;
-        justify-content: space-between;
-        padding:         1rem 1.25rem;
-        border-bottom:   1px solid var(--color-border);
+.card__header {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    padding:         1rem 1.25rem;
+    border-bottom:   1px solid var(--color-border);
+}
 
-        &-title {
-            font-size:   0.9375rem;
-            font-weight: 600;
-            color:       var(--color-text-primary);
-        }
-    }
+.card__header-title {
+    font-size:   0.9375rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+}
 
-    &__body {
-        padding: 1.25rem;
-    }
+.card__body {
+    padding: 1.25rem;
+}
 
-    &__footer {
-        padding:      0.75rem 1.25rem;
-        border-top:   1px solid var(--color-border);
-        background:   var(--color-bg-tertiary);
-        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-    }
+.card__footer {
+    padding:       0.75rem 1.25rem;
+    border-top:    1px solid var(--color-border);
+    background:    var(--color-bg-tertiary);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
 
-    /* Modifier: compacte variant */
-    &--compact {
-        .card__header,
-        .card__body { padding: 0.75rem 1rem; }
-    }
+/* Modifier: compacte variant */
+.card--compact .card__header,
+.card--compact .card__body { padding: 0.75rem 1rem; }
 
-    /* Modifier: highlighted (accent border) */
-    &--highlighted {
-        border-color: var(--color-brand);
-    }
+/* Modifier: highlighted (accent border) */
+.card--highlighted {
+    border-color: var(--color-brand);
 }
 ```
 
@@ -751,98 +1021,98 @@ SCSS met **BEM** verzorgt custom component-stijlen die te complex zijn voor util
     display:       flex;
     gap:           1rem;
     align-items:   flex-start;
+}
 
-    &__icon {
-        width:         2.5rem;
-        height:        2.5rem;
-        border-radius: var(--radius-md);
-        display:       flex;
-        align-items:   center;
-        justify-content: center;
-        flex-shrink:   0;
-    }
+.stat-card__icon {
+    width:           2.5rem;
+    height:          2.5rem;
+    border-radius:   var(--radius-md);
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    flex-shrink:     0;
+}
 
-    &__content {
-        flex: 1;
-        min-width: 0;
-    }
+.stat-card__content {
+    flex:      1;
+    min-width: 0;
+}
 
-    &__label {
-        font-size:   0.75rem;
-        font-weight: 500;
-        color:       var(--color-text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.25rem;
-    }
+.stat-card__label {
+    font-size:      0.75rem;
+    font-weight:    500;
+    color:          var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom:  0.25rem;
+}
 
-    &__value {
-        font-size:   1.5rem;
-        font-weight: 700;
-        color:       var(--color-text-primary);
-        line-height: 1;
-    }
+.stat-card__value {
+    font-size:   1.5rem;
+    font-weight: 700;
+    color:       var(--color-text-primary);
+    line-height: 1;
+}
 
-    &__trend {
-        margin-top:  0.375rem;
-        font-size:   0.8125rem;
-        display:     flex;
-        align-items: center;
-        gap:         0.25rem;
-    }
+.stat-card__trend {
+    margin-top:  0.375rem;
+    font-size:   0.8125rem;
+    display:     flex;
+    align-items: center;
+    gap:         0.25rem;
 }
 ```
 
 ```scss
 /* resources/css/components/_button.scss */
 .btn {
-    display:         inline-flex;
-    align-items:     center;
-    gap:             0.375rem;
-    padding:         0.5rem 1rem;
-    border-radius:   var(--radius-md);
-    font-size:       0.875rem;
-    font-weight:     500;
-    line-height:     1;
-    cursor:          pointer;
-    border:          1px solid transparent;
-    transition:      background var(--transition-base), border-color var(--transition-base);
-    white-space:     nowrap;
+    display:     inline-flex;
+    align-items: center;
+    gap:         0.375rem;
+    padding:     0.5rem 1rem;
+    border-radius: var(--radius-md);
+    font-size:   0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    cursor:      pointer;
+    border:      1px solid transparent;
+    transition:  background var(--transition-base), border-color var(--transition-base);
+    white-space: nowrap;
+}
 
-    &--primary {
-        background:   var(--color-brand);
-        color:        #fff;
+.btn--primary {
+    background: var(--color-brand);
+    color:      #fff;
 
-        &:hover { filter: brightness(1.1); }
-    }
+    &:hover { filter: brightness(1.1); }
+}
 
-    &--secondary {
-        background:   var(--color-bg-tertiary);
-        color:        var(--color-text-primary);
-        border-color: var(--color-border);
+.btn--secondary {
+    background:   var(--color-bg-tertiary);
+    color:        var(--color-text-primary);
+    border-color: var(--color-border);
 
-        &:hover { border-color: rgba(255, 255, 255, 0.2); }
-    }
+    &:hover { border-color: rgba(255, 255, 255, 0.2); }
+}
 
-    &--danger {
-        background: transparent;
-        color:      #ef4444;
-        border-color: rgba(239, 68, 68, 0.3);
+.btn--danger {
+    background:   transparent;
+    color:        #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
 
-        &:hover { background: rgba(239, 68, 68, 0.1); }
-    }
+    &:hover { background: rgba(239, 68, 68, 0.1); }
+}
 
-    &--sm {
-        padding:   0.375rem 0.625rem;
-        font-size: 0.8125rem;
-    }
+.btn--sm {
+    padding:   0.375rem 0.625rem;
+    font-size: 0.8125rem;
+}
 
-    &--icon {
-        padding: 0.5rem;
-        width:   2.25rem;
-        height:  2.25rem;
-        justify-content: center;
-    }
+.btn--icon {
+    padding:         0.5rem;
+    width:           2.25rem;
+    height:          2.25rem;
+    justify-content: center;
 }
 ```
 
@@ -852,11 +1122,12 @@ SCSS met **BEM** verzorgt custom component-stijlen die te complex zijn voor util
 - Feature-stijlen in `features/` — alleen feature-specifieke layout/variaties
 - Geen `!important`
 - Geen hardcoded kleuren — altijd `var(--color-*)` gebruiken
-- Nesting maximaal 3 levels diep
+- Geen `&__` of `&--` nesting — schrijf BEM-selectors altijd volledig plat (Lightning CSS mangled them)
+- Pseudo-classes (`&:hover`, `&:focus`) mogen wel genest worden binnen een selector
 
 ---
 
-## 7. Frontend — JavaScript
+## 8. Frontend — JavaScript
 
 ### Alpine.js als standaard
 
@@ -929,7 +1200,7 @@ function renderChart(el, type, data) {
 
 ---
 
-## 8. Blade component-systeem
+## 9. Blade component-systeem
 
 ### Anonieme components voor UI-bouwstenen
 
@@ -1076,7 +1347,7 @@ function renderChart(el, type, data) {
 
 ---
 
-## 9. Dashboard-design
+## 10. Dashboard-design
 
 Het dashboard is het startpunt. Het moet in één oogopslag de meest relevante informatie tonen.
 
@@ -1131,7 +1402,7 @@ Het dashboard is het startpunt. Het moet in één oogopslag de meest relevante i
 
 ---
 
-## 10. Dark mode
+## 11. Dark mode
 
 Dark mode is de standaard (niet optioneel). Geen toggle nodig.
 
@@ -1161,7 +1432,7 @@ Als later toch een light mode gewenst is:
 
 ---
 
-## 11. Testing
+## 12. Testing
 
 ### Pest v4 — standaard setup
 
@@ -1215,7 +1486,7 @@ it('validates step constraints', function (int $steps, bool $valid) {
 
 ---
 
-## 12. Code quality tooling
+## 13. Code quality tooling
 
 ### Pint — code formatter
 
@@ -1276,7 +1547,7 @@ class HealthEntry extends Model { }
 
 ---
 
-## 13. Development workflow
+## 14. Development workflow
 
 ### Composer scripts
 
@@ -1430,21 +1701,47 @@ feat(api)!: rename duration_minutes to duration_seconds
 BREAKING CHANGE: all callers must update their field references.
 ```
 
+### Kwaliteitschecks na elke wijziging
+
+Na elke aanpassing — nieuw bestand, refactor of bugfix — altijd in deze volgorde:
+
+```bash
+# 1. Syntaxcheck op gewijzigde bestanden
+php -l app/Path/To/ChangedFile.php
+
+# 2. Formatting (auto-fix)
+vendor/bin/pint --dirty
+
+# 3. Static analysis
+vendor/bin/phpstan analyse --memory-limit=512M
+
+# 4. Tests (als er tests bestaan voor het aangepaste gebied)
+php artisan test
+```
+
+**Regels:**
+- PHPStan-fouten zijn echte fouten — geen `@phpstan-ignore`, geen baseline, geen type casts om errors te smoren
+- Pint altijd met `--dirty` zodat alleen gewijzigde bestanden worden aangeraakt
+- `--memory-limit=512M` is nodig; zonder deze vlag crasht PHPStan op dit project
+
 ### Volgorde bij het implementeren van een nieuwe feature
 
 ```
-1. php artisan make:model Feature -mfs
-2. Migratie schrijven
-3. Model invullen (casts, relaties, scopes)
-4. php artisan make:request Feature/StoreFeatureRequest
-5. DTO aanmaken (app/Actions/Feature/FeatureData.php)
-6. Action aanmaken (app/Actions/Feature/CreateFeature.php)
-7. php artisan make:controller Feature/FeatureController
-8. Routes toevoegen in routes/web.php
-9. Blade views aanmaken in resources/views/pages/feature/
+1.  php artisan make:model Feature -mfs
+2.  Migratie schrijven
+3.  Model invullen (casts, relaties, scopes, @property docblocks)
+4.  php artisan make:request Feature/StoreFeatureRequest
+5.  DTO aanmaken (app/Actions/Feature/FeatureData.php)
+6.  Action aanmaken (app/Actions/Feature/CreateFeature.php)
+7.  php artisan make:controller Feature/FeatureController
+8.  Routes toevoegen in routes/web.php
+9.  Blade views aanmaken in resources/views/pages/feature/
 10. SCSS toevoegen in resources/css/features/_feature.scss + importeren in app.css
 11. php artisan make:test Feature/FeatureTest
-12. vendor/bin/pint --dirty
+12. php -l op alle nieuwe bestanden
+13. vendor/bin/pint --dirty
+14. vendor/bin/phpstan analyse --memory-limit=512M
+15. php artisan test
 ```
 
 ---
@@ -1484,4 +1781,4 @@ BREAKING CHANGE: all callers must update their field references.
 - [ ] Dark mode actief via CSS custom properties
 
 ### Klaar om features te bouwen
-Zodra bovenstaande checklist compleet is, gebruik de **"Volgorde bij het implementeren van een nieuwe feature"** in sectie 13 voor elke volgende module.
+Zodra bovenstaande checklist compleet is, gebruik de **"Volgorde bij het implementeren van een nieuwe feature"** in sectie 14 voor elke volgende module.
