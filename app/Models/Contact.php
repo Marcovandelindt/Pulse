@@ -11,6 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property \Carbon\Carbon|null $birthdate
+ * @property \Carbon\Carbon|null $death_date
+ */
 final class Contact extends Model
 {
     /** @use HasFactory<ContactFactory> */

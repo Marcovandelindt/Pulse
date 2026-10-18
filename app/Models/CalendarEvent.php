@@ -11,6 +11,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property \Carbon\Carbon $starts_at
+ * @property \Carbon\Carbon|null $ends_at
+ * @property \App\Enums\RecurrenceType $recurrence
+ * @property \Carbon\Carbon|null $recurrence_ends_at
+ */
 final class CalendarEvent extends Model
 {
     /** @use HasFactory<CalendarEventFactory> */

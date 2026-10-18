@@ -6,6 +6,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property array<int, int> $days
+ * @property \Carbon\Carbon|null $valid_from
+ * @property \Carbon\Carbon|null $valid_until
+ */
 final class WorkSchedule extends Model
 {
     protected $fillable = [
