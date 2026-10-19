@@ -120,6 +120,115 @@
             </div>
         </x-ui.card>
 
+        <div x-data="{
+            uploadOpen: {{ $errors->has('image') ? 'true' : 'false' }},
+            lightboxOpen: false,
+            lightboxIndex: 0,
+            lightboxImages: @js($game->images->map(fn ($img) => ['url' => $img->url, 'caption' => $img->caption])->values()),
+            openLightbox(index) {
+                this.lightboxIndex = index;
+                this.lightboxOpen = true;
+                document.body.style.overflow = 'hidden';
+            },
+            closeLightbox() {
+                this.lightboxOpen = false;
+                document.body.style.overflow = '';
+            },
+            lightboxNext() {
+                this.lightboxIndex = (this.lightboxIndex + 1) % this.lightboxImages.length;
+            },
+            lightboxPrev() {
+                this.lightboxIndex = (this.lightboxIndex - 1 + this.lightboxImages.length) % this.lightboxImages.length;
+            },
+        }">
+        <x-ui.card class="mb-6">
+            <x-slot:title>
+                Gallery
+                <span style="color: var(--color-text-muted); font-weight: 400; font-size: 0.875rem;">{{ $game->images->count() }}</span>
+            </x-slot:title>
+            <x-slot:action>
+                <button @click="uploadOpen = !uploadOpen" class="btn btn--secondary btn--sm">+ Add image</button>
+            </x-slot:action>
+
+            <div x-show="uploadOpen" x-cloak class="mb-5 pb-5" style="border-bottom: 1px solid var(--color-border);">
+                <form method="POST" action="{{ route('steam.games.gallery.store', $game) }}" enctype="multipart/form-data" class="flex items-end gap-3 flex-wrap">
+                    @csrf
+                    <div>
+                        <label class="block text-xs font-medium mb-1" style="color: var(--color-text-muted);">Image</label>
+                        <input type="file" name="image" accept="image/*" required class="form-input text-sm">
+                    </div>
+                    <div class="flex-1" style="min-width: 12rem;">
+                        <label class="block text-xs font-medium mb-1" style="color: var(--color-text-muted);">Caption <span style="opacity:.5">(optional)</span></label>
+                        <input type="text" name="caption" maxlength="255" placeholder="e.g. Final boss fight" class="form-input w-full">
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--sm">Upload</button>
+                </form>
+                @error('image')
+                    <p class="mt-2 text-sm" style="color: #f87171;">{{ $message }}</p>
+                @enderror
+            </div>
+
+            @if($game->images->isEmpty())
+                <p class="text-sm" style="color: var(--color-text-muted);">No images yet. Add screenshots or artwork to build a gallery.</p>
+            @else
+                <div class="game-gallery">
+                    @foreach($game->images as $image)
+                        <div class="game-gallery__item">
+                            <img src="{{ $image->url }}"
+                                 alt="{{ $image->caption ?? $game->name }}"
+                                 class="game-gallery__img game-gallery__img--clickable"
+                                 @click="openLightbox({{ $loop->index }})">
+                            @if($image->caption)
+                                <div class="game-gallery__caption">{{ $image->caption }}</div>
+                            @endif
+                            <form method="POST" action="{{ route('steam.games.gallery.destroy', [$game, $image]) }}" class="game-gallery__delete"
+                                  x-data @submit.prevent="if(confirm('Remove this image?')) $el.submit()">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" title="Remove">✕</button>
+                            </form>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </x-ui.card>
+
+        {{-- Lightbox --}}
+        <div
+            class="lightbox"
+            x-show="lightboxOpen"
+            x-transition.opacity.duration.200ms
+            @keydown.escape.window="closeLightbox()"
+            @keydown.arrow-left.window="lightboxPrev()"
+            @keydown.arrow-right.window="lightboxNext()"
+            style="display:none;"
+        >
+            <div class="lightbox__backdrop" @click="closeLightbox()"></div>
+
+            <button class="lightbox__close" @click="closeLightbox()">✕</button>
+
+            <button class="lightbox__nav lightbox__nav--prev" @click="lightboxPrev()" x-show="lightboxImages.length > 1" style="display:none;">‹</button>
+            <button class="lightbox__nav lightbox__nav--next" @click="lightboxNext()" x-show="lightboxImages.length > 1" style="display:none;">›</button>
+
+            <div class="lightbox__content" @click.stop>
+                <img :src="lightboxImages[lightboxIndex]?.url"
+                     :alt="lightboxImages[lightboxIndex]?.caption ?? ''"
+                     class="lightbox__image">
+                <div class="lightbox__footer">
+                    <div class="lightbox__caption"
+                         x-show="lightboxImages[lightboxIndex]?.caption"
+                         x-text="lightboxImages[lightboxIndex]?.caption"
+                         style="display:none;"></div>
+                    <div class="lightbox__counter"
+                         x-show="lightboxImages.length > 1"
+                         x-text="`${lightboxIndex + 1} / ${lightboxImages.length}`"
+                         style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+
     </div>
 
     <div class="space-y-6">

@@ -26,6 +26,7 @@ use App\Http\Controllers\Gaming\SleepModeTrackController;
 use App\Http\Controllers\Gaming\SteamAccountController;
 use App\Http\Controllers\Gaming\SteamConnectionController;
 use App\Http\Controllers\Gaming\SteamController;
+use App\Http\Controllers\Gaming\SteamGameImageController;
 use App\Http\Controllers\Gaming\SteamSyncController;
 use Illuminate\Support\Facades\Route;
 
@@ -88,6 +89,8 @@ Route::prefix('steam')->name('steam.')->group(function () {
     Route::get('/games/{game}', [SteamController::class, 'show'])->name('games.show');
     Route::get('/games/{game}/edit', [SteamController::class, 'edit'])->name('games.edit');
     Route::put('/games/{game}', [SteamController::class, 'update'])->name('games.update');
+    Route::post('/games/{game}/gallery', [SteamGameImageController::class, 'store'])->name('games.gallery.store');
+    Route::delete('/games/{game}/gallery/{steamGameImage}', [SteamGameImageController::class, 'destroy'])->name('games.gallery.destroy');
 
     Route::post('/accounts', [SteamAccountController::class, 'store'])->name('accounts.store');
     Route::post('/accounts/{account}/activate', [SteamAccountController::class, 'activate'])->name('accounts.activate');

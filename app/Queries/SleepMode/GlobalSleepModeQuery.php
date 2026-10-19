@@ -10,6 +10,7 @@ use App\Models\PlayStationGame;
 use App\Models\PlayStationGameImage;
 use App\Models\SleepModeTrack;
 use App\Models\SteamGame;
+use App\Models\SteamGameImage;
 use App\Models\TvSeries;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -122,7 +123,7 @@ final class GlobalSleepModeQuery
             ->values()
             ->all();
 
-        $galleryItems = PlayStationGameImage::with('game:id,name,display_name,platform')
+        $psGallery = PlayStationGameImage::with('game:id,name,display_name,platform')
             ->orderBy('sort_order')
             ->get()
             ->map(fn ($img) => [
@@ -131,9 +132,20 @@ final class GlobalSleepModeQuery
                 'caption' => $img->caption,
                 'category' => 'PlayStation',
                 'url' => route('playstation.show', $img->game),
-            ])
-            ->values()
-            ->all();
+            ]);
+
+        $steamGallery = SteamGameImage::with('game:id,name')
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn ($img) => [
+                'image_url' => $img->url,
+                'game_title' => $img->game->name,
+                'caption' => $img->caption,
+                'category' => 'Steam',
+                'url' => route('steam.games.show', $img->game),
+            ]);
+
+        $galleryItems = $psGallery->merge($steamGallery)->shuffle()->values()->all();
 
         $audioTracks = SleepModeTrack::orderBy('sort_order')->orderBy('id')->get()
             ->map(fn ($t) => [

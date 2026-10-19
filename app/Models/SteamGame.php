@@ -12,9 +12,10 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
-class SteamGame extends Model
+final class SteamGame extends Model
 {
     use HasBacklogStatus;
 
@@ -38,11 +39,11 @@ class SteamGame extends Model
     protected function casts(): array
     {
         return [
-            'last_played_at'       => 'datetime',
+            'last_played_at' => 'datetime',
             'main_story_completed' => 'boolean',
-            'backlog_status'       => BacklogStatus::class,
-            'play_mode'            => PlayMode::class,
-            'price'                => 'decimal:2',
+            'backlog_status' => BacklogStatus::class,
+            'play_mode' => PlayMode::class,
+            'price' => 'decimal:2',
         ];
     }
 
@@ -54,6 +55,11 @@ class SteamGame extends Model
     public function genres(): BelongsToMany
     {
         return $this->belongsToMany(Genre::class, 'genre_steam_game');
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(SteamGameImage::class)->orderBy('sort_order');
     }
 
     public function tracks(): MorphMany
