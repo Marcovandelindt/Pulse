@@ -28,7 +28,10 @@
                 <button type="submit" class="btn btn--secondary btn--sm">🎮 Fetch Genres</button>
             </form>
             <a href="{{ route('playstation.edit', $game) }}" class="btn btn--secondary btn--sm">Edit</a>
-            <a href="{{ route('playstation.index') }}" class="btn btn--secondary btn--sm">← Back</a>
+            <a href="{{ route('playstation.index') }}"
+               x-data
+               x-init="$el.href = sessionStorage.getItem('ps_index_url') || $el.href"
+               class="btn btn--secondary btn--sm">← Back</a>
         </x-slot:actions>
     </x-layout.page-header>
 

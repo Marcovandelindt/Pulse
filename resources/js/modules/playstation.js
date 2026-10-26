@@ -56,6 +56,8 @@ export function registerPlayStationComponents() {
         },
 
         init() {
+            sessionStorage.setItem('ps_index_url', window.location.href);
+
             const tick = () => {
                 const now = new Date();
                 this.clockTime = now.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
