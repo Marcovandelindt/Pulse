@@ -6,6 +6,7 @@
     <div class="psn-wrapped__header">
         <div class="psn-wrapped__header-left">
             <a href="{{ route('playstation.stats') }}" class="btn btn--secondary btn--sm">&larr; Stats</a>
+            <a href="{{ route('playstation.monthly-wrapped') }}" class="btn btn--secondary btn--sm">Monthly</a>
             <h1 class="psn-wrapped__title">
                 <span class="psn-wrapped__title-year">{{ $wrapped['year'] }}</span>
                 PlayStation Wrapped

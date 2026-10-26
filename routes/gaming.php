@@ -13,6 +13,7 @@ use App\Http\Controllers\Gaming\PlayStationFavoriteController;
 use App\Http\Controllers\Gaming\PlayStationGameImageController;
 use App\Http\Controllers\Gaming\PlayStationGameNotesController;
 use App\Http\Controllers\Gaming\PlayStationGenreController;
+use App\Http\Controllers\Gaming\PlayStationMonthlyWrappedController;
 use App\Http\Controllers\Gaming\PlayStationRecommendationsController;
 use App\Http\Controllers\Gaming\PlayStationSessionController;
 use App\Http\Controllers\Gaming\PlayStationSessionSyncController;
@@ -37,6 +38,7 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
     Route::post('/sync', [PlayStationSyncController::class, 'store'])->name('sync');
     Route::get('/stats', [PlayStationStatsController::class, 'index'])->name('stats');
     Route::get('/wrapped', [PlayStationWrappedController::class, 'index'])->name('wrapped');
+    Route::get('/wrapped/monthly', PlayStationMonthlyWrappedController::class)->name('monthly-wrapped');
     Route::get('/play-next', [PlayStationRecommendationsController::class, 'index'])->name('play-next');
 
     Route::prefix('wishlist')->name('wishlist.')->group(function () {
