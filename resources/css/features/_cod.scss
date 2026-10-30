@@ -152,3 +152,41 @@
     gap: 0.5rem;
     margin-top: 0.5rem;
 }
+
+// Records
+
+.cod-record {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.cod-record__label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.cod-record__value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.1;
+}
+
+.cod-record__meta {
+    font-size: 0.8125rem;
+    color: var(--color-text-primary);
+    margin-top: 0.25rem;
+}
+
+.cod-record__date {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
