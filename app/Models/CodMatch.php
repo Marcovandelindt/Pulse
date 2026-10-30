@@ -88,6 +88,6 @@ final class CodMatch extends Model
     /** @return BelongsToMany<CodScreenshot, $this> */
     public function screenshots(): BelongsToMany
     {
-        return $this->belongsToMany(CodScreenshot::class);
+        return $this->belongsToMany(CodScreenshot::class, 'cod_match_screenshot');
     }
 }

@@ -25,6 +25,6 @@ final class CodScreenshot extends Model
     /** @return BelongsToMany<CodMatch, $this> */
     public function matches(): BelongsToMany
     {
-        return $this->belongsToMany(CodMatch::class);
+        return $this->belongsToMany(CodMatch::class, 'cod_match_screenshot');
     }
 }

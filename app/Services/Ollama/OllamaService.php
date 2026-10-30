@@ -137,9 +137,12 @@ final class OllamaService
             ]);
 
         if ($response->failed()) {
-            throw new RuntimeException(
-                'Ollama returned HTTP '.$response->status().'. Is Ollama running on '.config('ollama.url').'?'
-            );
+            $model = config('ollama.vision_model');
+            $hint = $response->status() === 404
+                ? "Model \"{$model}\" not found. Run: ollama pull {$model}"
+                : 'Is Ollama running on '.config('ollama.url').'?';
+
+            throw new RuntimeException('Ollama returned HTTP '.$response->status().'. '.$hint);
         }
 
         $content = $response->json('message.content') ?? '';
