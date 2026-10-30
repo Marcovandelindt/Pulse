@@ -30,6 +30,7 @@
         <div class="sidebar__group">
             <span class="sidebar__group-label">Gaming</span>
             <x-layout.nav-item route="playstation.index" icon="puzzle-piece" label="PlayStation" />
+            <x-layout.nav-item route="playstation.cod.index" icon="bolt" label="Call of Duty" />
             <x-layout.nav-item route="steam.index" icon="computer-desktop" label="Steam" />
             <x-layout.nav-item route="nintendo.index" icon="puzzle-piece" label="Nintendo Switch" />
         </div>
