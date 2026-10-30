@@ -165,43 +165,49 @@ final class OllamaService
 
     /**
      * Resize the image to max 1920px wide and return as base64.
-     * Keeps the original if it is already within the limit.
+     * Falls back to the original bytes when GD is unavailable; num_ctx:8192
+     * is enough headroom for even unresized PS5 4K screenshots (≈4108 tokens).
      */
     private function imageToBase64(string $imagePath): string
     {
-        $info = getimagesize($imagePath);
+        $raw = (string) file_get_contents($imagePath);
+
+        if (! \extension_loaded('gd')) {
+            return base64_encode($raw);
+        }
+
+        $info = \getimagesize($imagePath);
 
         if ($info === false || $info[0] <= 1920) {
-            return base64_encode((string) file_get_contents($imagePath));
+            return base64_encode($raw);
         }
 
         $srcWidth = $info[0];
         $srcHeight = $info[1];
-        $scale = 1920 / $srcWidth;
         $dstWidth = 1920;
-        $dstHeight = max(1, (int) round($srcHeight * $scale));
+        $dstHeight = max(1, (int) round($srcHeight * (1920 / $srcWidth)));
 
-        $src = imagecreatefromstring((string) file_get_contents($imagePath));
+        $src = \imagecreatefromstring($raw);
 
         if ($src === false) {
-            return base64_encode((string) file_get_contents($imagePath));
+            return base64_encode($raw);
         }
 
-        $dst = imagecreatetruecolor($dstWidth, $dstHeight);
+        $dst = \imagecreatetruecolor($dstWidth, $dstHeight);
 
         if ($dst === false) {
-            imagedestroy($src);
+            \imagedestroy($src);
 
-            return base64_encode((string) file_get_contents($imagePath));
+            return base64_encode($raw);
         }
 
-        imagecopyresampled($dst, $src, 0, 0, 0, 0, $dstWidth, $dstHeight, $srcWidth, $srcHeight);
-        imagedestroy($src);
+        \imagecopyresampled($dst, $src, 0, 0, 0, 0, $dstWidth, $dstHeight, $srcWidth, $srcHeight);
+        \imagedestroy($src);
 
-        ob_start();
-        imagejpeg($dst, null, 85);
-        $jpeg = ob_get_clean();
-        imagedestroy($dst);
+        \ob_start();
+        \imagejpeg($dst, null, 85);
+        $jpeg = \ob_get_clean();
+        \imagedestroy($dst);
 
         return base64_encode((string) $jpeg);
     }
