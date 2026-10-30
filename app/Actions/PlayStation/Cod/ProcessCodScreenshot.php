@@ -30,18 +30,26 @@ final class ProcessCodScreenshot
         $existing = CodScreenshot::where('file_hash', $fileHash)->first();
 
         if ($existing !== null) {
-            return new ProcessResult(
-                status: ProcessResultStatus::ScreenshotDuplicate,
-                match: $existing->matches()->first(),
-                screenshot: $existing,
-            );
-        }
+            $existingMatch = $existing->matches()->first();
 
-        $screenshot = CodScreenshot::create([
-            'filename' => $filename,
-            'file_hash' => $fileHash,
-            'taken_at' => $takenAt,
-        ]);
+            if ($existingMatch !== null) {
+                return new ProcessResult(
+                    status: ProcessResultStatus::ScreenshotDuplicate,
+                    match: $existingMatch,
+                    screenshot: $existing,
+                );
+            }
+
+            // Screenshot exists but no match was ever linked (previous processing crash).
+            // Re-use the existing screenshot record and continue the pipeline.
+            $screenshot = $existing;
+        } else {
+            $screenshot = CodScreenshot::create([
+                'filename' => $filename,
+                'file_hash' => $fileHash,
+                'taken_at' => $takenAt,
+            ]);
+        }
 
         $raw = $this->vision->extract($storedPath);
         $data = CodMatchData::fromArray($raw, $takenAt);
