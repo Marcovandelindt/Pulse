@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Gaming\BacklogController;
+use App\Http\Controllers\Gaming\CodMatchController;
+use App\Http\Controllers\Gaming\CodReviewController;
+use App\Http\Controllers\Gaming\CodScreenshotController;
+use App\Http\Controllers\Gaming\CodStatsController;
 use App\Http\Controllers\Gaming\NintendoController;
 use App\Http\Controllers\Gaming\NintendoCoverController;
 use App\Http\Controllers\Gaming\NintendoImportController;
@@ -69,6 +73,15 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
         Route::get('/', [SleepModeTrackController::class, 'index'])->name('index');
         Route::post('/', [SleepModeTrackController::class, 'store'])->name('store');
         Route::delete('/{sleepModeTrack}', [SleepModeTrackController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('cod')->name('cod.')->group(function () {
+        Route::get('/', [CodMatchController::class, 'index'])->name('index');
+        Route::get('/stats', [CodStatsController::class, 'index'])->name('stats');
+        Route::post('/screenshots', [CodScreenshotController::class, 'store'])->name('screenshots.store');
+        Route::get('/review', [CodReviewController::class, 'index'])->name('review');
+        Route::patch('/review/{codMatch}', [CodReviewController::class, 'update'])->name('review.update');
+        Route::delete('/review/{codMatch}', [CodReviewController::class, 'destroy'])->name('review.destroy');
     });
 
     Route::get('/{playStationGame}', [PlayStationController::class, 'show'])->name('show');
