@@ -22,11 +22,11 @@ final class OllamaService
         for ($i = 0; $i < 5; $i++) {
             $response = Http::timeout(120)
                 ->post(config('ollama.url').'/api/chat', [
-                    'model'    => $model,
+                    'model' => $model,
                     'messages' => $messages,
-                    'tools'    => $this->tools->definitions(),
-                    'stream'   => false,
-                    'options'  => ['temperature' => 0],
+                    'tools' => $this->tools->definitions(),
+                    'stream' => false,
+                    'options' => ['temperature' => 0],
                 ]);
 
             if ($response->failed()) {
@@ -35,7 +35,7 @@ final class OllamaService
                 );
             }
 
-            $message   = $response->json('message') ?? [];
+            $message = $response->json('message') ?? [];
             $toolCalls = $message['tool_calls'] ?? null;
 
             if (empty($toolCalls)) {
@@ -43,8 +43,8 @@ final class OllamaService
             }
 
             $messages[] = [
-                'role'       => 'assistant',
-                'content'    => $message['content'] ?? '',
+                'role' => 'assistant',
+                'content' => $message['content'] ?? '',
                 'tool_calls' => $toolCalls,
             ];
 
@@ -57,7 +57,7 @@ final class OllamaService
                 }
 
                 $messages[] = [
-                    'role'    => 'tool',
+                    'role' => 'tool',
                     'content' => $this->tools->execute($name, $args),
                 ];
             }
@@ -66,10 +66,10 @@ final class OllamaService
         // Fallback after max iterations: one final call without tools
         $response = Http::timeout(120)
             ->post(config('ollama.url').'/api/chat', [
-                'model'    => $model,
+                'model' => $model,
                 'messages' => $messages,
-                'stream'   => false,
-                'options'  => ['temperature' => 0],
+                'stream' => false,
+                'options' => ['temperature' => 0],
             ]);
 
         return $response->json('message.content') ?? '';
@@ -87,24 +87,74 @@ final class OllamaService
         try {
             $response = Http::timeout(30)
                 ->post(config('ollama.url').'/api/chat', [
-                    'model'    => Setting::getAiModel() ?? config('ollama.model'),
+                    'model' => Setting::getAiModel() ?? config('ollama.model'),
                     'messages' => $extractPrompt,
-                    'stream'   => false,
-                    'options'  => ['temperature' => 0],
+                    'stream' => false,
+                    'options' => ['temperature' => 0],
                 ]);
 
             $raw = trim($response->json('message.content') ?? '[]');
 
             // Strip markdown code fences if present
-            $raw = preg_replace('/^```(?:json)?\s*/i', '', $raw);
-            $raw = preg_replace('/\s*```$/', '', $raw);
+            $raw = preg_replace('/^```(?:json)?\s*/i', '', $raw) ?? $raw;
+            $raw = preg_replace('/\s*```$/', '', $raw) ?? $raw;
 
             $decoded = json_decode($raw, true);
 
-            return is_array($decoded) ? array_filter($decoded, fn ($v) => is_string($v) && strlen($v) > 3) : [];
+            if (! is_array($decoded)) {
+                return [];
+            }
+
+            return array_values(array_filter($decoded, fn ($v) => is_string($v) && strlen($v) > 3));
         } catch (\Throwable) {
             return [];
         }
+    }
+
+    /**
+     * Send an image to the configured vision model and return the response text.
+     *
+     * @param  array<string, mixed>  $schema  JSON schema for structured output
+     * @return array<string, mixed>
+     */
+    public function analyzeImage(string $imagePath, string $prompt, array $schema): array
+    {
+        $base64 = base64_encode((string) file_get_contents($imagePath));
+
+        $response = Http::timeout(120)
+            ->post(config('ollama.url').'/api/chat', [
+                'model' => config('ollama.vision_model'),
+                'stream' => false,
+                'format' => $schema,
+                'options' => ['temperature' => 0],
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => $prompt,
+                        'images' => [$base64],
+                    ],
+                ],
+            ]);
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Ollama returned HTTP '.$response->status().'. Is Ollama running on '.config('ollama.url').'?'
+            );
+        }
+
+        $content = $response->json('message.content') ?? '';
+
+        if (is_array($content)) {
+            return $content;
+        }
+
+        $decoded = json_decode($content, true);
+
+        if (! is_array($decoded)) {
+            throw new RuntimeException('Ollama vision response was not valid JSON: '.$content);
+        }
+
+        return $decoded;
     }
 
     /** @param array<int, array{role: string, content: string}> $messages */
@@ -114,10 +164,10 @@ final class OllamaService
 
         $response = Http::timeout(120)
             ->post(config('ollama.url').'/api/chat', [
-                'model'    => $model,
+                'model' => $model,
                 'messages' => $messages,
-                'stream'   => false,
-                'options'  => [
+                'stream' => false,
+                'options' => [
                     'temperature' => 0,
                 ],
             ]);
