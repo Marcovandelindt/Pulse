@@ -13,28 +13,18 @@
         </x-slot:actions>
     </x-layout.page-header>
 
-    {{-- Upload summary flash --}}
-    @if(session('upload_summary'))
-        @php $s = session('upload_summary'); @endphp
+    {{-- Upload queued flash --}}
+    @if(session('upload_queued'))
+        @php $q = session('upload_queued'); @endphp
         <div class="cod-upload-summary mb-6">
-            @if($s['confirmed'] > 0)
-                <span class="cod-upload-summary__item cod-upload-summary__item--confirmed">
-                    {{ $s['confirmed'] }} saved
-                </span>
-            @endif
-            @if($s['pending_review'] > 0)
+            @if($q['queued'] > 0)
                 <span class="cod-upload-summary__item cod-upload-summary__item--pending">
-                    {{ $s['pending_review'] }} need review
+                    {{ $q['queued'] }} {{ Str::plural('screenshot', $q['queued']) }} queued for processing — check back in a minute
                 </span>
             @endif
-            @if($s['match_duplicate'] > 0)
+            @if($q['skipped'] > 0)
                 <span class="cod-upload-summary__item cod-upload-summary__item--duplicate">
-                    {{ $s['match_duplicate'] }} already exist
-                </span>
-            @endif
-            @if($s['screenshot_duplicate'] > 0)
-                <span class="cod-upload-summary__item cod-upload-summary__item--duplicate">
-                    {{ $s['screenshot_duplicate'] }} duplicate screenshots
+                    {{ $q['skipped'] }} already processed
                 </span>
             @endif
         </div>
