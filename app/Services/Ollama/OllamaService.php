@@ -112,12 +112,11 @@ final class OllamaService
     }
 
     /**
-     * Send an image to the configured vision model and return the response text.
+     * Send an image to the configured vision model and return parsed JSON.
      *
-     * @param  array<string, mixed>  $schema  JSON schema for structured output
      * @return array<string, mixed>
      */
-    public function analyzeImage(string $imagePath, string $prompt, array $schema): array
+    public function analyzeImage(string $imagePath, string $prompt): array
     {
         $base64 = base64_encode((string) file_get_contents($imagePath));
 
@@ -125,7 +124,7 @@ final class OllamaService
             ->post(config('ollama.url').'/api/chat', [
                 'model' => config('ollama.vision_model'),
                 'stream' => false,
-                'format' => $schema,
+                'format' => 'json',
                 'options' => ['temperature' => 0],
                 'messages' => [
                     [

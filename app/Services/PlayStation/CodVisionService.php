@@ -22,7 +22,6 @@ final class CodVisionService
         return $this->ollama->analyzeImage(
             imagePath: $imagePath,
             prompt: $this->prompt(),
-            schema: $this->schema(),
         );
     }
 
@@ -38,37 +37,25 @@ final class CodVisionService
         Extract ALL fields from the SELECTED match only. Use the detail panel on the right as the primary source.
         Cross-reference with the highlighted row on the left for mode, map, result and scores.
 
-        Return only the JSON object — no explanation, no markdown.
+        Return ONLY a valid JSON object with exactly these fields (no extra text, no markdown):
+        {
+          "map": "string — map name",
+          "mode": "string — game mode name",
+          "result": "victory or defeat",
+          "team_score": integer,
+          "opponent_score": integer,
+          "score": integer,
+          "kills": integer,
+          "deaths": integer,
+          "kd_ratio": number,
+          "objective_score": integer or null,
+          "damage": integer,
+          "weapon_name": "string or null",
+          "weapon_category": "string or null",
+          "weapon_accuracy": number or null,
+          "weapon_kills": integer or null,
+          "relative_time": "string — e.g. '2 hours ago'"
+        }
         PROMPT;
-    }
-
-    /** @return array<string, mixed> */
-    private function schema(): array
-    {
-        return [
-            'type' => 'object',
-            'properties' => [
-                'map' => ['type' => 'string'],
-                'mode' => ['type' => 'string'],
-                'result' => ['type' => 'string', 'enum' => ['victory', 'defeat']],
-                'team_score' => ['type' => 'integer'],
-                'opponent_score' => ['type' => 'integer'],
-                'score' => ['type' => 'integer'],
-                'kills' => ['type' => 'integer'],
-                'deaths' => ['type' => 'integer'],
-                'kd_ratio' => ['type' => 'number'],
-                'objective_score' => ['type' => ['integer', 'null']],
-                'damage' => ['type' => 'integer'],
-                'weapon_name' => ['type' => ['string', 'null']],
-                'weapon_category' => ['type' => ['string', 'null']],
-                'weapon_accuracy' => ['type' => ['number', 'null']],
-                'weapon_kills' => ['type' => ['integer', 'null']],
-                'relative_time' => ['type' => 'string'],
-            ],
-            'required' => [
-                'map', 'mode', 'result', 'team_score', 'opponent_score',
-                'score', 'kills', 'deaths', 'kd_ratio', 'damage', 'relative_time',
-            ],
-        ];
     }
 }
