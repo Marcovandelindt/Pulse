@@ -6,10 +6,34 @@ namespace App\Models;
 
 use App\Enums\CodMatchStatus;
 use App\Enums\CodResult;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * @property int $id
+ * @property int $cod_map_id
+ * @property int $cod_mode_id
+ * @property CodResult $result
+ * @property int $team_score
+ * @property int $opponent_score
+ * @property int $score
+ * @property int $kills
+ * @property int $deaths
+ * @property string $kd_ratio
+ * @property int|null $objective_score
+ * @property int $damage
+ * @property int|null $top_weapon_id
+ * @property string|null $weapon_accuracy
+ * @property int|null $weapon_kills
+ * @property Carbon $estimated_date
+ * @property string $fingerprint
+ * @property CodMatchStatus $status
+ * @property CodMap $map
+ * @property CodMode $mode
+ * @property CodWeapon|null $topWeapon
+ */
 final class CodMatch extends Model
 {
     protected $fillable = [
@@ -35,10 +59,10 @@ final class CodMatch extends Model
     protected function casts(): array
     {
         return [
-            'result'          => CodResult::class,
-            'status'          => CodMatchStatus::class,
-            'estimated_date'  => 'date',
-            'kd_ratio'        => 'decimal:2',
+            'result' => CodResult::class,
+            'status' => CodMatchStatus::class,
+            'estimated_date' => 'date',
+            'kd_ratio' => 'decimal:2',
             'weapon_accuracy' => 'decimal:2',
         ];
     }
