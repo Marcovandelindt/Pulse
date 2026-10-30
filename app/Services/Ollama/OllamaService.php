@@ -114,18 +114,21 @@ final class OllamaService
     /**
      * Send an image to the configured vision model and return parsed JSON.
      *
+     * Images are downscaled to max 1920px wide before sending to stay within
+     * the model's context window (PS5 screenshots are 3840x2160 by default).
+     *
      * @return array<string, mixed>
      */
     public function analyzeImage(string $imagePath, string $prompt): array
     {
-        $base64 = base64_encode((string) file_get_contents($imagePath));
+        $base64 = $this->imageToBase64($imagePath);
 
-        $response = Http::timeout(120)
+        $response = Http::timeout(180)
             ->post(config('ollama.url').'/api/chat', [
                 'model' => config('ollama.vision_model'),
                 'stream' => false,
                 'format' => 'json',
-                'options' => ['temperature' => 0],
+                'options' => ['temperature' => 0, 'num_ctx' => 8192],
                 'messages' => [
                     [
                         'role' => 'user',
@@ -137,9 +140,10 @@ final class OllamaService
 
         if ($response->failed()) {
             $model = config('ollama.vision_model');
+            $body = $response->json('error') ?? $response->body();
             $hint = $response->status() === 404
                 ? "Model \"{$model}\" not found. Run: ollama pull {$model}"
-                : 'Is Ollama running on '.config('ollama.url').'?';
+                : $body;
 
             throw new RuntimeException('Ollama returned HTTP '.$response->status().'. '.$hint);
         }
@@ -157,6 +161,49 @@ final class OllamaService
         }
 
         return $decoded;
+    }
+
+    /**
+     * Resize the image to max 1920px wide and return as base64.
+     * Keeps the original if it is already within the limit.
+     */
+    private function imageToBase64(string $imagePath): string
+    {
+        $info = getimagesize($imagePath);
+
+        if ($info === false || $info[0] <= 1920) {
+            return base64_encode((string) file_get_contents($imagePath));
+        }
+
+        $srcWidth = $info[0];
+        $srcHeight = $info[1];
+        $scale = 1920 / $srcWidth;
+        $dstWidth = 1920;
+        $dstHeight = max(1, (int) round($srcHeight * $scale));
+
+        $src = imagecreatefromstring((string) file_get_contents($imagePath));
+
+        if ($src === false) {
+            return base64_encode((string) file_get_contents($imagePath));
+        }
+
+        $dst = imagecreatetruecolor($dstWidth, $dstHeight);
+
+        if ($dst === false) {
+            imagedestroy($src);
+
+            return base64_encode((string) file_get_contents($imagePath));
+        }
+
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $dstWidth, $dstHeight, $srcWidth, $srcHeight);
+        imagedestroy($src);
+
+        ob_start();
+        imagejpeg($dst, null, 85);
+        $jpeg = ob_get_clean();
+        imagedestroy($dst);
+
+        return base64_encode((string) $jpeg);
     }
 
     /** @param array<int, array{role: string, content: string}> $messages */
