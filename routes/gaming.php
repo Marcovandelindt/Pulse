@@ -82,6 +82,7 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
         Route::get('/review', [CodReviewController::class, 'index'])->name('review');
         Route::patch('/review/{codMatch}', [CodReviewController::class, 'update'])->name('review.update');
         Route::delete('/review/{codMatch}', [CodReviewController::class, 'destroy'])->name('review.destroy');
+        Route::get('/screenshots/{codScreenshot}', [CodReviewController::class, 'screenshot'])->name('screenshots.show');
     });
 
     Route::get('/{playStationGame}', [PlayStationController::class, 'show'])->name('show');

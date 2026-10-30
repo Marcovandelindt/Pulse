@@ -27,6 +27,7 @@
 @import './features/_media.scss';
 @import './features/_music.scss';
 @import './features/_gaming.scss';
+@import './features/_cod.scss';
 @import './features/_recommendations.scss';
 @import './features/_sleep-mode.scss';
 @import './features/_people.scss';
