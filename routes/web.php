@@ -2,41 +2,43 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\AI\AiSettingsController;
+use App\Http\Controllers\AI\ChatController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Calendar\CalendarController;
-use App\Http\Controllers\Stats\StatsController;
-use App\Http\Controllers\Stats\WeekReportController;
 use App\Http\Controllers\Calendar\WorkScheduleController;
+use App\Http\Controllers\Changelog\ChangelogController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\DayController;
+use App\Http\Controllers\Health\HealthActivityController;
 use App\Http\Controllers\Health\HealthEntryController;
 use App\Http\Controllers\Health\HealthExportController;
-use App\Http\Controllers\Health\HealthStatsController;
-use App\Http\Controllers\Health\HealthActivityController;
 use App\Http\Controllers\Health\HealthHearingController;
 use App\Http\Controllers\Health\HealthMobilityController;
 use App\Http\Controllers\Health\HealthSleepController;
+use App\Http\Controllers\Health\HealthStatsController;
 use App\Http\Controllers\Health\HealthVitalsController;
 use App\Http\Controllers\Health\StepGoalController;
-use App\Http\Controllers\People\ContactController;
-use App\Http\Controllers\People\ContactDateController;
-use App\Http\Controllers\People\ContactGiftIdeaController;
-use App\Http\Controllers\People\ContactRelationshipController;
-use App\Http\Controllers\Journal\JournalEntryController;
+use App\Http\Controllers\Ideas\IdeaController;
+use App\Http\Controllers\Ideas\IdeaStatusController;
 use App\Http\Controllers\Insights\InsightController;
 use App\Http\Controllers\Insights\InsightPatternController;
 use App\Http\Controllers\Insights\InsightRelatedController;
 use App\Http\Controllers\Insights\PatternController;
-use App\Http\Controllers\Changelog\ChangelogController;
-use App\Http\Controllers\Ideas\IdeaController;
-use App\Http\Controllers\Ideas\IdeaStatusController;
+use App\Http\Controllers\Journal\JournalEntryController;
+use App\Http\Controllers\People\ContactController;
+use App\Http\Controllers\People\ContactDateController;
+use App\Http\Controllers\People\ContactGiftIdeaController;
+use App\Http\Controllers\People\ContactRelationshipController;
 use App\Http\Controllers\Settings\RelationshipTypeController;
 use App\Http\Controllers\Settings\SettingsController;
-use App\Http\Controllers\AI\AiSettingsController;
-use App\Http\Controllers\AI\ChatController;
 use App\Http\Controllers\SleepMode\SleepModeController;
 use App\Http\Controllers\Stats\CrossStatsController;
+use App\Http\Controllers\Stats\StatsController;
+use App\Http\Controllers\Stats\WeekReportController;
 use App\Http\Controllers\Stats\WrappedController;
+use App\Http\Controllers\Waze\WazeDriveController;
+use App\Http\Controllers\Waze\WazeImportController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -57,13 +59,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [HealthEntryController::class,  'store'])->name('store');
         Route::patch('/{entry}', [HealthEntryController::class,  'update'])->name('update');
         Route::delete('/{entry}', [HealthEntryController::class,  'destroy'])->name('destroy');
-        Route::get('/stats',    [HealthStatsController::class,   'index'])->name('stats');
-        Route::get('/sleep',    [HealthSleepController::class,   'index'])->name('sleep');
-        Route::get('/activity', [HealthActivityController::class,'index'])->name('activity');
-        Route::get('/vitals',   [HealthVitalsController::class,  'index'])->name('vitals');
-        Route::get('/mobility', [HealthMobilityController::class,'index'])->name('mobility');
-        Route::get('/hearing',  [HealthHearingController::class, 'index'])->name('hearing');
-        Route::get('/export',   [HealthExportController::class,  'index'])->name('export');
+        Route::get('/stats', [HealthStatsController::class,   'index'])->name('stats');
+        Route::get('/sleep', [HealthSleepController::class,   'index'])->name('sleep');
+        Route::get('/activity', [HealthActivityController::class, 'index'])->name('activity');
+        Route::get('/vitals', [HealthVitalsController::class,  'index'])->name('vitals');
+        Route::get('/mobility', [HealthMobilityController::class, 'index'])->name('mobility');
+        Route::get('/hearing', [HealthHearingController::class, 'index'])->name('hearing');
+        Route::get('/export', [HealthExportController::class,  'index'])->name('export');
         Route::post('/goal', [StepGoalController::class,      'store'])->name('goal.store');
         Route::delete('/goal/{goal}', [StepGoalController::class, 'destroy'])->name('goal.destroy');
     });
@@ -147,6 +149,12 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('/changelog', [ChangelogController::class, 'index'])->name('changelog.index');
+
+    Route::prefix('waze')->name('waze.')->group(function () {
+        Route::get('/', [WazeDriveController::class, 'index'])->name('index');
+        Route::get('/import', [WazeImportController::class, 'index'])->name('import');
+        Route::post('/import', [WazeImportController::class, 'store'])->name('import.store');
+    });
 
     Route::prefix('ideas')->name('ideas.')->group(function () {
         Route::get('/', [IdeaController::class, 'index'])->name('index');
