@@ -13,6 +13,8 @@ final class WazeCsvParser
     /** @return list<array{driven_at: Carbon, origin_name: string|null, origin_lat: float|null, origin_lon: float|null, destination_name: string|null, destination_lat: float|null, destination_lon: float|null, distance_km: float|null}> */
     public function parse(string $csvContent): array
     {
+        $csvContent = ltrim($csvContent, "\xEF\xBB\xBF");
+
         $drives = [];
         $lines = explode("\n", $csvContent);
         $inSection = false;

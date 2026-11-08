@@ -68,6 +68,7 @@ final class ImportWazeDrivesAction
         }
 
         $contents = [];
+        $matched = 0;
 
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $name = $zip->getNameIndex($i);
@@ -80,6 +81,7 @@ final class ImportWazeDrivesAction
                 continue;
             }
 
+            $matched++;
             $content = $zip->getFromIndex($i);
 
             if ($content !== false && $content !== '') {
@@ -88,6 +90,10 @@ final class ImportWazeDrivesAction
         }
 
         $zip->close();
+
+        if ($matched > 0 && $contents === []) {
+            throw new \RuntimeException('Could not read files from the ZIP archive. Check the password and try again.');
+        }
 
         return $contents;
     }

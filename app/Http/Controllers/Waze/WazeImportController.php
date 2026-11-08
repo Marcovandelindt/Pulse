@@ -19,7 +19,11 @@ final class WazeImportController extends Controller
 
     public function store(ImportWazeDrivesRequest $request, ImportWazeDrivesAction $action): RedirectResponse
     {
-        $result = $action->handle($request->file('file'), $request->string('password')->value() ?: null);
+        try {
+            $result = $action->handle($request->file('file'), $request->string('password')->value() ?: null);
+        } catch (\RuntimeException $e) {
+            return redirect()->back()->withErrors(['password' => $e->getMessage()]);
+        }
 
         return redirect()->route('waze.index')
             ->with('success', "{$result->imported} drives imported, {$result->skipped} skipped.");
