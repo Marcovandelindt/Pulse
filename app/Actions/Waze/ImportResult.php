@@ -9,5 +9,6 @@ final readonly class ImportResult
     public function __construct(
         public int $imported,
         public int $skipped,
+        public int $enriched,
     ) {}
 }

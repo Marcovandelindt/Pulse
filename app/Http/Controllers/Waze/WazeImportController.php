@@ -25,7 +25,13 @@ final class WazeImportController extends Controller
             return redirect()->back()->withErrors(['password' => $e->getMessage()]);
         }
 
+        $parts = ["{$result->imported} imported", "{$result->skipped} skipped"];
+
+        if ($result->enriched > 0) {
+            $parts[] = "{$result->enriched} enriched with GPS origin";
+        }
+
         return redirect()->route('waze.index')
-            ->with('success', "{$result->imported} drives imported, {$result->skipped} skipped.");
+            ->with('success', implode(', ', $parts).'.');
     }
 }

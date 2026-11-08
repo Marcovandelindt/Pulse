@@ -6,11 +6,14 @@ namespace App\Actions\Waze;
 
 use App\Models\WazeDrive;
 use App\Services\Waze\WazeCsvParser;
+use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use ZipArchive;
 
 final class ImportWazeDrivesAction
 {
+    private const int MATCH_TOLERANCE_SECONDS = 300;
+
     public function __construct(
         private readonly WazeCsvParser $parser,
     ) {}
@@ -19,27 +22,126 @@ final class ImportWazeDrivesAction
     {
         $csvContents = $this->extractCsvContents($file, $password);
 
-        $imported = 0;
-        $skipped = 0;
+        $drives = [];
+        $tracks = [];
 
         foreach ($csvContents as $csv) {
-            $drives = $this->parser->parse($csv);
+            array_push($drives, ...$this->parser->parse($csv));
+            array_push($tracks, ...$this->parser->parseLocationTracks($csv));
+        }
 
-            foreach ($drives as $drive) {
-                $exists = WazeDrive::where('driven_at', $drive['driven_at'])->exists();
+        $drives = $this->enrichDrives($drives, $tracks);
 
-                if ($exists) {
-                    $skipped++;
+        $imported = 0;
+        $skipped = 0;
+        $enriched = 0;
 
-                    continue;
-                }
+        foreach ($drives as $drive) {
+            $existing = WazeDrive::where('driven_at', $drive['driven_at'])->first();
 
+            if ($existing === null) {
                 WazeDrive::create($drive);
                 $imported++;
+
+                continue;
+            }
+
+            if ($existing->origin_lat === null && $drive['origin_lat'] !== null) {
+                $existing->update([
+                    'origin_lat' => $drive['origin_lat'],
+                    'origin_lon' => $drive['origin_lon'],
+                    'distance_km' => $drive['distance_km'],
+                ]);
+                $enriched++;
+
+                continue;
+            }
+
+            $skipped++;
+        }
+
+        $matchedDrivenAts = array_map(fn (array $d): Carbon => $d['driven_at'], $drives);
+
+        foreach ($tracks as $track) {
+            if ($this->hasMatchingDrive($track['driven_at'], $matchedDrivenAts)) {
+                continue;
+            }
+
+            $exists = WazeDrive::where('driven_at', $track['driven_at'])->exists();
+
+            if ($exists) {
+                $skipped++;
+
+                continue;
+            }
+
+            WazeDrive::create($track);
+            $imported++;
+        }
+
+        return new ImportResult(imported: $imported, skipped: $skipped, enriched: $enriched);
+    }
+
+    /**
+     * Fill missing origin coordinates in Drive summary entries
+     * using the nearest Location details track (within 5 minutes).
+     *
+     * @param  list<array{driven_at: Carbon, origin_name: string|null, origin_lat: float|null, origin_lon: float|null, destination_name: string|null, destination_lat: float|null, destination_lon: float|null, distance_km: float|null}>  $drives
+     * @param  list<array{driven_at: Carbon, origin_lat: float, origin_lon: float, destination_lat: float, destination_lon: float, distance_km: float}>  $tracks
+     * @return list<array{driven_at: Carbon, origin_name: string|null, origin_lat: float|null, origin_lon: float|null, destination_name: string|null, destination_lat: float|null, destination_lon: float|null, distance_km: float|null}>
+     */
+    private function enrichDrives(array $drives, array $tracks): array
+    {
+        foreach ($drives as &$drive) {
+            if ($drive['origin_lat'] !== null) {
+                continue;
+            }
+
+            $match = $this->findNearestTrack($drive['driven_at'], $tracks);
+
+            if ($match === null) {
+                continue;
+            }
+
+            $drive['origin_lat'] = $match['origin_lat'];
+            $drive['origin_lon'] = $match['origin_lon'];
+            $drive['distance_km'] = $match['distance_km'];
+        }
+
+        return $drives;
+    }
+
+    /**
+     * @param  list<array{driven_at: Carbon, origin_lat: float, origin_lon: float, destination_lat: float, destination_lon: float, distance_km: float}>  $tracks
+     * @return array{driven_at: Carbon, origin_lat: float, origin_lon: float, destination_lat: float, destination_lon: float, distance_km: float}|null
+     */
+    private function findNearestTrack(Carbon $drivenAt, array $tracks): ?array
+    {
+        $best = null;
+        $minDiff = PHP_INT_MAX;
+
+        foreach ($tracks as $track) {
+            $diff = abs($track['driven_at']->diffInSeconds($drivenAt));
+
+            if ($diff < $minDiff && $diff <= self::MATCH_TOLERANCE_SECONDS) {
+                $minDiff = $diff;
+                $best = $track;
             }
         }
 
-        return new ImportResult(imported: $imported, skipped: $skipped);
+        return $best;
+    }
+
+    /** @param list<Carbon> $drivenAts */
+    private function hasMatchingDrive(Carbon $trackAt, array $drivenAts): bool
+    {
+        foreach ($drivenAts as $drivenAt) {
+            if (abs($trackAt->diffInSeconds($drivenAt)) <= self::MATCH_TOLERANCE_SECONDS) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** @return list<string> */
