@@ -44,10 +44,10 @@ final class WazeCsvParser
         return $tracks;
     }
 
-    /** @return list<array{float, float}> */
+    /** @return list<list<array{float, float}>> */
     public function parseAllWaypoints(string $csvContent): array
     {
-        $waypoints = [];
+        $routes = [];
 
         foreach ($this->extractSection($csvContent, self::LOCATION_SECTION) as $line) {
             $parts = explode(',', $line, 2);
@@ -56,14 +56,20 @@ final class WazeCsvParser
                 continue;
             }
 
+            $points = [];
+
             foreach (explode('|', $parts[1]) as $point) {
                 if (preg_match('/\(([0-9.\-]+)\s+([0-9.\-]+)\)/', $point, $m)) {
-                    $waypoints[] = [(float) $m[2], (float) $m[1]]; // [lat, lon]
+                    $points[] = [(float) $m[2], (float) $m[1]]; // [lat, lon]
                 }
+            }
+
+            if ($points !== []) {
+                $routes[] = $points;
             }
         }
 
-        return $waypoints;
+        return $routes;
     }
 
     /** @return list<string> */

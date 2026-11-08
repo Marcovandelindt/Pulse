@@ -90,10 +90,13 @@ final class ImportWazeDrivesAction
             $imported++;
         }
 
-        if ($waypoints !== []) {
+        $routeOffset = WazeWaypoint::max('route_id') ?? 0;
+
+        foreach ($waypoints as $routeIndex => $route) {
+            $routeId = $routeOffset + $routeIndex + 1;
             WazeWaypoint::insert(array_map(
-                fn (array $p): array => ['lat' => $p[0], 'lon' => $p[1]],
-                $waypoints,
+                fn (array $p): array => ['route_id' => $routeId, 'lat' => $p[0], 'lon' => $p[1]],
+                $route,
             ));
         }
 
