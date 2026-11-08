@@ -45,18 +45,24 @@ final class CodStatsQuery
     {
         $total = $matches->count();
         $wins = $matches->filter(fn (CodMatch $m) => $m->result === CodResult::Victory)->count();
-        $deaths = $matches->sum('deaths');
+        $totalKills = $matches->sum('kills');
+        $totalDeaths = $matches->sum('deaths');
 
         return [
             'totalMatches' => $total,
             'wins' => $wins,
+            'losses' => $total - $wins,
             'winRate' => round($wins / $total * 100, 1),
-            'overallKd' => $deaths > 0
-                ? round($matches->sum('kills') / $deaths, 2)
-                : (float) $matches->sum('kills'),
+            'overallKd' => $totalDeaths > 0
+                ? round($totalKills / $totalDeaths, 2)
+                : (float) $totalKills,
+            'totalKills' => $totalKills,
+            'totalDeaths' => $totalDeaths,
+            'totalDamage' => $matches->sum('damage'),
+            'avgKills' => round($matches->avg('kills') ?? 0, 1),
+            'avgDeaths' => round($matches->avg('deaths') ?? 0, 1),
             'avgScore' => round($matches->avg('score') ?? 0),
             'avgDamage' => round($matches->avg('damage') ?? 0),
-            'totalKills' => $matches->sum('kills'),
         ];
     }
 

@@ -13,8 +13,8 @@
         />
     @else
 
-    {{-- Overview stat cards --}}
-    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
+    {{-- Overview stat cards — row 1 --}}
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-4">
         <x-stats.stat-card
             label="Matches"
             :value="number_format($stats['overview']['totalMatches'])"
@@ -26,9 +26,57 @@
             icon="trophy"
         />
         <x-stats.stat-card
+            label="Wins"
+            :value="number_format($stats['overview']['wins'])"
+            icon="check-circle"
+        />
+        <x-stats.stat-card
+            label="Losses"
+            :value="number_format($stats['overview']['losses'])"
+            icon="x-circle"
+        />
+    </div>
+
+    {{-- Overview stat cards — row 2 --}}
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-4">
+        <x-stats.stat-card
             label="Overall K/D"
             :value="$stats['overview']['overallKd']"
             icon="bolt"
+        />
+        <x-stats.stat-card
+            label="Total Kills"
+            :value="number_format($stats['overview']['totalKills'])"
+            icon="fire"
+        />
+        <x-stats.stat-card
+            label="Total Deaths"
+            :value="number_format($stats['overview']['totalDeaths'])"
+            icon="minus-circle"
+        />
+        <x-stats.stat-card
+            label="Total Damage"
+            :value="number_format($stats['overview']['totalDamage'])"
+            icon="bolt"
+        />
+    </div>
+
+    {{-- Overview stat cards — row 3 --}}
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
+        <x-stats.stat-card
+            label="Avg Kills"
+            :value="$stats['overview']['avgKills']"
+            icon="chevron-up"
+        />
+        <x-stats.stat-card
+            label="Avg Deaths"
+            :value="$stats['overview']['avgDeaths']"
+            icon="chevron-down"
+        />
+        <x-stats.stat-card
+            label="Avg Score"
+            :value="number_format($stats['overview']['avgScore'])"
+            icon="star"
         />
         <x-stats.stat-card
             label="Avg Damage"
