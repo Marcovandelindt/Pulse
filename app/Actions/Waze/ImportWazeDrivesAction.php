@@ -48,10 +48,18 @@ final class ImportWazeDrivesAction
 
             if ($existing->origin_lat === null && $drive['origin_lat'] !== null) {
                 $existing->update([
+                    'ended_at' => $drive['ended_at'],
                     'origin_lat' => $drive['origin_lat'],
                     'origin_lon' => $drive['origin_lon'],
                     'distance_km' => $drive['distance_km'],
                 ]);
+                $enriched++;
+
+                continue;
+            }
+
+            if ($existing->ended_at === null && $drive['ended_at'] !== null) {
+                $existing->update(['ended_at' => $drive['ended_at']]);
                 $enriched++;
 
                 continue;
@@ -87,19 +95,23 @@ final class ImportWazeDrivesAction
      * using the nearest Location details track (within 5 minutes).
      *
      * @param  list<array{driven_at: Carbon, origin_name: string|null, origin_lat: float|null, origin_lon: float|null, destination_name: string|null, destination_lat: float|null, destination_lon: float|null, distance_km: float|null}>  $drives
-     * @param  list<array{driven_at: Carbon, origin_lat: float, origin_lon: float, destination_lat: float, destination_lon: float, distance_km: float}>  $tracks
-     * @return list<array{driven_at: Carbon, origin_name: string|null, origin_lat: float|null, origin_lon: float|null, destination_name: string|null, destination_lat: float|null, destination_lon: float|null, distance_km: float|null}>
+     * @param  list<array{driven_at: Carbon, ended_at: Carbon, origin_lat: float, origin_lon: float, destination_lat: float, destination_lon: float, distance_km: float}>  $tracks
+     * @return list<array{driven_at: Carbon, ended_at: Carbon|null, origin_name: string|null, origin_lat: float|null, origin_lon: float|null, destination_name: string|null, destination_lat: float|null, destination_lon: float|null, distance_km: float|null}>
      */
     private function enrichDrives(array $drives, array $tracks): array
     {
         foreach ($drives as &$drive) {
-            if ($drive['origin_lat'] !== null) {
-                continue;
-            }
-
             $match = $this->findNearestTrack($drive['driven_at'], $tracks);
 
             if ($match === null) {
+                $drive['ended_at'] = null;
+
+                continue;
+            }
+
+            $drive['ended_at'] = $match['ended_at'];
+
+            if ($drive['origin_lat'] !== null) {
                 continue;
             }
 
@@ -112,8 +124,8 @@ final class ImportWazeDrivesAction
     }
 
     /**
-     * @param  list<array{driven_at: Carbon, origin_lat: float, origin_lon: float, destination_lat: float, destination_lon: float, distance_km: float}>  $tracks
-     * @return array{driven_at: Carbon, origin_lat: float, origin_lon: float, destination_lat: float, destination_lon: float, distance_km: float}|null
+     * @param  list<array{driven_at: Carbon, ended_at: Carbon, origin_lat: float, origin_lon: float, destination_lat: float, destination_lon: float, distance_km: float}>  $tracks
+     * @return array{driven_at: Carbon, ended_at: Carbon, origin_lat: float, origin_lon: float, destination_lat: float, destination_lon: float, distance_km: float}|null
      */
     private function findNearestTrack(Carbon $drivenAt, array $tracks): ?array
     {

@@ -12,6 +12,7 @@ use Illuminate\Support\Carbon;
 /**
  * @property int $id
  * @property Carbon $driven_at
+ * @property Carbon|null $ended_at
  * @property string|null $origin_name
  * @property float|null $origin_lat
  * @property float|null $origin_lon
@@ -29,6 +30,7 @@ final class WazeDrive extends Model
 
     protected $fillable = [
         'driven_at',
+        'ended_at',
         'origin_name',
         'origin_lat',
         'origin_lon',
@@ -42,6 +44,7 @@ final class WazeDrive extends Model
     {
         return [
             'driven_at' => 'datetime',
+            'ended_at' => 'datetime',
             'origin_lat' => 'float',
             'origin_lon' => 'float',
             'destination_lat' => 'float',

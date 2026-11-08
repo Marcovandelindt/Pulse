@@ -28,7 +28,7 @@ final class WazeCsvParser
         return $drives;
     }
 
-    /** @return list<array{driven_at: Carbon, origin_lat: float, origin_lon: float, destination_lat: float, destination_lon: float, distance_km: float}> */
+    /** @return list<array{driven_at: Carbon, ended_at: Carbon, origin_lat: float, origin_lon: float, destination_lat: float, destination_lon: float, distance_km: float}> */
     public function parseLocationTracks(string $csvContent): array
     {
         $tracks = [];
@@ -112,7 +112,7 @@ final class WazeCsvParser
         ];
     }
 
-    /** @return array{driven_at: Carbon, origin_lat: float, origin_lon: float, destination_lat: float, destination_lon: float, distance_km: float}|null */
+    /** @return array{driven_at: Carbon, ended_at: Carbon, origin_lat: float, origin_lon: float, destination_lat: float, destination_lon: float, distance_km: float}|null */
     private function parseLocationLine(string $line): ?array
     {
         // Format: "2026-11-04 14:18:06 UTC,timestamp+00(lon lat)|..."
@@ -128,16 +128,22 @@ final class WazeCsvParser
 
         /** @var list<array{float, float}> $coords [lon, lat] */
         $coords = [];
+        $lastTimestamp = null;
 
         foreach (explode('|', $coordinatesStr) as $point) {
-            if (preg_match('/\(([0-9.\-]+)\s+([0-9.\-]+)\)/', $point, $m)) {
-                $coords[] = [(float) $m[1], (float) $m[2]];
+            if (preg_match('/^(.+?)\(([0-9.\-]+)\s+([0-9.\-]+)\)/', trim($point), $m)) {
+                $coords[] = [(float) $m[2], (float) $m[3]];
+                $lastTimestamp = trim($m[1]);
             }
         }
 
         if (count($coords) < 2) {
             return null;
         }
+
+        $endedAt = $lastTimestamp !== null
+            ? Carbon::parse($lastTimestamp)->setTimezone('Europe/Amsterdam')
+            : $drivenAt;
 
         $totalDistance = 0.0;
 
@@ -153,6 +159,7 @@ final class WazeCsvParser
 
         return [
             'driven_at' => $drivenAt,
+            'ended_at' => $endedAt,
             'origin_lat' => $coords[0][1],
             'origin_lon' => $coords[0][0],
             'destination_lat' => $coords[$last][1],

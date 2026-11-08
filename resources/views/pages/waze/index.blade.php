@@ -75,7 +75,13 @@
                     @php $needsGeocode = ($drive->origin_name === null && $drive->origin_lat !== null) || ($drive->destination_name === null && $drive->destination_lat !== null); @endphp
                     <tr>
                         <td class="table__cell--muted text-sm whitespace-nowrap">
-                            {{ $drive->driven_at->format('d M Y, H:i') }}
+                            {{ $drive->driven_at->format('d M Y') }}<br>
+                            <span class="text-xs">
+                                {{ $drive->driven_at->format('H:i') }}
+                                @if($drive->ended_at)
+                                    – {{ $drive->ended_at->format('H:i') }}
+                                @endif
+                            </span>
                         </td>
                         <td class="text-sm">
                             @if($drive->origin_name)
