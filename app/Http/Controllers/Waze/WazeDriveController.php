@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Waze;
 use App\Http\Controllers\Controller;
 use App\Models\WazeDrive;
 use App\Queries\Waze\WazeStatsQuery;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 final class WazeDriveController extends Controller
@@ -23,5 +24,12 @@ final class WazeDriveController extends Controller
             'drives' => $drives,
             'stats' => $this->stats->handle(),
         ]);
+    }
+
+    public function destroyAll(): RedirectResponse
+    {
+        WazeDrive::truncate();
+
+        return redirect()->route('waze.index')->with('success', 'All drives deleted.');
     }
 }

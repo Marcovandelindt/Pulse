@@ -3,6 +3,15 @@
     <x-layout.page-header title="Waze Drives">
         <x-slot:actions>
             <a href="{{ route('waze.import') }}" class="btn btn--secondary btn--sm">Import archive</a>
+            @if(!$drives->isEmpty())
+                <form method="POST" action="{{ route('waze.destroy-all') }}"
+                      x-data
+                      @submit.prevent="confirm('Delete all drives? This cannot be undone.') && $el.submit()">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn--danger btn--sm">Clear all</button>
+                </form>
+            @endif
         </x-slot:actions>
     </x-layout.page-header>
 

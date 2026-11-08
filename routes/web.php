@@ -152,6 +152,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('waze')->name('waze.')->group(function () {
         Route::get('/', [WazeDriveController::class, 'index'])->name('index');
+        Route::delete('/', [WazeDriveController::class, 'destroyAll'])->name('destroy-all');
         Route::get('/import', [WazeImportController::class, 'index'])->name('import');
         Route::post('/import', [WazeImportController::class, 'store'])->name('import.store');
     });
