@@ -3,3 +3,52 @@
     flex-direction: column;
     gap: 1.5rem;
 }
+
+.waze-label {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    background: rgba(var(--color-brand-rgb, 99, 102, 241), 0.15);
+    color: var(--color-brand-light);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+.waze-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.waze-labels__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.waze-labels__info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.waze-labels__match {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+}
+
+.waze-labels__empty {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+}
+
+.waze-labels__form {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-border);
+    flex-wrap: wrap;
+}

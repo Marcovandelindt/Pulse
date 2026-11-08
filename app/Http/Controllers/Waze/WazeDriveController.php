@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Waze;
 
 use App\Http\Controllers\Controller;
 use App\Models\WazeDrive;
+use App\Models\WazeLocationLabel;
 use App\Queries\Waze\WazeStatsQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -23,6 +24,7 @@ final class WazeDriveController extends Controller
         return view('pages.waze.index', [
             'drives' => $drives,
             'stats' => $this->stats->handle(),
+            'labels' => WazeLocationLabel::orderBy('label')->get(),
         ]);
     }
 

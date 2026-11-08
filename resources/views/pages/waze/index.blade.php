@@ -55,7 +55,7 @@
     </x-ui.card>
     @endif
 
-    <x-ui.card title="Drives">
+    <x-ui.card title="Drives" class="mb-6">
         <x-slot:action>
             {{ $drives->links() }}
         </x-slot:action>
@@ -72,7 +72,11 @@
             </thead>
             <tbody>
                 @foreach($drives as $drive)
-                    @php $needsGeocode = ($drive->origin_name === null && $drive->origin_lat !== null) || ($drive->destination_name === null && $drive->destination_lat !== null); @endphp
+                    @php
+                        $needsGeocode = ($drive->origin_name === null && $drive->origin_lat !== null) || ($drive->destination_name === null && $drive->destination_lat !== null);
+                        $originLabel = $labels->first(fn($l) => $l->matches($drive->origin_name));
+                        $destinationLabel = $labels->first(fn($l) => $l->matches($drive->destination_name));
+                    @endphp
                     <tr>
                         <td class="table__cell--muted text-sm whitespace-nowrap">
                             {{ $drive->driven_at->format('d M Y') }}<br>
@@ -84,7 +88,9 @@
                             </span>
                         </td>
                         <td class="text-sm">
-                            @if($drive->origin_name)
+                            @if($originLabel)
+                                <span class="waze-label">{{ $originLabel->label }}</span>
+                            @elseif($drive->origin_name)
                                 {{ $drive->origin_name }}
                             @elseif($drive->origin_lat)
                                 <span class="table__cell--muted text-xs">{{ round($drive->origin_lat, 4) }}, {{ round($drive->origin_lon, 4) }}</span>
@@ -93,7 +99,9 @@
                             @endif
                         </td>
                         <td class="text-sm">
-                            @if($drive->destination_name)
+                            @if($destinationLabel)
+                                <span class="waze-label">{{ $destinationLabel->label }}</span>
+                            @elseif($drive->destination_name)
                                 {{ $drive->destination_name }}
                             @elseif($drive->destination_lat)
                                 <span class="table__cell--muted text-xs">{{ round($drive->destination_lat, 4) }}, {{ round($drive->destination_lon, 4) }}</span>
@@ -129,6 +137,39 @@
     </x-ui.card>
 
     @endif
+
+    <x-ui.card title="Location labels">
+        <div class="waze-labels">
+            @forelse($labels as $label)
+                <div class="waze-labels__item">
+                    <div class="waze-labels__info">
+                        <span class="waze-label">{{ $label->label }}</span>
+                        <span class="waze-labels__match">matches "{{ $label->match_name }}"</span>
+                    </div>
+                    <form method="POST" action="{{ route('waze.labels.destroy', $label) }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn--danger btn--sm btn--icon" title="Delete label">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            @empty
+                <p class="waze-labels__empty">No labels yet.</p>
+            @endforelse
+
+            <form method="POST" action="{{ route('waze.labels.store') }}" class="waze-labels__form">
+                @csrf
+                <input type="text" name="label" class="form-input form-input--sm" placeholder="Label (e.g. Work)" value="{{ old('label') }}" required>
+                <input type="text" name="match_name" class="form-input form-input--sm" placeholder="Matches (e.g. Nijverheidsweg)" value="{{ old('match_name') }}" required>
+                <button type="submit" class="btn btn--primary btn--sm">Add</button>
+            </form>
+            @error('label') <p class="form-error">{{ $message }}</p> @enderror
+            @error('match_name') <p class="form-error">{{ $message }}</p> @enderror
+        </div>
+    </x-ui.card>
 
     <x-layout.notification />
 
