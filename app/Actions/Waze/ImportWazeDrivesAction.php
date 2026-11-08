@@ -15,9 +15,9 @@ final class ImportWazeDrivesAction
         private readonly WazeCsvParser $parser,
     ) {}
 
-    public function handle(UploadedFile $file): ImportResult
+    public function handle(UploadedFile $file, ?string $password = null): ImportResult
     {
-        $csvContents = $this->extractCsvContents($file);
+        $csvContents = $this->extractCsvContents($file, $password);
 
         $imported = 0;
         $skipped = 0;
@@ -43,10 +43,10 @@ final class ImportWazeDrivesAction
     }
 
     /** @return list<string> */
-    private function extractCsvContents(UploadedFile $file): array
+    private function extractCsvContents(UploadedFile $file, ?string $password): array
     {
         if ($file->getClientOriginalExtension() === 'zip') {
-            return $this->extractFromZip($file->getRealPath());
+            return $this->extractFromZip($file->getRealPath(), $password);
         }
 
         $content = file_get_contents($file->getRealPath());
@@ -55,12 +55,16 @@ final class ImportWazeDrivesAction
     }
 
     /** @return list<string> */
-    private function extractFromZip(string $path): array
+    private function extractFromZip(string $path, ?string $password): array
     {
         $zip = new ZipArchive;
 
         if ($zip->open($path) !== true) {
             return [];
+        }
+
+        if ($password !== null && $password !== '') {
+            $zip->setPassword($password);
         }
 
         $contents = [];

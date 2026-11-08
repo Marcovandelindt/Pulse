@@ -13,6 +13,7 @@ final class ImportWazeDrivesRequest extends FormRequest
     {
         return [
             'file' => ['required', 'file', 'mimes:zip,csv', 'max:51200'],
+            'password' => ['nullable', 'string'],
         ];
     }
 

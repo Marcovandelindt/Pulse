@@ -30,6 +30,18 @@
                     <x-form.error name="file" />
                 </div>
 
+                <div class="form-group">
+                    <label class="form-label" for="password">ZIP password <span style="color: var(--color-text-muted); font-weight: 400;">(optional)</span></label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-input"
+                        autocomplete="off"
+                    >
+                    <x-form.error name="password" />
+                </div>
+
                 <button type="submit" class="btn btn--primary w-full">Import</button>
             </form>
         </x-ui.card>
