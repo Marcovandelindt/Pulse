@@ -89,7 +89,7 @@
                         </td>
                         <td class="text-sm">
                             @if($originLabel)
-                                <span class="waze-label">{{ $originLabel->label }}</span>
+                                <span class="waze-label" title="{{ $drive->origin_name }}">{{ $originLabel->label }}</span>
                             @elseif($drive->origin_name)
                                 {{ $drive->origin_name }}
                             @elseif($drive->origin_lat)
@@ -100,7 +100,7 @@
                         </td>
                         <td class="text-sm">
                             @if($destinationLabel)
-                                <span class="waze-label">{{ $destinationLabel->label }}</span>
+                                <span class="waze-label" title="{{ $drive->destination_name }}">{{ $destinationLabel->label }}</span>
                             @elseif($drive->destination_name)
                                 {{ $drive->destination_name }}
                             @elseif($drive->destination_lat)
