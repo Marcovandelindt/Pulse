@@ -40,6 +40,7 @@
 @import './features/_settings.scss';
 @import './features/_ideas.scss';
 @import './features/_auth.scss';
+@import './features/_waze.scss';
 
 @theme {
     --color-brand:        oklch(0.60 0.18 260);

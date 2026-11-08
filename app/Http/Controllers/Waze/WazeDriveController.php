@@ -6,14 +6,22 @@ namespace App\Http\Controllers\Waze;
 
 use App\Http\Controllers\Controller;
 use App\Models\WazeDrive;
+use App\Queries\Waze\WazeStatsQuery;
 use Illuminate\View\View;
 
 final class WazeDriveController extends Controller
 {
+    public function __construct(
+        private readonly WazeStatsQuery $stats,
+    ) {}
+
     public function index(): View
     {
         $drives = WazeDrive::orderByDesc('driven_at')->paginate(25);
 
-        return view('pages.waze.index', compact('drives'));
+        return view('pages.waze.index', [
+            'drives' => $drives,
+            'stats' => $this->stats->handle(),
+        ]);
     }
 }
