@@ -12,12 +12,13 @@ final class WazeHeatmapStatsQuery
     // ~1 km² grid cells covering NL land area (41,543 km² / 0.763 km² per 0.01° cell at 52° lat)
     private const int NL_LAND_CELLS = 54436;
 
-    /** @return array{totalKm: float, totalDrives: int, totalHours: float, discoveredPercent: float, longestKm: float} */
+    /** @return array{totalKm: float, totalDrives: int, totalHours: float, discoveredPercent: float, longestKm: float, longestDriveId: int|null} */
     public function get(): array
     {
         $totalKm = round((float) WazeDrive::query()->sum('distance_km'), 1);
         $totalDrives = WazeDrive::query()->count();
-        $longestKm = round((float) (WazeDrive::query()->max('distance_km') ?? 0), 1);
+        $longest = WazeDrive::query()->orderByDesc('distance_km')->first(['id', 'distance_km']);
+        $longestKm = round((float) $longest?->distance_km, 1);
 
         $totalMinutes = WazeDrive::query()
             ->whereNotNull('ended_at')
@@ -37,6 +38,7 @@ final class WazeHeatmapStatsQuery
             'totalHours' => round($totalMinutes / 60, 1),
             'discoveredPercent' => round($uniqueCells / self::NL_LAND_CELLS * 100, 2),
             'longestKm' => $longestKm,
+            'longestDriveId' => $longest?->id,
         ];
     }
 }

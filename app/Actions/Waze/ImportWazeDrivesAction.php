@@ -9,6 +9,7 @@ use App\Models\WazeWaypoint;
 use App\Services\Waze\WazeCsvParser;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use ZipArchive;
 
 final class ImportWazeDrivesAction
@@ -91,16 +92,34 @@ final class ImportWazeDrivesAction
         }
 
         $routeOffset = WazeWaypoint::max('route_id') ?? 0;
+        $allDrives = WazeDrive::query()->get(['id', 'driven_at']);
 
         foreach ($waypoints as $routeIndex => $route) {
             $routeId = $routeOffset + $routeIndex + 1;
+            $driveId = null;
+
+            if (isset($tracks[$routeIndex])) {
+                $driveId = $this->findNearestDrive($tracks[$routeIndex]['driven_at'], $allDrives)?->id;
+            }
+
             WazeWaypoint::insert(array_map(
-                fn (array $p): array => ['route_id' => $routeId, 'lat' => $p[0], 'lon' => $p[1]],
+                fn (array $p): array => ['route_id' => $routeId, 'waze_drive_id' => $driveId, 'lat' => $p[0], 'lon' => $p[1]],
                 $route,
             ));
         }
 
         return new ImportResult(imported: $imported, skipped: $skipped, enriched: $enriched);
+    }
+
+    /**
+     * @param  Collection<int, WazeDrive>  $drives
+     */
+    private function findNearestDrive(Carbon $trackAt, Collection $drives): ?WazeDrive
+    {
+        return $drives
+            ->filter(fn (WazeDrive $d): bool => abs($d->driven_at->diffInSeconds($trackAt)) <= self::MATCH_TOLERANCE_SECONDS)
+            ->sortBy(fn (WazeDrive $d): float => abs($d->driven_at->diffInSeconds($trackAt)))
+            ->first();
     }
 
     /**

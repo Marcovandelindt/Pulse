@@ -22,12 +22,15 @@ final class WazeHeatmapController extends Controller
     public function data(): JsonResponse
     {
         $routes = WazeWaypoint::query()
-            ->select(['route_id', 'lat', 'lon'])
+            ->select(['route_id', 'waze_drive_id', 'lat', 'lon'])
             ->orderBy('route_id')
             ->orderBy('id')
             ->get()
             ->groupBy('route_id')
-            ->map(fn ($points) => $points->map(fn (WazeWaypoint $w): array => [$w->lat, $w->lon])->values())
+            ->map(fn ($points) => [
+                'driveId' => $points->first()?->waze_drive_id,
+                'points' => $points->map(fn (WazeWaypoint $w): array => [$w->lat, $w->lon])->values(),
+            ])
             ->values();
 
         return response()->json($routes);

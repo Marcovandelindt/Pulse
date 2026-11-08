@@ -65,6 +65,16 @@
     width: 100%;
 }
 
+.stat-card--clickable {
+    cursor: pointer;
+    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.stat-card--clickable:hover {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 1px var(--color-brand);
+}
+
 .waze-heatmap .leaflet-tile-pane {
     filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.4);
 }
