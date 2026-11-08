@@ -10,6 +10,34 @@
         </x-slot:actions>
     </x-layout.page-header>
 
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-5 mb-6">
+        <x-stats.stat-card
+            label="Total distance"
+            :value="number_format($stats['totalKm'], 1) . ' km'"
+            icon="map-pin"
+        />
+        <x-stats.stat-card
+            label="Drives"
+            :value="number_format($stats['totalDrives'])"
+            icon="flag"
+        />
+        <x-stats.stat-card
+            label="Behind the wheel"
+            :value="number_format($stats['totalHours'], 1) . ' hrs'"
+            icon="clock"
+        />
+        <x-stats.stat-card
+            label="Netherlands explored"
+            :value="$stats['discoveredPercent'] . '%'"
+            icon="globe"
+        />
+        <x-stats.stat-card
+            label="Longest drive"
+            :value="number_format($stats['longestKm'], 1) . ' km'"
+            icon="map-pin"
+        />
+    </div>
+
     <div class="waze-heatmap-wrap">
         <div id="waze-heatmap" class="waze-heatmap"></div>
     </div>

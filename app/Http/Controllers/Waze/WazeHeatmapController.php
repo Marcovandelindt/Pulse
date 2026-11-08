@@ -6,14 +6,17 @@ namespace App\Http\Controllers\Waze;
 
 use App\Http\Controllers\Controller;
 use App\Models\WazeWaypoint;
+use App\Queries\Waze\WazeHeatmapStatsQuery;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 
 final class WazeHeatmapController extends Controller
 {
-    public function index(): View
+    public function index(WazeHeatmapStatsQuery $query): View
     {
-        return view('pages.waze.heatmap');
+        return view('pages.waze.heatmap', [
+            'stats' => $query->get(),
+        ]);
     }
 
     public function data(): JsonResponse
