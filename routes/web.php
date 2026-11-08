@@ -39,6 +39,7 @@ use App\Http\Controllers\Stats\WeekReportController;
 use App\Http\Controllers\Stats\WrappedController;
 use App\Http\Controllers\Waze\WazeDriveController;
 use App\Http\Controllers\Waze\WazeDriveGeocodeController;
+use App\Http\Controllers\Waze\WazeHeatmapController;
 use App\Http\Controllers\Waze\WazeImportController;
 use App\Http\Controllers\Waze\WazeLocationLabelController;
 use Illuminate\Support\Facades\Route;
@@ -156,6 +157,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [WazeDriveController::class, 'index'])->name('index');
         Route::delete('/', [WazeDriveController::class, 'destroyAll'])->name('destroy-all');
         Route::patch('/{drive}/geocode', WazeDriveGeocodeController::class)->name('geocode');
+        Route::get('/heatmap', [WazeHeatmapController::class, 'index'])->name('heatmap');
+        Route::get('/heatmap/data', [WazeHeatmapController::class, 'data'])->name('heatmap.data');
         Route::get('/import', [WazeImportController::class, 'index'])->name('import');
         Route::post('/import', [WazeImportController::class, 'store'])->name('import.store');
         Route::post('/labels', [WazeLocationLabelController::class, 'store'])->name('labels.store');

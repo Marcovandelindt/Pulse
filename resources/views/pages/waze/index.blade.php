@@ -2,6 +2,7 @@
 
     <x-layout.page-header title="Waze Drives">
         <x-slot:actions>
+            <a href="{{ route('waze.heatmap') }}" class="btn btn--secondary btn--sm">Heatmap</a>
             <a href="{{ route('waze.import') }}" class="btn btn--secondary btn--sm">Import archive</a>
             @if(!$drives->isEmpty())
                 <form method="POST" action="{{ route('waze.destroy-all') }}"

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Waze;
 
 use App\Models\WazeDrive;
+use App\Models\WazeWaypoint;
 use App\Services\Waze\WazeCsvParser;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
@@ -24,10 +25,12 @@ final class ImportWazeDrivesAction
 
         $drives = [];
         $tracks = [];
+        $waypoints = [];
 
         foreach ($csvContents as $csv) {
             array_push($drives, ...$this->parser->parse($csv));
             array_push($tracks, ...$this->parser->parseLocationTracks($csv));
+            array_push($waypoints, ...$this->parser->parseAllWaypoints($csv));
         }
 
         $drives = $this->enrichDrives($drives, $tracks);
@@ -85,6 +88,13 @@ final class ImportWazeDrivesAction
 
             WazeDrive::create($track);
             $imported++;
+        }
+
+        if ($waypoints !== []) {
+            WazeWaypoint::insert(array_map(
+                fn (array $p): array => ['lat' => $p[0], 'lon' => $p[1]],
+                $waypoints,
+            ));
         }
 
         return new ImportResult(imported: $imported, skipped: $skipped, enriched: $enriched);
