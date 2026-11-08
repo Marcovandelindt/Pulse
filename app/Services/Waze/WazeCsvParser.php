@@ -93,7 +93,7 @@ final class WazeCsvParser
 
         [$dateStr, $source, $destination] = $parts;
 
-        $drivenAt = Carbon::parse(trim($dateStr))->utc();
+        $drivenAt = Carbon::parse(trim($dateStr))->setTimezone('Europe/Amsterdam');
 
         [$originName, $originLat, $originLon] = $this->extractLocation(trim($source));
         [$destinationName, $destinationLat, $destinationLon] = $this->extractLocation(trim($destination));
@@ -124,7 +124,7 @@ final class WazeCsvParser
 
         [$dateStr, $coordinatesStr] = $parts;
 
-        $drivenAt = Carbon::parse(trim($dateStr))->utc();
+        $drivenAt = Carbon::parse(trim($dateStr))->setTimezone('Europe/Amsterdam');
 
         /** @var list<array{float, float}> $coords [lon, lat] */
         $coords = [];
