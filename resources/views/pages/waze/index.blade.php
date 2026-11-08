@@ -75,8 +75,24 @@
                         <td class="table__cell--muted text-sm whitespace-nowrap">
                             {{ $drive->driven_at->setTimezone('Europe/Amsterdam')->format('d M Y, H:i') }}
                         </td>
-                        <td class="text-sm">{{ $drive->origin_name ?? '—' }}</td>
-                        <td class="text-sm">{{ $drive->destination_name ?? '—' }}</td>
+                        <td class="text-sm">
+                            @if($drive->origin_name)
+                                {{ $drive->origin_name }}
+                            @elseif($drive->origin_lat)
+                                <span class="table__cell--muted text-xs">{{ round($drive->origin_lat, 4) }}, {{ round($drive->origin_lon, 4) }}</span>
+                            @else
+                                —
+                            @endif
+                        </td>
+                        <td class="text-sm">
+                            @if($drive->destination_name)
+                                {{ $drive->destination_name }}
+                            @elseif($drive->destination_lat)
+                                <span class="table__cell--muted text-xs">{{ round($drive->destination_lat, 4) }}, {{ round($drive->destination_lon, 4) }}</span>
+                            @else
+                                —
+                            @endif
+                        </td>
                         <td class="text-right text-sm whitespace-nowrap">
                             @if($drive->distance_km)
                                 {{ $drive->distance_km }} km
