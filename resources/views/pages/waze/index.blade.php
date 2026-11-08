@@ -67,10 +67,12 @@
                     <th>From</th>
                     <th>To</th>
                     <th class="text-right">Distance</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($drives as $drive)
+                    @php $needsGeocode = ($drive->origin_name === null && $drive->origin_lat !== null) || ($drive->destination_name === null && $drive->destination_lat !== null); @endphp
                     <tr>
                         <td class="table__cell--muted text-sm whitespace-nowrap">
                             {{ $drive->driven_at->setTimezone('Europe/Amsterdam')->format('d M Y, H:i') }}
@@ -98,6 +100,17 @@
                                 {{ $drive->distance_km }} km
                             @else
                                 —
+                            @endif
+                        </td>
+                        <td class="text-right">
+                            @if($needsGeocode)
+                                <form method="POST" action="{{ route('waze.geocode', $drive) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="btn btn--secondary btn--sm btn--icon" title="Look up address">
+                                        <x-icon name="map-pin" class="w-3.5 h-3.5" />
+                                    </button>
+                                </form>
                             @endif
                         </td>
                     </tr>
