@@ -13,8 +13,8 @@ return new class extends Migration
         Schema::create('location_trips', function (Blueprint $table): void {
             $table->id();
             $table->string('device_id')->default('');
-            $table->timestamp('started_at');
-            $table->timestamp('ended_at');
+            $table->dateTime('started_at');
+            $table->dateTime('ended_at');
             $table->float('distance_meters');
             $table->string('dominant_motion');           // driving | walking | cycling | other
             $table->unsignedInteger('point_count');
