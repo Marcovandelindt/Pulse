@@ -9,11 +9,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement('UPDATE plays SET played_at = DATE_ADD(played_at, INTERVAL 2 HOUR)');
+        match (DB::getDriverName()) {
+            'sqlite' => DB::statement("UPDATE plays SET played_at = datetime(played_at, '+2 hours')"),
+            default => DB::statement('UPDATE plays SET played_at = DATE_ADD(played_at, INTERVAL 2 HOUR)'),
+        };
     }
 
     public function down(): void
     {
-        DB::statement('UPDATE plays SET played_at = DATE_SUB(played_at, INTERVAL 2 HOUR)');
+        match (DB::getDriverName()) {
+            'sqlite' => DB::statement("UPDATE plays SET played_at = datetime(played_at, '-2 hours')"),
+            default => DB::statement('UPDATE plays SET played_at = DATE_SUB(played_at, INTERVAL 2 HOUR)'),
+        };
     }
 };
