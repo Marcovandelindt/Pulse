@@ -298,6 +298,19 @@
     font-size:   0.8125rem;
 }
 
+.location-widget__sync {
+    font-size:   0.8125rem;
+    font-weight: 500;
+}
+
+.location-widget__sync--ok {
+    color: #4ade80;
+}
+
+.location-widget__sync--stale {
+    color: #f97316;
+}
+
 .location-widget__link {
     font-size:   0.8125rem;
     color:       var(--color-brand-light);

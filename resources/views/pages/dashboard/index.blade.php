@@ -513,20 +513,26 @@
                 </x-ui.card>
             @endif
 
-            @if($location['lastSeenAt'])
+            @if($location['lastBatchAt'])
                 <x-ui.card title="Location" class="card--flush">
+                    @php $syncStale = $location['lastBatchAt']->diffInHours(now()) >= 2; @endphp
                     <div class="location-widget">
                         <div class="location-widget__row">
                             <span class="location-widget__label">This week</span>
                             <span class="location-widget__value">{{ $location['weekKm'] > 0 ? $location['weekKm'] . ' km' : '—' }}</span>
                         </div>
+                        @if($location['lastSeenAt'])
+                            <div class="location-widget__row">
+                                <span class="location-widget__label">Last seen</span>
+                                <span class="location-widget__value location-widget__value--muted">
+                                    @if($location['lastVisitName']){{ $location['lastVisitName'] }} · @endif{{ $location['lastSeenAt']->diffForHumans() }}
+                                </span>
+                            </div>
+                        @endif
                         <div class="location-widget__row">
-                            <span class="location-widget__label">Last seen</span>
-                            <span class="location-widget__value location-widget__value--muted">
-                                @if($location['lastVisitName'])
-                                    {{ $location['lastVisitName'] }} ·
-                                @endif
-                                {{ $location['lastSeenAt']->diffForHumans() }}
+                            <span class="location-widget__label">Last sync</span>
+                            <span class="location-widget__sync {{ $syncStale ? 'location-widget__sync--stale' : 'location-widget__sync--ok' }}">
+                                {{ $location['lastBatchAt']->diffForHumans() }}
                             </span>
                         </div>
                         <a href="{{ route('location.index') }}" class="location-widget__link">View map →</a>

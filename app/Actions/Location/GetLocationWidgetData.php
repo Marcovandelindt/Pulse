@@ -11,7 +11,7 @@ use Carbon\Carbon;
 
 final class GetLocationWidgetData
 {
-    /** @return array{weekKm: float, lastVisitName: string|null, lastSeenAt: Carbon|null} */
+    /** @return array{weekKm: float, lastVisitName: string|null, lastSeenAt: Carbon|null, lastBatchAt: Carbon|null} */
     public function handle(): array
     {
         $weekKm = round(
@@ -23,13 +23,15 @@ final class GetLocationWidgetData
             ->orderByDesc('ended_at')
             ->first();
 
-        $lastPointAt = LocationPoint::query()
-            ->max('recorded_at');
+        $lastPointAt = LocationPoint::query()->max('recorded_at');
+
+        $lastBatchRaw = LocationPoint::query()->max('created_at');
 
         return [
             'weekKm' => $weekKm,
             'lastVisitName' => $lastVisit?->place?->name,
             'lastSeenAt' => is_string($lastPointAt) ? Carbon::parse($lastPointAt) : null,
+            'lastBatchAt' => is_string($lastBatchRaw) ? Carbon::parse($lastBatchRaw) : null,
         ];
     }
 }
