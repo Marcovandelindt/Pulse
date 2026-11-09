@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Location;
 
+use App\Jobs\GeocodePlaceJob;
 use App\Models\LocationPoint;
 use App\Models\LocationTrip;
 use App\Models\LocationVisit;
@@ -341,11 +342,15 @@ final class LocationProcessorService
             return $nearby;
         }
 
-        return Place::create([
+        $place = Place::create([
             'latitude' => $lat,
             'longitude' => $lon,
             'visit_count' => 1,
         ]);
+
+        GeocodePlaceJob::dispatch($place->id);
+
+        return $place;
     }
 
     /**
