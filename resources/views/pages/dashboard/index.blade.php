@@ -513,6 +513,27 @@
                 </x-ui.card>
             @endif
 
+            @if($location['lastSeenAt'])
+                <x-ui.card title="Location" class="card--flush">
+                    <div class="location-widget">
+                        <div class="location-widget__row">
+                            <span class="location-widget__label">This week</span>
+                            <span class="location-widget__value">{{ $location['weekKm'] > 0 ? $location['weekKm'] . ' km' : '—' }}</span>
+                        </div>
+                        <div class="location-widget__row">
+                            <span class="location-widget__label">Last seen</span>
+                            <span class="location-widget__value location-widget__value--muted">
+                                @if($location['lastVisitName'])
+                                    {{ $location['lastVisitName'] }} ·
+                                @endif
+                                {{ $location['lastSeenAt']->diffForHumans() }}
+                            </span>
+                        </div>
+                        <a href="{{ route('location.index') }}" class="location-widget__link">View map →</a>
+                    </div>
+                </x-ui.card>
+            @endif
+
             @if(!empty($personalRecords))
                 <x-ui.card>
                     <div class="personal-records">

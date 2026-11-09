@@ -1,0 +1,316 @@
+// Location feature styles
+
+.location-datepicker {
+    display:     flex;
+    align-items: center;
+    gap:         0.5rem;
+    margin-bottom: 1rem;
+}
+
+.location-datepicker__form {
+    display: flex;
+}
+
+.location-datepicker__input {
+    background:    var(--color-bg-tertiary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color:         var(--color-text-primary);
+    font-size:     0.875rem;
+    padding:       0.4rem 0.75rem;
+    outline:       none;
+
+    &:focus {
+        border-color: var(--color-brand);
+    }
+
+    &::-webkit-calendar-picker-indicator {
+        filter: invert(1) opacity(0.5);
+    }
+}
+
+.location-day {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 1rem;
+    height: calc(100vh - 180px);
+    min-height: 500px;
+}
+
+.location-day__map {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+
+    #location-map {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.location-day__sidebar {
+    overflow-y: auto;
+}
+
+.location-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.location-timeline__empty {
+    color:     var(--color-text-muted);
+    font-size: 0.875rem;
+    padding:   1rem 0;
+}
+
+.location-segment {
+    display:       flex;
+    align-items:   flex-start;
+    gap:           0.75rem;
+    padding:       0.75rem 1rem;
+    background:    var(--color-bg-secondary);
+    border:        1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor:        pointer;
+    transition:    border-color var(--transition-base);
+
+    &:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+}
+
+.location-segment__dot {
+    width:         10px;
+    height:        10px;
+    border-radius: 50%;
+    flex-shrink:   0;
+    margin-top:    0.3rem;
+}
+
+.location-segment__dot--visit {
+    background: #38bdf8;
+    border:     2px solid #0ea5e9;
+    width:      12px;
+    height:     12px;
+}
+
+.location-segment__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.location-segment__title {
+    font-size:   0.875rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+    margin-bottom: 0.2rem;
+}
+
+.location-segment__meta {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+}
+
+.location-segment__badge {
+    font-size:     0.75rem;
+    font-weight:   600;
+    padding:       0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+    white-space:   nowrap;
+    flex-shrink:   0;
+}
+
+.location-segment__place-name {
+    display:     inline-flex;
+    align-items: center;
+    gap:         0.3rem;
+    cursor:      pointer;
+
+    &:hover .location-segment__edit-icon {
+        opacity: 1;
+    }
+}
+
+.location-segment__edit-icon {
+    width:   12px;
+    height:  12px;
+    opacity: 0;
+    transition: opacity var(--transition-base);
+    color:   var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+.location-segment__edit-form {
+    display:     flex;
+    align-items: center;
+    gap:         0.5rem;
+}
+
+.location-segment__edit-input {
+    background:    var(--color-bg-tertiary);
+    border:        1px solid var(--color-brand);
+    border-radius: var(--radius-sm);
+    color:         var(--color-text-primary);
+    font-size:     0.875rem;
+    font-weight:   600;
+    padding:       0.2rem 0.5rem;
+    outline:       none;
+    min-width:     0;
+    flex:          1;
+}
+
+// Heatmap
+
+.location-heatmap-controls {
+    display:       flex;
+    align-items:   center;
+    gap:           0.75rem;
+    margin-bottom: 1rem;
+}
+
+.location-heatmap-controls__label {
+    font-size: 0.8125rem;
+    color:     var(--color-text-muted);
+}
+
+.location-heatmap-wrap {
+    border-radius: var(--radius-lg);
+    overflow:      hidden;
+    border:        1px solid var(--color-border);
+    height:        calc(100vh - 200px);
+    min-height:    500px;
+}
+
+#location-heatmap {
+    width:  100%;
+    height: 100%;
+}
+
+// Stats
+
+.location-stats-period {
+    display:       flex;
+    gap:           0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap:     wrap;
+}
+
+.location-stats-period__btn {
+    padding:       0.375rem 0.875rem;
+    border-radius: var(--radius-md);
+    font-size:     0.8125rem;
+    font-weight:   500;
+    color:         var(--color-text-muted);
+    border:        1px solid var(--color-border);
+    background:    var(--color-bg-secondary);
+    transition:    border-color var(--transition-base), color var(--transition-base);
+
+    &:hover {
+        color:        var(--color-text-primary);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+}
+
+.location-stats-period__btn--active {
+    background:   var(--color-brand);
+    color:        #fff;
+    border-color: var(--color-brand);
+
+    &:hover {
+        color:        #fff;
+        border-color: var(--color-brand);
+    }
+}
+
+.location-stats-motion {
+    display:       inline-flex;
+    align-items:   center;
+    gap:           0.4rem;
+    font-size:     0.875rem;
+    font-weight:   500;
+
+    &::before {
+        content:       '';
+        display:       inline-block;
+        width:         8px;
+        height:        8px;
+        border-radius: 50%;
+        flex-shrink:   0;
+    }
+}
+
+.location-stats-motion--driving::before { background: #818cf8; }
+.location-stats-motion--walking::before { background: #4ade80; }
+.location-stats-motion--cycling::before { background: #fbbf24; }
+.location-stats-motion--other::before   { background: #94a3b8; }
+
+.location-places-list {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.5rem;
+}
+
+.location-places-list__item {
+    display:         flex;
+    justify-content: space-between;
+    align-items:     center;
+    padding:         0.5rem 0;
+    border-bottom:   1px solid var(--color-border);
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.location-places-list__name {
+    font-size: 0.875rem;
+    color:     var(--color-text-primary);
+}
+
+.location-places-list__count {
+    font-size: 0.75rem;
+    color:     var(--color-text-muted);
+}
+
+// Dashboard widget
+
+.location-widget {
+    padding: 0.875rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.location-widget__row {
+    display:         flex;
+    justify-content: space-between;
+    align-items:     center;
+    gap:             0.5rem;
+}
+
+.location-widget__label {
+    font-size: 0.8125rem;
+    color:     var(--color-text-muted);
+}
+
+.location-widget__value {
+    font-size:   0.875rem;
+    font-weight: 600;
+    color:       var(--color-text-primary);
+}
+
+.location-widget__value--muted {
+    font-weight: 400;
+    color:       var(--color-text-muted);
+    font-size:   0.8125rem;
+}
+
+.location-widget__link {
+    font-size:   0.8125rem;
+    color:       var(--color-brand-light);
+    margin-top:  0.25rem;
+    transition:  opacity var(--transition-base);
+
+    &:hover { opacity: 0.8; }
+}

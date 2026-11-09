@@ -13,6 +13,7 @@
             <span class="sidebar__group-label">Lifestyle</span>
             <x-layout.nav-item route="health.index" icon="heart" label="Health" />
             <x-layout.nav-item route="music.index" icon="musical-note" label="Music" />
+            <x-layout.nav-item route="location.index" icon="map-pin" label="Location" />
         </div>
 
         <div class="sidebar__group">
