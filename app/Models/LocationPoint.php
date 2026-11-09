@@ -4,8 +4,23 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $device_id
+ * @property Carbon $recorded_at
+ * @property float $latitude
+ * @property float $longitude
+ * @property float|null $altitude
+ * @property float|null $speed
+ * @property float|null $horizontal_accuracy
+ * @property array<int,string>|null $motion
+ * @property float|null $battery_level
+ * @property array<string,mixed> $raw
+ * @property Carbon $created_at
+ */
 final class LocationPoint extends Model
 {
     // Points are immutable; created_at is set by DB default, no updated_at
