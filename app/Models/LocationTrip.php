@@ -4,8 +4,19 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $device_id
+ * @property Carbon $started_at
+ * @property Carbon $ended_at
+ * @property float $distance_meters
+ * @property string $dominant_motion
+ * @property int $point_count
+ * @property list<array{float, float}> $polyline
+ */
 final class LocationTrip extends Model
 {
     protected $fillable = [
