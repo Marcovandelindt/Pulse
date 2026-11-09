@@ -39,11 +39,11 @@ return [
 
     'playstation' => [
         'username' => env('PLAYSTATION_USERNAME', ''),
-        'npsso'    => env('PSN_NPSSO'),
+        'npsso' => env('PSN_NPSSO'),
     ],
 
     'igdb' => [
-        'client_id'     => env('IGDB_CLIENT_ID'),
+        'client_id' => env('IGDB_CLIENT_ID'),
         'client_secret' => env('IGDB_CLIENT_SECRET'),
     ],
 
@@ -52,9 +52,13 @@ return [
     ],
 
     'weather' => [
-        'lat'  => env('WEATHER_LAT', '52.3676'),
-        'lon'  => env('WEATHER_LON', '4.9041'),
+        'lat' => env('WEATHER_LAT', '52.3676'),
+        'lon' => env('WEATHER_LON', '4.9041'),
         'city' => env('WEATHER_CITY', 'Amsterdam'),
+    ],
+
+    'overland' => [
+        'token' => env('OVERLAND_TOKEN'),
     ],
 
 ];
