@@ -1,5 +1,3 @@
-// Location feature styles
-
 .location-datepicker {
     display:     flex;
     align-items: center;
@@ -160,8 +158,6 @@
     flex:          1;
 }
 
-// Heatmap
-
 .location-heatmap-controls {
     display:       flex;
     align-items:   center;
@@ -186,8 +182,6 @@
     width:  100%;
     height: 100%;
 }
-
-// Stats
 
 .location-stats-period {
     display:       flex;
@@ -272,8 +266,6 @@
     font-size: 0.75rem;
     color:     var(--color-text-muted);
 }
-
-// Dashboard widget
 
 .location-widget {
     padding: 0.875rem 1.25rem;
