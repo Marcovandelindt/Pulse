@@ -12,12 +12,27 @@ final class StoreLocationBatch
     private const int CHUNK_SIZE = 500;
 
     /** @param list<array<string, mixed>> $features */
-    public function handle(array $features): int
+    public function handle(array $features): LocationBatchResult
     {
-        $rows = array_map(
-            fn (array $feature) => $this->toRow(LocationPointData::fromGeoJsonFeature($feature)),
-            $features,
-        );
+        $rows = [];
+        $ranges = [];
+
+        foreach ($features as $feature) {
+            $data = LocationPointData::fromGeoJsonFeature($feature);
+            $rows[] = $this->toRow($data);
+
+            $device = $data->deviceId;
+            if (! isset($ranges[$device])) {
+                $ranges[$device] = ['from' => $data->recordedAt->copy(), 'to' => $data->recordedAt->copy()];
+            } else {
+                if ($data->recordedAt < $ranges[$device]['from']) {
+                    $ranges[$device]['from'] = $data->recordedAt->copy();
+                }
+                if ($data->recordedAt > $ranges[$device]['to']) {
+                    $ranges[$device]['to'] = $data->recordedAt->copy();
+                }
+            }
+        }
 
         $inserted = 0;
 
@@ -27,7 +42,13 @@ final class StoreLocationBatch
             }
         });
 
-        return $inserted;
+        $deviceRanges = array_map(
+            fn (string $deviceId, array $range) => new DeviceBatchRange($deviceId, $range['from'], $range['to']),
+            array_keys($ranges),
+            $ranges,
+        );
+
+        return new LocationBatchResult($inserted, $deviceRanges);
     }
 
     /** @return array<string, mixed> */
