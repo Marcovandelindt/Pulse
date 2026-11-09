@@ -26,6 +26,10 @@ use App\Http\Controllers\Insights\InsightPatternController;
 use App\Http\Controllers\Insights\InsightRelatedController;
 use App\Http\Controllers\Insights\PatternController;
 use App\Http\Controllers\Journal\JournalEntryController;
+use App\Http\Controllers\Location\LocationDayController;
+use App\Http\Controllers\Location\LocationHeatmapController;
+use App\Http\Controllers\Location\LocationPlaceController;
+use App\Http\Controllers\Location\LocationStatsController;
 use App\Http\Controllers\People\ContactController;
 use App\Http\Controllers\People\ContactDateController;
 use App\Http\Controllers\People\ContactGiftIdeaController;
@@ -152,6 +156,15 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('/changelog', [ChangelogController::class, 'index'])->name('changelog.index');
+
+    Route::prefix('location')->name('location.')->group(function () {
+        Route::get('/', [LocationDayController::class, 'index'])->name('index');
+        Route::get('/data', [LocationDayController::class, 'data'])->name('data');
+        Route::get('/heatmap', [LocationHeatmapController::class, 'index'])->name('heatmap');
+        Route::get('/heatmap/data', [LocationHeatmapController::class, 'data'])->name('heatmap.data');
+        Route::get('/stats', [LocationStatsController::class, 'index'])->name('stats');
+        Route::patch('/places/{place}', [LocationPlaceController::class, 'update'])->name('places.update');
+    });
 
     Route::prefix('waze')->name('waze.')->group(function () {
         Route::get('/', [WazeDriveController::class, 'index'])->name('index');
