@@ -10,38 +10,41 @@ final class ShowLocationEndpointCommand extends Command
 {
     protected $signature = 'location:endpoint';
 
-    protected $description = 'Show the Overland endpoint URL and token to paste into the app';
+    protected $description = 'Show the OwnTracks endpoint URL and credentials to paste into the app';
 
     public function handle(): int
     {
-        $token = config('services.overland.token');
+        $user = config('services.owntracks.user');
+        $password = config('services.owntracks.password');
         $appUrl = rtrim((string) config('app.url'), '/');
         $localIp = $this->resolveLocalIp();
 
         $this->newLine();
-        $this->line('<fg=yellow>Overland endpoint setup</>');
+        $this->line('<fg=yellow>OwnTracks endpoint setup</>');
         $this->line(str_repeat('─', 60));
 
-        if (empty($token)) {
-            $this->error('OVERLAND_TOKEN is not set in .env — add a secret value first.');
+        if (empty($user) || empty($password)) {
+            $this->error('OWNTRACKS_USER or OWNTRACKS_PASSWORD is not set in .env — add values first.');
             $this->newLine();
 
             return self::FAILURE;
         }
 
-        $this->info('Paste one of these URLs into Overland → Settings → Server URL:');
+        $this->info('Paste one of these URLs into OwnTracks → Settings → Host:');
         $this->newLine();
 
         if ($localIp !== null) {
             $port = parse_url($appUrl, PHP_URL_PORT) ?? 8000;
-            $this->line("  <fg=cyan>http://{$localIp}:{$port}/api/location/overland</>");
+            $this->line("  <fg=cyan>http://{$localIp}:{$port}/api/location/owntracks</>");
         }
 
-        $this->line("  <fg=cyan>{$appUrl}/api/location/overland</>");
+        $this->line("  <fg=cyan>{$appUrl}/api/location/owntracks</>");
         $this->newLine();
-        $this->line('Token (paste into Overland → Settings → Access token):');
-        $this->line("  <fg=green>{$token}</>");
+        $this->line('Credentials (OwnTracks → Settings → Identification):');
+        $this->line("  Username: <fg=green>{$user}</>");
+        $this->line("  Password: <fg=green>{$password}</>");
         $this->newLine();
+        $this->line('<fg=gray>Also set: Mode = HTTP, Path = /api/location/owntracks</>');
         $this->line('<fg=gray>Tip: make sure Pulse is reachable on the network (--host=0.0.0.0)</>');
         $this->newLine();
 
@@ -52,7 +55,6 @@ final class ShowLocationEndpointCommand extends Command
     {
         $ip = gethostbyname((string) gethostname());
 
-        // gethostbyname returns the input unchanged on failure
         return filter_var($ip, FILTER_VALIDATE_IP) !== false ? $ip : null;
     }
 }

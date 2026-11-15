@@ -15,6 +15,7 @@ use App\Actions\Dashboard\GetPersonalRecords;
 use App\Actions\Dashboard\GetRecentMilestone;
 use App\Actions\Dashboard\GetWeekStats;
 use App\Actions\Dashboard\GetWeekTopArtist;
+use App\Actions\Location\GetLocationWidgetData;
 use App\Actions\PlayStation\SyncGamingPresenceAction;
 use App\Http\Controllers\Controller;
 use App\Models\HealthEntry;
@@ -44,6 +45,7 @@ final class DashboardController extends Controller
         private readonly GetWeekStats $weekStats,
         private readonly BuildDailyBrief $buildDailyBrief,
         private readonly BuildAdaptiveSubtitle $buildAdaptiveSubtitle,
+        private readonly GetLocationWidgetData $locationWidget,
     ) {}
 
     public function index(): View
@@ -109,6 +111,7 @@ final class DashboardController extends Controller
             'weekTopArtist' => $this->weekTopArtist->handle(),
             'recentMilestone' => $this->recentMilestone->handle($stepStreak, $sleepStreak),
             'personalRecords' => $this->personalRecords->handle(),
+            'location' => $this->locationWidget->handle(),
             ...$this->weekStats->handle(),
         ]);
     }

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->float('horizontal_accuracy')->nullable();
             $table->json('motion')->nullable();
             $table->float('battery_level')->nullable();
-            $table->json('raw');                            // full Overland properties blob
+            $table->json('raw');                            // full raw payload
             $table->timestamp('created_at')->useCurrent();
 
             $table->unique(['device_id', 'recorded_at']);

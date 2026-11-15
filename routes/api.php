@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Location\StoreOverlandBatchController;
+use App\Http\Controllers\Location\StoreOwnTracksLocationController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/location/overland', StoreOverlandBatchController::class)
-    ->middleware('overland.token')
-    ->name('api.location.overland');
+Route::post('/location/owntracks', StoreOwnTracksLocationController::class)
+    ->middleware('owntracks.auth')
+    ->name('api.location.owntracks');

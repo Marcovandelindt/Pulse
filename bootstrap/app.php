@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\EnsureSpotifyIsConnected;
-use App\Http\Middleware\VerifyOverlandToken;
+use App\Http\Middleware\VerifyOwnTracksAuth;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -34,7 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'spotify.connected' => EnsureSpotifyIsConnected::class,
-            'overland.token' => VerifyOverlandToken::class,
+            'owntracks.auth' => VerifyOwnTracksAuth::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

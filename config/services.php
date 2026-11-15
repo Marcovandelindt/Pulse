@@ -57,8 +57,9 @@ return [
         'city' => env('WEATHER_CITY', 'Amsterdam'),
     ],
 
-    'overland' => [
-        'token' => env('OVERLAND_TOKEN'),
+    'owntracks' => [
+        'user'     => env('OWNTRACKS_USER'),
+        'password' => env('OWNTRACKS_PASSWORD'),
     ],
 
 ];
