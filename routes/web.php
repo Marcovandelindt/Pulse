@@ -29,6 +29,7 @@ use App\Http\Controllers\Journal\JournalEntryController;
 use App\Http\Controllers\Location\LocationDayController;
 use App\Http\Controllers\Location\LocationHeatmapController;
 use App\Http\Controllers\Location\LocationPlaceController;
+use App\Http\Controllers\Location\LocationTripController;
 use App\Http\Controllers\Location\LocationStatsController;
 use App\Http\Controllers\People\ContactController;
 use App\Http\Controllers\People\ContactDateController;
@@ -164,6 +165,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/heatmap/data', [LocationHeatmapController::class, 'data'])->name('heatmap.data');
         Route::get('/stats', [LocationStatsController::class, 'index'])->name('stats');
         Route::patch('/places/{place}', [LocationPlaceController::class, 'update'])->name('places.update');
+        Route::patch('/trips/{trip}', [LocationTripController::class, 'update'])->name('trips.update');
     });
 
     Route::prefix('waze')->name('waze.')->group(function () {

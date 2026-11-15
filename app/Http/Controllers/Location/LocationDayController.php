@@ -53,8 +53,8 @@ final class LocationDayController extends Controller
             ->map(fn (LocationTrip $trip): array => [
                 'id' => $trip->id,
                 'type' => 'trip',
-                'started_at' => $trip->started_at->format('H:i'),
-                'ended_at' => $trip->ended_at->format('H:i'),
+                'started_at' => Carbon::parse($trip->getRawOriginal('started_at'), 'UTC')->setTimezone('Europe/Amsterdam')->format('H:i'),
+                'ended_at' => Carbon::parse($trip->getRawOriginal('ended_at'), 'UTC')->setTimezone('Europe/Amsterdam')->format('H:i'),
                 'duration_minutes' => (int) $trip->started_at->diffInMinutes($trip->ended_at),
                 'distance_km' => round($trip->distance_meters / 1000, 2),
                 'dominant_motion' => $trip->dominant_motion,
@@ -70,8 +70,8 @@ final class LocationDayController extends Controller
             ->map(fn (LocationVisit $visit): array => [
                 'id' => $visit->id,
                 'type' => 'visit',
-                'started_at' => $visit->started_at->format('H:i'),
-                'ended_at' => $visit->ended_at->format('H:i'),
+                'started_at' => Carbon::parse($visit->getRawOriginal('started_at'), 'UTC')->setTimezone('Europe/Amsterdam')->format('H:i'),
+                'ended_at' => Carbon::parse($visit->getRawOriginal('ended_at'), 'UTC')->setTimezone('Europe/Amsterdam')->format('H:i'),
                 'duration_minutes' => (int) $visit->started_at->diffInMinutes($visit->ended_at),
                 'place_id' => $visit->place_id,
                 'place_name' => $visit->place?->name,

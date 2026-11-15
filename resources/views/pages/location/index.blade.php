@@ -42,12 +42,13 @@
 
     @push('scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
     <script>
         const map = L.map('location-map').setView([52.3, 4.9], 12);
 
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            maxZoom: 19,
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+            maxZoom: 16,
         }).addTo(map);
 
         const motionColors = {
@@ -66,6 +67,7 @@
 
         const mapLayers = {};
         let bounds = null;
+        const tripUpdateBase = '{{ route('location.trips.update', ':id') }}';
 
         function formatDuration(minutes) {
             if (minutes < 60) return minutes + ' min';
@@ -107,16 +109,31 @@
 
             timeline.innerHTML = all.map(item => {
                 if (item.type === 'trip') {
-                    const color = motionColors[item.dominant_motion] ?? motionColors.other;
-                    const label = motionLabels[item.dominant_motion] ?? item.dominant_motion;
+                    const updateUrl = tripUpdateBase.replace(':id', item.id);
                     return `
-                        <div class="location-segment location-segment--trip" data-id="${item.id}" onclick="highlightLayer('trip-${item.id}')">
-                            <div class="location-segment__dot" style="background:${color}"></div>
+                        <div class="location-segment location-segment--trip" data-id="${item.id}"
+                             x-data="tripMotionEditor(${item.id}, '${item.dominant_motion}', '${updateUrl}')"
+                             @click="!editing && highlightLayer('trip-${item.id}')">
+                            <div class="location-segment__dot" :style="'background:' + color"></div>
                             <div class="location-segment__body">
-                                <div class="location-segment__title">${label}</div>
+                                <div class="location-segment__title">
+                                    <span x-show="!editing" @click.stop="editing = true" class="location-segment__place-name" title="Click to change">
+                                        <span x-text="label"></span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="location-segment__edit-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                                        </svg>
+                                    </span>
+                                    <div x-show="editing" @click.stop class="location-segment__motion-picker">
+                                        <button @click="save('driving')" class="location-segment__motion-btn" :class="{ 'location-segment__motion-btn--active': motion === 'driving' }">Driving</button>
+                                        <button @click="save('walking')" class="location-segment__motion-btn" :class="{ 'location-segment__motion-btn--active': motion === 'walking' }">Walking</button>
+                                        <button @click="save('cycling')" class="location-segment__motion-btn" :class="{ 'location-segment__motion-btn--active': motion === 'cycling' }">Cycling</button>
+                                        <button @click="save('other')" class="location-segment__motion-btn" :class="{ 'location-segment__motion-btn--active': motion === 'other' }">Other</button>
+                                        <button @click="editing = false" class="location-segment__motion-btn location-segment__motion-btn--cancel">✕</button>
+                                    </div>
+                                </div>
                                 <div class="location-segment__meta">${item.started_at}–${item.ended_at} &middot; ${item.distance_km} km &middot; ${formatDuration(item.duration_minutes)}</div>
                             </div>
-                            <div class="location-segment__badge" style="background:${color}20;color:${color}">${item.distance_km} km</div>
+                            <div class="location-segment__badge" :style="'background:' + color + '20;color:' + color">${item.distance_km} km</div>
                         </div>`;
                 } else {
                     const placeName = item.place_name ?? 'Unknown place';
@@ -147,34 +164,55 @@
             }).join('');
         }
 
+        function interpolateLine(polyline, stepDeg) {
+            const result = [];
+            for (let i = 0; i < polyline.length - 1; i++) {
+                const [lat1, lng1] = polyline[i];
+                const [lat2, lng2] = polyline[i + 1];
+                const dist  = Math.hypot(lat2 - lat1, lng2 - lng1);
+                const steps = Math.max(1, Math.round(dist / stepDeg));
+                for (let s = 0; s < steps; s++) {
+                    const t = s / steps;
+                    result.push([lat1 + (lat2 - lat1) * t, lng1 + (lng2 - lng1) * t]);
+                }
+            }
+            if (polyline.length > 0) result.push(polyline[polyline.length - 1]);
+            return result;
+        }
+
         fetch(`{{ route('location.data') }}?date={{ $date }}`)
             .then(r => r.json())
             .then(({ trips, visits }) => {
                 buildTimeline(trips, visits);
 
-                const allPoints = [];
+                const heatPoints = [];
+                const allPoints  = [];
 
                 trips.forEach(trip => {
                     if (!trip.polyline || trip.polyline.length < 2) return;
-                    const color = motionColors[trip.dominant_motion] ?? motionColors.other;
-                    const line = L.polyline(trip.polyline, { color, weight: 2.5, opacity: 0.75 }).addTo(map);
-                    mapLayers['trip-' + trip.id] = line;
-                    trip.polyline.forEach(p => allPoints.push(p));
+                    interpolateLine(trip.polyline, 0.0002).forEach(p => {
+                        allPoints.push(p);
+                        heatPoints.push([p[0], p[1], 0.4]);
+                    });
                 });
 
                 visits.forEach(visit => {
                     if (!visit.lat || !visit.lon) return;
-                    const marker = L.circleMarker([visit.lat, visit.lon], {
-                        radius: 7,
-                        fillColor: '#38bdf8',
-                        color: '#0ea5e9',
-                        weight: 2,
-                        fillOpacity: 0.9,
-                        opacity: 0.9,
-                    }).addTo(map);
-                    mapLayers['visit-' + visit.id] = marker;
                     allPoints.push([visit.lat, visit.lon]);
+                    heatPoints.push([visit.lat, visit.lon, 1.0]);
+                    heatPoints.push([visit.lat, visit.lon, 1.0]);
+                    heatPoints.push([visit.lat, visit.lon, 1.0]);
                 });
+
+                if (heatPoints.length > 0) {
+                    L.heatLayer(heatPoints, {
+                        radius: 12,
+                        blur: 15,
+                        maxZoom: 17,
+                        max: 1.0,
+                        gradient: { 0.2: '#fc4c02', 0.55: '#ff8c00', 1.0: '#fff' },
+                    }).addTo(map);
+                }
 
                 if (allPoints.length > 0) {
                     map.fitBounds(L.latLngBounds(allPoints), { padding: [30, 30] });
@@ -183,6 +221,29 @@
     </script>
 
     <script>
+        function tripMotionEditor(tripId, initialMotion, updateUrl) {
+            return {
+                motion: initialMotion,
+                editing: false,
+                labels: { driving: 'Driving', walking: 'Walking', cycling: 'Cycling', other: 'Other' },
+                colors: { driving: '#818cf8', walking: '#4ade80', cycling: '#fbbf24', other: '#94a3b8' },
+                get label() { return this.labels[this.motion] ?? this.motion; },
+                get color() { return this.colors[this.motion] ?? '#94a3b8'; },
+                async save(newMotion) {
+                    const res = await fetch(updateUrl, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                        },
+                        body: JSON.stringify({ dominant_motion: newMotion }),
+                    });
+                    if (res.ok) this.motion = newMotion;
+                    this.editing = false;
+                },
+            };
+        }
+
         function placeEditor(placeId, initialName, updateUrl) {
             return {
                 name: initialName,
