@@ -182,7 +182,7 @@
                                         </div>
                                     @endif
                                 </div>
-                                <span class="play-item__time">{{ $play->played_at->format('d M, H:i') }}</span>
+                                <span class="play-item__time">{{ $play->played_at->format('d M Y, H:i') }}</span>
                             </div>
                         @endforeach
                     </div>
