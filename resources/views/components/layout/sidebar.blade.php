@@ -40,6 +40,7 @@
             <span class="sidebar__group-label">Planning</span>
             <x-layout.nav-item route="people.index" icon="users" label="People" />
             <x-layout.nav-item route="calendar.index" icon="calendar" label="Calendar" />
+            <x-layout.nav-item route="jobs.index" icon="briefcase" label="Jobs" />
         </div>
 
         <div class="sidebar__group">
@@ -52,6 +53,7 @@
         <div class="sidebar__group">
             <span class="sidebar__group-label">Project</span>
             <x-layout.nav-item route="ideas.index" icon="light-bulb" label="Ideas" />
+            <x-layout.nav-item route="links.index" icon="link" label="Links" />
         </div>
 
         <div class="sidebar__group">

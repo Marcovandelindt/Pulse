@@ -25,12 +25,14 @@ use App\Http\Controllers\Insights\InsightController;
 use App\Http\Controllers\Insights\InsightPatternController;
 use App\Http\Controllers\Insights\InsightRelatedController;
 use App\Http\Controllers\Insights\PatternController;
+use App\Http\Controllers\Jobs\JobController;
 use App\Http\Controllers\Journal\JournalEntryController;
+use App\Http\Controllers\Links\LinkController;
 use App\Http\Controllers\Location\LocationDayController;
 use App\Http\Controllers\Location\LocationHeatmapController;
 use App\Http\Controllers\Location\LocationPlaceController;
-use App\Http\Controllers\Location\LocationTripController;
 use App\Http\Controllers\Location\LocationStatsController;
+use App\Http\Controllers\Location\LocationTripController;
 use App\Http\Controllers\People\ContactController;
 use App\Http\Controllers\People\ContactDateController;
 use App\Http\Controllers\People\ContactGiftIdeaController;
@@ -178,6 +180,25 @@ Route::middleware('auth')->group(function () {
         Route::post('/import', [WazeImportController::class, 'store'])->name('import.store');
         Route::post('/labels', [WazeLocationLabelController::class, 'store'])->name('labels.store');
         Route::delete('/labels/{label}', [WazeLocationLabelController::class, 'destroy'])->name('labels.destroy');
+    });
+
+    Route::prefix('links')->name('links.')->group(function () {
+        Route::get('/', [LinkController::class, 'index'])->name('index');
+        Route::get('/create', [LinkController::class, 'create'])->name('create');
+        Route::post('/', [LinkController::class, 'store'])->name('store');
+        Route::get('/{link}', [LinkController::class, 'show'])->name('show');
+        Route::get('/{link}/edit', [LinkController::class, 'edit'])->name('edit');
+        Route::patch('/{link}', [LinkController::class, 'update'])->name('update');
+        Route::delete('/{link}', [LinkController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('jobs')->name('jobs.')->group(function () {
+        Route::get('/', [JobController::class, 'index'])->name('index');
+        Route::get('/create', [JobController::class, 'create'])->name('create');
+        Route::post('/', [JobController::class, 'store'])->name('store');
+        Route::get('/{job}/edit', [JobController::class, 'edit'])->name('edit');
+        Route::patch('/{job}', [JobController::class, 'update'])->name('update');
+        Route::delete('/{job}', [JobController::class, 'destroy'])->name('destroy');
     });
 
     Route::prefix('ideas')->name('ideas.')->group(function () {

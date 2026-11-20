@@ -1,0 +1,227 @@
+.jobs-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.job-card {
+    display: flex;
+    gap: 1rem;
+}
+
+.job-card__indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 1.25rem;
+    padding-top: 0.25rem;
+}
+
+.job-card__dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: var(--color-text-muted);
+    border: 2px solid var(--color-bg-primary);
+    flex-shrink: 0;
+    z-index: 1;
+}
+
+.job-card--active .job-card__dot {
+    background: oklch(0.60 0.18 260);
+}
+
+.job-card__line {
+    width: 2px;
+    flex: 1;
+    background: var(--color-border);
+    margin-top: 0.25rem;
+    min-height: 1.5rem;
+}
+
+.job-card__body {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.job-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.875rem;
+}
+
+.job-card__meta {
+    min-width: 0;
+}
+
+.job-card__employer {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.job-card__badge {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    background: oklch(0.60 0.18 260 / 0.15);
+    color: oklch(0.75 0.14 260);
+    border: 1px solid oklch(0.60 0.18 260 / 0.3);
+}
+
+.job-card__title {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-top: 0.125rem;
+}
+
+.job-card__actions {
+    display: flex;
+    gap: 0.375rem;
+    flex-shrink: 0;
+}
+
+.job-card__details {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+}
+
+.job-card__period {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+}
+
+.job-card__period svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    flex-shrink: 0;
+}
+
+.job-card__duration {
+    color: var(--color-text-muted);
+    opacity: 0.6;
+}
+
+.job-card__duration::before {
+    content: '·';
+    margin-right: 0.375rem;
+}
+
+.job-card__days {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.job-card__day {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-muted);
+    opacity: 0.4;
+}
+
+.job-card__day--active {
+    background: oklch(0.60 0.18 260 / 0.15);
+    color: oklch(0.75 0.14 260);
+    opacity: 1;
+}
+
+.job-card__hours {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-left: 0.25rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--color-border);
+}
+
+.job-card__hours svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    flex-shrink: 0;
+}
+
+.job-card__notes {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-top: 0.875rem;
+    padding-top: 0.875rem;
+    border-top: 1px solid var(--color-border);
+    line-height: 1.5;
+}
+
+/* Form */
+
+.job-form__days {
+    display: flex;
+    gap: 0.375rem;
+    flex-wrap: wrap;
+}
+
+.job-form__day-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background var(--transition-base), border-color var(--transition-base), color var(--transition-base);
+    user-select: none;
+}
+
+.job-form__day-toggle input[type="checkbox"] {
+    display: none;
+}
+
+.job-form__day-toggle--checked {
+    background: oklch(0.60 0.18 260 / 0.15);
+    border-color: oklch(0.60 0.18 260 / 0.4);
+    color: oklch(0.75 0.14 260);
+}
+
+.job-form__current-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+}
+
+.job-form__current-checkbox {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+}

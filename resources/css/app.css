@@ -42,6 +42,8 @@
 @import './features/_auth.scss';
 @import './features/_waze.scss';
 @import './features/_location.scss';
+@import './features/_links.scss';
+@import './features/_jobs.scss';
 
 @theme {
     --color-brand:        oklch(0.60 0.18 260);
