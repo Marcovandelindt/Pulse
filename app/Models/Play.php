@@ -11,10 +11,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property Carbon $played_at
  * @property Track $track
+ * @property string|null $time_context 'work'|'free'|null
  */
 final class Play extends Model
 {
-    protected $fillable = ['track_id', 'played_at', 'source', 'context'];
+    protected $fillable = ['track_id', 'played_at', 'source', 'context', 'time_context'];
 
     protected function casts(): array
     {

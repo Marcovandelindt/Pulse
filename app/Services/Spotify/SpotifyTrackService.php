@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Spotify;
 
+use App\Actions\Music\ResolvePlayTimeContext;
 use App\Models\Album;
 use App\Models\Artist;
+use App\Models\Job;
 use App\Models\Play;
 use App\Models\SpotifySyncCursor;
 use App\Models\Track;
@@ -33,16 +35,20 @@ final class SpotifyTrackService
         }
 
         $timezone = config('app.timezone');
+        $jobs = Job::all();
+        $resolver = new ResolvePlayTimeContext;
 
         // Build play list, upsert tracks
         $plays = [];
         foreach ($response['items'] as $item) {
-            $track   = $this->upsertTrack($item['track'], fetchDetails: true);
+            $track = $this->upsertTrack($item['track'], fetchDetails: true);
+            $playedAt = Carbon::parse($item['played_at'], 'UTC')->setTimezone($timezone);
             $plays[] = [
-                'track_id'    => $track->id,
+                'track_id' => $track->id,
                 'duration_ms' => $track->duration_ms,
-                'played_at'   => Carbon::parse($item['played_at'], 'UTC')->setTimezone($timezone),
-                'context'     => isset($item['context']) ? json_encode($item['context']) : null,
+                'played_at' => $playedAt,
+                'context' => isset($item['context']) ? json_encode($item['context']) : null,
+                'time_context' => $resolver->handle($playedAt, $jobs),
             ];
         }
 
@@ -50,7 +56,7 @@ final class SpotifyTrackService
         usort($plays, fn ($a, $b) => $a['played_at'] <=> $b['played_at']);
 
         // Pre-fetch the most recent existing play per track to seed the duplicate check
-        $trackIds   = array_unique(array_column($plays, 'track_id'));
+        $trackIds = array_unique(array_column($plays, 'track_id'));
         $lastSeenAt = Play::whereIn('track_id', $trackIds)
             ->where('played_at', '>=', $plays[0]['played_at']->clone()->subDay())
             ->selectRaw('track_id, MAX(played_at) as last_played_at')
@@ -59,12 +65,12 @@ final class SpotifyTrackService
             ->map(fn ($d) => Carbon::parse($d))
             ->toArray();
 
-        $synced      = 0;
-        $skipped     = 0;
+        $synced = 0;
+        $skipped = 0;
         $maxPlayedAt = null;
 
         foreach ($plays as $play) {
-            $trackId  = $play['track_id'];
+            $trackId = $play['track_id'];
             $playedAt = $play['played_at'];
 
             if ($maxPlayedAt === null || $playedAt->gt($maxPlayedAt)) {
@@ -73,14 +79,16 @@ final class SpotifyTrackService
 
             if ($this->isDuplicatePlay($playedAt, $lastSeenAt[$trackId] ?? null, $play['duration_ms'])) {
                 $skipped++;
+
                 continue;
             }
 
             $inserted = Play::insertOrIgnore([
-                'track_id'   => $trackId,
-                'played_at'  => $playedAt,
-                'source'     => 'spotify',
-                'context'    => $play['context'],
+                'track_id' => $trackId,
+                'played_at' => $playedAt,
+                'source' => 'spotify',
+                'context' => $play['context'],
+                'time_context' => $play['time_context'],
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -106,7 +114,7 @@ final class SpotifyTrackService
             return false;
         }
 
-        $gapMs    = abs($playedAt->diffInMilliseconds($lastPlayedAt));
+        $gapMs = abs($playedAt->diffInMilliseconds($lastPlayedAt));
         $minGapMs = max($durationMs ?? 0, 5_000);
 
         return $gapMs < $minGapMs;
@@ -127,8 +135,8 @@ final class SpotifyTrackService
 
                 if ($artistDetails !== null) {
                     $artist->update([
-                        'image_url'  => $artistDetails['images'][0]['url'] ?? null,
-                        'genres'     => $artistDetails['genres'] ?? [],
+                        'image_url' => $artistDetails['images'][0]['url'] ?? null,
+                        'genres' => $artistDetails['genres'] ?? [],
                         'popularity' => $artistDetails['popularity'] ?? null,
                     ]);
                 }
@@ -138,12 +146,12 @@ final class SpotifyTrackService
         }
 
         $albumData = $trackData['album'];
-        $album     = Album::firstOrCreate(
+        $album = Album::firstOrCreate(
             ['spotify_album_id' => $albumData['id']],
             [
-                'name'         => $albumData['name'],
-                'image_url'    => $albumData['images'][0]['url'] ?? null,
-                'album_type'   => $albumData['album_type'] ?? null,
+                'name' => $albumData['name'],
+                'image_url' => $albumData['images'][0]['url'] ?? null,
+                'album_type' => $albumData['album_type'] ?? null,
                 'total_tracks' => $albumData['total_tracks'] ?? null,
             ],
         );
@@ -159,10 +167,10 @@ final class SpotifyTrackService
         $track = Track::firstOrCreate(
             ['spotify_track_id' => $trackData['id']],
             [
-                'album_id'    => $album->id,
-                'title'       => $trackData['name'],
+                'album_id' => $album->id,
+                'title' => $trackData['name'],
                 'duration_ms' => $trackData['duration_ms'] ?? null,
-                'popularity'  => $trackData['popularity'] ?? null,
+                'popularity' => $trackData['popularity'] ?? null,
                 'preview_url' => $trackData['preview_url'] ?? null,
                 'spotify_uri' => $trackData['uri'] ?? null,
                 'is_explicit' => $trackData['explicit'] ?? false,
@@ -198,20 +206,20 @@ final class SpotifyTrackService
         }
 
         return [
-            'track_name'       => $track['name'],
+            'track_name' => $track['name'],
             'spotify_track_id' => $track['id'] ?? null,
-            'raw_track'        => $track,
-            'artists'          => collect($track['artists'])->map(fn ($a) => [
-                'name'              => $a['name'],
+            'raw_track' => $track,
+            'artists' => collect($track['artists'])->map(fn ($a) => [
+                'name' => $a['name'],
                 'spotify_artist_id' => $a['id'],
             ])->all(),
-            'artist_names'    => collect($track['artists'])->pluck('name')->implode(', '),
-            'album_name'      => $track['album']['name'] ?? null,
+            'artist_names' => collect($track['artists'])->pluck('name')->implode(', '),
+            'album_name' => $track['album']['name'] ?? null,
             'album_image_url' => $track['album']['images'][0]['url'] ?? null,
-            'is_playing'      => $response['is_playing'],
-            'progress_ms'     => $response['progress_ms'] ?? 0,
-            'duration_ms'     => $track['duration_ms'] ?? 0,
-            'spotify_uri'     => $track['uri'] ?? null,
+            'is_playing' => $response['is_playing'],
+            'progress_ms' => $response['progress_ms'] ?? 0,
+            'duration_ms' => $track['duration_ms'] ?? 0,
+            'spotify_uri' => $track['uri'] ?? null,
         ];
     }
 }

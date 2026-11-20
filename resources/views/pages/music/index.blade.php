@@ -182,7 +182,39 @@
                                         </div>
                                     @endif
                                 </div>
-                                <span class="play-item__time">{{ $play->played_at->format('d M Y, H:i') }}</span>
+                                <div class="play-item__right">
+                                    <div
+                                        x-data="{ ctx: @js($play->time_context) }"
+                                        class="play-item__context"
+                                    >
+                                        <button
+                                            type="button"
+                                            class="play-context-btn"
+                                            :class="'play-context-btn--' + (ctx ?? 'unknown')"
+                                            :title="ctx === 'work' ? 'Work → Free' : (ctx === 'free' ? 'Free → Unknown' : 'Unknown → Work')"
+                                            @click="
+                                                fetch('{{ route('music.plays.time-context', $play) }}', {
+                                                    method: 'PATCH',
+                                                    headers: {
+                                                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                                                        'Accept': 'application/json'
+                                                    }
+                                                }).then(r => r.json()).then(d => ctx = d.time_context)
+                                            "
+                                        >
+                                            <template x-if="ctx === 'work'">
+                                                <span>Work</span>
+                                            </template>
+                                            <template x-if="ctx === 'free'">
+                                                <span>Free</span>
+                                            </template>
+                                            <template x-if="ctx === null">
+                                                <span>—</span>
+                                            </template>
+                                        </button>
+                                    </div>
+                                    <span class="play-item__time">{{ $play->played_at->format('d M Y, H:i') }}</span>
+                                </div>
                             </div>
                         @endforeach
                     </div>

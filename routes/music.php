@@ -8,6 +8,7 @@ use App\Http\Controllers\Music\ImportSpotifyHistoryController;
 use App\Http\Controllers\Music\MusicDashboardController;
 use App\Http\Controllers\Music\MusicStatsController;
 use App\Http\Controllers\Music\ObsessionController;
+use App\Http\Controllers\Music\PlayTimeContextController;
 use App\Http\Controllers\Music\SpotifyPlaylistController;
 use App\Http\Controllers\Music\TrackController;
 use App\Http\Controllers\Music\TrackGameController;
@@ -35,4 +36,5 @@ Route::prefix('music')->name('music.')->middleware('spotify.connected')->group(f
     Route::delete('/playlists/{playlist}', [SpotifyPlaylistController::class, 'destroy'])->name('playlists.destroy');
     Route::get('/albums/{album}', [AlbumController::class, 'show'])->name('albums.show');
     Route::get('/artists/{artist}', [ArtistController::class, 'show'])->name('artists.show');
+    Route::patch('/plays/{play}/time-context', [PlayTimeContextController::class, 'update'])->name('plays.time-context');
 });

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Actions\Music\ResolvePlayTimeContext;
 use App\Models\Album;
 use App\Models\Artist;
+use App\Models\Job;
 use App\Models\SpotifyImport;
 use App\Models\Track;
 use App\Services\Spotify\SpotifyService;
@@ -15,12 +17,13 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class ProcessSpotifyImport implements ShouldQueue
+final class ProcessSpotifyImport implements ShouldQueue
 {
     use Queueable;
 
     public int $timeout = 3600;
-    public int $tries   = 1;
+
+    public int $tries = 1;
 
     public function __construct(
         private readonly SpotifyImport $import,
@@ -31,7 +34,7 @@ class ProcessSpotifyImport implements ShouldQueue
         $this->import->update(['status' => 'processing']);
 
         try {
-            $raw     = json_decode(Storage::get($this->import->file_path), true, 512, JSON_THROW_ON_ERROR);
+            $raw = json_decode(Storage::get($this->import->file_path), true, 512, JSON_THROW_ON_ERROR);
             $entries = collect($raw)->filter(
                 fn ($e) => isset($e['spotify_track_uri'])
                     && str_starts_with($e['spotify_track_uri'], 'spotify:track:')
@@ -61,7 +64,7 @@ class ProcessSpotifyImport implements ShouldQueue
 
             foreach ($missingIds->chunk(50) as $chunk) {
                 $response = $spotify->get('/tracks', [
-                    'ids'    => $chunk->implode(','),
+                    'ids' => $chunk->implode(','),
                     'market' => 'NL',
                 ]);
 
@@ -85,13 +88,15 @@ class ProcessSpotifyImport implements ShouldQueue
             $trackDurationMap = Track::whereIn('id', $trackIdMap->values()->toArray())
                 ->pluck('duration_ms', 'id');
 
-            $synced     = 0;
-            $skipped    = 0;
-            $processed  = 0;
-            $batch      = [];
-            $now        = now()->toDateTimeString();
-            $timezone   = config('app.timezone');
+            $synced = 0;
+            $skipped = 0;
+            $processed = 0;
+            $batch = [];
+            $now = now()->toDateTimeString();
+            $timezone = config('app.timezone');
             $lastSeenAt = [];
+            $jobs = Job::all();
+            $resolver = new ResolvePlayTimeContext;
 
             foreach ($entries as $entry) {
                 $spotifyId = str_replace('spotify:track:', '', $entry['spotify_track_uri']);
@@ -100,59 +105,62 @@ class ProcessSpotifyImport implements ShouldQueue
 
                 if ($dbTrackId === null) {
                     $skipped++;
+
                     continue;
                 }
 
-                $playedAt   = Carbon::parse($entry['ts'], 'UTC')->setTimezone($timezone);
+                $playedAt = Carbon::parse($entry['ts'], 'UTC')->setTimezone($timezone);
                 $durationMs = $trackDurationMap->get($dbTrackId);
 
                 if ($this->isDuplicatePlay($playedAt, $lastSeenAt[$dbTrackId] ?? null, $durationMs)) {
                     $skipped++;
+
                     continue;
                 }
 
                 $lastSeenAt[$dbTrackId] = $playedAt;
 
                 $batch[] = [
-                    'track_id'   => $dbTrackId,
-                    'played_at'  => $playedAt->toDateTimeString(),
-                    'source'     => 'import',
-                    'context'    => null,
+                    'track_id' => $dbTrackId,
+                    'played_at' => $playedAt->toDateTimeString(),
+                    'source' => 'import',
+                    'context' => null,
+                    'time_context' => $resolver->handle($playedAt, $jobs),
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
 
                 if (count($batch) >= 500) {
-                    $inserted  = DB::table('plays')->insertOrIgnore($batch);
-                    $synced   += $inserted;
-                    $skipped  += count($batch) - $inserted;
-                    $batch     = [];
+                    $inserted = DB::table('plays')->insertOrIgnore($batch);
+                    $synced += $inserted;
+                    $skipped += count($batch) - $inserted;
+                    $batch = [];
 
                     $this->import->update([
                         'processed' => $processed,
-                        'synced'    => $synced,
-                        'skipped'   => $skipped,
+                        'synced' => $synced,
+                        'skipped' => $skipped,
                     ]);
                 }
             }
 
             if (! empty($batch)) {
-                $inserted  = DB::table('plays')->insertOrIgnore($batch);
-                $synced   += $inserted;
-                $skipped  += count($batch) - $inserted;
+                $inserted = DB::table('plays')->insertOrIgnore($batch);
+                $synced += $inserted;
+                $skipped += count($batch) - $inserted;
             }
 
             $this->import->update([
-                'status'    => 'done',
+                'status' => 'done',
                 'processed' => $processed,
-                'synced'    => $synced,
-                'skipped'   => $skipped,
+                'synced' => $synced,
+                'skipped' => $skipped,
             ]);
 
         } catch (\Throwable $e) {
             $this->import->update([
                 'status' => 'failed',
-                'error'  => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -163,7 +171,7 @@ class ProcessSpotifyImport implements ShouldQueue
             return false;
         }
 
-        $gapMs    = abs($playedAt->diffInMilliseconds($lastPlayedAt));
+        $gapMs = abs($playedAt->diffInMilliseconds($lastPlayedAt));
         $minGapMs = max($durationMs ?? 0, 5_000);
 
         return $gapMs < $minGapMs;
@@ -184,12 +192,12 @@ class ProcessSpotifyImport implements ShouldQueue
         }
 
         $albumData = $trackData['album'];
-        $album     = Album::firstOrCreate(
+        $album = Album::firstOrCreate(
             ['spotify_album_id' => $albumData['id']],
             [
-                'name'         => $albumData['name'],
-                'image_url'    => $albumData['images'][0]['url'] ?? null,
-                'album_type'   => $albumData['album_type'] ?? null,
+                'name' => $albumData['name'],
+                'image_url' => $albumData['images'][0]['url'] ?? null,
+                'album_type' => $albumData['album_type'] ?? null,
                 'total_tracks' => $albumData['total_tracks'] ?? null,
                 'release_date' => $albumData['release_date'] ?? null,
             ],
@@ -198,10 +206,10 @@ class ProcessSpotifyImport implements ShouldQueue
         $track = Track::firstOrCreate(
             ['spotify_track_id' => $trackData['id']],
             [
-                'album_id'    => $album->id,
-                'title'       => $trackData['name'],
+                'album_id' => $album->id,
+                'title' => $trackData['name'],
                 'duration_ms' => $trackData['duration_ms'] ?? null,
-                'popularity'  => $trackData['popularity'] ?? null,
+                'popularity' => $trackData['popularity'] ?? null,
                 'preview_url' => $trackData['preview_url'] ?? null,
                 'spotify_uri' => $trackData['uri'] ?? null,
                 'is_explicit' => $trackData['explicit'] ?? false,
