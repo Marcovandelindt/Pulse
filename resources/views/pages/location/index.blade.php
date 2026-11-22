@@ -187,6 +187,7 @@
 
                 const heatPoints = [];
                 const allPoints  = [];
+                const routeLayer = L.layerGroup();
 
                 trips.forEach(trip => {
                     if (!trip.polyline || trip.polyline.length < 2) return;
@@ -194,6 +195,10 @@
                         allPoints.push(p);
                         heatPoints.push([p[0], p[1], 0.4]);
                     });
+                    const color = motionColors[trip.dominant_motion] ?? motionColors.other;
+                    const line  = L.polyline(trip.polyline, { color, weight: 3, opacity: 0.85 });
+                    mapLayers['trip-' + trip.id] = line;
+                    routeLayer.addLayer(line);
                 });
 
                 visits.forEach(visit => {
@@ -202,17 +207,26 @@
                     heatPoints.push([visit.lat, visit.lon, 1.0]);
                     heatPoints.push([visit.lat, visit.lon, 1.0]);
                     heatPoints.push([visit.lat, visit.lon, 1.0]);
+                    const marker = L.circleMarker([visit.lat, visit.lon], {
+                        radius: 6, fillColor: '#fc4c02', color: '#ea580c',
+                        weight: 2, fillOpacity: 0.85, opacity: 0.85,
+                    });
+                    mapLayers['visit-' + visit.id] = marker;
+                    routeLayer.addLayer(marker);
                 });
 
-                if (heatPoints.length > 0) {
-                    L.heatLayer(heatPoints, {
-                        radius: 12,
-                        blur: 15,
-                        maxZoom: 17,
-                        max: 1.0,
+                const heatLayer = heatPoints.length > 0
+                    ? L.heatLayer(heatPoints, {
+                        radius: 12, blur: 15, maxZoom: 17, max: 1.0,
                         gradient: { 0.2: '#fc4c02', 0.55: '#ff8c00', 1.0: '#fff' },
-                    }).addTo(map);
-                }
+                    }).addTo(map)
+                    : null;
+
+                L.control.layers(
+                    {},
+                    { 'Heatmap': heatLayer, 'Routes': routeLayer },
+                    { collapsed: false, position: 'topright' }
+                ).addTo(map);
 
                 if (allPoints.length > 0) {
                     map.fitBounds(L.latLngBounds(allPoints), { padding: [30, 30] });
