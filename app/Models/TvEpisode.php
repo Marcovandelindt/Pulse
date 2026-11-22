@@ -60,12 +60,14 @@ final class TvEpisode extends Model
     public function addWatch(
         ?Carbon $watchedAt = null,
         bool $yearOnly = false,
+        bool $monthYearOnly = false,
         ?string $notes = null,
         ?int $rating = null,
     ): EpisodeWatch {
         $watch = $this->watches()->create([
             'watched_at' => $watchedAt,
             'year_only' => $yearOnly,
+            'month_year_only' => $monthYearOnly,
             'notes' => $notes,
             'rating' => $rating,
         ]);

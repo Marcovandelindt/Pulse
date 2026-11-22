@@ -174,11 +174,13 @@ export function registerTvComponents() {
         watchDateMode: 'exact',
         watchDate: new Date().toISOString().slice(0, 10),
         watchYear: String(new Date().getFullYear()),
+        watchMonth: String(new Date().getMonth() + 1),
 
         bulkOpen: false,
         bulkDateMode: 'year',
         bulkDate: new Date().toISOString().slice(0, 10),
         bulkYear: String(new Date().getFullYear()),
+        bulkMonth: String(new Date().getMonth() + 1),
 
         seasonBulkOpen: false,
         pendingSeasonId: null,
@@ -186,6 +188,7 @@ export function registerTvComponents() {
         seasonBulkDateMode: 'year',
         seasonBulkDate: new Date().toISOString().slice(0, 10),
         seasonBulkYear: String(new Date().getFullYear()),
+        seasonBulkMonth: String(new Date().getMonth() + 1),
 
         refreshing: false,
 
@@ -234,20 +237,25 @@ export function registerTvComponents() {
             this.watchOpen = false;
             this.processing[episodeId] = true;
 
-            let watchedAt = null;
-            let yearOnly  = false;
+            let watchedAt    = null;
+            let yearOnly     = false;
+            let monthYearOnly = false;
             if (this.watchDateMode === 'exact') {
                 watchedAt = this.watchDate;
             } else if (this.watchDateMode === 'year') {
                 watchedAt = this.watchYear + '-01-01';
                 yearOnly  = true;
+            } else if (this.watchDateMode === 'month_year') {
+                const m = this.watchMonth.padStart(2, '0');
+                watchedAt    = this.watchYear + '-' + m + '-01';
+                monthYearOnly = true;
             }
 
             try {
                 const res = await fetch(`/tv/episodes/${episodeId}/watches`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf() },
-                    body: JSON.stringify({ watched_at: watchedAt, year_only: yearOnly }),
+                    body: JSON.stringify({ watched_at: watchedAt, year_only: yearOnly, month_year_only: monthYearOnly }),
                 });
                 const data = await res.json();
                 if (!this.episodeWatches[episodeId]) this.episodeWatches[episodeId] = [];
@@ -264,19 +272,24 @@ export function registerTvComponents() {
             if (!episodeId) return;
             this.watchOpen = false;
 
-            let watchedAt = null;
-            let yearOnly  = false;
+            let watchedAt    = null;
+            let yearOnly     = false;
+            let monthYearOnly = false;
             if (this.watchDateMode === 'exact') {
                 watchedAt = this.watchDate;
             } else if (this.watchDateMode === 'year') {
                 watchedAt = this.watchYear + '-01-01';
                 yearOnly  = true;
+            } else if (this.watchDateMode === 'month_year') {
+                const m = this.watchMonth.padStart(2, '0');
+                watchedAt    = this.watchYear + '-' + m + '-01';
+                monthYearOnly = true;
             }
 
             const res = await fetch(`/tv/episodes/${episodeId}/watches/bulk-up-to`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf() },
-                body: JSON.stringify({ watched_at: watchedAt, year_only: yearOnly }),
+                body: JSON.stringify({ watched_at: watchedAt, year_only: yearOnly, month_year_only: monthYearOnly }),
             });
             const data = await res.json();
             this.$dispatch('toast', { message: `${data.episodes_watched} episodes marked as watched!`, type: 'success' });
@@ -296,19 +309,24 @@ export function registerTvComponents() {
             if (!confirm(`Mark ALL episodes of ${seriesName} as watched?`)) return;
             this.bulkOpen = false;
 
-            let watchedAt = null;
-            let yearOnly  = false;
+            let watchedAt    = null;
+            let yearOnly     = false;
+            let monthYearOnly = false;
             if (this.bulkDateMode === 'exact') {
                 watchedAt = this.bulkDate;
             } else if (this.bulkDateMode === 'year') {
                 watchedAt = this.bulkYear + '-01-01';
                 yearOnly  = true;
+            } else if (this.bulkDateMode === 'month_year') {
+                const m = this.bulkMonth.padStart(2, '0');
+                watchedAt    = this.bulkYear + '-' + m + '-01';
+                monthYearOnly = true;
             }
 
             const res = await fetch(routes.bulk, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf() },
-                body: JSON.stringify({ watched_at: watchedAt, year_only: yearOnly }),
+                body: JSON.stringify({ watched_at: watchedAt, year_only: yearOnly, month_year_only: monthYearOnly }),
             });
             const data = await res.json();
             this.$dispatch('toast', { message: `Marked ${data.episodes_watched} episodes as watched!`, type: 'success' });
@@ -324,19 +342,24 @@ export function registerTvComponents() {
         async bulkWatchSeason() {
             this.seasonBulkOpen = false;
 
-            let watchedAt = null;
-            let yearOnly  = false;
+            let watchedAt    = null;
+            let yearOnly     = false;
+            let monthYearOnly = false;
             if (this.seasonBulkDateMode === 'exact') {
                 watchedAt = this.seasonBulkDate;
             } else if (this.seasonBulkDateMode === 'year') {
                 watchedAt = this.seasonBulkYear + '-01-01';
                 yearOnly  = true;
+            } else if (this.seasonBulkDateMode === 'month_year') {
+                const m = this.seasonBulkMonth.padStart(2, '0');
+                watchedAt    = this.seasonBulkYear + '-' + m + '-01';
+                monthYearOnly = true;
             }
 
             const res = await fetch(`/tv/seasons/${this.pendingSeasonId}/watches/bulk`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf() },
-                body: JSON.stringify({ watched_at: watchedAt, year_only: yearOnly }),
+                body: JSON.stringify({ watched_at: watchedAt, year_only: yearOnly, month_year_only: monthYearOnly }),
             });
             const data = await res.json();
             this.$dispatch('toast', { message: `${data.episodes_watched} episodes marked as watched!`, type: 'success' });

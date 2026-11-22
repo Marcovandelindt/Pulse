@@ -12,6 +12,7 @@ final readonly class EpisodeWatchData
     public function __construct(
         public ?Carbon $watchedAt,
         public bool $yearOnly,
+        public bool $monthYearOnly,
         public ?string $notes,
         public ?int $rating,
     ) {}
@@ -23,6 +24,7 @@ final readonly class EpisodeWatchData
                 ? Carbon::parse($request->validated('watched_at'))
                 : null,
             yearOnly: (bool) $request->validated('year_only', false),
+            monthYearOnly: (bool) $request->validated('month_year_only', false),
             notes: $request->validated('notes'),
             rating: $request->validated('rating') !== null ? (int) $request->validated('rating') : null,
         );

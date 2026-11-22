@@ -19,13 +19,14 @@ final class EpisodeWatch extends Model
     /** @use HasFactory<EpisodeWatchFactory> */
     use HasFactory;
 
-    protected $fillable = ['tv_episode_id', 'watched_at', 'year_only', 'notes', 'rating'];
+    protected $fillable = ['tv_episode_id', 'watched_at', 'year_only', 'month_year_only', 'notes', 'rating'];
 
     protected function casts(): array
     {
         return [
             'watched_at' => 'datetime',
             'year_only' => 'boolean',
+            'month_year_only' => 'boolean',
         ];
     }
 
@@ -38,6 +39,10 @@ final class EpisodeWatch extends Model
     {
         if ($this->watched_at === null) {
             return 'Somewhere in your life';
+        }
+
+        if ($this->month_year_only) {
+            return $this->watched_at->format('F Y');
         }
 
         return $this->year_only

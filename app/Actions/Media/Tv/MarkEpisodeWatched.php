@@ -14,6 +14,7 @@ final class MarkEpisodeWatched
         return $episode->addWatch(
             watchedAt: $data->watchedAt,
             yearOnly: $data->yearOnly,
+            monthYearOnly: $data->monthYearOnly,
             notes: $data->notes,
             rating: $data->rating,
         );

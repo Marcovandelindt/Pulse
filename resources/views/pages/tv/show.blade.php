@@ -386,6 +386,9 @@ foreach ($series->seasons as $season) {
                             <input type="radio" x-model="watchDateMode" value="exact"> Exact date
                         </label>
                         <label class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer">
+                            <input type="radio" x-model="watchDateMode" value="month_year"> Month + Year
+                        </label>
+                        <label class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer">
                             <input type="radio" x-model="watchDateMode" value="year"> Year only
                         </label>
                         <label class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer">
@@ -397,6 +400,26 @@ foreach ($series->seasons as $season) {
                     <input type="date" x-model="watchDate" class="form-input"
                            max="{{ today()->format('Y-m-d') }}"
                            x-effect="if (watchOpen && watchDateMode === 'exact') $nextTick(() => $el.focus())">
+                </div>
+                <div class="form-group" x-show="watchDateMode === 'month_year'">
+                    <div class="flex gap-2">
+                        <select x-model="watchMonth" class="form-select" style="flex: 1; min-width: 0;">
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <input type="number" x-model="watchYear" class="form-input" style="width: 5rem;"
+                               min="1900" max="{{ today()->year }}" placeholder="{{ today()->year }}">
+                    </div>
                 </div>
                 <div class="form-group" x-show="watchDateMode === 'year'">
                     <input type="number" x-model="watchYear" class="form-input"
@@ -426,7 +449,10 @@ foreach ($series->seasons as $season) {
                     <label class="form-label">When did you watch?</label>
                     <div class="flex flex-col gap-2 mt-2">
                         <label class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer">
-                            <input type="radio" x-model="seasonBulkDateMode" value="year"> Year only (default)
+                            <input type="radio" x-model="seasonBulkDateMode" value="month_year"> Month + Year
+                        </label>
+                        <label class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer">
+                            <input type="radio" x-model="seasonBulkDateMode" value="year"> Year only
                         </label>
                         <label class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer">
                             <input type="radio" x-model="seasonBulkDateMode" value="exact"> Exact date
@@ -434,6 +460,26 @@ foreach ($series->seasons as $season) {
                         <label class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer">
                             <input type="radio" x-model="seasonBulkDateMode" value="none"> No date
                         </label>
+                    </div>
+                </div>
+                <div class="form-group" x-show="seasonBulkDateMode === 'month_year'">
+                    <div class="flex gap-2">
+                        <select x-model="seasonBulkMonth" class="form-select" style="flex: 1; min-width: 0;">
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <input type="number" x-model="seasonBulkYear" class="form-input" style="width: 5rem;"
+                               min="1900" max="{{ today()->year }}" placeholder="{{ today()->year }}">
                     </div>
                 </div>
                 <div class="form-group" x-show="seasonBulkDateMode === 'year'">
@@ -467,7 +513,10 @@ foreach ($series->seasons as $season) {
                     <label class="form-label">When did you watch?</label>
                     <div class="flex flex-col gap-2 mt-2">
                         <label class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer">
-                            <input type="radio" x-model="bulkDateMode" value="year"> Year only (default)
+                            <input type="radio" x-model="bulkDateMode" value="month_year"> Month + Year
+                        </label>
+                        <label class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer">
+                            <input type="radio" x-model="bulkDateMode" value="year"> Year only
                         </label>
                         <label class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer">
                             <input type="radio" x-model="bulkDateMode" value="exact"> Exact date
@@ -475,6 +524,26 @@ foreach ($series->seasons as $season) {
                         <label class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer">
                             <input type="radio" x-model="bulkDateMode" value="none"> No date
                         </label>
+                    </div>
+                </div>
+                <div class="form-group" x-show="bulkDateMode === 'month_year'">
+                    <div class="flex gap-2">
+                        <select x-model="bulkMonth" class="form-select" style="flex: 1; min-width: 0;">
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <input type="number" x-model="bulkYear" class="form-input" style="width: 5rem;"
+                               min="1900" max="{{ today()->year }}" placeholder="{{ today()->year }}">
                     </div>
                 </div>
                 <div class="form-group" x-show="bulkDateMode === 'year'">

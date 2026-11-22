@@ -13,6 +13,7 @@ final class MarkEpisodeWatchedRequest extends FormRequest
         return [
             'watched_at' => ['nullable', 'date', 'before_or_equal:now'],
             'year_only' => ['boolean'],
+            'month_year_only' => ['boolean'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'rating' => ['nullable', 'integer', 'between:1,10'],
         ];

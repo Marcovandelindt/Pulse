@@ -49,7 +49,7 @@ final class TvWatchController extends Controller
             ? Carbon::parse($request->validated('watched_at'))
             : null;
 
-        $action->handle($series, $watchedAt, (bool) $request->validated('year_only', false));
+        $action->handle($series, $watchedAt, (bool) $request->validated('year_only', false), (bool) $request->validated('month_year_only', false));
 
         $series->refresh();
 
@@ -68,7 +68,7 @@ final class TvWatchController extends Controller
             ? Carbon::parse($request->validated('watched_at'))
             : null;
 
-        $count = $action->handle($season, $watchedAt, (bool) $request->validated('year_only', false));
+        $count = $action->handle($season, $watchedAt, (bool) $request->validated('year_only', false), (bool) $request->validated('month_year_only', false));
 
         return response()->json(['episodes_watched' => $count]);
     }
@@ -82,7 +82,7 @@ final class TvWatchController extends Controller
             ? Carbon::parse($request->validated('watched_at'))
             : null;
 
-        $count = $action->handle($episode, $watchedAt, (bool) $request->validated('year_only', false));
+        $count = $action->handle($episode, $watchedAt, (bool) $request->validated('year_only', false), (bool) $request->validated('month_year_only', false));
 
         return response()->json(['episodes_watched' => $count]);
     }

@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 final class BulkMarkSeriesWatched
 {
-    public function handle(TvSeries $series, ?Carbon $watchedAt, bool $yearOnly): void
+    public function handle(TvSeries $series, ?Carbon $watchedAt, bool $yearOnly, bool $monthYearOnly = false): void
     {
         $series->load('seasons.episodes');
 
@@ -18,6 +18,7 @@ final class BulkMarkSeriesWatched
                 $episode->watches()->create([
                     'watched_at' => $watchedAt,
                     'year_only' => $yearOnly,
+                    'month_year_only' => $monthYearOnly,
                 ]);
             }
 

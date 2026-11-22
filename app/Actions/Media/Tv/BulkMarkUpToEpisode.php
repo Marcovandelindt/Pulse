@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 final class BulkMarkUpToEpisode
 {
-    public function handle(TvEpisode $targetEpisode, ?Carbon $watchedAt, bool $yearOnly): int
+    public function handle(TvEpisode $targetEpisode, ?Carbon $watchedAt, bool $yearOnly, bool $monthYearOnly = false): int
     {
         $targetEpisode->load('season.series');
         $series = $targetEpisode->season->series;
@@ -27,6 +27,7 @@ final class BulkMarkUpToEpisode
                 $episode->watches()->create([
                     'watched_at' => $watchedAt,
                     'year_only' => $yearOnly,
+                    'month_year_only' => $monthYearOnly,
                 ]);
                 $count++;
 
