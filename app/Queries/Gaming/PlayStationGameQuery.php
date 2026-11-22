@@ -12,7 +12,7 @@ final class PlayStationGameQuery
     /** @return array<string, mixed> */
     public function handle(PlayStationGame $game, ?string $from = null, ?string $to = null): array
     {
-        $game->load('playSessions', 'categories', 'trophyList', 'tracks.artists', 'images');
+        $game->load('playSessions', 'categories', 'trophyList', 'tracks.artists', 'images', 'todos');
 
         $fromDt = $from ? Carbon::parse($from) : null;
         $toDt = $to ? Carbon::parse($to) : null;

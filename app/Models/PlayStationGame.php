@@ -101,6 +101,11 @@ final class PlayStationGame extends Model
         return $this->hasMany(PlayStationGameImage::class)->orderBy('sort_order');
     }
 
+    public function todos(): HasMany
+    {
+        return $this->hasMany(PlayStationGameTodo::class)->orderByRaw('completed_at IS NOT NULL')->orderBy('order');
+    }
+
     protected function label(): Attribute
     {
         return Attribute::make(

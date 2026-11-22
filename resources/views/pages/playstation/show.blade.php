@@ -179,6 +179,185 @@
         </form>
     </x-ui.card>
 
+    @php
+        $todosJson = $game->todos->map(fn ($t) => [
+            'id'           => $t->id,
+            'title'        => $t->title,
+            'body'         => $t->body,
+            'completed_at' => $t->completed_at?->toISOString(),
+        ])->values();
+    @endphp
+
+    <div x-data="{
+        todos: @js($todosJson),
+        newTodo: '',
+        submitting: false,
+        editId: null,
+        editInput: '',
+        showCompleted: false,
+
+        get pending() { return this.todos.filter(t => !t.completed_at); },
+        get completed() { return this.todos.filter(t => !!t.completed_at); },
+
+        csrf() { return document.querySelector('meta[name=csrf-token]').content; },
+
+        async add() {
+            const title = this.newTodo.trim();
+            if (!title || this.submitting) return;
+            this.submitting = true;
+            const res = await fetch('{{ route('playstation.todos.store', $game) }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': this.csrf() },
+                body: JSON.stringify({ title }),
+            });
+            const data = await res.json();
+            this.todos.unshift(data.todo);
+            this.newTodo = '';
+            this.submitting = false;
+        },
+
+        async toggle(id) {
+            const res = await fetch('/playstation/todos/' + id + '/toggle', {
+                method: 'PATCH',
+                headers: { 'X-CSRF-TOKEN': this.csrf() },
+            });
+            const data = await res.json();
+            const todo = this.todos.find(t => t.id === id);
+            if (todo) todo.completed_at = data.todo.completed_at;
+        },
+
+        startEdit(todo) {
+            this.editId = todo.id;
+            this.editInput = todo.title;
+            this.$nextTick(() => this.$refs['edit_' + todo.id]?.focus());
+        },
+
+        async saveEdit(id) {
+            const title = this.editInput.trim();
+            if (!title) { this.editId = null; return; }
+            const res = await fetch('/playstation/todos/' + id, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': this.csrf() },
+                body: JSON.stringify({ title }),
+            });
+            const data = await res.json();
+            const todo = this.todos.find(t => t.id === id);
+            if (todo) todo.title = data.todo.title;
+            this.editId = null;
+        },
+
+        async remove(id) {
+            await fetch('/playstation/todos/' + id, {
+                method: 'DELETE',
+                headers: { 'X-CSRF-TOKEN': this.csrf() },
+            });
+            this.todos = this.todos.filter(t => t.id !== id);
+        },
+    }">
+    <x-ui.card title="To-do" class="mb-6">
+        <div class="game-todo-input-wrap">
+            <input
+                type="text"
+                x-model="newTodo"
+                @keydown.enter.prevent="add()"
+                class="game-todo-input"
+                placeholder="Add a reminder…"
+                :disabled="submitting"
+            >
+            <button
+                type="button"
+                @click="add()"
+                class="btn btn--primary btn--sm"
+                :disabled="!newTodo.trim() || submitting"
+            >Add</button>
+        </div>
+
+        {{-- Pending --}}
+        <div class="game-todo-list" x-show="pending.length > 0">
+            <template x-for="todo in pending" :key="todo.id">
+                <div class="game-todo-item" @dblclick="startEdit(todo)">
+                    <input
+                        type="checkbox"
+                        class="game-todo-item__check"
+                        :checked="!!todo.completed_at"
+                        @change="toggle(todo.id)"
+                    >
+                    <div class="game-todo-item__body">
+                        <template x-if="editId !== todo.id">
+                            <span class="game-todo-item__title" x-text="todo.title"></span>
+                        </template>
+                        <template x-if="editId === todo.id">
+                            <input
+                                type="text"
+                                class="game-todo-input"
+                                x-model="editInput"
+                                :x-ref="'edit_' + todo.id"
+                                @keydown.enter.prevent="saveEdit(todo.id)"
+                                @keydown.escape.prevent="editId = null"
+                                @blur="saveEdit(todo.id)"
+                                style="padding: 0.25rem 0.5rem; font-size: 0.875rem;"
+                            >
+                        </template>
+                        <div class="game-todo-item__note" x-show="todo.body && editId !== todo.id" x-text="todo.body"></div>
+                    </div>
+                    <div class="game-todo-item__actions">
+                        <button type="button" class="btn btn--icon btn--secondary btn--sm" @click="remove(todo.id)" title="Delete">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5">
+                                <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <p
+            class="text-sm"
+            style="color: var(--color-text-muted);"
+            x-show="pending.length === 0 && completed.length === 0"
+        >No reminders yet. Add one above.</p>
+
+        {{-- Completed --}}
+        <template x-if="completed.length > 0">
+            <div>
+                <button
+                    type="button"
+                    class="game-todo-completed-toggle"
+                    @click="showCompleted = !showCompleted"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5" :style="showCompleted ? 'transform:rotate(90deg)' : ''">
+                        <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                    </svg>
+                    <span x-text="'Done (' + completed.length + ')'"></span>
+                </button>
+
+                <div class="game-todo-list mt-1" x-show="showCompleted" x-transition>
+                    <template x-for="todo in completed" :key="todo.id">
+                        <div class="game-todo-item">
+                            <input
+                                type="checkbox"
+                                class="game-todo-item__check"
+                                :checked="!!todo.completed_at"
+                                @change="toggle(todo.id)"
+                            >
+                            <div class="game-todo-item__body">
+                                <span class="game-todo-item__title game-todo-item__title--done" x-text="todo.title"></span>
+                            </div>
+                            <div class="game-todo-item__actions">
+                                <button type="button" class="btn btn--icon btn--secondary btn--sm" @click="remove(todo.id)" title="Delete">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5">
+                                        <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+    </x-ui.card>
+    </div>
+
     @if($monthlyStats->isNotEmpty())
         <x-ui.card title="Monthly Playtime" class="mb-6">
             <canvas

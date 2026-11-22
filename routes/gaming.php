@@ -23,6 +23,7 @@ use App\Http\Controllers\Gaming\PlayStationSessionController;
 use App\Http\Controllers\Gaming\PlayStationSessionSyncController;
 use App\Http\Controllers\Gaming\PlayStationStatsController;
 use App\Http\Controllers\Gaming\PlayStationSyncController;
+use App\Http\Controllers\Gaming\PlayStationTodoController;
 use App\Http\Controllers\Gaming\PlayStationTrophyController;
 use App\Http\Controllers\Gaming\PlayStationTrophyNotesController;
 use App\Http\Controllers\Gaming\PlayStationWishlistController;
@@ -95,6 +96,10 @@ Route::prefix('playstation')->name('playstation.')->group(function () {
     Route::patch('/{playStationGame}/notes', [PlayStationGameNotesController::class, 'update'])->name('notes.update');
     Route::post('/{playStationGame}/gallery', [PlayStationGameImageController::class, 'store'])->name('gallery.store');
     Route::delete('/{playStationGame}/gallery/{playStationGameImage}', [PlayStationGameImageController::class, 'destroy'])->name('gallery.destroy');
+    Route::post('/{playStationGame}/todos', [PlayStationTodoController::class, 'store'])->name('todos.store');
+    Route::patch('/todos/{playStationGameTodo}', [PlayStationTodoController::class, 'update'])->name('todos.update');
+    Route::patch('/todos/{playStationGameTodo}/toggle', [PlayStationTodoController::class, 'toggle'])->name('todos.toggle');
+    Route::delete('/todos/{playStationGameTodo}', [PlayStationTodoController::class, 'destroy'])->name('todos.destroy');
 });
 
 Route::prefix('steam')->name('steam.')->group(function () {
